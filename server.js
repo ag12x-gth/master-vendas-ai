@@ -31,7 +31,7 @@ app.prepare().then(() => {
     }
   });
 
-  // Import and initialize WhatsApp QR service using tsx
+  // Initialize Socket.IO service
   let io;
   try {
     // Use tsx/cjs to enable TypeScript imports in Node.js
@@ -39,9 +39,9 @@ app.prepare().then(() => {
     const { initializeSocketIO } = require('./src/lib/socket.ts');
     // Pass the server and get the Socket.IO instance back
     io = initializeSocketIO(server);
-    // Make Socket.IO globally available for WhatsApp QR service
+    // Make Socket.IO globally available
     global.io = io;
-    console.log('Socket.IO service initialized with WhatsApp QR support and made globally available');
+    console.log('Socket.IO service initialized and made globally available');
   } catch (error) {
     console.log('Socket.IO initialization error:', error.message);
     console.log('Using fallback Socket.IO setup...');
