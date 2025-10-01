@@ -1,0 +1,4 @@
+storages/
+*.db
+*.txt
+.env
