@@ -3,7 +3,7 @@
 
 import type { UserWithCompany } from '@/lib/types';
 import { db } from '@/lib/db';
-import { users, connections, companies, passwordResetTokens, whatsappQrSessions } from '@/lib/db/schema';
+import { users, connections, companies, passwordResetTokens } from '@/lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import redis from '@/lib/redis';
@@ -172,21 +172,6 @@ export async function checkConnectionStatus(connectionId: string): Promise<{ suc
       if (!conn) {
         console.error(`[Connection Check] Connection not found: ${connectionId}`);
         return { success: false };
-      }
-      
-      // Se for conexão WhatsApp QR, verificar status pela sessão
-      if (conn.connectionType === 'whatsapp_qr') {
-        try {
-          const [session] = await db.select()
-            .from(whatsappQrSessions)
-            .where(eq(whatsappQrSessions.connectionId, connectionId))
-            .limit(1);
-          
-          return { success: session?.isActive || false };
-        } catch (error) {
-          console.error(`[Connection Check] Error checking WhatsApp QR session for ${connectionId}:`, error);
-          return { success: false };
-        }
       }
       
       // Para conexões Meta API, tentar decriptar o token

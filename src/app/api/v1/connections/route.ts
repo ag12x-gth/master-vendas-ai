@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
 
 const connectionSchema = z.object({
     configName: z.string().min(1, 'Nome da conexão é obrigatório'),
-    connectionType: z.enum(['meta_api', 'whatsapp_qr']).optional().default('meta_api'),
+    connectionType: z.enum(['meta_api']).optional().default('meta_api'),
     wabaId: z.string().min(1, 'WABA ID é obrigatório'),
     phoneNumberId: z.string().min(1, 'ID do telefone é obrigatório'),
     appId: z.string().min(1, 'ID do Aplicativo é obrigatório'),
