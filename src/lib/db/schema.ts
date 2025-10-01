@@ -105,21 +105,10 @@ import {
     accessToken: text('access_token').notNull(),
     webhookSecret: text('webhook_secret').notNull(),
     appSecret: text('app_secret').notNull().default(''),
-    connectionType: text('connection_type').default('meta_api').notNull(), // 'meta_api' or 'whatsapp_qr'
+    connectionType: text('connection_type').default('meta_api').notNull(),
     isActive: boolean('is_active').default(false).notNull(),
     assignedPersonaId: text('assigned_persona_id').references(() => aiPersonas.id, { onDelete: 'set null' }),
     createdAt: timestamp('created_at').defaultNow(),
-  });
-
-  export const whatsappQrSessions = pgTable('whatsapp_qr_sessions', {
-    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
-    connectionId: text('connection_id').notNull().references(() => connections.id, { onDelete: 'cascade' }),
-    sessionData: jsonb('session_data'),
-    phoneNumber: varchar('phone_number', { length: 50 }),
-    isActive: boolean('is_active').default(false).notNull(),
-    lastConnectedAt: timestamp('last_connected_at'),
-    createdAt: timestamp('created_at').defaultNow().notNull(),
-    updatedAt: timestamp('updated_at').defaultNow().notNull(),
   });
   
   export const apiKeys = pgTable('api_keys', {
