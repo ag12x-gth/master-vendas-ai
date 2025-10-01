@@ -1,0 +1,31 @@
+
+{
+  "hosting": {
+    "source": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "apphosting": {
+      "backends": [
+        {
+          "id": "my-web-app",
+          "region": "us-central1",
+          "secretEnv": [
+            { "key": "DATABASE_URL", "secret": "DATABASE_URL" },
+            { "key": "ENCRYPTION_KEY", "secret": "ENCRYPTION_KEY" },
+            { "key": "JWT_SECRET_KEY", "secret": "JWT_SECRET_KEY" },
+            { "key": "META_VERIFY_TOKEN", "secret": "META_VERIFY_TOKEN" },
+            { "key": "AWS_REGION", "secret": "AWS_REGION" },
+            { "key": "AWS_ACCESS_KEY_ID", "secret": "AWS_ACCESS_KEY_ID" },
+            { "key": "AWS_SECRET_ACCESS_KEY", "secret": "AWS_SECRET_ACCESS_KEY" },
+            { "key": "AWS_S3_BUCKET_NAME", "secret": "AWS_S3_BUCKET_NAME" },
+            { "key": "EMAIL_FROM_ADDRESS", "secret": "EMAIL_FROM_ADDRESS" },
+            { "key": "GEMINI_API_KEY", "secret": "GEMINI_API_KEY" }
+          ]
+        }
+      ]
+    }
+  }
+}

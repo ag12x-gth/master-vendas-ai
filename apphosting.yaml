@@ -1,0 +1,28 @@
+# Configurações para o Firebase App Hosting
+
+# Define o comando de build personalizado
+build:
+  run: npm run build
+
+# Define os recursos e o comportamento do servidor de produção.
+run:
+  # Aloca 1 vCPU para o servidor.
+  cpu: 1
+  # Aloca 1024 MiB de memória.
+  memoryMiB: 1024
+  # Define o número mínimo de instâncias ativas para resposta rápida.
+  minInstances: 1
+  # Define o número máximo de instâncias para lidar com picos de tráfego.
+  maxInstances: 5
+  # Permite que o servidor lide com até 100 requisições simultâneas.
+  concurrency: 100
+  # Aumenta o tempo limite para requisições para 120 segundos para evitar timeouts.
+  timeoutSeconds: 120
+
+healthChecks:
+  livenessProbe:
+    httpGet:
+      path: "/_ah/live" # Endpoint padrão de verificação de atividade do Next.js
+  readinessProbe:
+    httpGet:
+      path: "/_ah/ready" # Endpoint padrão de verificação de prontidão do Next.js

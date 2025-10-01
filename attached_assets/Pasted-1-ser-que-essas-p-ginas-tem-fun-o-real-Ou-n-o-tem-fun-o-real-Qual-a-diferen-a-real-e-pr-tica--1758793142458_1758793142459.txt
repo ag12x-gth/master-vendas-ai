@@ -1,0 +1,69 @@
+1#será que essas páginas tem função real?! Ou não tem função real?! Qual a diferença real e prática entre as páginas:
+- clientes;
+- dashboard;
+- whatsapp;
+- ia insights;
+
+2#Todoas as páginas aparecer aba lateral esqueda (menu de opções recolhivel, como na página dashboard);
+#ativar opção (configurações/relatórios/sair) da feature de configurações do usuário (image_1758786298593.png) e ajustar a opção "whatsapp desconectado" para conectado quando o whatsapp estiver conectado;
+
+3#ajustar features/componentes 'whatsapp/sicronizar planilha/gerar relatório IA':
+*Whatsapp -> ficar persistente ativo quando o whatsapp estiver conectado, e uma vez que conectou manter conectado e ativo (só desconectar quando eu apertar em desconectar manualmente em suas configurações);
+*sincronizar planilha -> ajustar para algo no sentido de Atualizando em 30 minutos automaticamente + opção de atualizar manual se eu clicar para atualizar;
+*gerar relatório com ia -> ativar função e ajustar texto para "Gerar Relatório AntonioAI";
+
+4#Notificações (image_1758786923212.png)
+*Ativar sempre quando tiver novo contrato, cliente em atraso (persistir até mudar status), contrato vencendo, ações do dia na agenda/mensagem nova em conversas/whatsapp desconectado/+de 10% de inadimplencia no dia/nova predição/recomendação no dia;
+
+5#Barra de pesquisa rápida
+*ativar para buscar qualquer coisa rápida no dashboard e também ser no formato de agente real que executa algumas ações básicas mas importante;
+
+6#barra lateral (image_1758787437805.png):
+*recolhivel automaticamente, com opção de 'desrecolher'/adicionar ação também de passar o mouse e mostrar a barra/adicionar função também de 'pin' para fixar a aba ou desfixar a aba;
+
+7#título da barra lateral (image_1758787732416.png)
+*alterar texto 'mentoria dashboard' para 'Alliance AI - Dashboard';
+
+8#Página principal (Dashboard) (image_1758787859029.png)
+*Organizar disposição/posição dos componentes com máxima harmonização prática, premium/elegante e intuitiva, me dê 3 opções reais para escolher;
+
+
+9#Configurações (image_1758788216353.png)
+*Geral -> tem função real? está ativa? Adicionar dados da empresa que o usuário do dashboard sempre irá precisar no dia a dia (Pix, Conta da empresa, opção para ir para checkout de pagamento Grapfy, cnpj da empresa, link para banco de fotos de Antônio Fogaça e fotos de Mentorados, Link de banco de Aulas de Antônio Fogaça, link para área de membros, link do grupo de whatsapp de mentorados, telefones urgentes (Fixos: Antônio, Mayara, Jorge, Diego, Heitor, Israel, Isa, Cirismar, Wellignton, Gabriel - com opção de adicionar/remover novos)
+*Configurações de Notificações (image_1758790393108.png) ->  tem função real? está ativa? enviar para qual número de whatsapp essas notificações e para grupo vinculado ao número de whatsapp conectado? adicionar para enviar essa notificação tbm para 3 numeros específicos (1 fixo e 2 variáveis) e para 2 grupos específicos (1 fixo e 1 variável);
+*Templates de Mensagens (image_1758790545154.png): tem função real? está ativa? realize plano de ações e execução para realizar a função real, e se não tiver função ou está em redundância no app remova ou oculte temporariamente;
+*Regras de Cobrança (image_1758790804346.png): tem função real? está ativa? realize plano de ações e execução para realizar a função real, e se não tiver função ou está em redundância no app remova ou oculte temporariamente;
+*Integrações (image_1758791090351.png):  tem função real? está ativa? realize plano de ações e execução para realizar a função real, e se não tiver função ou está em redundância no app remova ou oculte temporariamente; Substituir texto "Gemini AI" por "Antonio AI 6.X Premium"
+
+10#Url para receber webhooks da Grapfy (Checkout de pagamento)
+*Contexto: Imagem da função de configuração de webhook por dentro da grapfy que pede url de webhook aqui do app AnaliseAntonio e também mostra os eventos que a Grapfy irá enviar aqui para o app AnaliseAntonio (imagem 'image_1758788797287.png' mostra para Pix criado, Pedido Aprovado; imagem 'image_1758789215570.png' mostra para planos visiveis e outros que estao descendo a barra de rolagem); Essa plataforma grapfy é por onde passamos a maioria dos pagamentos que os clientes fazem para entrar em nossas mentorias (Highticket) ou treinamentos online (middle/lowticket), que são os mesmos que após comprar nos geram novos contratos (Cliente+Produto=Contrato);
+
+*Ação baseado nesse contexto:
+-- Criar essa url para receber esses eventos de webhook com objetivo de sabermos se teve venda (pix criado, pedido aprovado) e de qual produto é esse novo cliente ou cliente recorrente (Cliente+Produto gera 1 contrato);
+-- Verificar também a criação de um id_unico para cada cliente/produto/contrato precisam terem um ID_único para evitar duplicação, correto? Me de a melhor maneira para isso e execute.
+
+
+###Layout geral do APP
+*Quais elementos ou detalhes sutis mantendo a 
+
+
+#Após tudo ajustado, corrigido, testado, re-testado, validado, ativo, funcionando de verdade na prática após vários testes e buscas por bugs e erros em todas as funções/arquitetura/engenharia/itens/elementos/botões/componentes/e todos os demais coisas do app, faça o seguinte:
+analise detalhadamente as imagens de loyouts e formatos responsivos de diversos formatos nas imagens da pasta: img-resp
+
+veja que está desalinhado e desajustados alguns components/elementos/itens/textos entre outros;
+
+Ação: 1- faça um plano real para isso a seguir ser executado com máxima otimização/responsividade/performance/acurácia/eficiencia Otimize o layout/estrutura para radioativo em todos os formatos de Android e iPhone celular;
+
+
+####Obrigatório: 1- PLANO E EXECUÇÃO FIEL E RIGOROSAMENTE seguindo as regras OPTIMIZATION_RULES.md e suas dependencias; mantendo a MÁXIMA PERFORMANCE E MÁXIMA QUALIDADE, MÁXIMA ACURÁCIA 100%, MÁXIMA PRECISÃO 100% com MÍNIMO CUSTO!
+2- documentar tudo que foi feito até agora em arquivos .md (se já existem faça neles e crie + novos para ficar bem setorizado, se não existem crie-os). Documente de forma detalhada cada processo de ponta a ponta, decisão validada de desenvolvimento (decisão sem sucesso para não repetir e decisão com sucesso para usar fiel e na prática ou modelar a linha lógica/etc em novas decisões, soluções já implementadas validadas reais e correções de bugs deste projeto validado e que funcionou na prática real. Organize tudo em um repositório de documentação facilmente acessível, sem dados simulados, com exemplos reais práticos, explicações claras e histórico de problemas já resolvidos e validados que tiveram funcionamento. O objetivo é:
+
+Garantir máxima performance do time, evitando retrabalho.
+
+Facilitar a consulta de soluções já existentes para que o código não precise ser reescrito repetidas vezes por conta de bugs já solucionados anteriormente.
+
+Manter todo o conhecimento centralizado, atualizado e de fácil acesso, para que qualquer membro do time possa consultar a documentação e seguir os padrões estabelecidos.
+
+Use linguagem simples, referências ao código e sempre relacione a solução com o problema original, incluindo contexto e decisões tomadas.
+
+Sempre priorize manter a documentação atualizada após cada sprint, correção de bug ou nova funcionalidade desenvolvida, para garantir escalabilidade e organização do time.

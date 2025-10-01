@@ -1,0 +1,104 @@
+// src/app/api/v1/auth/login/route.ts
+
+import { NextResponse, type NextRequest } from 'next/server';
+import { db } from '@/lib/db';
+import { users } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
+import { SignJWT } from 'jose';
+import { z } from 'zod';
+import { compare } from 'bcryptjs';
+
+const loginSchema = z.object({
+  email: z.string().email('Email inválido.'),
+  password: z.string().min(1, 'Senha é obrigatória.'),
+});
+
+const getJwtSecretKey = () => {
+    const secret = process.env.JWT_SECRET_KEY;
+    if (!secret) {
+        throw new Error('JWT_SECRET_KEY não está definida nas variáveis de ambiente.');
+    }
+    return new TextEncoder().encode(secret);
+};
+
+export async function POST(request: NextRequest) {
+    try {
+        const body = await request.json();
+        const parsed = loginSchema.safeParse(body);
+
+        if (!parsed.success) {
+            return NextResponse.json({ error: 'Dados de login inválidos.', details: parsed.error.flatten() }, { status: 400 });
+        }
+
+        const { email, password } = parsed.data;
+
+        // 1. Encontrar o utilizador pelo e-mail (convertido para minúsculas)
+        const [user] = await db
+            .select()
+            .from(users)
+            .where(eq(users.email, email.toLowerCase()))
+            .limit(1);
+
+        if (!user || !user.password) {
+            return NextResponse.json({ error: 'Credenciais inválidas.' }, { status: 401 });
+        }
+        
+        // 2. Comparar a senha fornecida com o hash guardado
+        const isPasswordValid = await compare(password, user.password);
+        if (!isPasswordValid) {
+            return NextResponse.json({ error: 'Credenciais inválidas.' }, { status: 401 });
+        }
+
+        if (!user.emailVerified) {
+          return NextResponse.json({ error: 'email_nao_verificado', user }, { status: 403 });
+        }
+        
+        // 3. Gerar um timestamp único para este login (ajuda a invalidar sessões anteriores)
+        const loginTimestamp = Math.floor(Date.now() / 1000);
+        
+        // 4. Gerar o token JWT para a nossa sessão interna
+        const token = await new SignJWT({
+            userId: user.id,
+            companyId: user.companyId,
+            email: user.email,
+            role: user.role,
+            loginTime: loginTimestamp, // Adiciona timestamp do login
+        })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime('1d') // Expira em 1 dia
+        .sign(getJwtSecretKey());
+
+        const response = NextResponse.json({ 
+            success: true, 
+            message: 'Login bem-sucedido.',
+            loginTime: loginTimestamp // Retorna o timestamp para debug se necessário
+        });
+        
+        // 5. Limpar cookies existentes primeiro (para evitar conflitos)
+        response.cookies.delete('__session');
+        response.cookies.delete('session_token');
+        
+        // 6. Definir os dois cookies para máxima compatibilidade
+        const cookieOptions = {
+            name: '__session', // Nome principal para compatibilidade com Firebase Hosting
+            value: token,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax' as const, 
+            path: '/',
+            maxAge: 60 * 60 * 24, // 1 dia em segundos
+        };
+
+        response.cookies.set(cookieOptions);
+        // Fallback cookie
+        response.cookies.set({ ...cookieOptions, name: 'session_token' });
+
+        return response;
+
+    } catch (error) {
+        console.error('Erro no endpoint de login:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.';
+        return NextResponse.json({ error: 'Erro interno do servidor.', details: errorMessage }, { status: 500 });
+    }
+}

@@ -1,0 +1,12 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Regra de desenvolvimento: Permite leitura e escrita para qualquer utilizador autenticado.
+    // ATENÇÃO: Isto é inseguro para produção e deve ser substituído por regras granulares
+    // que verifiquem o 'empresaId' antes do lançamento.
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

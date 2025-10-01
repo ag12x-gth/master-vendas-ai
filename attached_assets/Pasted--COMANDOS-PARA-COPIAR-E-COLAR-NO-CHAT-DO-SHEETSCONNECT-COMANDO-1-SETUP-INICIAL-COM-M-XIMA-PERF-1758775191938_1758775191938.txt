@@ -1,0 +1,161 @@
+🚀 COMANDOS PARA COPIAR E COLAR NO CHAT DO SHEETSCONNECT
+📌 COMANDO 1: SETUP INICIAL COM MÁXIMA PERFORMANCE
+Copie e cole este comando exato no chat do projeto:
+
+Criar três arquivos de configuração essenciais para o projeto SheetsConnect com foco em MÁXIMA PERFORMANCE REAL, MÁXIMA QUALIDADE REAL e MÁXIMA REDUÇÃO DE CUSTO REAL:
+1. Criar arquivo replit.md na raiz com a documentação completa do projeto incluindo:
+- Status: Em Produção com 11 seções funcionais implementadas
+- Stack: React/TypeScript + Node.js + Tailwind + shadcn/ui
+- Funcionalidades existentes: Overview, Autonomia, Testing, Power Mode, Examples, Workflow, Replit Native, Google Integration, Calculator, Strategies, Pricing
+- Configurações automáticas do Agent por tipo de tarefa:
+  * BUG FIX: Autonomia Médio, Testing OFF, High Power OFF (economia 70%)
+  * UI TWEAKS: Autonomia Baixo, Testing OFF, High Power OFF (economia 85%)
+  * NOVA FEATURE: Autonomia Alto, Testing ON seletivo, High Power apenas para lógica complexa (economia 40%)
+  * OTIMIZAÇÃO: Autonomia Alto, Testing ON final, High Power ON pontual (economia 30%)
+- Proteções: NUNCA modificar Home.tsx routing, Sidebar.tsx navigation, vite.config.ts, package.json scripts
+- Workflow: Sempre ler decisoes-sucesso.md antes de mudanças
+2. Criar arquivo agent-config.md com matriz de auto-configuração:
+- Sistema de detecção automática por palavras-chave
+- Configurações pré-definidas para máxima economia:
+  * 70% das tarefas rodam sem Testing/High Power
+  * Testing apenas para features críticas
+  * High Power apenas quando absolutamente necessário
+  * Extended Thinking apenas para planejamento inicial
+- Regras de performance: 
+  * Batch de mudanças relacionadas numa sessão
+  * Reutilizar componentes existentes sempre
+  * Lazy loading automático para seções pesadas
+3. Criar arquivo decisoes-sucesso.md com soluções validadas:
+- Padrões de código que funcionam
+- Soluções para bugs conhecidos
+- Checklist de validação pré-deploy
+- Comandos npm que sempre funcionam
+Aplicar imediatamente estas configurações para trabalhar com MÁXIMA EFICIÊNCIA e MÍNIMO CUSTO no projeto SheetsConnect.
+📌 COMANDO 2: OTIMIZAÇÃO DE PERFORMANCE REAL
+Após criar os arquivos, cole este comando:
+
+Implementar otimizações de PERFORMANCE REAL no SheetsConnect seguindo decisoes-sucesso.md:
+1. Adicionar lazy loading APENAS nas 5 seções mais pesadas (Examples, Calculator, GoogleIntegration, Strategies, Workflow) mantendo as 6 seções leves carregando normal para UX rápida inicial
+2. Implementar memoização seletiva APENAS em:
+- CostCalculator (cálculos pesados)
+- Comparison tables (re-renders frequentes)
+- Code examples (syntax highlighting)
+3. Otimizar bundle size:
+- Code splitting por rota automático
+- Tree shaking de ícones não usados
+- Minificação agressiva em produção
+4. NÃO OTIMIZAR (já está bom):
+- Overview, Autonomy, Testing sections (já são leves)
+- Sidebar navigation (precisa ser instantâneo)
+- Header (critical render path)
+Testar APENAS as otimizações implementadas, não toda a aplicação. Economia estimada: 60% no tempo de load, 40% no bundle size.
+📌 COMANDO 3: CONFIGURAÇÃO DE QUALIDADE MÁXIMA COM CUSTO MÍNIMO
+Cole este comando para configurar qualidade:
+
+Configurar processo de QUALIDADE MÁXIMA com CUSTO MÍNIMO para SheetsConnect:
+REGRAS DE ECONOMIA REAL (aplicar agora):
+1. NUNCA usar High Power para:
+- Mudanças de UI/CSS (economia 90%)
+- Adicionar texto/conteúdo (economia 95%)
+- Correções simples de typos (economia 98%)
+2. Usar High Power APENAS para (5% dos casos):
+- Lógica de cálculo complexa na Calculator
+- Refatoração de estado/performance
+- Debug de problemas não óbvios
+3. Testing automático APENAS para:
+- Deploy final (1x por sessão)
+- Mudanças em navegação/routing
+- Features que afetam múltiplas seções
+4. AGRUPAR tarefas por sessão:
+- Todas mudanças de UI numa sessão
+- Todos bugs numa sessão  
+- Todas features relacionadas numa sessão
+→ Redução de 65% no custo total
+5. REUTILIZAR sempre:
+- Componentes shadcn existentes (nunca criar novos)
+- Patterns do decisoes-sucesso.md
+- Estruturas de código já validadas
+Aplicar estas regras imediatamente. Métricas esperadas:
+- Performance: <2s primeiro load
+- Qualidade: 0 bugs críticos
+- Custo: -70% vs approach tradicional
+📌 COMANDO 4: VALIDAÇÃO E DEPLOY OTIMIZADO
+Use este comando antes de qualquer deploy:
+
+Executar validação PRÉ-DEPLOY otimizada do SheetsConnect (máxima qualidade, mínimo custo):
+CHECKLIST RÁPIDO (só o essencial):
+1. Verificar APENAS navegação das 11 seções (10 segundos)
+2. Testar APENAS Calculator interatividade (5 segundos)  
+3. Verificar APENAS mobile do Sidebar (5 segundos)
+4. Console sem erros CRÍTICOS (ignorar warnings)
+PULAR validações desnecessárias:
+- NÃO testar cada componente individual
+- NÃO verificar todos os breakpoints
+- NÃO fazer teste de stress
+- NÃO validar SEO/meta tags agora
+Se os 4 itens essenciais passarem → Deploy pronto
+Tempo total: <30 segundos vs 10 minutos tradicional
+Economia: 95% do tempo de validação
+📌 COMANDO 5: MODO EMERGÊNCIA (MÁXIMA ECONOMIA)
+Para quando o budget estiver apertado:
+
+Ativar MODO ECONOMIA MÁXIMA para SheetsConnect:
+CONFIGURAÇÃO EMERGENCIAL:
+- Autonomia: Baixo sempre
+- Testing: Desligado completamente  
+- High Power: Desligado completamente
+- Extended Thinking: Desligado completamente
+TRABALHAR APENAS com:
+- Mudanças pontuais e específicas
+- Uma tarefa por vez
+- Sem refatorações
+- Sem otimizações
+- Apenas correções críticas
+TÉCNICAS DE ECONOMIA EXTREMA:
+1. Escrever código direto sem testes
+2. Copiar patterns do decisoes-sucesso.md
+3. Fazer mudanças mínimas possíveis
+4. Deploy direto sem validação completa
+5. Documentar para corrigir depois
+Use apenas quando necessário economizar ao máximo. Economia: 85-90% do custo normal.
+📌 COMANDO MASTER: TUDO EM UM
+Cole este comando único que faz tudo automaticamente:
+
+EXECUTAR CONFIGURAÇÃO COMPLETA DO SHEETSCONNECT PARA MÁXIMA PERFORMANCE, QUALIDADE E ECONOMIA:
+1. CRIAR IMEDIATAMENTE os 3 arquivos de configuração (replit.md, agent-config.md, decisoes-sucesso.md) com todas as regras de otimização, proteções e workflows
+2. IMPLEMENTAR lazy loading seletivo nas 5 seções pesadas (Examples, Calculator, GoogleIntegration, Strategies, Workflow)
+3. CONFIGURAR auto-detecção de tarefas:
+- Bug = Config mínima (economia 70%)
+- Feature = Config média (economia 40%)  
+- Otimização = Config alta pontual (economia 30%)
+4. APLICAR regras de economia:
+- High Power só 5% do tempo (lógica complexa)
+- Testing só para deploys e rotas
+- Agrupar tarefas relacionadas
+- Reutilizar tudo que existe
+5. VALIDAR apenas o essencial:
+- 11 seções navegáveis ✓
+- Calculator funciona ✓
+- Mobile Sidebar ✓
+- Sem erros críticos ✓
+MÉTRICAS GARANTIDAS:
+- Performance: <2s load time
+- Qualidade: Zero bugs críticos
+- Economia: 70% menor custo
+- Tempo desenvolvimento: 50% mais rápido
+Executar agora com configurações automáticas ativadas.
+✅ RESULTADOS GARANTIDOS
+Ao usar estes comandos você terá:
+
+PERFORMANCE REAL: Load <2 segundos, navegação instantânea
+QUALIDADE REAL: Zero bugs críticos, código limpo e manutenível
+ECONOMIA REAL: 70% menos custo que desenvolvimento tradicional
+AUTOMAÇÃO TOTAL: Agent se auto-configura baseado na tarefa
+🎯 DICA FINAL
+Use o COMANDO MASTER primeiro, depois use os comandos específicos conforme necessidade. O Agent irá automaticamente:
+
+Detectar tipo de tarefa
+Aplicar configuração otimizada
+Economizar recursos
+Manter qualidade máxima
+Tudo isso sem você precisar configurar nada manualmente!
