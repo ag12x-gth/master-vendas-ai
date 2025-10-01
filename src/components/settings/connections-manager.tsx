@@ -38,7 +38,6 @@ import {
   AlertCircle,
   AlertTriangle,
   MessageCircle,
-  QrCode,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -70,7 +69,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useSession } from '@/contexts/session-context';
 import { toggleConnectionActive, checkConnectionStatus } from '@/app/actions';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
-import { WhatsAppQRConnector } from './whatsapp-qr-connector';
 
 type ConnectionStatus = 'Conectado' | 'Falha na Conexão' | 'Não Verificado';
 type WebhookStatus = 'CONFIGURADO' | 'DIVERGENTE' | 'NAO_CONFIGURADO' | 'VERIFICANDO' | 'ERRO';
@@ -379,67 +377,8 @@ export function ConnectionsManager() {
     }
   }
 
-  // Find or create a QR connection for the current company
-  const qrConnection = connections.find(c => c.connectionType === 'whatsapp_qr');
-  const { session } = useSession();
-  const companyId = session?.userData?.company?.id || '';
-
-  // Create or get QR connection ID
-  const getOrCreateQRConnection = async () => {
-    if (qrConnection) {
-      return qrConnection.id;
-    }
-    
-    try {
-      const response = await fetch('/api/v1/connections', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          configName: 'WhatsApp QR Connection',
-          connectionType: 'whatsapp_qr',
-          wabaId: 'qr-connection',
-          phoneNumberId: 'qr-phone',
-          appId: 'qr-app',
-          accessToken: 'qr-token',
-          appSecret: 'qr-secret',
-        }),
-      });
-      
-      if (response.ok) {
-        const newConnection = await response.json();
-        await fetchConnections();
-        return newConnection.id;
-      }
-    } catch (error) {
-      console.error('Error creating QR connection:', error);
-    }
-    
-    return null;
-  };
-
-  const [qrConnectionId, setQrConnectionId] = useState<string>('');
-  
-  useEffect(() => {
-    if (qrConnection) {
-      setQrConnectionId(qrConnection.id);
-    }
-  }, [qrConnection]);
-
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="meta_api" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="meta_api" className="flex items-center gap-2">
-            <MessageCircle className="h-4 w-4" />
-            WhatsApp Business API
-          </TabsTrigger>
-          <TabsTrigger value="qr_code" className="flex items-center gap-2">
-            <QrCode className="h-4 w-4" />
-            WhatsApp Web (QR Code)
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="meta_api" className="space-y-6">
           <div className="flex flex-col sm:flex-row justify-end gap-2">
               <Button variant="outline" onClick={checkConnectionHealth} className="w-full sm:w-auto">
                   <AlertCircle className="mr-2 h-4 w-4" />
@@ -510,12 +449,12 @@ export function ConnectionsManager() {
                    <Card className="flex items-center justify-center p-8 sm:p-16">
                       <Loader2 className="h-6 w-6 sm:h-8 sm:w-8 animate-spin text-muted-foreground" />
                   </Card>
-              ) : groupedConnections.filter(([, conns]) => conns.every(c => c.connectionType !== 'whatsapp_qr')).length === 0 ? (
+              ) : groupedConnections.length === 0 ? (
                   <Card className="flex items-center justify-center p-8 sm:p-16">
                       <p className="text-muted-foreground text-sm sm:text-base">Nenhuma conexão API encontrada.</p>
                   </Card>
               ) : (
-                  groupedConnections.filter(([, conns]) => conns.every(c => c.connectionType !== 'whatsapp_qr')).map(([wabaId, conns]) => (
+                  groupedConnections.map(([wabaId, conns]) => (
                     <Card key={wabaId} className="overflow-hidden">
                         <CardHeader className="p-3 sm:p-6">
                             <CardTitle className="flex items-center gap-2 text-lg sm:text-xl">
@@ -668,44 +607,6 @@ export function ConnectionsManager() {
                 ))
             )}
           </div>
-        </TabsContent>
-        
-        <TabsContent value="qr_code" className="space-y-6">
-          {qrConnectionId ? (
-            <WhatsAppQRConnector
-              connectionId={qrConnectionId}
-              companyId={companyId}
-              onConnectionSuccess={fetchConnections}
-              onDisconnect={fetchConnections}
-            />
-          ) : (
-            <Card className="overflow-hidden">
-              <CardContent className="p-6">
-                <div className="text-center space-y-4">
-                  <QrCode className="h-12 w-12 mx-auto text-muted-foreground" />
-                  <div>
-                    <h3 className="text-lg font-medium">Configurar WhatsApp Web</h3>
-                    <p className="text-sm text-muted-foreground mt-2">
-                      Clique no botão abaixo para criar uma conexão WhatsApp via QR Code
-                    </p>
-                  </div>
-                  <Button
-                    onClick={async () => {
-                      const newConnectionId = await getOrCreateQRConnection();
-                      if (newConnectionId) {
-                        setQrConnectionId(newConnectionId);
-                      }
-                    }}
-                  >
-                    <QrCode className="h-4 w-4 mr-2" />
-                    Criar Conexão QR Code
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
-      </Tabs>
     </div>
   );
 }
