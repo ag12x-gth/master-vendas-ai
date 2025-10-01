@@ -17,7 +17,7 @@ Master IA Oficial is a comprehensive Next.js application for managing WhatsApp a
 - **Services**: AWS S3, Firebase, Meta/Facebook integration
 
 ## Setup Status
-✅ Database: PostgreSQL configured and migrations applied (whatsapp_qr_sessions criada)
+✅ Database: PostgreSQL configured with Meta API integration only
 ✅ Dependencies: All packages installed successfully
 ✅ Configuration: Next.js configured for Replit environment (port 5000, host settings)
 ✅ Workflows: Development server running on port 5000
@@ -61,7 +61,19 @@ FLEXÍVEL: [UI/CSS/texto ou "tudo"]
 - Cosmético → NUNCA architect (90% economia)
 - Sei arquivo → grep direto (75% economia)
 
-## Recent Changes (2025-09-25) 
+## Recent Changes (2025-10-01)
+- **Remoção Completa do WhatsApp Web (QR Code) / Baileys**: Sistema revertido para usar apenas Meta API
+  - Removido serviço WhatsAppQRService e todas as dependências Baileys (@whiskeysockets/baileys, qrcode, @types/qrcode)
+  - Socket.IO desacoplado e tornado genérico (sem handlers específicos de WhatsApp)
+  - Tabela whatsapp_qr_sessions dropada do banco de dados
+  - Tipo de conexão 'whatsapp_qr' removido - apenas 'meta_api' disponível
+  - API route /api/socket/ removida (não mais necessária)
+  - Todos os componentes e páginas relacionadas ao QR Code removidos
+  - Documentação residual limpa (WHATSAPP_QR_FIXES.md, RELATORIO_TESTE_WHATSAPP_QR.md)
+  - Aplicação compilando e funcionando 100% com Meta API
+  - ⚠️ IMPORTANTE: Após pull do repositório, executar `npm install --legacy-peer-deps`
+
+## Previous Changes (2025-09-25) 
 - **Métricas Empíricas Completas Documentadas**: 67.3% redução real em tokens comprovada
   - Desperdício identificado: $4.76 por sessão (67% do total)
   - Economia real alcançada: $3.20/sessão mantendo 100% funcionalidade crítica
