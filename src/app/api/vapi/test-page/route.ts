@@ -31,7 +31,6 @@ export async function GET() {
                 type="tel"
                 id="phoneNumber"
                 placeholder="+5511999999999"
-                value="+55"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
             />
             <p class="text-xs text-gray-500">
