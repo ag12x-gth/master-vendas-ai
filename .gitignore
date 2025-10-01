@@ -93,3 +93,4 @@ functions/public/schuled/
 *.tar
 *.tar.gz
 *.7z
+/whatsapp_sessions/
