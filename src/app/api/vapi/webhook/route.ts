@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createHmac } from 'crypto';
 
 async function verifyVapiSignature(request: NextRequest, body: string): Promise<boolean> {
-  const signature = request.headers.get('x-vapi-signature');
+  const signature = request.headers.get('x-signature');
+  const timestamp = request.headers.get('x-timestamp');
   const secret = process.env.VAPI_WEBHOOK_SECRET;
   const isDev = process.env.NODE_ENV === 'development';
 
@@ -16,15 +17,28 @@ async function verifyVapiSignature(request: NextRequest, body: string): Promise<
     }
   }
 
-  if (!signature) {
+  if (!signature || !timestamp) {
+    console.error('Missing x-signature or x-timestamp header');
     return false;
   }
 
+  const payload = `${timestamp}.${body}`;
   const hmac = createHmac('sha256', secret);
-  hmac.update(body);
+  hmac.update(payload);
   const expectedSignature = hmac.digest('hex');
 
-  return signature === expectedSignature;
+  const isValid = signature === expectedSignature;
+  
+  if (!isValid) {
+    console.error('HMAC signature mismatch', {
+      received: signature,
+      expected: expectedSignature,
+      timestamp,
+      payloadLength: body.length
+    });
+  }
+
+  return isValid;
 }
 
 export async function POST(request: NextRequest) {
