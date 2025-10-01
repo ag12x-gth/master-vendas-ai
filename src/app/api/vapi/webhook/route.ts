@@ -5,7 +5,7 @@ async function verifyVapiSignature(request: NextRequest, body: string): Promise<
   const signature = request.headers.get('x-signature');
   const timestamp = request.headers.get('x-timestamp');
   const secret = process.env.VAPI_WEBHOOK_SECRET;
-  const isDev = process.env.NODE_ENV === 'development';
+  const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
 
   if (!secret) {
     if (isDev) {
@@ -18,6 +18,11 @@ async function verifyVapiSignature(request: NextRequest, body: string): Promise<
   }
 
   if (!signature || !timestamp) {
+    if (isDev) {
+      console.warn('⚠️ Missing x-signature or x-timestamp header - allowing in development mode');
+      console.warn('⚠️ For production, configure HMAC authentication in Vapi dashboard');
+      return true;
+    }
     console.error('Missing x-signature or x-timestamp header');
     return false;
   }
