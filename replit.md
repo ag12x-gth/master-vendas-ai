@@ -3,6 +3,12 @@
 ## Overview
 Master IA Oficial is a comprehensive Next.js application for managing WhatsApp and SMS campaigns, customer service, and AI automation. The application has been successfully imported and configured to run in the Replit environment.
 
+## Project Repository
+**GitHub**: https://github.com/ag12x-gth/master-vendas-ai
+- ✅ Branch: `main`
+- ✅ Histórico limpo (sem secrets expostos)
+- ✅ Última atualização: 01/10/2025
+
 ## Project Architecture
 - **Frontend**: Next.js 14.2.33 with TypeScript, Tailwind CSS, ShadCN UI
 - **Backend**: Next.js API Routes with Drizzle ORM
@@ -11,11 +17,12 @@ Master IA Oficial is a comprehensive Next.js application for managing WhatsApp a
 - **Services**: AWS S3, Firebase, Meta/Facebook integration
 
 ## Setup Status
-✅ Database: PostgreSQL configured and migrations applied
+✅ Database: PostgreSQL configured and migrations applied (whatsapp_qr_sessions criada)
 ✅ Dependencies: All packages installed successfully
 ✅ Configuration: Next.js configured for Replit environment (port 5000, host settings)
 ✅ Workflows: Development server running on port 5000
-✅ Deployment: Configured for autoscale deployment
+✅ Deployment: Configured for autoscale deployment on iasvendas.ai
+✅ GitHub: Código sincronizado com repositório master-vendas-ai
 
 ## Current Configuration
 - **Development Server**: Running on port 5000 with `npm run dev`
