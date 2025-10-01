@@ -45,8 +45,49 @@ The application is built on a modern web stack, utilizing Next.js 14.2.33 with T
 - **Cloud Storage:** AWS S3 (Replit Object Storage used as an alternative)
 - **Authentication/Analytics:** Firebase (optional initialization)
 - **AI Services:** Google Generative AI (gemini-1.5-flash)
-- **Messaging APIs:** Meta/Facebook (WhatsApp Official API)
+- **Messaging APIs:** 
+  - Meta/Facebook (WhatsApp Official API - existing)
+  - whatsmeow (WhatsApp Web multi-device - Docker-based)
+- **Voice AI:** Vapi AI (traditional voice calls via Twilio/Telnyx)
 - **Version Control:** GitHub
+
+## Recent Implementations (October 2025)
+
+### WhatsApp Multi-Channel Strategy
+Implemented hybrid WhatsApp messaging approach:
+1. **Meta Cloud API** (existing) - Official, compliant, template-based messaging
+2. **whatsmeow** (new) - Text messaging via WhatsApp Web protocol using Docker
+
+### Voice Call Integration (Vapi AI)
+- Integrated Vapi AI for voice call escalation from WhatsApp conversations
+- Traditional telephony (not WhatsApp voice) via Twilio/Telnyx
+- AI-powered voice assistant with Portuguese support
+- Real-time transcription and call summaries sent back to WhatsApp
+
+### Required Credentials
+**Important:** The following credentials must be configured for full functionality:
+
+1. **whatsmeow Service:**
+   - `WHATSMEOW_PASSWORD` - Password for whatsmeow admin UI
+   - `WEBHOOK_SECRET` - Secret for webhook authentication
+   - `DEFAULT_COMPANY_ID` - Default company ID for new contacts
+
+2. **Vapi Voice AI:**
+   - `VAPI_API_KEY` - Vapi API key (get from https://vapi.ai)
+   - `VAPI_PHONE_NUMBER` - Twilio phone number for outbound calls
+   
+   **Note:** User dismissed Twilio Replit integration - must provide Twilio credentials manually via Vapi dashboard
+
+3. **Starting Services:**
+   - Run `./start-whatsmeow.sh` to start Docker-based whatsmeow service
+   - Access whatsmeow UI at http://localhost:8001 to scan QR code
+   - Next.js server runs on port 5000 (existing workflow)
+
+### API Routes Created
+- `/api/webhook/whatsmeow` - Receives WhatsApp messages from whatsmeow
+- `/api/whatsapp/send-whatsmeow` - Sends messages via whatsmeow
+- `/api/vapi/initiate-call` - Initiates voice calls via Vapi
+- `/api/vapi/webhook` - Handles Vapi call events and transcripts
 ---------------------
 Conversa no chat sobre a solicitação - Base replit
  Adicionei TODOS os detalhes técnicos completos no replit.md, mantendo absolutamente tudo que já existia. O documento agora inclui:

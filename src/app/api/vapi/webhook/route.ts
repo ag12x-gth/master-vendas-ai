@@ -1,8 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createHmac } from 'crypto';
+
+async function verifyVapiSignature(request: NextRequest, body: string): Promise<boolean> {
+  const signature = request.headers.get('x-vapi-signature');
+  const secret = process.env.VAPI_WEBHOOK_SECRET;
+  const isDev = process.env.NODE_ENV === 'development';
+
+  if (!secret) {
+    if (isDev) {
+      console.warn('VAPI_WEBHOOK_SECRET not configured - allowing in development mode');
+      return true;
+    } else {
+      console.error('VAPI_WEBHOOK_SECRET not configured in production');
+      throw new Error('VAPI_WEBHOOK_SECRET must be configured in production');
+    }
+  }
+
+  if (!signature) {
+    return false;
+  }
+
+  const hmac = createHmac('sha256', secret);
+  hmac.update(body);
+  const expectedSignature = hmac.digest('hex');
+
+  return signature === expectedSignature;
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const payload = await request.json();
+    const body = await request.text();
+    const payload = JSON.parse(body);
+    
+    // Verify webhook signature
+    const isValid = await verifyVapiSignature(request, body);
+    if (!isValid) {
+      console.error('Invalid Vapi webhook signature');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     
     console.log('📞 Vapi webhook received:', payload.type);
 
