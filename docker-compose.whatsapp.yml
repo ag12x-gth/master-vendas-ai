@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  whatsmeow:
+    image: aldinokemal2104/go-whatsapp-web-multidevice:latest
+    container_name: master-ia-whatsmeow
+    restart: unless-stopped
+    ports:
+      - "8001:3000"
+    environment:
+      - APP_PORT=3000
+      - APP_DEBUG=true
+      - APP_OS=Chrome
+      - APP_BASIC_AUTH=admin:${WHATSMEOW_PASSWORD:-masterIA2024}
+      - APP_WEBHOOK_URL=${NEXTJS_URL:-http://host.docker.internal:5000}/api/webhook/whatsmeow
+      - APP_WEBHOOK_SECRET=${WEBHOOK_SECRET}
+    volumes:
+      - whatsmeow-data:/app/storages
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  whatsmeow-data:
