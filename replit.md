@@ -47,3 +47,5 @@ The application is built on a modern web stack, utilizing Next.js 14.2.33 with T
 - **AI Services:** Google Generative AI (gemini-1.5-flash)
 - **Messaging APIs:** Meta/Facebook (WhatsApp Official API)
 - **Version Control:** GitHub
+---------------------
+Conversa no chat sobre a solicitação - Base rep
