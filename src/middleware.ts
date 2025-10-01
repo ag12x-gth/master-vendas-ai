@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { jwtVerify } from 'jose';
 
-const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/testes']
+const PUBLIC_ROUTES = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/testes', '/test-vapi']
 const JWT_SECRET = process.env.JWT_SECRET_KEY;
 
 // Rotas restritas que apenas 'admin' e 'superadmin' podem aceder.
