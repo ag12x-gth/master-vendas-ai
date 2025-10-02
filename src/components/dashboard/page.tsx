@@ -27,6 +27,7 @@ import { Rocket, ArrowRight } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { ConnectionAlerts } from '@/components/dashboard/connection-alerts';
+import { VapiMetricsCard } from '@/components/dashboard/vapi-metrics-card';
 
 export default function DashboardClient() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -106,6 +107,11 @@ export default function DashboardClient() {
           </CardContent>
         </Card>
       </div>
+      
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <VapiMetricsCard />
+      </div>
+
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <QuickShortcuts />
         <OngoingCampaigns />

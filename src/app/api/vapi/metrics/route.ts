@@ -17,44 +17,60 @@ export async function GET(request: NextRequest) {
       filters.push(lte(vapiCalls.createdAt, new Date(endDate)));
     }
 
-    const allCalls = await db
-      .select()
+    const whereClause = filters.length > 0 ? and(...filters) : undefined;
+
+    const summaryResults = await db
+      .select({
+        totalCalls: sql<number>`count(*)::int`,
+        completedCalls: sql<number>`count(*) filter (where status = 'completed')::int`,
+        inProgressCalls: sql<number>`count(*) filter (where status = 'in-progress')::int`,
+        failedCalls: sql<number>`count(*) filter (where status = 'failed')::int`,
+        resolvedCases: sql<number>`count(*) filter (where resolved = true)::int`,
+        avgDuration: sql<number>`coalesce(round(avg(duration) filter (where duration is not null and duration > 0)), 0)::int`,
+        totalDuration: sql<number>`coalesce(sum(duration) filter (where duration is not null and duration > 0), 0)::int`,
+      })
       .from(vapiCalls)
-      .where(filters.length > 0 ? and(...filters) : undefined)
-      .orderBy(desc(vapiCalls.createdAt))
-      .limit(100);
+      .where(whereClause);
 
-    const totalCalls = allCalls.length;
-    const completedCalls = allCalls.filter(c => c.status === 'completed').length;
-    const inProgressCalls = allCalls.filter(c => c.status === 'in-progress').length;
-    const failedCalls = allCalls.filter(c => c.status === 'failed').length;
-    const resolvedCases = allCalls.filter(c => c.resolved === true).length;
+    const summaryResult = summaryResults[0] || {
+      totalCalls: 0,
+      completedCalls: 0,
+      inProgressCalls: 0,
+      failedCalls: 0,
+      resolvedCases: 0,
+      avgDuration: 0,
+      totalDuration: 0,
+    };
 
-    const durations = allCalls
-      .filter(c => c.duration !== null && c.duration > 0)
-      .map(c => c.duration!);
-    
-    const avgDuration = durations.length > 0
-      ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
+    const successRate = summaryResult.totalCalls > 0
+      ? Math.round((summaryResult.completedCalls / summaryResult.totalCalls) * 100)
       : 0;
 
-    const totalDuration = durations.reduce((a, b) => a + b, 0);
-
-    const successRate = totalCalls > 0 
-      ? Math.round((completedCalls / totalCalls) * 100) 
-      : 0;
+    const callsByDayResult = await db
+      .select({
+        date: sql<string>`date(created_at)`,
+        count: sql<number>`count(*)::int`,
+      })
+      .from(vapiCalls)
+      .where(whereClause)
+      .groupBy(sql`date(created_at)`)
+      .orderBy(sql`date(created_at) desc`);
 
     const callsByDay: Record<string, number> = {};
-    allCalls.forEach(call => {
-      if (call.createdAt) {
-        const dateStr = call.createdAt.toISOString().split('T')[0];
-        if (dateStr) {
-          callsByDay[dateStr] = (callsByDay[dateStr] || 0) + 1;
-        }
+    callsByDayResult.forEach(row => {
+      if (row.date) {
+        callsByDay[row.date] = row.count;
       }
     });
 
-    const recentCalls = allCalls.slice(0, 10).map(call => ({
+    const recentCallsResult = await db
+      .select()
+      .from(vapiCalls)
+      .where(whereClause)
+      .orderBy(desc(vapiCalls.createdAt))
+      .limit(10);
+
+    const recentCalls = recentCallsResult.map(call => ({
       id: call.id,
       vapiCallId: call.vapiCallId,
       customerName: call.customerName,
@@ -70,13 +86,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       summary: {
-        totalCalls,
-        completedCalls,
-        inProgressCalls,
-        failedCalls,
-        resolvedCases,
-        avgDuration,
-        totalDuration,
+        ...summaryResult,
         successRate,
       },
       callsByDay,
