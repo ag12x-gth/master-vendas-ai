@@ -1,0 +1,297 @@
+Configuration | Eko Docs
+Skip to content
+Eko Docs
+Search
+Ctrl
+K
+Cancel
+GitHub
+Select theme
+Dark
+Light
+Auto
+First Steps
+Overview
+Quickstart
+Installation
+Configuration
+Agents
+Overview
+Available Agent
+Browser Agent
+Custom Agent
+Agent Tools
+MCP Tools
+Architecture
+Overview
+Callback system
+Web Information Extraction
+Reference
+Overview
+Release
+Roadmap
+Release Notes
+GitHub
+Select theme
+Dark
+Light
+Auto
+On this page
+Overview
+EkoConfig.llms
+EkoConfig.agents
+EkoConfig.planLlms
+EkoConfig.callback
+EkoConfig.defaultMcpClient
+EkoConfig.a2aClient
+On this page
+Overview
+EkoConfig.llms
+EkoConfig.agents
+EkoConfig.planLlms
+EkoConfig.callback
+EkoConfig.defaultMcpClient
+EkoConfig.a2aClient
+Configuration
+As we have seen
+before
+,
+Eko
+accepts a parameter of type
+EkoConfig
+, which is defined as follows:
+type
+EkoConfig
+=
+{
+llms
+:
+LLMs
+;
+agents
+?:
+Agent
+[];
+planLlms
+?:
+string
+[];
+callback
+?:
+StreamCallback
+&
+HumanCallback
+;
+defaultMcpClient
+?:
+IMcpClient
+;
+a2aClient
+?:
+IA2aClient
+;
+};
+This guide will walk you through configuring these parameters. You can also see
+EkoConfig
+’s Reference
+for code details.
+EkoConfig.llms
+EkoConfig.llms
+stores the large models available to Eko in a key-value format, where you can set the following for each model:
+Provider
+Model name
+API key
+Base URL
+TopK
+TopP
+The models defined here will be used by the Planner and Agents. You can configure models with different performance levels to meet the varying needs of different components.
+Here is an example that configures two models, with Claude 3.5 as the default and another one being GPT-4o:
+let
+llms
+= {
+default: {
+provider:
+"
+anthropic
+"
+,
+model:
+"
+claude-3-5-sonnet-20241022
+"
+,
+apiKey:
+"
+sk-xxx
+"
+,
+config: { topK:
+5
+},
+},
+openai: {
+provider:
+"
+openai
+"
+,
+model:
+"
+gpt-4o
+"
+,
+apiKey:
+"
+sk-xxx
+"
+,
+config: { baseURL:
+"
+https://example.com/v1
+"
+, topP:
+0.7
+},
+},
+}
+;
+EkoConfig.agents
+EkoConfig.agents
+describes the Agents available in the Eko workflow. Each Agent has its own name, description, toolkit, and available models.
+For more information about Agents, please refer to the
+Agents
+section.
+In this simple example, there is only one
+BrowserAgent
+:
+import
+{ BrowserAgent }
+from
+"
+@eko-ai/eko-extension
+"
+;
+let
+agents
+:
+Agent
+[]
+=
+[
+new
+BrowserAgent
+()];
+EkoConfig.planLlms
+EkoConfig.planLlms
+specifies the models that will be used by the Eko Planner. It is recommended to choose a high-performance model, as it will be responsible for planning the entire workflow. For example:
+let
+llms
+= {
+default: {
+provider:
+"
+openai
+"
+,
+model:
+"
+gpt-4o-mini
+"
+,
+apiKey:
+"
+sk-xxx
+"
+,
+},
+powerful: {
+provider:
+"
+anthropic
+"
+,
+model:
+"
+claude-3-7-sonnet
+"
+,
+apiKey:
+"
+sk-xxx
+"
+,
+},
+}
+;
+let
+eko
+=
+new
+Eko
+(
+{
+llms
+, planLlms:
+[
+"
+powerful
+"
+]
+}
+);
+EkoConfig.callback
+EkoConfig.callback
+accepts a set of user-defined callback functions, which can include
+StreamCallback
+and
+HumanCallback
+.
+StreamCallback
+allows you to receive streaming updates on workflow progress, tool usage, and results.
+HumanCallback
+enables you to handle cases where human input or confirmation is required (e.g., when a user selects an option, confirms an action, or provides input).
+For more information, please refer to the
+Callbacks
+section.
+Example:
+let
+callback
+= {
+onMessage
+: async
+(
+msg
+)
+=> {
+/* handle streaming updates */
+},
+onHumanInput
+: async
+(
+ctx
+,
+prompt
+)
+=> {
+/* prompt user for input */
+return
+"
+user input
+"
+; }
+}
+;
+EkoConfig.defaultMcpClient
+EkoConfig.defaultMcpClient
+is an instance of
+IMcpClient
+used to handle communication with an MCP (Multi-Component Platform) backend. Set this if your agents/tools require backend orchestration or state management.
+EkoConfig.a2aClient
+EkoConfig.a2aClient
+is an instance of
+IA2aClient
+for agent-to-agent communication. Use this if your workflow involves coordination or messaging between multiple agents.
+Previous
+Installation
+Next
+Overview

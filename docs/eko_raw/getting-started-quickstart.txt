@@ -1,0 +1,271 @@
+﻿
+Quickstart | Eko Docs
+Skip to content
+Eko Docs
+Search
+Ctrl
+K
+Cancel
+GitHub
+Select theme
+Dark
+Light
+Auto
+First Steps
+Overview
+Quickstart
+Installation
+Configuration
+Agents
+Overview
+Available Agent
+Browser Agent
+Custom Agent
+Agent Tools
+MCP Tools
+Architecture
+Overview
+Callback system
+Web Information Extraction
+Reference
+Overview
+Release
+Roadmap
+Release Notes
+GitHub
+Select theme
+Dark
+Light
+Auto
+On this page
+Overview
+Using a browser extension
+Load extension
+Configure LLM model API Key
+Letâs run it!
+Running a Node.js script
+Next Steps
+On this page
+Overview
+Using a browser extension
+Load extension
+Configure LLM model API Key
+Letâs run it!
+Running a Node.js script
+Next Steps
+Quickstart
+Here are two quick ways to get started:
+Using a browser extension
+: Suitable for those who just want to try it out or are not professionals.
+Running a Node.js script
+: Suitable for professionals who want to review or modify the code details.
+Using a browser extension
+Letâs run an Eko workflow together in a browser extension to automate the task that
+Open Twitter, search for "Fellou AI" and follow
+.
+Load extension
+Download the
+precompiled extension
+(or you can also
+build it
+yourself). Unzip the ZIP file to a suitable location, and you should see a
+dist
+folder.
+Open the
+Chrome browser
+and navigate to
+chrome://extensions/
+.
+Turn on
+Developer mode
+(toggle switch in the top right corner).
+Click
+Load unpacked
+button (the blue text in the top-left corner) and select the
+dist
+folder in the first step.
+Configure LLM model API Key
+If itâs inconvenient to obtain an API key from the OpenAI or Claude platform, consider using proxy sites or services (such as
+OpenRouter
+), and then replace the
+Base URL
+and
+API key
+with the corresponding values.
+Letâs run it!
+Open the side-bar of the extension, input your prompt, and click the Run button:
+Running a Node.js script
+First we need to create a new project:
+Terminal window
+mkdir
+try-eko
+cd
+try-eko
+npm
+init
+And install dependencies:
+Terminal window
+npm
+add
+@eko-ai/eko
+@eko-ai/eko-nodejs
+ts-node
+Then write a script named
+index.ts
+:
+index.ts
+import
+{ Eko, Agent, LLMs }
+from
+"
+@eko-ai/eko
+"
+;
+import
+{ BrowserAgent }
+from
+"
+@eko-ai/eko-nodejs
+"
+;
+async
+function
+run
+()
+{
+let
+llms
+:
+LLMs
+= {
+default: {
+provider:
+"
+anthropic
+"
+,
+model:
+"
+claude-3-5-sonnet-20241022
+"
+,
+apiKey:
+"
+sk-xxx
+"
+,
+// replace it with your API KEY
+config: {
+baseURL:
+"
+https://api.anthropic.com/v1
+"
+,
+}
+,
+}
+,
+}
+;
+let
+agents
+:
+Agent
+[]
+=
+[
+new
+BrowserAgent
+()];
+let
+eko
+=
+new
+Eko
+(
+{
+llms
+,
+agents
+}
+);
+let
+result
+= await
+eko
+.
+run
+(
+"
+Search for the latest news about Musk
+"
+);
+console
+.
+log
+(
+"
+result:
+"
+,
+result
+.
+result
+);
+}
+run
+()
+.
+catch
+(
+e
+=>
+{
+console
+.
+log
+(e)
+});
+Remember to set the environment variables (one of OpenAI/Claude):
+Terminal window
+export
+OPENAI_BASE_URL
+=
+your_value
+export
+OPENAI_API_KEY
+=
+your_value
+export
+ANTHROPIC_BASE_URL
+=
+your_value
+export
+ANTHROPIC_API_KEY
+=
+your_value
+Finally run it:
+Terminal window
+ts-node
+index.ts
+Next Steps
+Now that you have run the first workflow, you can:
+Understand the
+Installation
+of Eko in different environments.
+Try different
+Configurations
+of Eko.
+Learn
+Architecture
+of Eko.
+Check
+References
+to confirm the code details.
+Join our
+Discard
+:
+Previous
+Overview
+Next
+Installation

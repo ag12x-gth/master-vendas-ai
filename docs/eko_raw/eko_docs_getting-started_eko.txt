@@ -1,0 +1,191 @@
+Eko 3.0 Overview | Eko Docs
+Skip to content
+Eko Docs
+Search
+Ctrl
+K
+Cancel
+GitHub
+Select theme
+Dark
+Light
+Auto
+First Steps
+Overview
+Quickstart
+Installation
+Configuration
+Agents
+Overview
+Available Agent
+Browser Agent
+Custom Agent
+Agent Tools
+MCP Tools
+Architecture
+Overview
+Callback system
+Web Information Extraction
+Reference
+Overview
+Release
+Roadmap
+Release Notes
+GitHub
+Select theme
+Dark
+Light
+Auto
+On this page
+Overview
+What is Eko?
+SOTA on Online-mind2web benchmark
+Eko 3.0 High level Architecture
+What’s new in Eko 3.0
+Eko 3.0 vs Eko 2.0
+Eko 2.0 vs Eko 1.0
+Supported environment
+Getting started
+Support and Community
+On this page
+Overview
+What is Eko?
+SOTA on Online-mind2web benchmark
+Eko 3.0 High level Architecture
+What’s new in Eko 3.0
+Eko 3.0 vs Eko 2.0
+Eko 2.0 vs Eko 1.0
+Supported environment
+Getting started
+Support and Community
+Eko 3.0 Overview
+What is Eko?
+Eko (pronounced like “echo”) is a powerful framework designed for building production-ready Agent workflows. It provides an efficient, cross-platform solution for automating the planning and execution of workflows. Additionally, Eko offers highly customizable interfaces that empower developers to design workflows freely, ensuring they meet production-level requirements.
+SOTA on Online-mind2web benchmark
+Eko 3.0 High level Architecture
+What’s new in Eko 3.0
+Dependency-aware parallel agent execution shortens long-running workflows.
+Built-in pause, resume, and interrupt controls capture
+task_snapshot
+state for recovery.
+The monorepo now standardizes on pnpm, so install and link steps stay consistent across packages.
+Eko 3.0 vs Eko 2.0
+Feature
+Eko 3.0
+Eko 2.0
+Agent orchestration
+Parallel + sequential execution via dependency trees
+Sequential multi-agent execution
+Task control
+Pause, resume, and abort with recovery snapshots
+Manual stop/restart only
+Workflow compatibility
+v3 workflow schema (breaking change)
+v2 workflow schema
+Built-in tooling
+task_snapshot
+recovery tool, improved context management
+No snapshot tooling
+Package management
+pnpm workspace with unified scripts
+Mixed npm/yarn setup
+Eko 3.0 maintains the 80% success rate on the Online-Mind2web benchmark introduced in 2.0, while adding concurrency and recovery controls for production stability.
+Eko 2.0 vs Eko 1.0
+Feature
+Eko 2.0
+Eko 1.0
+Speed
+1.2x Fast
+Slow
+Multi Agent
+✅
+❌
+Watch to DOM event & loop tasks
+✅
+❌
+MCP / Tools
+✅
+❌
+A2A
+✅ (Coming Soon)
+❌
+Dynamic LLM Config
+✅
+❌
+Planning
+Stream Planning & RePlan
+Simple Plan
+ReAct
+✅
+✅
+Callback
+Stream Callback & Human Callback
+Simple Hooks
+Callback Chain
+Stream Callback & Human Callback
+Simple Hooks
+Node.js with Playwright
+✅
+✅
+Eko 2.0 achieves 80% success rate on the Online-Mind2web benchmark, compared to 31% for Eko 1.0. This performance improvement reflects the architectural enhancements and optimizations Fellou has implemented in the new version, making Eko 2.0 significantly more reliable for production workflows.
+Framework Comparison
+Feature
+Eko
+Langchain
+Browser-use
+Dify.ai
+Coze
+Supported Platform
+All platform
+Server side
+Browser
+Web
+Web
+One sentence to multi-step workflow
+✅
+❌
+✅
+❌
+❌
+Intervenability
+✅
+✅
+❌
+❌
+❌
+Development Efficiency
+High
+Low
+Middle
+Middle
+Low
+Open-source
+✅
+✅
+✅
+✅
+❌
+Access to private web resources
+✅
+(Coming soon)
+❌
+❌
+❌
+❌
+Supported environment
+Learn more:
+Browser Extension Environment
+Web Environment
+Node.js Environment
+Next-Gen AI Browser Fellou Environment
+Getting started
+Quickstart
+Installation
+Configuration
+Support and Community
+GitHub Issues
+for bug reports and feature requests
+Documentation
+for detailed guides and API reference
+Next
+Quickstart

@@ -1,0 +1,3 @@
+2025-10-02T03:18:14.184Z 🚀 Starting Eko workflow...
+2025-10-02T03:18:14.184Z 📝 Prompt: Search for the latest news about Fellou AI Browser
+2025-10-02T03:18:31.188Z ❌ Workflow failed: anthropic/claude-3.5-sonnet-2024-07-15 is not a valid model ID
