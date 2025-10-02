@@ -991,6 +991,10 @@ Seguindo estas estratégias validadas, você terá:
 - ✅ 90%+ economia de custos
 - ✅ 100% transparência técnica
 
-**TEMPO TOTAL**: 2-3 dias (não semanas)
+
+
+**TEMPO TOTAL**: 12-36 dias (não semanas)
 **CUSTO TOTAL**: $10-20 (não $100/500/1000+)
 **SUCESSO COMPLETO PARA CONCLUSÃO DAS TASKS, FEATURES, CONFIGURAÇÕES CONCLUSÃO DO APP**: Garantido com evidências empíricas
+
+
