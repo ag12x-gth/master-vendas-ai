@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '../ui/textarea';
-import { Loader2, Save } from 'lucide-react';
+import { Loader2, Save, Phone } from 'lucide-react';
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
 import Image from 'next/image';
@@ -19,6 +19,7 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
     const [contact, setContact] = useState<ExtendedContact | null>(null);
     const [loading, setLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isCalling, setIsCalling] = useState(false);
     const [notes, setNotes] = useState('');
 
     const fetchDetails = useCallback(async (id: string) => {
@@ -71,6 +72,42 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
             setIsSaving(false);
         }
     }
+
+    const handleInitiateCall = async () => {
+        if (!contact) return;
+        setIsCalling(true);
+        try {
+            const response = await fetch('/api/vapi/initiate-call', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    phoneNumber: contact.phone,
+                    customerName: contact.name,
+                    context: notes || 'Cliente solicitou atendimento via voz.',
+                    conversationId: contact.id
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Falha ao iniciar chamada');
+            }
+
+            const result = await response.json();
+            toast({ 
+                title: '📞 Chamada Iniciada!', 
+                description: `Ligando para ${contact.name}. ID: ${result.callId}` 
+            });
+        } catch (error) {
+            toast({ 
+                variant: 'destructive', 
+                title: 'Erro ao Iniciar Chamada', 
+                description: (error as Error).message 
+            });
+        } finally {
+            setIsCalling(false);
+        }
+    }
     
     if (loading) {
          return (
@@ -102,6 +139,25 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
                         {contact.phone}
                     </p>
                 </div>
+
+                <Button 
+                    size="sm" 
+                    className="w-full bg-green-600 hover:bg-green-700 text-white" 
+                    onClick={handleInitiateCall} 
+                    disabled={isCalling}
+                >
+                    {isCalling ? (
+                        <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Iniciando chamada...
+                        </>
+                    ) : (
+                        <>
+                            <Phone className="h-4 w-4 mr-2" />
+                            Iniciar Chamada de Voz
+                        </>
+                    )}
+                </Button>
 
                 <Card>
                     <CardHeader className="pb-2">
