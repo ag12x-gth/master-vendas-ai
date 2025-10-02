@@ -9,6 +9,7 @@ import { getUserSession } from '@/app/actions';
 import { redirect } from 'next/navigation';
 import { AnalyticsProvider } from '@/contexts/analytics-context';
 import { ConsoleMonitor } from '@/components/dev/console-monitor';
+import { VapiCallProvider } from '@/contexts/VapiCallContext';
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store';
@@ -38,22 +39,24 @@ export default async function MainLayout({
   return (
     <SessionProvider value={session}>
         <AnalyticsProvider>
-            <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-            >
-                <SidebarProvider>
+            <VapiCallProvider>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <SidebarProvider>
                 <div className="flex h-screen w-full bg-background overflow-hidden">
                     <AppSidebar />
                     <MainContent>
                         {children}
                     </MainContent>
                 </div>
-                </SidebarProvider>
-                <ConsoleMonitor />
-            </ThemeProvider>
+                    </SidebarProvider>
+                    <ConsoleMonitor />
+                </ThemeProvider>
+            </VapiCallProvider>
         </AnalyticsProvider>
     </SessionProvider>
   );

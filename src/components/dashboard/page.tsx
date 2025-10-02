@@ -28,8 +28,11 @@ import { Button } from '../ui/button';
 import Link from 'next/link';
 import { ConnectionAlerts } from '@/components/dashboard/connection-alerts';
 import { VapiMetricsCard } from '@/components/dashboard/vapi-metrics-card';
+import { CallKPIDashboard, CallHistoryTable } from '@/components/vapi-voice';
+import { useVapiCalls } from '@/hooks/useVapiCalls';
 
 export default function DashboardClient() {
+  const { metrics: vapiMetrics, calls: vapiCalls, loading: vapiLoading } = useVapiCalls(true);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfDay(subDays(new Date(), 29)),
     to: new Date(),
@@ -108,8 +111,31 @@ export default function DashboardClient() {
         </Card>
       </div>
       
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <VapiMetricsCard />
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-2xl font-bold tracking-tight">Voice Calls (Vapi AI)</h3>
+          <Link href="/voice-calls">
+            <Button variant="outline" size="sm">
+              Ver Tudo
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+        
+        <CallKPIDashboard metrics={vapiMetrics} loading={vapiLoading} />
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Últimas Chamadas</CardTitle>
+            <CardDescription>Chamadas recentes realizadas pelo sistema</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CallHistoryTable 
+              calls={vapiCalls.slice(0, 5)} 
+              loading={vapiLoading} 
+            />
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
