@@ -105,6 +105,22 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// GET handler for Vapi URL validation
+export async function GET() {
+  console.log('🔍 Vapi GET validation request - responding OK');
+  return NextResponse.json({ 
+    success: true, 
+    message: 'Vapi webhook endpoint is active',
+    methods: ['GET', 'POST']
+  });
+}
+
+// HEAD handler for Vapi URL validation
+export async function HEAD() {
+  console.log('🔍 Vapi HEAD validation request - responding OK');
+  return new NextResponse(null, { status: 200 });
+}
+
 async function handleCallStarted(payload: any) {
   const { call } = payload;
   
