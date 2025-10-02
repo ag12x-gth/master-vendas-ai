@@ -511,6 +511,41 @@ export const aiAgentExecutions = pgTable('ai_agent_executions', {
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// ==============================
+// VAPI VOICE CALLS
+// ==============================
+
+export const vapiCalls = pgTable('vapi_calls', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+    contactId: text('contact_id').references(() => contacts.id, { onDelete: 'set null' }),
+    conversationId: text('conversation_id').references(() => conversations.id, { onDelete: 'set null' }),
+    vapiCallId: text('vapi_call_id').notNull().unique(),
+    vapiAssistantId: text('vapi_assistant_id'),
+    customerNumber: text('customer_number').notNull(),
+    customerName: text('customer_name'),
+    status: text('status').notNull().default('initiated'),
+    startedAt: timestamp('started_at'),
+    endedAt: timestamp('ended_at'),
+    duration: integer('duration'),
+    summary: text('summary'),
+    analysis: jsonb('analysis'),
+    resolved: boolean('resolved'),
+    nextSteps: text('next_steps'),
+    metadata: jsonb('metadata'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+});
+
+export const vapiTranscripts = pgTable('vapi_transcripts', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    callId: text('call_id').notNull().references(() => vapiCalls.id, { onDelete: 'cascade' }),
+    role: text('role').notNull(),
+    text: text('text').notNull(),
+    timestamp: timestamp('timestamp').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
 // ===================================
 // RELAÇÕES (DRIZZLE ORM)
 // ===================================
@@ -523,4 +558,27 @@ export const conversationsRelations = relations(conversations, ({ one }) => ({
         fields: [conversations.connectionId],
         references: [connections.id]
     })
+}));
+
+export const vapiCallsRelations = relations(vapiCalls, ({ one, many }) => ({
+    company: one(companies, {
+        fields: [vapiCalls.companyId],
+        references: [companies.id],
+    }),
+    contact: one(contacts, {
+        fields: [vapiCalls.contactId],
+        references: [contacts.id],
+    }),
+    conversation: one(conversations, {
+        fields: [vapiCalls.conversationId],
+        references: [conversations.id],
+    }),
+    transcripts: many(vapiTranscripts),
+}));
+
+export const vapiTranscriptsRelations = relations(vapiTranscripts, ({ one }) => ({
+    call: one(vapiCalls, {
+        fields: [vapiTranscripts.callId],
+        references: [vapiCalls.id],
+    }),
 }));
