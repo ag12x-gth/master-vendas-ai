@@ -133,27 +133,23 @@ async function handleCallStarted(payload: any) {
   
   console.log(`📱 Call ${call.id} started with ${call.customer.number}`);
   
-  try {
-    const companyId = await getCompanyIdFromContext();
-    const contactId = await findOrCreateContact(call.customer.number, call.customer.name, companyId);
-    
-    await db.insert(vapiCalls).values({
-      vapiCallId: call.id,
-      companyId,
-      contactId,
-      conversationId: call.metadata?.conversationId || null,
-      vapiAssistantId: call.assistantId,
-      customerNumber: call.customer.number,
-      customerName: call.customer.name || null,
-      status: 'in-progress',
-      startedAt: new Date(call.startedAt || new Date()),
-      metadata: call.metadata || null,
-    });
-    
-    console.log('✅ Call saved to database');
-  } catch (error) {
-    console.error('Error saving call to database:', error);
-  }
+  const companyId = await getCompanyIdFromContext();
+  const contactId = await findOrCreateContact(call.customer.number, call.customer.name, companyId);
+  
+  await db.insert(vapiCalls).values({
+    vapiCallId: call.id,
+    companyId,
+    contactId,
+    conversationId: call.metadata?.conversationId || null,
+    vapiAssistantId: call.assistantId,
+    customerNumber: call.customer.number,
+    customerName: call.customer.name || null,
+    status: 'in-progress',
+    startedAt: new Date(call.startedAt || new Date()),
+    metadata: call.metadata || null,
+  });
+  
+  console.log('✅ Call saved to database');
 }
 
 async function handleCallEnded(payload: any) {
@@ -178,24 +174,19 @@ async function handleCallEnded(payload: any) {
     await sendWhatsAppSummary(customerPhone, summary, transcript);
   }
   
-  try {
-    await db
-      .update(vapiCalls)
-      .set({
-        status: 'completed',
-        endedAt: new Date(call.endedAt || new Date()),
-        duration: call.duration || null,
-        summary: summary,
-        analysis: call.analysis || null,
-        metadata: call.metadata || null,
-      })
-      .where(eq(vapiCalls.vapiCallId, call.id));
-    
-    console.log('✅ Call updated in database');
-  } catch (error) {
-    console.error('Error updating call in database:', error);
-  }
+  await db
+    .update(vapiCalls)
+    .set({
+      status: 'completed',
+      endedAt: new Date(call.endedAt || new Date()),
+      duration: call.duration || null,
+      summary: summary,
+      analysis: call.analysis || null,
+      metadata: call.metadata || null,
+    })
+    .where(eq(vapiCalls.vapiCallId, call.id));
   
+  console.log('✅ Call updated in database');
   console.log('✅ Call summary:', summary);
 }
 
@@ -225,22 +216,18 @@ async function handleFunctionCall(payload: any) {
     
     console.log('💾 Saving call summary:', { summary, resolved, nextSteps });
     
-    try {
-      const callId = payload.call?.id;
-      if (callId) {
-        await db
-          .update(vapiCalls)
-          .set({
-            summary: summary,
-            resolved: resolved,
-            nextSteps: nextSteps,
-          })
-          .where(eq(vapiCalls.vapiCallId, callId));
-        
-        console.log('✅ Call summary saved to database');
-      }
-    } catch (error) {
-      console.error('Error saving call summary:', error);
+    const callId = payload.call?.id;
+    if (callId) {
+      await db
+        .update(vapiCalls)
+        .set({
+          summary: summary,
+          resolved: resolved,
+          nextSteps: nextSteps,
+        })
+        .where(eq(vapiCalls.vapiCallId, callId));
+      
+      console.log('✅ Call summary saved to database');
     }
     
     return NextResponse.json({
@@ -259,25 +246,23 @@ async function handleTranscript(payload: any) {
   
   console.log(`📝 Transcript: ${transcript.role}: ${transcript.text}`);
   
-  try {
-    const [existingCall] = await db
-      .select({ id: vapiCalls.id })
-      .from(vapiCalls)
-      .where(eq(vapiCalls.vapiCallId, call.id))
-      .limit(1);
+  const [existingCall] = await db
+    .select({ id: vapiCalls.id })
+    .from(vapiCalls)
+    .where(eq(vapiCalls.vapiCallId, call.id))
+    .limit(1);
+  
+  if (existingCall) {
+    await db.insert(vapiTranscripts).values({
+      callId: existingCall.id,
+      role: transcript.role,
+      text: transcript.text,
+      timestamp: new Date(timestamp || new Date()),
+    });
     
-    if (existingCall) {
-      await db.insert(vapiTranscripts).values({
-        callId: existingCall.id,
-        role: transcript.role,
-        text: transcript.text,
-        timestamp: new Date(timestamp || new Date()),
-      });
-      
-      console.log('✅ Transcript saved to database');
-    }
-  } catch (error) {
-    console.error('Error saving transcript:', error);
+    console.log('✅ Transcript saved to database');
+  } else {
+    throw new Error(`Call ${call.id} not found in database`);
   }
 }
 
@@ -313,8 +298,14 @@ async function sendWhatsAppSummary(phoneNumber: string, summary: string, transcr
 }
 
 async function getCompanyIdFromContext(): Promise<string> {
-  const [firstCompany] = await db.select({ id: contacts.companyId }).from(contacts).limit(1);
-  return firstCompany?.id || 'default-company-id';
+  const { companies } = await import('@/lib/db/schema');
+  const [firstCompany] = await db.select({ id: companies.id }).from(companies).limit(1);
+  
+  if (!firstCompany?.id) {
+    throw new Error('No company found in database. Please create a company first.');
+  }
+  
+  return firstCompany.id;
 }
 
 async function findOrCreateContact(phoneNumber: string, name: string | undefined, companyId: string): Promise<string | null> {
