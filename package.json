@@ -21,7 +21,6 @@
     "db:rollback": "tsx scripts/rollback-db.ts",
     "db:reset": "rm -rf drizzle && npm run db:generate && npm run db:migrate",
     "test:queue": "tsx scripts/seed-test-campaigns.ts",
-    "prepare": "node -e \"try{require('husky').install()}catch(e){if(e.code!=='MODULE_NOT_FOUND')throw e}\"",
     "lint:fix": "eslint . --ext .ts,.tsx --fix --fix-type problem,suggestion,layout"
   },
   "dependencies": {
