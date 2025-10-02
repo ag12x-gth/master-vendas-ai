@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
       db
         .select({
           id: vapiCalls.id,
-          callId: vapiCalls.callId,
+          callId: vapiCalls.vapiCallId,
           contactId: vapiCalls.contactId,
           customerName: vapiCalls.customerName,
           customerNumber: vapiCalls.customerNumber,
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
           endedAt: vapiCalls.endedAt,
           duration: vapiCalls.duration,
           summary: vapiCalls.summary,
-          caseResolved: vapiCalls.caseResolved,
+          caseResolved: vapiCalls.resolved,
         })
         .from(vapiCalls)
         .where(whereClause)

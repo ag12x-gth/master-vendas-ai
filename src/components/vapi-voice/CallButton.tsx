@@ -20,7 +20,7 @@ interface CallButtonProps {
   customerNumber: string;
   context?: string;
   conversationId?: string;
-  variant?: 'default' | 'outline' | 'ghost' | 'icon';
+  variant?: 'default' | 'outline' | 'ghost' | 'link' | 'destructive' | 'secondary';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
   trigger?: React.ReactNode;
