@@ -18,12 +18,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const VAPI_PUBLIC_KEY = process.env.VAPI_PUBLIC_KEY || process.env.VAPI_API_KEY;
+    const VAPI_API_KEY = process.env.VAPI_API_KEY;
     const VAPI_PHONE_NUMBER = process.env.VAPI_PHONE_NUMBER;
 
-    if (!VAPI_PUBLIC_KEY) {
+    if (!VAPI_API_KEY) {
       return NextResponse.json(
-        { error: 'VAPI_PUBLIC_KEY not configured. Please set up Vapi integration with public key.' },
+        { error: 'VAPI_API_KEY not configured. Please set up Vapi integration.' },
         { status: 500 }
       );
     }
@@ -93,11 +93,11 @@ Instruções:
       serverUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:5000'}/api/vapi/webhook`
     };
 
-    // Initiate call via Vapi
+    // Initiate call via Vapi (using private key for server-side)
     const response = await fetch('https://api.vapi.ai/call', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${VAPI_PUBLIC_KEY}`,
+        'Authorization': `Bearer ${VAPI_API_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
