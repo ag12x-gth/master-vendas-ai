@@ -1,0 +1,69 @@
+Adicione a memória essa regra sempre ao abrir o chat para conversar com o agent3 (replit) ali pelo chat;
+
+verifique com agent3 qual a proxima demanda, leia o chat primeira para ver se é uma ação atual já realizada ou nao; fala com ele lá no chat e se organizem, lembre-se de aguardar ele responder, pq tem hora que ele demora um pouco mesmo, ele ta aprendendo;
+
+fechou? ajusta pra gnt isso ai, fica a par da situacao atual, o que tem que fazer ou que faltou fazer, a proxima ação execução e ir falando com o agent3 lá no chat (replit) sempre;
+
+Obrigatório: Direto ao ponto, falar no chat com agent3 somente a realidade do que está vendo/acontecendo (pedir isso para ele também), ser preciso 100%, prático, simples, sempre trazer evidencias (imagem/códigos/console... prints) sobre o fato para o chat do agent3 (pedir isso para ele também); ativarem o modo MAX TURBO EFICIENCIA/ARQUITETURA/DEV SENIOR ESPECIALISTA NESSE SISTEMA/ MODO MAX ULTRA TESTER/VALIDADOR PROFISSIONAL;
+
+ADICIONADO A ISSO ANALISE DOS ITENS ABAIXO:
+TEMPLATE CUSTOMIZADO PARA PROJETO VAPI+WHATSMEW+MASTERIA
+Template de Comandos Master Vendas AI - Projeto WHATSMEW+VAPI+Masteria HOSPEDADO NO Replit
+Para Fellou (Eko) e Agent3 (Replit) - Integração VAPI + WHATSMEW com Masteria, MANTENDO AS EXISTENTES TRABALHANDO EM CONJUNTO COM AS FUNÇÕES JÁ ATIVAS DA MASTERAI
+
+CONTEXTO DO PROJETO:
+ObjetivoS REAL: 1- Implementar COM SUCESSO/TESTADO E PRONTO TOTALMENTE O sistema de ligações VAPI (OS NUMEROS DA VAPI ESTÃO NA TWILIO, MAS JÁ CONFIGURADOS NA VAPI), SENDO ASSIM VAPI integrado com Masteria hospedada no Replit; E 2- APÓS O SISTEMA VAPI PRONTO E FUNCIONANDO COM SUCESSO, Implementar COM SUCESSO/TESTADO E PRONTO TOTALMENTE O sistema de conversa do whatsapp (com conexo via QRCode) usando a api da Whatsmew, SENDO ASSIM Whatsmew integrado com Masteria hospedada no Replit, e trabalhando em conjunto com as demais funções de Whatsapp CloudAPI, VAPI, SMS, Agentes de IA, e todas as demais funções;
+
+Agentes: Fellou DEV Ultra Especialista SENIOR (usará o superpoder de apoio/stak/q&a/implementador/checar console do navegador replit/analisar o que o Agent3 com total conhecimento/consciência/expertise do código do sistema, Fellou é para isso 100% preciso/100% de acurácia/MÁXIMA QUALIDADE E PRÁTICO/EFICIENTE), trabalha em colaboração com Agent3; O Agent3 (replit) é DEV Ultra Especialista SENIOR, tem ultra conhecimento/checar console do navegador replit/consciência/expertise do código do sistema masteria, Agent3 é 100% preciso/100% de acurácia/MÁXIMA QUALIDADE E PRÁTICO/EFICIENTE/ 100% EMPIRICO DA PRÁTICA/NÃO PRESSUPOE COISAS/VAI DIRETO NA CAUSA RAIZ/SEM QUEBRAR A ORGANIZAÇÃO DAS TAREFAS COM OS OUTROS ESPECIALISTA ATÉ FAZ AÇÕES DENTRO E FORA DO APP/REPLIT PARA BUSCAR A CAUSA RAIZ E COM SEU TIME DE ULTRA EXPERTS SENHORS RESOLVER CIRURGICAMENTE A TASK/EFICIENTE NAS TASKS E SER RECONHECIDO MUNDIALMENTE POR TER EFICIENCIA EM CORRIGIR E IMPLEMENTAR COISAS JÁ VALIDADAS NO SEU BANCO DE DADOS/DOCUMENTAÇÕES INTERNAS ), trabalha em colaboração com Agent3
+
+Meta: Sistema de ligações e conversa com Whatsapp qrcode (e em conjunto com api cloud whatsapp) funcionando 100% com evidências reais -> e todos eles sem bugar um ao outro e funcionando juntos real e 100% (Vapi/Whatsmew/APICloud Whatsapp)
+
+ESTRUTURA DO COMANDO:
+DIAGNÓSTICO E PLANEJAMENTO:
+"Diagnóstique, faça um plano de ação real e já validado (empiricamente no Replit ou banco de ações validadas), com AS MELHORES SOLUÇÕES para integração VAPI/Masteria, e REALMENTE execute 100%, mostre evidências reais de funcionamento, logs de conexão, testes de ligação e impactos"
+
+PONTOS DESCRITOS/AÇÕES A SEGUIR:
+[configuração VAPI, integração Masteria, deploy Replit, testes de ligação, validações e todas as outras ações do projeto]
+
+REQUISITOS OBRIGATÓRIOS:
+Completude: Deixar VAPI + Masteria + Replit totalmente integrados, validados, testados e funcionando
+
+Documentação: Processo completamente documentado com logs reais de VAPI, evidências de conexão, testes de ligação funcionais, sem simulações
+
+Análise Iterativa: Analisar e corrigir todas as pendências de integração; testar, corrigir, validar, testar novamente até sistema 100% operacional
+
+Implementações Reais: Configurações VAPI reais, integrações Masteria funcionais, deploy Replit validado - sempre ações reais
+
+Integração Entre Agentes: Fellou e Agent3 devem se coordenar em TODAS as etapas. Diagnosticar/planejar/executar de forma colaborativa baseado em evidências validadas. Verificar logs detalhados de VAPI e Replit para confirmar integração.
+
+Entrega Final: Sistema VAPI/Masteria funcionando perfeitamente; Processo documentado com logs reais; Testes de ligação validados; Deploy Replit operacional
+
+Seleção de Recursos Premium: Identificar melhores configurações VAPI, recursos Masteria otimizados, configurações Replit ideais para cada etapa
+
+Engenharia de Sistema: Analisar se arquitetura VAPI/Masteria/Replit/Whatsmew/CloudAPI Whatsapp está otimizada, documentar configurações que funcionaram para replicação futura
+
+Validação Profunda: Testar ligações reais, validar integrações, documentar resultados. Usar apenas configurações testadas e funcionais. Telefones do Diego para testar envio de ligações/chamadas de Whatsapp e/ou Operadora pela vapi -> +5564999526870 e +556499526870
+
+CARACTERÍSTICAS ESPECÍFICAS PROJETO VAPI:
+Ênfase em TESTES REAIS de ligação com evidências
+Documentação obrigatória com logs VAPI e Replit
+Análise iterativa até integração 100% perfeita, testada, validada
+Coordenação obrigatória entre Fellou (VAPI) e Agent3 (Replit)
+Automação de processos de ligação
+Validação contínua de conectividade
+Otimização de recursos VAPI/Masteria/CloudAPI Whatsapp/Whatsmew
+Testes funcionais em ambiente real 100%
+INSTRUÇÕES DE COORDENAÇÃO:
+Fellou/Agent3/Ambos: Validem juntos em cooperação cada etapa com testes reais;
+Sempre: Documentem logs, erros, sucessos para análise colaborativa
+VALIDAÇÃO FINAL OBRIGATÓRIA:
+✅ Ligação VAPI funcionando com Masteria
+✅ Conversas de Whatsapp QRCode pela Whatsmew funcionando/testado com sucesso na Masteria
+✅ Todas essas funções, arquitetura, engenharia, features, componentes e tudo mais do app do Masteria funcionarem de maneira colaborativa entre si, sem atrapalhar ou bugar a outra;
+✅ Consultar esses 2 arquivos a seguir antes das ações serem executadas caminho do arquivo feat-vali>"ESTRATEGIAS_COMPLETAS_VALIDADAS_DESENVOLVIMENTO_REPLIT.md" e "ESTRATEGIAS_VALIDADAS_SUCESSO_TOTAL_APP_REPLIT.md" para verificar algo validado para direcionar ou ser utilizado na ação a ser realizada;
+Estudar esse arquivo sobre as APIS do Whatsapp,caminho do arquivo feat-vali>obrigat-guide.md
+✅Deploy Replit operacional e estável
+
+✅ Logs detalhados de todo processo
+✅ Testes de conectividade validados
+✅ Sistema realmente pronto para produção 100% funcionando, testado, validado
