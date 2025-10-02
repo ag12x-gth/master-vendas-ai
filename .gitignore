@@ -94,3 +94,4 @@ functions/public/schuled/
 *.tar.gz
 *.7z
 /whatsapp_sessions/
+.env.local

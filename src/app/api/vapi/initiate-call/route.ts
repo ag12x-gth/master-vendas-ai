@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     const VAPI_API_KEY = process.env.VAPI_API_KEY;
-    const VAPI_PHONE_NUMBER = process.env.VAPI_PHONE_NUMBER;
+    const VAPI_PHONE_NUMBER_ID = process.env.VAPI_PHONE_NUMBER_ID;
 
     if (!VAPI_API_KEY) {
       return NextResponse.json(
@@ -90,31 +90,33 @@ Instruções:
         model: "nova-2",
         language: "pt-BR"
       },
-      serverUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:5000'}/api/vapi/webhook`
+      serverUrl: `${process.env.APP_BASE_URL || `https://${process.env.REPLIT_DOMAINS}`}/api/vapi/webhook`
     };
 
-    // Initiate call via Vapi (using private key for server-side)
+    const callPayload: any = {
+      assistant: assistant,
+      customer: {
+        number: phoneNumber,
+        name: customerName
+      },
+      metadata: {
+        conversationId: conversationId,
+        source: 'whatsapp_escalation',
+        context: context
+      }
+    };
+
+    if (VAPI_PHONE_NUMBER_ID && VAPI_PHONE_NUMBER_ID.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      callPayload.phoneNumberId = VAPI_PHONE_NUMBER_ID;
+    }
+
     const response = await fetch('https://api.vapi.ai/call', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${VAPI_API_KEY}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        assistant: assistant,
-        phoneNumber: VAPI_PHONE_NUMBER ? {
-          twilioPhoneNumber: VAPI_PHONE_NUMBER
-        } : undefined,
-        customer: {
-          number: phoneNumber,
-          name: customerName
-        },
-        metadata: {
-          conversationId: conversationId,
-          source: 'whatsapp_escalation',
-          context: context
-        }
-      })
+      body: JSON.stringify(callPayload)
     });
 
     if (!response.ok) {
