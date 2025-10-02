@@ -88,6 +88,7 @@ Implemented hybrid WhatsApp messaging approach:
 - `/api/whatsapp/send-whatsmeow` - Sends messages via whatsmeow
 - `/api/vapi/initiate-call` - Initiates voice calls via Vapi
 - `/api/vapi/webhook` - Handles Vapi call events and transcripts (HMAC-secured, production-ready)
+- `/api/vapi/metrics` - Returns aggregated Vapi call metrics (SQL-optimized for large datasets)
 
 ### Database Schema for Voice Calls
 **Tables:**
@@ -100,6 +101,18 @@ Implemented hybrid WhatsApp messaging approach:
 - Integration with existing contacts and conversations
 - Production-ready error handling (webhook returns 500 on DB failures for Vapi retry)
 - HMAC authentication for webhook security
+- Dashboard metrics with SQL aggregations (COUNT, SUM, AVG) for scalable performance
+
+### Vapi Metrics Dashboard (October 2025)
+**Implementation:**
+- Added VapiMetricsCard component to main dashboard
+- Displays real-time call statistics: total calls, average duration, success rate, cases resolved
+- Shows last 5 calls with customer info, status, duration, and summaries
+- Auto-refreshes every 30 seconds for live monitoring
+- SQL-optimized API endpoint using aggregate functions for O(1) performance on summary stats
+- Supports date range filtering via query parameters
+
+**Location:** Dashboard page → Vapi Metrics section (between campaign charts and quick shortcuts)
 ---------------------
 Conversa no chat sobre a solicitação - Base replit
  Adicionei TODOS os detalhes técnicos completos no replit.md, mantendo absolutamente tudo que já existia. O documento agora inclui:
