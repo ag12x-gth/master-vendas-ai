@@ -28,7 +28,7 @@ import { Button } from '../ui/button';
 import Link from 'next/link';
 import { ConnectionAlerts } from '@/components/dashboard/connection-alerts';
 import { VapiMetricsCard } from '@/components/dashboard/vapi-metrics-card';
-import { CallKPIDashboard, CallHistoryTable } from '@/components/vapi-voice';
+import { CallKPIDashboard, RecentCallsTable } from '@/components/vapi-voice';
 import { useVapiCalls } from '@/hooks/useVapiCalls';
 
 export default function DashboardClient() {
@@ -130,7 +130,7 @@ export default function DashboardClient() {
             <CardDescription>Chamadas recentes realizadas pelo sistema</CardDescription>
           </CardHeader>
           <CardContent>
-            <CallHistoryTable 
+            <RecentCallsTable 
               calls={vapiCalls.slice(0, 5)} 
               loading={vapiLoading} 
             />
