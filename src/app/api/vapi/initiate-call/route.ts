@@ -18,12 +18,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const VAPI_API_KEY = process.env.VAPI_API_KEY;
+    const VAPI_PUBLIC_KEY = process.env.VAPI_PUBLIC_KEY || process.env.VAPI_API_KEY;
     const VAPI_PHONE_NUMBER = process.env.VAPI_PHONE_NUMBER;
 
-    if (!VAPI_API_KEY) {
+    if (!VAPI_PUBLIC_KEY) {
       return NextResponse.json(
-        { error: 'VAPI_API_KEY not configured. Please set up Vapi integration.' },
+        { error: 'VAPI_PUBLIC_KEY not configured. Please set up Vapi integration with public key.' },
         { status: 500 }
       );
     }
@@ -97,7 +97,7 @@ Instruções:
     const response = await fetch('https://api.vapi.ai/call', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${VAPI_API_KEY}`,
+        'Authorization': `Bearer ${VAPI_PUBLIC_KEY}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
