@@ -25,6 +25,7 @@ interface BulkCallDialogProps {
     phone: string;
   }>;
   context?: string;
+  onCallsInitiated?: () => void;
 }
 
 export function BulkCallDialog({
@@ -32,6 +33,7 @@ export function BulkCallDialog({
   onOpenChange,
   contacts,
   context = '',
+  onCallsInitiated,
 }: BulkCallDialogProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -81,6 +83,10 @@ export function BulkCallDialog({
       title: 'Campanha de chamadas concluída',
       description: `${successCount} chamadas iniciadas com sucesso, ${failCount} falharam.`,
     });
+
+    if (onCallsInitiated) {
+      onCallsInitiated();
+    }
   };
 
   const handleClose = () => {

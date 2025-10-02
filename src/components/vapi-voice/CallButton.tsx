@@ -23,6 +23,7 @@ interface CallButtonProps {
   variant?: 'default' | 'outline' | 'ghost' | 'icon';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
+  trigger?: React.ReactNode;
 }
 
 export function CallButton({
@@ -34,6 +35,7 @@ export function CallButton({
   variant = 'default',
   size = 'default',
   className,
+  trigger,
 }: CallButtonProps) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isInitiating, setIsInitiating] = useState(false);
@@ -70,15 +72,21 @@ export function CallButton({
 
   return (
     <>
-      <Button
-        variant={variant}
-        size={size}
-        className={className}
-        onClick={() => setShowConfirmDialog(true)}
-      >
-        <Phone className="h-4 w-4 mr-2" />
-        {size !== 'icon' && 'Ligar'}
-      </Button>
+      {trigger ? (
+        <div onClick={() => setShowConfirmDialog(true)}>
+          {trigger}
+        </div>
+      ) : (
+        <Button
+          variant={variant}
+          size={size}
+          className={className}
+          onClick={() => setShowConfirmDialog(true)}
+        >
+          <Phone className="h-4 w-4 mr-2" />
+          {size !== 'icon' && 'Ligar'}
+        </Button>
+      )}
 
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <DialogContent>
