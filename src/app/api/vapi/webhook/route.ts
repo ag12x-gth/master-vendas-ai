@@ -48,11 +48,15 @@ async function verifyVapiSignature(request: NextRequest, body: string): Promise<
 
 export async function POST(request: NextRequest) {
   try {
+    // Allow test mode via query parameter (for Vapi validation)
+    const url = new URL(request.url);
+    const testMode = url.searchParams.get('test') === 'true';
+    
     const body = await request.text();
     
     // Handle empty body or test requests (Vapi validation)
-    if (!body || body.trim() === '') {
-      console.log('🔍 Vapi validation request (empty body) - responding OK');
+    if (!body || body.trim() === '' || testMode) {
+      console.log('🔍 Vapi validation request - responding OK');
       return NextResponse.json({ success: true, message: 'Webhook endpoint is active' });
     }
     
