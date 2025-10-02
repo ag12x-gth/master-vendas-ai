@@ -5,7 +5,7 @@
 import { notFound, useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Save, X, Edit, UserCircle, MapPin, Tag as TagIcon, StickyNote } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, X, Edit, UserCircle, MapPin, Tag as TagIcon, StickyNote, Phone, PhoneCall } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +18,9 @@ import { Label } from '../ui/label';
 import { Skeleton } from '../ui/skeleton';
 import { StartConversationDialog } from './start-conversation-dialog';
 import { MultiSelectCreatable } from '../ui/multi-select-creatable';
+import { CallButton } from '@/components/vapi-voice/CallButton';
+import { RecentCallsTable } from '@/components/vapi-voice/RecentCallsTable';
+import useSWR from 'swr';
 
 interface EditableSectionProps {
     title: string;
@@ -207,6 +210,19 @@ export function ContactProfile({ contactId }: { contactId: string }) {
     <div className="space-y-6">
       <PageHeader title={loading ? 'Carregando...' : contact?.name || 'Perfil do Contato'} description={loading ? '' : "Perfil detalhado do contato."}>
           <div className="flex items-center gap-2">
+            {contact && (
+              <CallButton
+                contactId={contact.id}
+                customerName={contact.name}
+                customerNumber={contact.phone}
+                trigger={
+                  <Button variant="default">
+                    <PhoneCall className="mr-2 h-4 w-4" />
+                    Ligar
+                  </Button>
+                }
+              />
+            )}
             <StartConversationDialog contact={contact} />
             <Button variant="outline" onClick={() => router.back()}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -354,20 +370,65 @@ export function ContactProfile({ contactId }: { contactId: string }) {
                     )}
                 </EditableCardSection>
 
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Timeline de Atividades</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        {/* Placeholder para a timeline */}
-                        <div className="text-center text-muted-foreground py-8">
-                            A timeline de atividades será implementada aqui.
-                        </div>
-                    </CardContent>
-                 </Card>
+                 <ContactCallHistory contactId={contactId} contact={contact} />
             </div>
         </div>
       )}
     </div>
   )
+}
+
+const fetcher = async (url: string) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Failed to fetch calls');
+  return response.json();
+};
+
+function ContactCallHistory({ contactId, contact }: { contactId: string; contact: ExtendedContact | null }) {
+  const { data, error, isLoading } = useSWR(
+    contactId ? `/api/vapi/history?contactId=${contactId}&limit=10` : null,
+    fetcher,
+    { refreshInterval: 30000 }
+  );
+
+  const calls = data?.calls || [];
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-base flex items-center gap-2">
+          <Phone className="h-5 w-5 text-primary" />
+          Histórico de Ligações
+        </CardTitle>
+        {contact && (
+          <CallButton
+            contactId={contact.id}
+            customerName={contact.name}
+            customerNumber={contact.phone}
+            trigger={
+              <Button variant="outline" size="sm">
+                <PhoneCall className="mr-2 h-4 w-4" />
+                Nova Ligação
+              </Button>
+            }
+          />
+        )}
+      </CardHeader>
+      <CardContent>
+        {error ? (
+          <div className="text-center text-destructive py-8">
+            Erro ao carregar histórico de ligações
+          </div>
+        ) : calls.length === 0 && !isLoading ? (
+          <div className="text-center text-muted-foreground py-8">
+            <Phone className="h-12 w-12 mx-auto mb-3 opacity-20" />
+            <p>Nenhuma ligação registrada com este contato</p>
+            <p className="text-sm mt-1">As ligações realizadas aparecerão aqui</p>
+          </div>
+        ) : (
+          <RecentCallsTable calls={calls} loading={isLoading} />
+        )}
+      </CardContent>
+    </Card>
+  );
 }

@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Upload, PlusCircle, Search, Trash2, List, LayoutGrid, Tags, Download, Loader2, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, MoreHorizontal, Edit, ArrowUpDown } from 'lucide-react';
+import { Upload, PlusCircle, Search, Trash2, List, LayoutGrid, Tags, Download, Loader2, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, MoreHorizontal, Edit, ArrowUpDown, Phone, PhoneCall } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { PageHeader } from '../page-header';
 import type { ExtendedContact, ContactList, Tag } from '@/lib/types';
@@ -37,6 +37,8 @@ import {
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import Link from 'next/link';
+import { CallButton } from '@/components/vapi-voice/CallButton';
+import { BulkCallDialog } from '@/components/vapi-voice/BulkCallDialog';
 
 type ViewType = 'table' | 'grid';
 type SortKey = 'name' | 'createdAt';
@@ -45,8 +47,20 @@ const ContactGrid = ({ contacts, onRowClick }: { contacts: ExtendedContact[], on
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {contacts.map(contact => (
-                <Card key={contact.id} onClick={() => onRowClick(contact.id)} className="cursor-pointer hover:shadow-lg transition-shadow">
-                    <CardContent className="pt-6 flex flex-col items-center text-center">
+                <Card key={contact.id} className="hover:shadow-lg transition-shadow relative">
+                    <div className="absolute top-2 right-2 z-10">
+                        <CallButton
+                            contactId={contact.id}
+                            customerName={contact.name}
+                            customerNumber={contact.phone}
+                            trigger={
+                                <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+                                    <Phone className="h-4 w-4" />
+                                </Button>
+                            }
+                        />
+                    </div>
+                    <CardContent className="pt-6 flex flex-col items-center text-center cursor-pointer" onClick={() => onRowClick(contact.id)}>
                          <Avatar className="h-16 w-16 mb-4">
                             <AvatarImage src={contact.avatarUrl || `https://placehold.co/64x64.png`} alt={contact.name} data-ai-hint="avatar user"/>
                             <AvatarFallback>{contact.name.substring(0, 2)}</AvatarFallback>
@@ -91,7 +105,7 @@ const ContactTableView = ({ contacts, onRowClick, selectedRows, onSelectedRowsCh
         return (
             <div className="space-y-4">
                 {contacts.map(contact => (
-                    <Card key={contact.id} onClick={() => onRowClick(contact.id)} className="cursor-pointer">
+                    <Card key={contact.id} className="relative">
                         <CardContent className="p-4 flex items-center gap-4">
                             <Checkbox 
                                 checked={selectedRows.includes(contact.id)}
@@ -99,7 +113,7 @@ const ContactTableView = ({ contacts, onRowClick, selectedRows, onSelectedRowsCh
                                 onClick={(e) => e.stopPropagation()}
                                 className="h-5 w-5"
                              />
-                             <div className="flex-1 space-y-1">
+                             <div className="flex-1 space-y-1 cursor-pointer" onClick={() => onRowClick(contact.id)}>
                                 <p className="font-bold">{contact.name}</p>
                                 <p className="text-sm text-muted-foreground">{contact.phone}</p>
                                 <div className="flex gap-1 flex-wrap pt-1">
@@ -108,6 +122,16 @@ const ContactTableView = ({ contacts, onRowClick, selectedRows, onSelectedRowsCh
                                     ))}
                                 </div>
                              </div>
+                             <CallButton
+                                contactId={contact.id}
+                                customerName={contact.name}
+                                customerNumber={contact.phone}
+                                trigger={
+                                    <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+                                        <Phone className="h-4 w-4" />
+                                    </Button>
+                                }
+                             />
                         </CardContent>
                     </Card>
                 ))}
@@ -183,6 +207,16 @@ const ContactTableView = ({ contacts, onRowClick, selectedRows, onSelectedRowsCh
                                     <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
+                                    <CallButton
+                                        contactId={contact.id}
+                                        customerName={contact.name}
+                                        customerNumber={contact.phone}
+                                        trigger={
+                                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                <Phone className="mr-2 h-4 w-4" /> Ligar
+                                            </DropdownMenuItem>
+                                        }
+                                    />
                                     <DropdownMenuItem onSelect={() => onRowClick(contact.id)}>
                                         <Edit className="mr-2 h-4 w-4" /> Editar
                                     </DropdownMenuItem>
@@ -227,6 +261,7 @@ export function ContactTable() {
   const [search, setSearch] = useState('');
   const [view, setView] = useState<ViewType>('table');
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [showBulkCallDialog, setShowBulkCallDialog] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -436,6 +471,9 @@ export function ContactTable() {
          <div className="mb-4 p-3 bg-muted rounded-lg flex flex-col sm:flex-row gap-4 justify-between items-center">
             <p className="text-sm font-medium">{selectedRows.length} contato(s) selecionado(s)</p>
             <div className="flex gap-2 flex-wrap justify-center">
+                <Button variant="default" size="sm" onClick={() => setShowBulkCallDialog(true)}>
+                    <PhoneCall className="mr-2 h-4 w-4" />Ligar para Selecionados
+                </Button>
                 <Button variant="outline" size="sm"><Tags className="mr-2 h-4 w-4" />Adicionar Tag</Button>
                 <Button variant="outline" size="sm"><Download className="mr-2 h-4 w-4" />Exportar</Button>
                 <Button variant="destructive" size="sm" onClick={handleBulkDelete}><Trash2 className="mr-2 h-4 w-4" />Excluir</Button>
@@ -482,6 +520,20 @@ export function ContactTable() {
             </div>
          </div>
        )}
+
+      <BulkCallDialog
+        open={showBulkCallDialog}
+        onOpenChange={setShowBulkCallDialog}
+        contacts={contacts.filter(c => selectedRows.includes(c.id)).map(c => ({
+          id: c.id,
+          name: c.name,
+          phone: c.phone
+        }))}
+        onCallsInitiated={() => {
+          setSelectedRows([]);
+          setShowBulkCallDialog(false);
+        }}
+      />
     </>
   );
 }

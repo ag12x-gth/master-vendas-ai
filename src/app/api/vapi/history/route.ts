@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
     const search = searchParams.get('search');
+    const contactId = searchParams.get('contactId');
 
     const offset = (page - 1) * limit;
 
@@ -42,6 +43,10 @@ export async function GET(request: NextRequest) {
           ilike(vapiCalls.customerNumber, `%${search}%`)
         )
       );
+    }
+
+    if (contactId) {
+      conditions.push(eq(vapiCalls.contactId, contactId));
     }
 
     const whereClause = and(...conditions);
