@@ -121,13 +121,35 @@ Instruções:
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(`Vapi API error: ${response.status} - ${JSON.stringify(errorData)}`);
+      
+      if (response.status === 400 && errorData.message?.includes('Over Concurrency Limit')) {
+        return NextResponse.json(
+          { 
+            error: 'Sistema temporariamente ocupado. Por favor, tente novamente em alguns segundos.',
+            details: 'Limite de chamadas simultâneas atingido no provedor Vapi.',
+            retryAfter: 30
+          },
+          { status: 429 }
+        );
+      }
+      
+      if (response.status === 401) {
+        return NextResponse.json(
+          { error: 'Erro de autenticação com provedor de voz. Entre em contato com o suporte.' },
+          { status: 500 }
+        );
+      }
+      
+      return NextResponse.json(
+        { 
+          error: 'Não foi possível iniciar a chamada. Tente novamente.',
+          details: errorData.message || 'Erro desconhecido'
+        },
+        { status: 503 }
+      );
     }
 
     const callData = await response.json();
-
-    // Save call record to database
-    // TODO: Implement database save
 
     console.log('✅ Vapi call initiated:', callData.id);
 
@@ -135,13 +157,13 @@ Instruções:
       success: true,
       callId: callData.id,
       status: callData.status,
-      message: 'Call initiated successfully'
+      message: 'Chamada iniciada com sucesso'
     });
 
   } catch (error: any) {
     console.error('Error initiating Vapi call:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to initiate call' },
+      { error: 'Erro interno ao processar chamada' },
       { status: 500 }
     );
   }
