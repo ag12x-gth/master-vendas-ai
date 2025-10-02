@@ -1,4 +1,4 @@
-# Master IA Oficial - Project Setup Documentation
+# * 🎯Master IA Oficial - Project Setup Documentation
 
 ## Overview
 Master IA Oficial is a comprehensive Next.js application designed for managing WhatsApp and SMS campaigns, customer service, and AI automation. Its primary purpose is to provide a robust platform for businesses to streamline communication, enhance customer engagement, and leverage AI for improved operational efficiency. The project aims to capture significant market potential in the AI-powered communication sector by offering a scalable, compliant, and feature-rich solution.
