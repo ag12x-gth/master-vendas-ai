@@ -49,9 +49,22 @@ async function verifyVapiSignature(request: NextRequest, body: string): Promise<
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text();
+    
+    // Handle empty body or test requests (Vapi validation)
+    if (!body || body.trim() === '') {
+      console.log('🔍 Vapi validation request (empty body) - responding OK');
+      return NextResponse.json({ success: true, message: 'Webhook endpoint is active' });
+    }
+    
     const payload = JSON.parse(body);
     
-    // Verify webhook signature
+    // Allow Vapi test/validation requests without HMAC
+    if (payload.type === 'test' || payload.type === 'ping' || payload.test === true) {
+      console.log('🔍 Vapi test/validation request - responding OK');
+      return NextResponse.json({ success: true, message: 'Webhook endpoint is active' });
+    }
+    
+    // Verify webhook signature for real webhooks
     const isValid = await verifyVapiSignature(request, body);
     if (!isValid) {
       console.error('Invalid Vapi webhook signature');
