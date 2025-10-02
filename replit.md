@@ -113,6 +113,55 @@ Implemented hybrid WhatsApp messaging approach:
 - Supports date range filtering via query parameters
 
 **Location:** Dashboard page → Vapi Metrics section (between campaign charts and quick shortcuts)
+
+### Voice Calls Frontend Feature (October 2025)
+**Complete frontend implementation for Voice AI with Vapi:**
+
+**📦 Components Created (8 total):**
+1. **CallButton** - Individual call initiation with real-time status
+2. **CallDetailsDialog** - Full call details with transcription display
+3. **CallStatusBadge** - Visual status indicators (initiated, ringing, in_progress, completed, failed)
+4. **CallHistoryTable** - Paginated history with filters (search, status) using SWR
+5. **RecentCallsTable** - Dashboard widget for last 5 calls
+6. **CallKPIDashboard** - Real-time metrics (total calls, avg duration, success rate, resolved cases)
+7. **BulkCallDialog** - Bulk campaign creation with progress tracking
+8. **VapiCallContext** - Global call state management
+
+**🔌 Hooks Implemented (3 total):**
+1. **useVapiCalls** - Metrics and recent calls with auto-refresh (30s interval)
+2. **useVapiHistory** - SWR-based paginated history with caching/revalidation
+3. **useVapiCallContext** - Global active call state
+
+**🌐 API Endpoints:**
+- `/api/vapi/history` - Paginated call history with filters (status, dates, search)
+  - SQL-optimized with LIMIT/OFFSET pagination
+  - Supports search (ILIKE on name/number)
+  - Returns pagination metadata (totalPages, hasNext, hasPrev)
+  - Guardrails: page clamping (>=1), limit clamping (1-100)
+
+**📄 Pages:**
+- `/voice-calls` - Dedicated page with:
+  - KPI dashboard at top
+  - Tabs: History (full paginated table) + Analytics (placeholder)
+  - Bulk campaign button
+  - Search and status filters
+  - Pagination controls (prev/next)
+
+**🔗 Integration:**
+- Dashboard displays CallKPIDashboard + RecentCallsTable (last 5 calls)
+- Sidebar navigation includes "Voice Calls" with Phone icon
+- VapiCallProvider wraps entire app in (main) layout
+- All components use ShadCN UI for consistency
+
+**🎯 Features:**
+- ✅ Individual calls with real-time status updates
+- ✅ Bulk campaigns with progress tracking
+- ✅ Full call history with pagination (SWR-based)
+- ✅ Advanced filters (status, search, date range ready)
+- ✅ KPI metrics with SQL aggregations
+- ✅ Call details with transcription
+- ✅ Mobile-responsive design
+- ✅ Error handling (429 for concurrency limits, Portuguese messages)
 ---------------------
 Conversa no chat sobre a solicitação - Base replit
  Adicionei TODOS os detalhes técnicos completos no replit.md, mantendo absolutamente tudo que já existia. O documento agora inclui:
