@@ -309,32 +309,27 @@ async function getCompanyIdFromContext(): Promise<string> {
 }
 
 async function findOrCreateContact(phoneNumber: string, name: string | undefined, companyId: string): Promise<string | null> {
-  try {
-    const normalizedPhone = phoneNumber.replace(/\D/g, '');
-    
-    const [existingContact] = await db
-      .select()
-      .from(contacts)
-      .where(eq(contacts.phone, normalizedPhone))
-      .limit(1);
-    
-    if (existingContact) {
-      return existingContact.id;
-    }
-    
-    const [newContact] = await db
-      .insert(contacts)
-      .values({
-        companyId,
-        phone: normalizedPhone,
-        name: name || 'Cliente Vapi',
-        status: 'ACTIVE',
-      })
-      .returning({ id: contacts.id });
-    
-    return newContact?.id || null;
-  } catch (error) {
-    console.error('Error finding/creating contact:', error);
-    return null;
+  const normalizedPhone = phoneNumber.replace(/\D/g, '');
+  
+  const [existingContact] = await db
+    .select()
+    .from(contacts)
+    .where(eq(contacts.phone, normalizedPhone))
+    .limit(1);
+  
+  if (existingContact) {
+    return existingContact.id;
   }
+  
+  const [newContact] = await db
+    .insert(contacts)
+    .values({
+      companyId,
+      phone: normalizedPhone,
+      name: name || 'Cliente Vapi',
+      status: 'ACTIVE',
+    })
+    .returning({ id: contacts.id });
+  
+  return newContact?.id || null;
 }

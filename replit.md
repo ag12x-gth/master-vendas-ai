@@ -87,7 +87,19 @@ Implemented hybrid WhatsApp messaging approach:
 - `/api/webhook/whatsmeow` - Receives WhatsApp messages from whatsmeow
 - `/api/whatsapp/send-whatsmeow` - Sends messages via whatsmeow
 - `/api/vapi/initiate-call` - Initiates voice calls via Vapi
-- `/api/vapi/webhook` - Handles Vapi call events and transcripts
+- `/api/vapi/webhook` - Handles Vapi call events and transcripts (HMAC-secured, production-ready)
+
+### Database Schema for Voice Calls
+**Tables:**
+- `vapi_calls` - Stores complete call lifecycle (start, end, duration, summary, analysis, resolution)
+- `vapi_transcripts` - Stores real-time conversation transcripts with role attribution
+
+**Features:**
+- Full persistence of call metadata, customer info, and AI analysis
+- Real-time transcript storage with timestamps
+- Integration with existing contacts and conversations
+- Production-ready error handling (webhook returns 500 on DB failures for Vapi retry)
+- HMAC authentication for webhook security
 ---------------------
 Conversa no chat sobre a solicitação - Base replit
  Adicionei TODOS os detalhes técnicos completos no replit.md, mantendo absolutamente tudo que já existia. O documento agora inclui:
