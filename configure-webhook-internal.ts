@@ -2,7 +2,7 @@
 
 import { db } from './src/lib/db';
 import { connections, companies } from './src/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { decrypt } from './src/lib/crypto';
 
 const FACEBOOK_API_VERSION = process.env.FACEBOOK_API_VERSION || 'v23.0';

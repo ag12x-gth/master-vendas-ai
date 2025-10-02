@@ -96,7 +96,7 @@ async function runWhatsAppTests() {
             console.log("-----------------------------------------");
             
             // Buscar ou criar conversa
-            let [existingConversation] = await db
+            const [existingConversation] = await db
                 .select()
                 .from(conversations)
                 .where(and(
@@ -201,7 +201,7 @@ async function runWhatsAppTests() {
                         console.log("   Message ID:", textMessageId);
                         
                         // Salvar mensagem no banco
-                        const [savedTextMessage] = await db.insert(messages).values({
+                        const [_savedTextMessage] = await db.insert(messages).values({
                             conversationId: conversationId,
                             providerMessageId: textMessageId || 'TEST_TEXT_' + Date.now(),
                             senderType: 'AGENT',

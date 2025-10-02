@@ -115,7 +115,7 @@ async function handleCallEnded(payload: any) {
   const summary = call.analysis?.summary || 'Chamada concluída';
   
   // Send summary via WhatsApp if we have conversation context
-  const conversationId = call.metadata?.conversationId;
+  const _conversationId = call.metadata?.conversationId;
   const customerPhone = call.customer.number;
   
   if (customerPhone) {
@@ -127,7 +127,7 @@ async function handleCallEnded(payload: any) {
 }
 
 async function handleFunctionCall(payload: any) {
-  const { functionCall, call } = payload;
+  const { functionCall, call: _call } = payload;
   
   console.log(`🔧 Function call: ${functionCall.name}`);
 
@@ -166,7 +166,7 @@ async function handleFunctionCall(payload: any) {
 }
 
 async function handleTranscript(payload: any) {
-  const { transcript, call } = payload;
+  const { transcript, call: _call } = payload;
   
   console.log(`📝 Transcript: ${transcript.role}: ${transcript.text}`);
   

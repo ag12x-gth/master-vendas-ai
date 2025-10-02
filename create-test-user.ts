@@ -1,7 +1,7 @@
 // Script para criar/atualizar usuário de teste
 import { config } from 'dotenv';
 import { db } from './src/lib/db';
-import { users, companies } from './src/lib/db/schema';
+import { users } from './src/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { hash } from 'bcryptjs';
 import { SignJWT } from 'jose';

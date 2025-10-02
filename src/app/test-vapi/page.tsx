@@ -136,7 +136,7 @@ export default function TestVapiPage() {
             <CardContent>
               <ol className="text-sm space-y-2 text-blue-900">
                 <li>1️⃣ <strong>Console/Logs:</strong> Abra a aba de Console para monitorar webhooks</li>
-                <li>2️⃣ <strong>Chamada:</strong> Insira um número válido e clique em "Iniciar Chamada"</li>
+                <li>2️⃣ <strong>Chamada:</strong> Insira um número válido e clique em &quot;Iniciar Chamada&quot;</li>
                 <li>3️⃣ <strong>Webhooks:</strong> Verifique nos logs se recebeu <code>x-signature</code> e <code>x-timestamp</code></li>
                 <li>4️⃣ <strong>HMAC:</strong> Confirme se a validação SHA256 passou</li>
                 <li>5️⃣ <strong>WhatsApp:</strong> Após encerrar, verifique se o resumo foi enviado</li>

@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const whatsmeowUrl = process.env.WHATSMEOW_SERVICE_URL || 'http://localhost:8001';
     const basicAuth = Buffer.from(
