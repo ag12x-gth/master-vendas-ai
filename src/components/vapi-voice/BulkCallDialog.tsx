@@ -41,6 +41,8 @@ export function BulkCallDialog({
   const { toast } = useToast();
 
   const handleBulkCall = async () => {
+    if (!contacts || contacts.length === 0) return;
+    
     setIsProcessing(true);
     setProgress(0);
     setResults([]);
@@ -96,7 +98,7 @@ export function BulkCallDialog({
         <DialogHeader>
           <DialogTitle>Chamadas em Massa</DialogTitle>
           <DialogDescription>
-            Iniciar campanha de chamadas para {contacts.length} contato(s)
+            Iniciar campanha de chamadas para {contacts?.length || 0} contato(s)
           </DialogDescription>
         </DialogHeader>
 
@@ -158,10 +160,10 @@ export function BulkCallDialog({
           {results.length === 0 && (
             <Button
               onClick={handleBulkCall}
-              disabled={isProcessing}
+              disabled={isProcessing || !contacts || contacts.length === 0}
             >
               {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Iniciar {contacts.length} Chamada(s)
+              Iniciar {contacts?.length || 0} Chamada(s)
             </Button>
           )}
         </DialogFooter>
