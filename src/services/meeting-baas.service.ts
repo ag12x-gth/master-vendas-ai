@@ -26,10 +26,20 @@ export interface MeetingBotInfo {
 }
 
 export class MeetingBaasService {
+    private validateGoogleMeetUrl(url: string): boolean {
+        const meetUrlPattern = /^https:\/\/meet\.google\.com\/[a-z]{3}-[a-z]{4}-[a-z]{3}$/i;
+        return meetUrlPattern.test(url);
+    }
+
     async joinMeeting(params: JoinMeetingParams): Promise<MeetingBotInfo> {
         const { googleMeetUrl, botName = 'Assistente IA', recordingMode = 'speaker_view', enableTranscription = true, webhookUrl } = params;
 
-        const { success, data, error } = await baasClient.joinMeeting({
+        if (!this.validateGoogleMeetUrl(googleMeetUrl)) {
+            throw new Error('URL do Google Meet inválida. Use o formato: https://meet.google.com/abc-defg-hij');
+        }
+
+        try {
+            const { success, data, error } = await baasClient.joinMeeting({
             bot_name: botName,
             meeting_url: googleMeetUrl,
             reserved: false,
@@ -54,12 +64,16 @@ export class MeetingBaasService {
             throw new Error(`Erro ao entrar na reunião: ${error || 'Erro desconhecido'}`);
         }
 
-        return {
-            botId: data.bot_id,
-            meetingUrl: googleMeetUrl,
-            status: 'joining',
-            joinedAt: new Date().toISOString(),
-        };
+            return {
+                botId: data.bot_id,
+                meetingUrl: googleMeetUrl,
+                status: 'joining',
+                joinedAt: new Date().toISOString(),
+            };
+        } catch (error: any) {
+            console.error('Erro detalhado ao criar reunião:', error.response?.data || error.message);
+            throw new Error(`Erro ao entrar na reunião: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`);
+        }
     }
 
     async leaveMeeting(uuid: string): Promise<void> {

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { db, meetings } from '@/lib/db';
 import { desc } from 'drizzle-orm';
 import Link from 'next/link';
+import { NewMeetingDialog } from '@/components/meetings/NewMeetingDialog';
 
 async function getMeetings() {
     const allMeetings = await db
@@ -40,7 +41,7 @@ export default async function MeetingsPage() {
                         Gerencie e analise suas reuniões
                     </p>
                 </div>
-                <Button>+ Nova Reunião</Button>
+                <NewMeetingDialog />
             </div>
 
             <div className="grid gap-4">
