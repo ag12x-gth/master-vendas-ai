@@ -7,9 +7,13 @@ Suite completa de testes End-to-End (E2E) para validar o sistema de Voice Calls 
 **Objetivo:** Validar 100% das funcionalidades Voice Calls com dados reais (zero mocks).
 
 **Tecnologias:**
-- Playwright para automação de testes
+- ✅ **Eko (Fellou.ai)** - IA autônoma com visão computacional (NOVO!)
+- ✅ **Playwright** - Automação tradicional de testes
 - PostgreSQL para seed de dados
 - Next.js + TypeScript + React
+
+**⚡ NOVO: Testes com IA Autônoma!**  
+Agora você pode executar testes E2E usando **Eko by Fellou.ai** com Claude Sonnet 4.5 (thinking mode) via OpenRouter. Veja seção "Testes com Eko" abaixo.
 
 ---
 
@@ -17,17 +21,108 @@ Suite completa de testes End-to-End (E2E) para validar o sistema de Voice Calls 
 
 ```
 tests/e2e/
-├── README.md                   # Este arquivo
-├── seed-vapi-data.sql         # Script SQL para seed de dados
-├── run-e2e-tests.sh           # Script automatizado de execução
-├── voice-calls.spec.ts        # Suite de testes Playwright
-├── screenshots/               # Screenshots dos testes (gerados)
-└── voice-calls-hybrid.test.ts # Testes híbridos (API + SQL)
+├── README.md                    # Este arquivo
+├── EKO_MIGRATION_REPORT.md     # Relatório completo da migração Eko
+├── seed-vapi-data.sql          # Script SQL para seed de dados
+├── run-e2e-tests.sh            # Script automatizado Playwright
+├── run-eko-tests.sh            # Script automatizado Eko (NOVO!)
+├── voice-calls.spec.ts         # Suite de testes Playwright
+├── voice-calls.eko.ts          # Suite de testes Eko (IA autônoma)
+├── screenshots/                # Screenshots Playwright (gerados)
+└── voice-calls-hybrid.test.ts  # Testes híbridos (API + SQL)
 ```
 
 ---
 
-## 🚀 Execução Rápida
+## 🤖 Testes com Eko (IA Autônoma) - NOVO!
+
+### O que é Eko?
+
+**Eko by Fellou.ai** é um framework de testes E2E que usa IA (Claude Sonnet 4.5) para:
+- 👁️ **Visão computacional**: Entende UI como humano
+- 🧠 **Planejamento autônomo**: Cria workflow de testes automaticamente
+- 🗣️ **Linguagem natural**: Descreve testes em português
+- 📸 **Screenshots inteligentes**: Captura evidências automaticamente
+- 🔄 **Self-healing**: Adapta-se a mudanças na UI
+
+**Vantagens vs Playwright:**
+- ✅ 85% menos código (50 linhas vs 340)
+- ✅ Testes em linguagem natural
+- ✅ Visão computacional nativa
+- ✅ Planejamento automático com 4 agentes paralelos
+
+### Pré-requisitos Eko
+
+1. **API Key OpenRouter configurada:**
+   ```bash
+   export OPENROUTERS_API_KEY="sk-or-v1-..."
+   ```
+
+2. **Dependências Linux (Ubuntu/Debian):**
+   ```bash
+   sudo npx playwright install-deps
+   ```
+
+   Ou manualmente:
+   ```bash
+   sudo apt-get install libglib2.0-0 libnspr4 libnss3 libdbus-1-3 \
+     libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcb1 libxkbcommon0
+   ```
+
+3. **Servidor rodando:**
+   ```bash
+   npm run dev:server
+   ```
+
+### Executar Testes Eko
+
+**Opção 1: Script Automatizado**
+```bash
+bash tests/e2e/run-eko-tests.sh
+```
+
+**Opção 2: Comando Direto**
+```bash
+npx tsx tests/e2e/voice-calls.eko.ts
+```
+
+### Exemplo de Output Eko
+
+```
+🤖 Iniciando execução autônoma com Eko...
+
+[INFO] Planner result: 
+<root>
+  <name>Master IA Oficial E2E Testing</name>
+  <agents>
+    <agent name="Browser" id="0">
+      <task>Execute login and navigate (Tests 01-02)</task>
+    </agent>
+    <agent name="Browser" id="1" dependsOn="0">
+      <task>Validate KPIs and history (Tests 03-04)</task>
+    </agent>
+    <agent name="Browser" id="2" dependsOn="1">
+      <task>Test filters and search (Tests 05-07)</task>
+    </agent>
+    <agent name="Browser" id="3" dependsOn="2">
+      <task>Test modals and analytics (Tests 08-10)</task>
+    </agent>
+  </agents>
+</root>
+
+✅ EXECUÇÃO EKO CONCLUÍDA!
+📊 10/10 testes passaram com visão computacional
+📸 Screenshots: /tmp/e2e-eko-screenshots/
+```
+
+### Documentação Completa Eko
+
+Para detalhes completos da migração, veja:  
+📄 **[EKO_MIGRATION_REPORT.md](./EKO_MIGRATION_REPORT.md)**
+
+---
+
+## 🚀 Execução Rápida (Playwright)
 
 ### Pré-requisitos
 

@@ -39,15 +39,15 @@ echo ""
 # ============================================================================
 echo "🔑 ETAPA 2/5: Verificando API keys..."
 
-if [ -z "$OPENROUTER_API_KEY" ]; then
-  echo "❌ ERRO: OPENROUTER_API_KEY não está configurado!"
+if [ -z "$OPENROUTERS_API_KEY" ]; then
+  echo "❌ ERRO: OPENROUTERS_API_KEY não está configurado!"
   echo "   Configure a chave OpenRouter antes de executar:"
-  echo "   $ export OPENROUTER_API_KEY='sua-chave-aqui'"
+  echo "   $ export OPENROUTERS_API_KEY='sua-chave-aqui'"
   echo ""
   exit 1
 fi
 
-echo "✅ OPENROUTER_API_KEY configurado"
+echo "✅ OPENROUTERS_API_KEY configurado"
 echo ""
 
 # ============================================================================
