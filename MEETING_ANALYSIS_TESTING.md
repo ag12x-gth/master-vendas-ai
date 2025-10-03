@@ -8,19 +8,26 @@ Sistema completo para análise de reuniões do Google Meet em tempo real, com de
 ### API Keys Necessárias
 As seguintes chaves de API devem estar configuradas nos Replit Secrets:
 
-1. **MEETING_BAAS_API_KEY** - Chave da API Meeting BaaS
+1. **JWT_SECRET_KEY_CALL** - JWT secret para autenticação Socket.IO (CRÍTICO)
+   - Gerar uma string aleatória segura (ex: `openssl rand -base64 32`)
+   - OBRIGATÓRIO para conexões Socket.IO funcionarem
+
+2. **MEETING_BAAS_API_KEY** - Chave da API Meeting BaaS
    - Obtida em: https://meetingbaas.com
    - Custo: ~$0.69/hora
+   - Documentação: https://docs.meetingbaas.com/updates
+   - GitHub: https://github.com/Meeting-Baas
 
-2. **HUME_API_KEY** - Chave da API Hume AI
+3. **HUME_API_KEY** - Chave da API Hume AI
    - Obtida em: https://hume.ai
    - Custo: ~$0.0276/minuto
+   - Documentação: https://dev.hume.ai/intro
 
-3. **GEMINI_API_KEY** ou **GOOGLE_GENERATIVE_AI_API_KEY** - Para geração de insights
+4. **GOOGLE_API_KEY_CALL** - Google Generative AI para insights
    - Obtida em: https://ai.google.dev
+   - Fallback: GEMINI_API_KEY ou GOOGLE_GENERATIVE_AI_API_KEY
 
-4. **JWT_SECRET_KEY** - Para autenticação Socket.IO
-   - Gerar uma string aleatória segura
+5. **OPENAI_API_KEY** - OpenAI (opcional, se preferir usar ao invés de Gemini)
 
 ## Fluxo de Funcionamento
 

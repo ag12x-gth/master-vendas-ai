@@ -100,6 +100,13 @@ Sistema completo de análise de reuniões em tempo real usando Google Meet. Quan
 
 ### Configuration
 Required environment variables:
+- `JWT_SECRET_KEY_CALL` - JWT secret for Socket.IO authentication
 - `MEETING_BAAS_API_KEY` - Meeting BaaS API key
 - `HUME_API_KEY` - Hume AI API key
-- `GEMINI_API_KEY` or `GOOGLE_GENERATIVE_AI_API_KEY` - For AI insights
+- `GOOGLE_API_KEY_CALL` - Google Generative AI key for insights (fallbacks: GEMINI_API_KEY, GOOGLE_GENERATIVE_AI_API_KEY)
+- `OPENAI_API_KEY` - OpenAI API key (if using OpenAI instead of Gemini)
+
+### Documentation Links (Required Reading)
+- **Hume AI Documentation**: https://dev.hume.ai/intro
+- **Meeting BaaS Documentation**: https://docs.meetingbaas.com/updates
+- **Meeting BaaS GitHub**: https://github.com/Meeting-Baas
