@@ -10,7 +10,8 @@ export async function POST(request: NextRequest) {
         console.log('Webhook recebido do Meeting BaaS:', JSON.stringify(body, null, 2));
 
         // Meeting BaaS envia bot_id dentro de data.bot_id
-        const { event, data } = body;
+        const { type, event, data } = body;
+        const eventType = type || event;
         const bot_id = data?.bot_id || body.bot_id;
 
         if (!bot_id) {
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
 
         const io = (global as any).io;
 
-        switch (event) {
+        switch (eventType) {
             case 'bot.joined':
                 await db
                     .update(meetings)
@@ -52,16 +53,18 @@ export async function POST(request: NextRequest) {
                     .where(eq(meetings.id, meeting.id));
                 break;
 
+            case 'transcript':
             case 'transcript.partial':
             case 'transcript.final':
-                if (data?.text) {
-                    const sentimentAnalysis = await humeEmotionService.analyzeTranscriptSentiment(data.text);
+                const transcriptData = data?.transcript || data;
+                if (transcriptData?.text) {
+                    const sentimentAnalysis = await humeEmotionService.analyzeTranscriptSentiment(transcriptData.text);
                     
                     await db.insert(meetingAnalysisRealtime).values({
                         meetingId: meeting.id,
                         timestamp: new Date(),
-                        transcript: data.text,
-                        speaker: data.speaker || 'Unknown',
+                        transcript: transcriptData.text,
+                        speaker: transcriptData.speaker || 'Unknown',
                         sentiment: sentimentAnalysis.sentiment,
                         sentimentScore: String(sentimentAnalysis.score),
                         emotions: [],
@@ -70,8 +73,8 @@ export async function POST(request: NextRequest) {
                     if (io) {
                         io.to(`meeting:${meeting.id}`).emit('transcript_update', {
                             meetingId: meeting.id,
-                            transcript: data.text,
-                            speaker: data.speaker,
+                            transcript: transcriptData.text,
+                            speaker: transcriptData.speaker,
                             sentiment: sentimentAnalysis.sentiment,
                             sentimentScore: sentimentAnalysis.score,
                             timestamp: new Date().toISOString(),
