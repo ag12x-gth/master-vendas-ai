@@ -2,63 +2,7 @@
 // src/lib/email.ts
 'use server';
 
-import { SESv2Client, SendEmailCommand, type SendEmailCommandOutput } from '@aws-sdk/client-sesv2';
-
-// Validação das variáveis de ambiente
-if (!process.env.AWS_REGION || !process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
-    if (process.env.NODE_ENV !== 'production') console.debug('As credenciais da AWS (região, chave de acesso, segredo) não estão totalmente configuradas no ambiente. O envio de e-mails será desativado.');
-}
-if (!process.env.EMAIL_FROM_ADDRESS) {
-    if (process.env.NODE_ENV !== 'production') console.debug('A variável de ambiente EMAIL_FROM_ADDRESS não está configurada. O envio de e-mails será desativado.');
-}
-
-const sesClient = new SESv2Client({
-    region: process.env.AWS_REGION,
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-    }
-});
-
-interface SendEmailParams {
-    to: string;
-    subject: string;
-    body: string;
-}
-
-const sendEmail = async ({ to, subject, body }: SendEmailParams): Promise<SendEmailCommandOutput | void> => {
-    const fromAddress = process.env.EMAIL_FROM_ADDRESS;
-    // Não tenta enviar o e-mail se as configurações essenciais estiverem em falta.
-    if (!process.env.AWS_REGION || !fromAddress) {
-        if (process.env.NODE_ENV !== 'production') console.debug(`[Email Service SKIPPED] Email para ${to} não enviado por falta de configuração.`);
-        if (process.env.NODE_ENV !== 'production') console.debug(`Assunto: ${subject}`);
-        return;
-    }
-
-    const command = new SendEmailCommand({
-        FromEmailAddress: fromAddress,
-        Destination: {
-            ToAddresses: [to],
-        },
-        Content: {
-            Simple: {
-                Subject: { Data: subject, Charset: 'UTF-8' },
-                Body: {
-                    Html: { Data: body, Charset: 'UTF-8' },
-                },
-            },
-        },
-    });
-
-    try {
-        const result = await sesClient.send(command);
-        if (process.env.NODE_ENV !== 'production') console.debug(`E-mail enviado com sucesso para ${to}. MessageId: ${result.MessageId}`);
-        return result;
-    } catch (error) {
-        console.error(`Falha ao enviar e-mail para ${to}:`, error);
-        throw new Error('Não foi possível enviar o e-mail.');
-    }
-};
+import { sendEmail as sendReplitEmail } from '@/utils/replitmail';
 
 const getWelcomeEmailTemplate = (name: string): string => {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
@@ -180,34 +124,73 @@ const getEmailVerificationTemplate = (name: string, verificationLink: string): s
     `;
 };
 
-export const sendWelcomeEmail = async (to: string, name: string): Promise<void | SendEmailCommandOutput> => {
-    const subject = `Bem-vindo(a) ao Master IA, ${name}!`;
-    const body = getWelcomeEmailTemplate(name);
-    return sendEmail({ to, subject, body });
+export const sendWelcomeEmail = async (to: string, name: string): Promise<void> => {
+    try {
+        const subject = `Bem-vindo(a) ao Master IA, ${name}!`;
+        const html = getWelcomeEmailTemplate(name);
+        
+        await sendReplitEmail({
+            to,
+            subject,
+            html,
+            text: `Bem-vindo ao Master IA, ${name}! Sua conta foi criada com sucesso.`,
+        });
+        
+        console.log(`✅ Email de boas-vindas enviado para ${to}`);
+    } catch (error) {
+        console.error(`❌ Erro ao enviar email de boas-vindas para ${to}:`, error);
+        throw error;
+    }
 };
 
-export const sendPasswordResetEmail = async (to: string, name: string, token: string): Promise<void | SendEmailCommandOutput> => {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    if (!baseUrl) {
-        console.error("A variável de ambiente NEXT_PUBLIC_BASE_URL não está definida. O link de recuperação de senha pode estar incorreto.");
-        throw new Error("A URL base da aplicação não está configurada.");
-    }
+export const sendPasswordResetEmail = async (to: string, name: string, token: string): Promise<void> => {
+    try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        if (!baseUrl) {
+            console.error("A variável de ambiente NEXT_PUBLIC_BASE_URL não está definida.");
+            throw new Error("A URL base da aplicação não está configurada.");
+        }
 
-    const resetLink = `${baseUrl}/reset-password?token=${token}`;
-    const subject = 'Recupere sua senha do Master IA';
-    const body = getPasswordResetTemplate(name, resetLink);
-    return sendEmail({ to, subject, body });
+        const resetLink = `${baseUrl}/reset-password?token=${token}`;
+        const subject = 'Recupere sua senha do Master IA';
+        const html = getPasswordResetTemplate(name, resetLink);
+        
+        await sendReplitEmail({
+            to,
+            subject,
+            html,
+            text: `Olá ${name}, clique no link para redefinir sua senha: ${resetLink}`,
+        });
+        
+        console.log(`✅ Email de recuperação de senha enviado para ${to}`);
+    } catch (error) {
+        console.error(`❌ Erro ao enviar email de recuperação de senha para ${to}:`, error);
+        throw error;
+    }
 };
 
-export const sendEmailVerificationLink = async (to: string, name: string, token: string): Promise<void | SendEmailCommandOutput> => {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    if (!baseUrl) {
-        console.error("A variável de ambiente NEXT_PUBLIC_BASE_URL não está definida. O link de verificação de e-mail pode estar incorreto.");
-        throw new Error("A URL base da aplicação não está configurada.");
-    }
+export const sendEmailVerificationLink = async (to: string, name: string, token: string): Promise<void> => {
+    try {
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        if (!baseUrl) {
+            console.error("A variável de ambiente NEXT_PUBLIC_BASE_URL não está definida.");
+            throw new Error("A URL base da aplicação não está configurada.");
+        }
 
-    const verificationLink = `${baseUrl}/verify-email?token=${token}`;
-    const subject = 'Verifique seu e-mail no Master IA';
-    const body = getEmailVerificationTemplate(name, verificationLink);
-    return sendEmail({ to, subject, body });
+        const verificationLink = `${baseUrl}/verify-email?token=${token}`;
+        const subject = 'Verifique seu e-mail no Master IA';
+        const html = getEmailVerificationTemplate(name, verificationLink);
+        
+        await sendReplitEmail({
+            to,
+            subject,
+            html,
+            text: `Olá ${name}, clique no link para verificar seu email: ${verificationLink}`,
+        });
+        
+        console.log(`✅ Email de verificação enviado para ${to}`);
+    } catch (error) {
+        console.error(`❌ Erro ao enviar email de verificação para ${to}:`, error);
+        throw error;
+    }
 };
