@@ -15,12 +15,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
-import { Plus, Loader2, Video } from 'lucide-react';
+import { Plus, Loader2, Video, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export function NewMeetingDialog() {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [generatingLink, setGeneratingLink] = useState(false);
     const [formData, setFormData] = useState({
         googleMeetUrl: '',
         scheduledFor: '',
@@ -83,6 +84,43 @@ export function NewMeetingDialog() {
         }));
     };
 
+    const handleGenerateLink = async () => {
+        setGeneratingLink(true);
+        try {
+            const response = await fetch('/api/v1/meetings/generate-link', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao gerar link');
+            }
+
+            setFormData((prev) => ({
+                ...prev,
+                googleMeetUrl: data.meetingLink,
+            }));
+
+            toast({
+                title: '✅ Link gerado com sucesso!',
+                description: 'Link do Google Meet criado automaticamente.',
+            });
+        } catch (error: any) {
+            console.error('Erro ao gerar link:', error);
+            toast({
+                title: '❌ Erro ao gerar link',
+                description: error.message || 'Tente novamente mais tarde.',
+                variant: 'destructive',
+            });
+        } finally {
+            setGeneratingLink(false);
+        }
+    };
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -107,16 +145,32 @@ export function NewMeetingDialog() {
                             <Label htmlFor="googleMeetUrl">
                                 URL do Google Meet <span className="text-red-500">*</span>
                             </Label>
-                            <Input
-                                id="googleMeetUrl"
-                                placeholder="https://meet.google.com/abc-defg-hij"
-                                value={formData.googleMeetUrl}
-                                onChange={(e) => handleChange('googleMeetUrl', e.target.value)}
-                                required
-                                disabled={loading}
-                            />
+                            <div className="flex gap-2">
+                                <Input
+                                    id="googleMeetUrl"
+                                    placeholder="https://meet.google.com/abc-defg-hij"
+                                    value={formData.googleMeetUrl}
+                                    onChange={(e) => handleChange('googleMeetUrl', e.target.value)}
+                                    required
+                                    disabled={loading || generatingLink}
+                                    className="flex-1"
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handleGenerateLink}
+                                    disabled={loading || generatingLink}
+                                    className="shrink-0"
+                                >
+                                    {generatingLink ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <Wand2 className="h-4 w-4" />
+                                    )}
+                                </Button>
+                            </div>
                             <p className="text-xs text-muted-foreground">
-                                Cole o link da reunião do Google Meet
+                                Cole um link existente ou clique no botão para gerar automaticamente
                             </p>
                         </div>
 
