@@ -6,12 +6,22 @@ import { eq } from 'drizzle-orm';
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
-        const { googleMeetUrl, leadId, closerId, scheduledStartTime } = body;
+        const { googleMeetUrl, leadId, scheduledFor, notes } = body;
 
         if (!googleMeetUrl) {
             return NextResponse.json(
                 { error: 'Google Meet URL é obrigatório' },
                 { status: 400 }
+            );
+        }
+
+        const companyId = request.headers.get('x-company-id');
+        const closerId = request.headers.get('x-user-id');
+        
+        if (!companyId || !closerId) {
+            return NextResponse.json(
+                { error: 'Usuário não autenticado. Faça login novamente.' },
+                { status: 401 }
             );
         }
 
@@ -24,15 +34,6 @@ export async function POST(request: NextRequest) {
             webhookUrl,
         });
 
-        const companyId = request.headers.get('x-company-id');
-        
-        if (!companyId || !closerId) {
-            return NextResponse.json(
-                { error: 'companyId e closerId são obrigatórios' },
-                { status: 400 }
-            );
-        }
-
         const [meeting] = await db.insert(meetings).values({
             googleMeetUrl,
             leadId: leadId || null,
@@ -40,11 +41,17 @@ export async function POST(request: NextRequest) {
             companyId,
             meetingBaasId: botInfo.botId,
             status: 'scheduled',
-            scheduledFor: scheduledStartTime ? new Date(scheduledStartTime) : null,
+            scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
+            notes: notes || null,
         }).returning();
+
+        if (!meeting) {
+            throw new Error('Erro ao criar reunião no banco de dados');
+        }
 
         return NextResponse.json({
             success: true,
+            meetingId: meeting.id,
             meeting,
             botInfo,
         });

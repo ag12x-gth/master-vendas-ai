@@ -597,6 +597,7 @@ export const meetings = pgTable('meetings', {
     botLeftAt: timestamp('bot_left_at'),
     status: meetingStatusEnum('status').default('scheduled').notNull(),
     scheduledFor: timestamp('scheduled_for'),
+    notes: text('notes'),
     recordingUrl: text('recording_url'),
     transcriptUrl: text('transcript_url'),
     duration: integer('duration'),
