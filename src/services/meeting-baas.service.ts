@@ -49,12 +49,11 @@ export class MeetingBaasService {
             const { success, data, error } = await baasClient.joinMeeting({
             bot_name: botName,
             meeting_url: cleanUrl,
-            reserved: false,
+            reserved: true,
             recording_mode: recordingMode,
             speech_to_text: enableTranscription ? {
                 provider: 'Default'
             } : undefined,
-            bot_image: undefined,
             entry_message: 'Gravação e análise iniciada',
             automatic_leave: {
                 waiting_room_timeout: 600,
@@ -78,7 +77,16 @@ export class MeetingBaasService {
                 joinedAt: new Date().toISOString(),
             };
         } catch (error: any) {
-            console.error('Erro detalhado ao criar reunião:', error.response?.data || error.message);
+            console.error('=== ERRO COMPLETO MEETING BAAS ===');
+            console.error('Error object:', JSON.stringify(error, null, 2));
+            console.error('Response data:', JSON.stringify(error.response?.data, null, 2));
+            console.error('Response status:', error.response?.status);
+            console.error('Response headers:', JSON.stringify(error.response?.headers, null, 2));
+            console.error('Config:', JSON.stringify({
+                url: error.config?.url,
+                method: error.config?.method,
+                data: error.config?.data,
+            }, null, 2));
             throw new Error(`Erro ao entrar na reunião: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`);
         }
     }
