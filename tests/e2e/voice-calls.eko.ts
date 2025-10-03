@@ -1,4 +1,5 @@
-import { Eko, BaseBrowserAgent, type LLMs, type EkoConfig } from '@eko-ai/eko';
+import { Eko, type LLMs, type EkoConfig } from '@eko-ai/eko';
+import { BrowserAgent } from '@eko-ai/eko-nodejs';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -44,7 +45,7 @@ async function runVoiceCallsE2ETests() {
 
   const config: EkoConfig = {
     llms,
-    agents: [new BaseBrowserAgent()]
+    agents: [new BrowserAgent()]
   };
 
   const eko = new Eko(config);
