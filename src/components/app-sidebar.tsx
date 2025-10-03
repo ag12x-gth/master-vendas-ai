@@ -26,6 +26,7 @@ import {
   Bot,
   Route,
   Phone,
+  Video,
 } from 'lucide-react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
@@ -107,6 +108,7 @@ const allNavItems = [
   { href: '/gallery', label: 'Galeria', icon: GalleryVertical, roles: ['admin', 'superadmin'] },
   { href: '/agentes-ia', label: 'Agentes de IA', icon: Bot, roles: ['admin', 'superadmin'] },
   { href: '/voice-calls', label: 'Voice Calls', icon: Phone, roles: ['admin', 'superadmin'] },
+  { href: '/meetings', label: 'Reuniões', icon: Video, roles: ['admin', 'superadmin'] },
   { href: '/roteamento', label: 'Roteamento', icon: Route, roles: ['admin', 'superadmin'] },
 ];
 
