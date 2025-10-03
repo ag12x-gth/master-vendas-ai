@@ -146,8 +146,8 @@ const NavItemLink = ({ item, isExpanded }: { item: any, isExpanded: boolean }) =
                   )}
                 >
                   <item.icon className="h-5 w-5" />
-                   <span className={cn("ml-4", !isExpanded && "hidden")}>{item.label}</span>
-                  <span className="sr-only">{item.label}</span>
+                  {isExpanded && <span className="ml-4">{item.label}</span>}
+                  {!isExpanded && <span className="sr-only">{item.label}</span>}
                 </Link>
             </TooltipTrigger>
             {!isExpanded && <TooltipContent side="right">{item.label}</TooltipContent>}
@@ -231,8 +231,8 @@ export function AppSidebar() {
                     )}
                 >
                     <Settings className="h-5 w-5" />
-                    <span className={cn("ml-4", !isExpanded && "hidden")}>Configurações</span>
-                    <span className="sr-only">Configurações</span>
+                    {isExpanded && <span className="ml-4">Configurações</span>}
+                    {!isExpanded && <span className="sr-only">Configurações</span>}
                 </Link>
                 </TooltipTrigger>
                 {!isExpanded && (
@@ -251,8 +251,8 @@ export function AppSidebar() {
                     )}
                 >
                     <Shield className="h-5 w-5" />
-                    <span className={cn("ml-4", !isExpanded && "hidden")}>Super Admin</span>
-                    <span className="sr-only">Super Admin</span>
+                    {isExpanded && <span className="ml-4">Super Admin</span>}
+                    {!isExpanded && <span className="sr-only">Super Admin</span>}
                 </Link>
                 </TooltipTrigger>
                 {!isExpanded && (
@@ -268,8 +268,8 @@ export function AppSidebar() {
                     onClick={() => setExpanded(!isExpanded)}
                 >
                     {isExpanded ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
-                    <span className={cn("ml-4", !isExpanded && "hidden")}>Recolher</span>
-                    <span className="sr-only">{isExpanded ? 'Recolher menu' : 'Expandir menu'}</span>
+                    {isExpanded && <span className="ml-4">Recolher</span>}
+                    {!isExpanded && <span className="sr-only">Expandir menu</span>}
                 </Button>
             </div>
         </nav>
