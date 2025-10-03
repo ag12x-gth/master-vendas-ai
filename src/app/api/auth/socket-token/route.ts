@@ -1,10 +1,18 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { getUserSession } from '@/app/actions';
+import { SignJWT } from 'jose';
+
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 export async function GET() {
     try {
-        // Verificar se o usuário está autenticado usando a função existente
+        if (!JWT_SECRET_KEY) {
+            return NextResponse.json(
+                { error: 'JWT_SECRET_KEY not configured' }, 
+                { status: 500 }
+            );
+        }
+
         const session = await getUserSession();
         
         if (!session.user || session.error) {
@@ -14,20 +22,20 @@ export async function GET() {
             );
         }
         
-        // Pegar o token do cookie (server-side pode acessar httpOnly cookies)
-        const cookieStore = cookies();
-        const token = cookieStore.get('__session')?.value || cookieStore.get('session_token')?.value;
+        const secretKey = new TextEncoder().encode(JWT_SECRET_KEY);
         
-        if (!token) {
-            return NextResponse.json(
-                { error: 'Token not found in cookies' }, 
-                { status: 401 }
-            );
-        }
+        const socketToken = await new SignJWT({
+            userId: session.user.id,
+            companyId: session.user.companyId,
+            email: session.user.email,
+        })
+            .setProtectedHeader({ alg: 'HS256' })
+            .setIssuedAt()
+            .setExpirationTime('24h')
+            .sign(secretKey);
         
-        // Retornar o token junto com informações básicas da sessão
         return NextResponse.json({
-            token,
+            token: socketToken,
             userId: session.user.id,
             companyId: session.user.companyId,
             email: session.user.email

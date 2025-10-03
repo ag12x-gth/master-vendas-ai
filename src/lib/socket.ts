@@ -81,6 +81,19 @@ export function initializeSocketIO(server: HTTPServer): SocketIOServer {
     socket.join(companyRoom);
     console.log(`Socket ${socket.id} joined room: ${companyRoom}`);
 
+    // Eventos para reuniões
+    socket.on('join_meeting', (meetingId: string) => {
+      const meetingRoom = `meeting:${meetingId}`;
+      socket.join(meetingRoom);
+      console.log(`Socket ${socket.id} joined meeting room: ${meetingRoom}`);
+    });
+
+    socket.on('leave_meeting', (meetingId: string) => {
+      const meetingRoom = `meeting:${meetingId}`;
+      socket.leave(meetingRoom);
+      console.log(`Socket ${socket.id} left meeting room: ${meetingRoom}`);
+    });
+
     socket.on('disconnect', () => {
       console.log('Client disconnected:', socket.id);
     });

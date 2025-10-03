@@ -50,4 +50,56 @@ The application is built on a modern web stack, utilizing Next.js 14.2.33 with T
   - Meta/Facebook (WhatsApp Official API)
   - whatsmeow (WhatsApp Web multi-device - Docker-based)
 - **Voice AI:** Vapi AI (for traditional voice calls via Twilio/Telnyx)
+- **Meeting Analysis:**
+  - Meeting BaaS (Bot joins Google Meet as participant - $0.69/hour)
+  - Hume AI (Emotion detection and sentiment analysis - $0.0276/minute)
 - **Version Control:** GitHub
+
+## Real-Time Meeting Analysis System
+
+### Overview
+Sistema completo de análise de reuniões em tempo real usando Google Meet. Quando leads têm chamadas agendadas com closers (vendedores), o sistema analisa o lead em tempo real usando agentes de IA e análise de emoções para entender o que estão dizendo/sentindo, fornecendo a melhor proposta automaticamente.
+
+### Architecture
+- **Bot Integration:** Meeting BaaS bot joins Google Meet as participant
+- **Real-time Analysis:** Audio transcription (99 languages) + Emotion detection (48 dimensions) + Voice prosody
+- **AI Processing:** Multi-modal analysis combining transcripts, sentiment, and emotions
+- **Live Delivery:** Webhooks → Backend → Socket.IO → Closer's UI panel
+
+### Database Schema
+1. **meetings** - Stores meeting metadata (Google Meet URL, bot ID, status, timestamps)
+2. **meeting_analysis_realtime** - Real-time transcripts, sentiment, and emotions during the meeting
+3. **meeting_insights** - Post-meeting AI-generated insights (summary, pain points, recommendations)
+
+### Services
+- **MeetingBaasService** (`src/services/meeting-baas.service.ts`) - Manages bot lifecycle
+- **HumeEmotionService** (`src/services/hume-emotion.service.ts`) - Analyzes emotions and sentiment
+- **AIAnalysisService** (`src/services/ai-analysis.service.ts`) - Generates insights using Gemini AI
+
+### API Routes
+- `POST /api/v1/meetings` - Create meeting and join bot
+- `GET /api/v1/meetings` - List meetings
+- `GET /api/v1/meetings/[id]` - Get meeting details
+- `PATCH /api/v1/meetings/[id]` - Update meeting status
+- `POST /api/v1/meetings/webhook` - Meeting BaaS webhook handler
+
+### Frontend Components
+- **MeetingRoomPanel** - Real-time transcription and emotion display
+- **Meetings Page** (`/meetings`) - List all meetings
+- **Meeting Details Page** (`/meetings/[id]`) - Live analysis or post-meeting insights
+
+### Socket.IO Events
+- `join_meeting` - Client joins meeting room
+- `transcript_update` - Real-time transcript with sentiment
+- `emotion_update` - Real-time emotion analysis
+
+### Cost Structure
+- Meeting BaaS: ~R$10.35 per 30-minute meeting
+- Hume AI: ~R$4.20 per 30-minute meeting
+- Total: ~R$15 per 30-minute meeting
+
+### Configuration
+Required environment variables:
+- `MEETING_BAAS_API_KEY` - Meeting BaaS API key
+- `HUME_API_KEY` - Hume AI API key
+- `GEMINI_API_KEY` or `GOOGLE_GENERATIVE_AI_API_KEY` - For AI insights

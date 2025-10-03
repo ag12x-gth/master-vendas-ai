@@ -33,35 +33,66 @@ export function MeetingRoomPanel({ meetingId }: MeetingRoomPanelProps) {
     const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
-        const socketInstance = io({
-            path: '/api/socketio',
-        });
+        let cleanup: (() => void) | undefined;
 
-        socketInstance.on('connect', () => {
-            console.log('Socket.IO conectado:', socketInstance.id);
-            setIsConnected(true);
-            socketInstance.emit('join_meeting', meetingId);
-        });
+        async function initializeSocket() {
+            try {
+                const response = await fetch('/api/auth/socket-token');
+                
+                if (!response.ok) {
+                    console.error('Erro ao obter token Socket.IO');
+                    return;
+                }
 
-        socketInstance.on('disconnect', () => {
-            console.log('Socket.IO desconectado');
-            setIsConnected(false);
-        });
+                const { token } = await response.json();
 
-        socketInstance.on('transcript_update', (data: TranscriptUpdate) => {
-            console.log('Transcrição recebida:', data);
-            setTranscripts(prev => [...prev, data]);
-        });
+                const socketInstance = io({
+                    path: '/api/socketio',
+                    auth: {
+                        token,
+                    },
+                });
 
-        socketInstance.on('emotion_update', (data: EmotionUpdate) => {
-            console.log('Emoção recebida:', data);
-            setCurrentEmotion(data);
-        });
+                socketInstance.on('connect', () => {
+                    console.log('Socket.IO conectado:', socketInstance.id);
+                    setIsConnected(true);
+                    socketInstance.emit('join_meeting', meetingId);
+                });
 
-        setSocket(socketInstance);
+                socketInstance.on('disconnect', () => {
+                    console.log('Socket.IO desconectado');
+                    setIsConnected(false);
+                });
+
+                socketInstance.on('transcript_update', (data: TranscriptUpdate) => {
+                    console.log('Transcrição recebida:', data);
+                    setTranscripts(prev => [...prev, data]);
+                });
+
+                socketInstance.on('emotion_update', (data: EmotionUpdate) => {
+                    console.log('Emoção recebida:', data);
+                    setCurrentEmotion(data);
+                });
+
+                socketInstance.on('connect_error', (error) => {
+                    console.error('Erro de conexão Socket.IO:', error);
+                    setIsConnected(false);
+                });
+
+                setSocket(socketInstance);
+
+                cleanup = () => {
+                    socketInstance.disconnect();
+                };
+            } catch (error) {
+                console.error('Erro ao inicializar Socket.IO:', error);
+            }
+        }
+
+        initializeSocket();
 
         return () => {
-            socketInstance.disconnect();
+            if (cleanup) cleanup();
         };
     }, [meetingId]);
 

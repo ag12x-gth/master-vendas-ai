@@ -62,10 +62,19 @@ app.prepare().then(() => {
     io.on('connection', (socket) => {
       console.log('Client connected:', socket.id);
 
+      socket.on('join_meeting', (meetingId) => {
+        socket.join(`meeting:${meetingId}`);
+        console.log(`Socket ${socket.id} joined meeting: ${meetingId}`);
+      });
+
       socket.on('disconnect', () => {
         console.log('Client disconnected:', socket.id);
       });
     });
+
+    // Make fallback Socket.IO globally available too
+    global.io = io;
+    console.log('Fallback Socket.IO made globally available');
   }
 
   server.listen(port, (err) => {
