@@ -36,15 +36,6 @@ export class MeetingBaasService {
         return match?.[1] || url;
     }
 
-    async generateGoogleMeetLink(): Promise<string> {
-        const chars = 'abcdefghijklmnopqrstuvwxyz';
-        const part1 = Array.from({ length: 3 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-        const part2 = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-        const part3 = Array.from({ length: 3 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-        
-        return `https://meet.google.com/${part1}-${part2}-${part3}`;
-    }
-
     async joinMeeting(params: JoinMeetingParams): Promise<MeetingBotInfo> {
         const { googleMeetUrl, botName = 'Assistente IA', recordingMode = 'speaker_view', enableTranscription = true, webhookUrl } = params;
 
