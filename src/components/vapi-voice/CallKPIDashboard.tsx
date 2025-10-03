@@ -30,7 +30,11 @@ export function CallKPIDashboard({ metrics, loading }: CallKPIDashboardProps) {
   const summary = metrics?.summary || {
     totalCalls: 0,
     completedCalls: 0,
+    inProgressCalls: 0,
+    failedCalls: 0,
+    resolvedCases: 0,
     avgDuration: 0,
+    totalDuration: 0,
     successRate: 0,
   };
 
@@ -89,7 +93,7 @@ export function CallKPIDashboard({ metrics, loading }: CallKPIDashboardProps) {
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{summary.resolvedCases || 0}</div>
+          <div className="text-2xl font-bold">{summary.resolvedCases}</div>
           <p className="text-xs text-muted-foreground">
             Com resolução
           </p>
