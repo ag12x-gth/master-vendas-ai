@@ -582,3 +582,94 @@ export const vapiTranscriptsRelations = relations(vapiTranscripts, ({ one }) => 
         references: [vapiCalls.id],
     }),
 }));
+
+export const meetingStatusEnum = pgEnum('meeting_status', ['scheduled', 'waiting', 'in_progress', 'completed', 'failed', 'cancelled']);
+
+export const meetings = pgTable('meetings', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    companyId: text('company_id').notNull().references(() => companies.id),
+    leadId: text('lead_id').references(() => kanbanLeads.id, { onDelete: 'set null' }),
+    contactId: text('contact_id').references(() => contacts.id),
+    closerId: text('closer_id').notNull().references(() => users.id),
+    googleMeetUrl: text('google_meet_url').notNull(),
+    meetingBaasId: text('meeting_baas_id'),
+    botJoinedAt: timestamp('bot_joined_at'),
+    botLeftAt: timestamp('bot_left_at'),
+    status: meetingStatusEnum('status').default('scheduled').notNull(),
+    scheduledFor: timestamp('scheduled_for'),
+    recordingUrl: text('recording_url'),
+    transcriptUrl: text('transcript_url'),
+    duration: integer('duration'),
+    metadata: jsonb('metadata'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const meetingAnalysisRealtime = pgTable('meeting_analysis_realtime', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    meetingId: text('meeting_id').notNull().references(() => meetings.id, { onDelete: 'cascade' }),
+    timestamp: timestamp('timestamp').notNull(),
+    speaker: text('speaker'),
+    speakerType: text('speaker_type'),
+    transcript: text('transcript'),
+    sentiment: text('sentiment'),
+    sentimentScore: decimal('sentiment_score', { precision: 5, scale: 2 }),
+    emotions: jsonb('emotions'),
+    facialData: jsonb('facial_data'),
+    prosodyData: jsonb('prosody_data'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const meetingInsights = pgTable('meeting_insights', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    meetingId: text('meeting_id').notNull().references(() => meetings.id, { onDelete: 'cascade' }).unique(),
+    summaryText: text('summary_text'),
+    keyPoints: jsonb('key_points'),
+    painPoints: jsonb('pain_points'),
+    interests: jsonb('interests'),
+    objections: jsonb('objections'),
+    leadScore: integer('lead_score'),
+    recommendedProposal: text('recommended_proposal'),
+    nextSteps: jsonb('next_steps'),
+    overallSentiment: text('overall_sentiment'),
+    engagementLevel: text('engagement_level'),
+    emotionSummary: jsonb('emotion_summary'),
+    talkTimeRatio: jsonb('talk_time_ratio'),
+    generatedAt: timestamp('generated_at').defaultNow().notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const meetingsRelations = relations(meetings, ({ one, many }) => ({
+    company: one(companies, {
+        fields: [meetings.companyId],
+        references: [companies.id],
+    }),
+    lead: one(kanbanLeads, {
+        fields: [meetings.leadId],
+        references: [kanbanLeads.id],
+    }),
+    contact: one(contacts, {
+        fields: [meetings.contactId],
+        references: [contacts.id],
+    }),
+    closer: one(users, {
+        fields: [meetings.closerId],
+        references: [users.id],
+    }),
+    realtimeAnalysis: many(meetingAnalysisRealtime),
+    insights: one(meetingInsights),
+}));
+
+export const meetingAnalysisRealtimeRelations = relations(meetingAnalysisRealtime, ({ one }) => ({
+    meeting: one(meetings, {
+        fields: [meetingAnalysisRealtime.meetingId],
+        references: [meetings.id],
+    }),
+}));
+
+export const meetingInsightsRelations = relations(meetingInsights, ({ one }) => ({
+    meeting: one(meetings, {
+        fields: [meetingInsights.meetingId],
+        references: [meetings.id],
+    }),
+}));
