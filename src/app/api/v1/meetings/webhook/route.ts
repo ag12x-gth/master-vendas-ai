@@ -9,7 +9,14 @@ export async function POST(request: NextRequest) {
         
         console.log('Webhook recebido do Meeting BaaS:', JSON.stringify(body, null, 2));
 
-        const { event, bot_id, data } = body;
+        // Meeting BaaS envia bot_id dentro de data.bot_id
+        const { event, data } = body;
+        const bot_id = data?.bot_id || body.bot_id;
+
+        if (!bot_id) {
+            console.warn('Webhook sem bot_id:', body);
+            return NextResponse.json({ received: true });
+        }
 
         const [meeting] = await db
             .select()

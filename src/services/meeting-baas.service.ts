@@ -1,14 +1,11 @@
-import { createBaasClient } from "@meeting-baas/sdk";
+import { getBaseUrl } from '@/utils/get-base-url';
 
 const MEETING_BAAS_API_KEY = process.env.MEETING_BAAS_API_KEY;
+const MEETING_BAAS_API_URL = 'https://api.meetingbaas.com/bots';
 
 if (!MEETING_BAAS_API_KEY) {
     throw new Error('MEETING_BAAS_API_KEY não está configurada');
 }
-
-const baasClient = createBaasClient({
-    api_key: MEETING_BAAS_API_KEY,
-});
 
 export interface JoinMeetingParams {
     googleMeetUrl: string;
@@ -46,21 +43,55 @@ export class MeetingBaasService {
         const cleanUrl = this.cleanGoogleMeetUrl(googleMeetUrl);
 
         try {
-            console.log('Tentando entrar na reunião:', {
-                bot_name: botName,
+            // Configurar webhook URL - OBRIGATÓRIO pela Meeting BaaS API
+            const baseUrl = getBaseUrl();
+            const defaultWebhookUrl = `${baseUrl}/api/v1/meetings/webhook`;
+
+            const requestBody: any = {
                 meeting_url: cleanUrl,
-                reserved: false
+                bot_name: botName,
+                recording_mode: recordingMode,
+                webhook_url: webhookUrl || defaultWebhookUrl, // OBRIGATÓRIO
+            };
+
+            if (enableTranscription) {
+                requestBody.speech_to_text = {
+                    provider: 'Default'
+                };
+            }
+
+            console.log('Enviando requisição para Meeting BaaS:', {
+                url: MEETING_BAAS_API_URL,
+                body: requestBody
             });
 
-            const { success, data, error } = await baasClient.joinMeeting({
-                bot_name: botName,
-                meeting_url: cleanUrl,
-                reserved: false
+            const response = await fetch(MEETING_BAAS_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-meeting-baas-api-key': MEETING_BAAS_API_KEY!,
+                },
+                body: JSON.stringify(requestBody),
             });
 
-        if (!success || !data) {
-            throw new Error(`Erro ao entrar na reunião: ${error || 'Erro desconhecido'}`);
-        }
+            console.log('Resposta Meeting BaaS:', {
+                status: response.status,
+                statusText: response.statusText,
+                ok: response.ok
+            });
+
+            if (!response.ok) {
+                const errorData = await response.text();
+                console.error('Erro na resposta da API:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: errorData
+                });
+                throw new Error(`API retornou erro ${response.status}: ${errorData}`);
+            }
+
+            const data = await response.json();
+            console.log('Bot criado com sucesso:', data);
 
             return {
                 botId: data.bot_id,
@@ -70,42 +101,60 @@ export class MeetingBaasService {
             };
         } catch (error: any) {
             console.error('=== ERRO COMPLETO MEETING BAAS ===');
-            console.error('Error object:', JSON.stringify(error, null, 2));
-            console.error('Response data:', JSON.stringify(error.response?.data, null, 2));
-            console.error('Response status:', error.response?.status);
-            console.error('Response headers:', JSON.stringify(error.response?.headers, null, 2));
-            console.error('Config:', JSON.stringify({
-                url: error.config?.url,
-                method: error.config?.method,
-                data: error.config?.data,
-            }, null, 2));
-            throw new Error(`Erro ao entrar na reunião: ${error.response?.data?.message || error.message || 'Erro desconhecido'}`);
+            console.error('Error:', error.message);
+            console.error('Stack:', error.stack);
+            throw new Error(`Erro ao entrar na reunião: ${error.message}`);
         }
     }
 
-    async leaveMeeting(uuid: string): Promise<void> {
+    async leaveMeeting(botId: string): Promise<void> {
         try {
-            const { success, error } = await baasClient.leaveMeeting({
-                uuid: uuid,
+            const response = await fetch(`${MEETING_BAAS_API_URL}/${botId}`, {
+                method: 'DELETE',
+                headers: {
+                    'x-meeting-baas-api-key': MEETING_BAAS_API_KEY!,
+                },
             });
 
-            if (!success) {
-                throw new Error(`Erro ao sair da reunião: ${error || 'Erro desconhecido'}`);
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(`Erro ao remover bot: ${response.status} - ${errorData}`);
             }
-        } catch (error) {
+
+            console.log('Bot removido com sucesso:', botId);
+        } catch (error: any) {
             console.error('Erro ao sair da reunião:', error);
             throw error;
         }
     }
 
     async getMeetingData(botId: string): Promise<any> {
-        return null;
+        try {
+            const response = await fetch(`${MEETING_BAAS_API_URL}/${botId}`, {
+                method: 'GET',
+                headers: {
+                    'x-meeting-baas-api-key': MEETING_BAAS_API_KEY!,
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.text();
+                throw new Error(`Erro ao buscar dados: ${response.status} - ${errorData}`);
+            }
+
+            return await response.json();
+        } catch (error: any) {
+            console.error('Erro ao buscar dados da reunião:', error);
+            return null;
+        }
     }
 
     async getBotStatus(botId: string): Promise<any> {
+        const data = await this.getMeetingData(botId);
         return {
-            status: 'unknown',
+            status: data?.status || 'unknown',
             botId,
+            data
         };
     }
 }
