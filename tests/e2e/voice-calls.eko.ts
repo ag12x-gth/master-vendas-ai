@@ -23,7 +23,7 @@ const SCREENSHOT_DIR = '/tmp/e2e-eko-screenshots';
 async function runVoiceCallsE2ETests() {
   console.log('🚀 Iniciando testes E2E com Eko (Fellou.ai)');
   console.log('🎯 URL Base: http://localhost:5000');
-  console.log('🤖 Modelo: Claude Sonnet 4.5 (thinking) via OpenRouter');
+  console.log('🤖 Modelo: Claude Sonnet 3.5 (fast mode) via OpenRouter');
   console.log('━'.repeat(60));
 
   if (!fs.existsSync(SCREENSHOT_DIR)) {
@@ -39,7 +39,7 @@ async function runVoiceCallsE2ETests() {
   const llms: LLMs = {
     default: {
       provider: "openrouter",
-      model: "anthropic/claude-3.5-sonnet:beta",
+      model: "anthropic/claude-3.5-sonnet",
       apiKey: apiKey,
       config: {
         baseURL: "https://openrouter.ai/api/v1",
