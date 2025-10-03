@@ -30,11 +30,17 @@ async function runVoiceCallsE2ETests() {
     fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
   }
 
+  // Verificar se API key está disponível (OPENROUTERS_API_KEY com S)
+  const apiKey = process.env.OPENROUTERS_API_KEY;
+  if (!apiKey) {
+    throw new Error('❌ OPENROUTERS_API_KEY não está configurado! Configure a secret no Replit.');
+  }
+
   const llms: LLMs = {
     default: {
       provider: "openrouter",
       model: "anthropic/claude-3.5-sonnet:beta",
-      apiKey: process.env.OPENROUTER_API_KEY!,
+      apiKey: apiKey,
       config: {
         baseURL: "https://openrouter.ai/api/v1",
         temperature: 0.7,

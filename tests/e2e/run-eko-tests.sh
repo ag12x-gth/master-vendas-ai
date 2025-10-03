@@ -97,8 +97,8 @@ echo ""
 echo "⏳ Aguarde... Eko está executando testes autônomos..."
 echo ""
 
-# Executar testes Eko com TypeScript
-npx tsx tests/e2e/voice-calls.eko.ts
+# Executar testes Eko com TypeScript (do diretório raiz)
+cd ../.. && npx tsx tests/e2e/voice-calls.eko.ts
 
 EXIT_CODE=$?
 
