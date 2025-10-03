@@ -18,9 +18,9 @@ import { z } from 'zod';
 // SESSION / AUTH UTILS
 // ==========================================
 
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY_CALL;
 if (!JWT_SECRET_KEY) {
-    throw new Error('JWT_SECRET_KEY não está definida nas variáveis de ambiente.');
+    throw new Error('JWT_SECRET_KEY_CALL não está definida nas variáveis de ambiente.');
 }
 const secretKey = new TextEncoder().encode(JWT_SECRET_KEY);
 

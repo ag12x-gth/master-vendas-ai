@@ -14,9 +14,9 @@ const loginSchema = z.object({
 });
 
 const getJwtSecretKey = () => {
-    const secret = process.env.JWT_SECRET_KEY;
+    const secret = process.env.JWT_SECRET_KEY_CALL;
     if (!secret) {
-        throw new Error('JWT_SECRET_KEY não está definida nas variáveis de ambiente.');
+        throw new Error('JWT_SECRET_KEY_CALL não está definida nas variáveis de ambiente.');
     }
     return new TextEncoder().encode(secret);
 };

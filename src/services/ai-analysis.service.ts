@@ -2,10 +2,10 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { db, meetingAnalysisRealtime, meetingInsights } from '@/lib/db';
 import { eq, desc } from 'drizzle-orm';
 
-const AI_API_KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+const AI_API_KEY = process.env.GOOGLE_API_KEY_CALL || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
 if (!AI_API_KEY) {
-    console.warn('GEMINI_API_KEY não configurada, usando análise simplificada');
+    console.warn('GOOGLE_API_KEY_CALL não configurada, usando análise simplificada');
 }
 
 const genAI = AI_API_KEY ? new GoogleGenerativeAI(AI_API_KEY) : null;

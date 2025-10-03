@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import { getUserSession } from '@/app/actions';
 import { SignJWT } from 'jose';
 
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY_CALL;
 
 export async function GET() {
     try {
         if (!JWT_SECRET_KEY) {
             return NextResponse.json(
-                { error: 'JWT_SECRET_KEY not configured' }, 
+                { error: 'JWT_SECRET_KEY_CALL not configured' }, 
                 { status: 500 }
             );
         }

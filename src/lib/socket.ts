@@ -5,9 +5,9 @@ import { jwtVerify } from 'jose';
 let io: SocketIOServer | null = null;
 
 // JWT Secret para validação
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY;
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY_CALL;
 if (!JWT_SECRET_KEY) {
-  throw new Error('JWT_SECRET_KEY não está definida nas variáveis de ambiente.');
+  throw new Error('JWT_SECRET_KEY_CALL não está definida nas variáveis de ambiente.');
 }
 
 // Função para validar o token JWT
