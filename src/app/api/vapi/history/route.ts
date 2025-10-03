@@ -7,7 +7,7 @@ import { eq, and, gte, lte, desc, sql, or, ilike } from 'drizzle-orm';
 export async function GET(request: NextRequest) {
   try {
     const session = await getUserSession();
-    if (!session) {
+    if (!session || !session.user || !session.user.companyId) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     const offset = (page - 1) * limit;
 
-    const conditions = [eq(vapiCalls.companyId, session.user.companyId)];
+    const conditions: any[] = [eq(vapiCalls.companyId, session.user.companyId)];
 
     if (status && status !== 'all') {
       conditions.push(eq(vapiCalls.status, status));
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
         or(
           ilike(vapiCalls.customerName, `%${search}%`),
           ilike(vapiCalls.customerNumber, `%${search}%`)
-        )
+        )!
       );
     }
 
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
       conditions.push(eq(vapiCalls.contactId, contactId));
     }
 
-    const whereClause = and(...conditions);
+    const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     const [callsData, totalCountResult] = await Promise.all([
       db
