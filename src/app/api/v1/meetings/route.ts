@@ -2,9 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db, meetings } from '@/lib/db';
 import { meetingBaasService } from '@/services/meeting-baas.service';
 import { eq } from 'drizzle-orm';
+import { getUserSession } from '@/app/actions';
 
 export async function POST(request: NextRequest) {
     try {
+        const { user, error } = await getUserSession();
+        
+        if (!user || !user.id || !user.companyId) {
+            return NextResponse.json(
+                { error: error || 'Usuário não autenticado. Faça login novamente.' },
+                { status: 401 }
+            );
+        }
+
         const body = await request.json();
         const { googleMeetUrl, leadId, scheduledFor, notes } = body;
 
@@ -15,15 +25,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const companyId = request.headers.get('x-company-id');
-        const closerId = request.headers.get('x-user-id');
-        
-        if (!companyId || !closerId) {
-            return NextResponse.json(
-                { error: 'Usuário não autenticado. Faça login novamente.' },
-                { status: 401 }
-            );
-        }
+        const companyId = user.companyId;
+        const closerId = user.id;
 
         const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:5000'}/api/v1/meetings/webhook`;
 
