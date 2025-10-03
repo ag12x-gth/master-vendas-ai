@@ -15,13 +15,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
-import { Plus, Loader2, Video, Wand2 } from 'lucide-react';
+import { Plus, Loader2, Video, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export function NewMeetingDialog() {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [generatingLink, setGeneratingLink] = useState(false);
     const [formData, setFormData] = useState({
         googleMeetUrl: '',
         scheduledFor: '',
@@ -84,41 +83,12 @@ export function NewMeetingDialog() {
         }));
     };
 
-    const handleGenerateLink = async () => {
-        setGeneratingLink(true);
-        try {
-            const response = await fetch('/api/v1/meetings/generate-link', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Erro ao gerar link');
-            }
-
-            setFormData((prev) => ({
-                ...prev,
-                googleMeetUrl: data.meetingLink,
-            }));
-
-            toast({
-                title: '✅ Link gerado com sucesso!',
-                description: 'Link do Google Meet criado automaticamente.',
-            });
-        } catch (error: any) {
-            console.error('Erro ao gerar link:', error);
-            toast({
-                title: '❌ Erro ao gerar link',
-                description: error.message || 'Tente novamente mais tarde.',
-                variant: 'destructive',
-            });
-        } finally {
-            setGeneratingLink(false);
-        }
+    const handleOpenGoogleMeet = () => {
+        window.open('https://meet.google.com/new', '_blank');
+        toast({
+            title: '📹 Google Meet aberto',
+            description: 'Crie sua reunião e cole o link aqui.',
+        });
     };
 
     return (
@@ -136,7 +106,7 @@ export function NewMeetingDialog() {
                         Criar Nova Reunião
                     </DialogTitle>
                     <DialogDescription>
-                        Insira a URL do Google Meet para iniciar a análise em tempo real com IA.
+                        ⚠️ <strong>Importante:</strong> Cole o link de uma reunião ATIVA do Google Meet. O bot precisa de uma reunião real para entrar.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
@@ -152,25 +122,22 @@ export function NewMeetingDialog() {
                                     value={formData.googleMeetUrl}
                                     onChange={(e) => handleChange('googleMeetUrl', e.target.value)}
                                     required
-                                    disabled={loading || generatingLink}
+                                    disabled={loading}
                                     className="flex-1"
                                 />
                                 <Button
                                     type="button"
                                     variant="outline"
-                                    onClick={handleGenerateLink}
-                                    disabled={loading || generatingLink}
+                                    onClick={handleOpenGoogleMeet}
+                                    disabled={loading}
                                     className="shrink-0"
+                                    title="Abrir Google Meet para criar reunião"
                                 >
-                                    {generatingLink ? (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <Wand2 className="h-4 w-4" />
-                                    )}
+                                    <ExternalLink className="h-4 w-4" />
                                 </Button>
                             </div>
                             <p className="text-xs text-muted-foreground">
-                                Cole um link existente ou clique no botão para gerar automaticamente
+                                Cole o link de uma reunião ATIVA ou clique no botão para criar uma no Google Meet
                             </p>
                         </div>
 
