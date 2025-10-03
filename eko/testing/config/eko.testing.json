@@ -1,0 +1,117 @@
+{
+  "projectName": "Master IA Oficial",
+  "version": "1.0.0",
+  "testMatrix": {
+    "scenarios": [
+      {
+        "id": "smoke",
+        "name": "Smoke Tests",
+        "priority": "critical",
+        "description": "Valida rotas principais e navegação básica",
+        "enabled": true,
+        "retries": 2,
+        "timeout": 60000
+      },
+      {
+        "id": "auth",
+        "name": "Authentication Flow",
+        "priority": "critical",
+        "description": "Testa login, logout e sessão",
+        "enabled": true,
+        "retries": 2,
+        "timeout": 45000
+      },
+      {
+        "id": "flows",
+        "name": "Core Business Flows",
+        "priority": "high",
+        "description": "Fluxo principal: Dashboard → Voice Calls → Analytics",
+        "enabled": true,
+        "retries": 1,
+        "timeout": 90000
+      },
+      {
+        "id": "forms",
+        "name": "Forms & CRUD",
+        "priority": "medium",
+        "description": "Criação, edição e validação de formulários",
+        "enabled": true,
+        "retries": 1,
+        "timeout": 60000
+      },
+      {
+        "id": "api",
+        "name": "API Integration Tests",
+        "priority": "medium",
+        "description": "Valida contratos REST e respostas",
+        "enabled": false,
+        "retries": 1,
+        "timeout": 30000
+      },
+      {
+        "id": "accessibility",
+        "name": "Accessibility (WCAG)",
+        "priority": "low",
+        "description": "Checks básicos de acessibilidade",
+        "enabled": false,
+        "retries": 0,
+        "timeout": 45000
+      },
+      {
+        "id": "performance",
+        "name": "Performance & Web Vitals",
+        "priority": "low",
+        "description": "Métricas de performance do navegador",
+        "enabled": false,
+        "retries": 0,
+        "timeout": 60000
+      }
+    ]
+  },
+  "thresholds": {
+    "changeDetection": {
+      "filesChanged": 3,
+      "impactAreas": ["routes", "components", "api", "validation", "schema"]
+    },
+    "quality": {
+      "smokeSuccessRate": 0.95,
+      "maxFlakiness": 0.02,
+      "maxExecutionTime": 300000
+    }
+  },
+  "artifacts": {
+    "retention": {
+      "days": 30,
+      "maxRuns": 100
+    },
+    "paths": {
+      "videos": "./artifacts/test-runs/{timestamp}/videos",
+      "traces": "./artifacts/test-runs/{timestamp}/traces",
+      "screenshots": "./artifacts/test-runs/{timestamp}/screenshots",
+      "reports": "./artifacts/test-runs/{timestamp}/reports"
+    }
+  },
+  "autoFix": {
+    "enabled": true,
+    "riskLevels": {
+      "low": {
+        "autoApply": true,
+        "requiresReview": false
+      },
+      "medium": {
+        "autoApply": false,
+        "requiresReview": true
+      },
+      "high": {
+        "autoApply": false,
+        "requiresReview": true
+      }
+    }
+  },
+  "takeOver": {
+    "enabled": true,
+    "timeoutSeconds": 600,
+    "allowSkip": true,
+    "triggers": ["login-external", "mfa", "captcha", "payment-gateway"]
+  }
+}

@@ -1,0 +1,62 @@
+App Testing
+
+Copy page
+
+Agent’s self-testing feature that validates your app’s functionality using an actual browser, with visual feedback and automatic issue resolution.
+
+App Testing is a powerful new feature in Agent 3 that allows Agent to test itself using an actual browser. Agent tests the apps it builds by navigating through your application like a real user would, clicking around and validating functionality. This self-testing capability helps ensure your app works correctly and allows Agent to catch and fix issues automatically.
+New in Agent 3: App Testing represents a major advancement in Agent’s autonomous capabilities, enabling more reliable and higher-quality app development.
+​
+How App Testing works
+When App Testing is enabled, Agent will periodically decide to test itself when it thinks enough has changed to deem it necessary. Agent doesn’t test after 100% of user messages, but intelligently determines when testing would be most valuable.
+Watch App Testing in action as Agent navigates through your app:
+​
+Key Benefits
+Extended Autonomy: Enables Agent to work for longer periods without requiring human intervention
+Higher Quality: Produces apps with fewer mistakes by identifying and addressing issues early
+Cost Efficiency: Prevents the need for additional debugging sessions by catching problems during development
+Interactive Review: Provides video replays and section-by-section navigation for thorough result analysis
+​
+The Testing Process
+When Agent decides to test itself, here’s what happens:
+Browser Preview: You’ll see a browser preview within the Agent pane
+Visual Testing: Watch Agent’s cursor as it clicks around your app, testing functionality
+Real User Simulation: Agent navigates through your application just like a real user would, entering mock data when necessary
+Automatic Analysis: Agent analyzes the test results and identifies any issues
+Self-Correction: Agent reports back with a summary of its tests and automatically fixes any issues that crop up
+​
+Key capabilities
+Agent intelligently tests your application by navigating through it like a real user would, covering:
+User interface validation: Buttons, forms, navigation, and visual elements
+Functionality verification: Core features and user workflows
+Integration testing: API calls, database interactions, and third-party services
+Performance and accessibility: Load times, responsiveness, and accessibility standards
+​
+Usage
+App Testing can be toggled on/off within the “Agent Tools” section of the input box within your Repl. When enabled, Agent intelligently decides when to test based on the changes made to your app.
+App Testing is part of Agent 3’s autonomous capabilities. Learn more about Autonomy Level settings and other Agent features.
+​
+Take over
+Sometimes the Agent will encounter a roadblock during testing that it needs your help with to continue. Most commonly this involves logging in to a user account (e.g. Gmail). In these cases, the Agent will pop up with a button to “Begin take over.”
+App Testing take over interface showing Skip and Begin take over buttons with instructions for handling errors and CAPTCHAs
+
+Pressing “Begin take over” enables you to click into the testing preview, complete the requisite steps, then allow the Agent to continue. You can also press “Skip” to skip take over, ending the App Testing if the Agent cannot proceed without your help. If you do not respond within 10 minutes, the Agent will continue as if you pressed “Skip.”
+​
+What to expect
+Skip option: Use the skip button to bypass testing if needed and continue with development
+Interactive video replay: After testing, click the video to replay the entire testing session
+Section navigation: Use the sliders at the bottom to jump to specific sections of the test
+The interactive replay interface allows you to review the complete testing session:
+Interactive video replay interface showing the testing session with navigation controls
+
+​
+Troubleshooting
+Tests failing unexpectedly
+Try skipping then prompting again to test
+Check for dynamic content that might affect test timing
+Review test scenarios for accuracy
+Missing test coverage
+Provide more detailed descriptions of your app’s functionality
+Explicitly mention critical user flows that should be tested
+App Testing not working at all?
+App Testing only works with web applications at this time
