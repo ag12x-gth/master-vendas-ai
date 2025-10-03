@@ -30,6 +30,8 @@
     "@aws-sdk/client-s3": "^3.623.0",
     "@aws-sdk/client-sesv2": "^3.623.0",
     "@aws-sdk/s3-request-presigner": "^3.623.0",
+    "@eko-ai/eko": "^3.0.9-alpha.1",
+    "@eko-ai/eko-nodejs": "^3.0.9-alpha.1",
     "@google-cloud/storage": "^7.17.1",
     "@google/generative-ai": "^0.24.1",
     "@hapi/boom": "^10.0.1",
