@@ -78,8 +78,27 @@ app.prepare().then(() => {
   }
 
   server.listen(port, (err) => {
-    if (err) throw err;
-    console.log(`> Ready on http://${hostname}:${port}`);
-    console.log('> Socket.IO server initialized');
+    if (err) {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`❌ Porta ${port} já está em uso!`);
+        console.log('🔧 Tentando auto-fix...');
+        
+        const { exec } = require('child_process');
+        exec('bash scripts/auto-fix-server.sh', (error, stdout, stderr) => {
+          if (error) {
+            console.error('Auto-fix falhou:', error);
+            process.exit(1);
+          }
+          console.log(stdout);
+          console.log('✅ Auto-fix concluído. Reinicie o servidor.');
+          process.exit(0);
+        });
+      } else {
+        throw err;
+      }
+    } else {
+      console.log(`> Ready on http://${hostname}:${port}`);
+      console.log('> Socket.IO server initialized');
+    }
   });
 });

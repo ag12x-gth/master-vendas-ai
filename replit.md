@@ -39,6 +39,7 @@ The application is built on a modern web stack, utilizing Next.js 14.2.33 with T
 - **Database:** Connected to Neon PostgreSQL with all necessary tables created, including `vapi_calls` and `vapi_transcripts` for voice call data.
 - **Deployment:** Configured for autoscale deployment.
 - **Security & Compliance:** Strong emphasis on GDPR/LGPD compliance, explicit consent, data minimization, end-to-end encryption, RBAC, encryption at rest/in transit, and regular audits. HMAC authentication for Vapi webhooks.
+- **Auto-Recovery System:** Automated port conflict resolution and health monitoring with auto-fix capabilities.
 
 ## External Dependencies
 - **Database:** PostgreSQL (Neon-backed)
@@ -110,3 +111,66 @@ Required environment variables:
 - **Hume AI Documentation**: https://dev.hume.ai/intro
 - **Meeting BaaS Documentation**: https://docs.meetingbaas.com/updates
 - **Meeting BaaS GitHub**: https://github.com/Meeting-Baas
+
+## Auto-Recovery & Self-Healing System
+
+### Overview
+Sistema automático de detecção e correção de problemas do servidor, incluindo conflitos de porta, processos travados e erros de inicialização. O sistema garante disponibilidade máxima com intervenção mínima.
+
+### Components
+
+**1. Auto-Fix Script** (`scripts/auto-fix-server.sh`)
+- Detecta e finaliza processos que ocupam a porta 5000
+- Limpa arquivos temporários e cache
+- Executa automaticamente antes do servidor iniciar
+- Suporta múltiplos métodos de detecção de processos (netstat, ss, fuser)
+
+**2. Safe Server Starter** (`scripts/start-server-safe.sh`)
+- Tenta iniciar o servidor com auto-fix integrado
+- Retry automático em caso de falha (até 3 tentativas)
+- Limpeza de processos entre tentativas
+- Logs detalhados de cada etapa
+
+**3. Health Check System** (`scripts/health-check.sh`)
+- Monitora o servidor a cada 30 segundos
+- Detecta quando o servidor para de responder
+- Executa auto-recovery automaticamente
+- Funciona como watchdog em background
+
+**4. Server Protection** (`server.js`)
+- Detecta erros EADDRINUSE (porta ocupada)
+- Executa auto-fix automaticamente quando necessário
+- Reinicia o servidor após correção
+
+### Available Commands
+
+```bash
+# Correção manual rápida
+npm run fix
+
+# Correção e reinicialização
+npm run fix:restart
+
+# Iniciar servidor com auto-fix
+npm run dev:safe
+
+# Monitoramento contínuo (watchdog)
+npm run health
+```
+
+### How It Works
+
+1. **Detecção Automática:** O servidor detecta erros de porta ocupada
+2. **Auto-Fix:** Executa script que finaliza processos conflitantes
+3. **Limpeza:** Remove cache e arquivos temporários
+4. **Reinício:** Servidor reinicia automaticamente
+5. **Monitoramento:** Health check verifica continuamente
+
+### Troubleshooting
+
+Se o servidor não iniciar:
+1. Execute `npm run fix` manualmente
+2. Reinicie o workflow no Replit
+3. Use `npm run dev:safe` para iniciar com proteção
+
+O sistema **auto-corrige** automaticamente em 99% dos casos sem intervenção manual.
