@@ -8,6 +8,7 @@ import { hash } from 'bcryptjs';
 import { z } from 'zod';
 import { randomUUID, randomBytes } from 'crypto';
 import { sendEmailVerificationLink } from '@/lib/email';
+import { getBaseUrl } from '@/utils/get-base-url';
 import { createHash } from 'crypto';
 
 // Helper para criar uma data de expiração (ex: em 24 horas)
@@ -77,7 +78,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             expiresAt: createExpirationDate(24)
         });
 
-        await sendEmailVerificationLink(newUser.email, newUser.name, verificationToken);
+        const verificationLink = `${getBaseUrl()}/verify-email?token=${verificationToken}`;
+        await sendEmailVerificationLink(newUser.email, newUser.name, verificationLink);
         return NextResponse.json({ success: true, message: 'Conta criada! Verifique seu e-mail para ativar.' }, { status: 201 });
 
     } catch (error) {

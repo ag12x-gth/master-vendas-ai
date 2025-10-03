@@ -7,6 +7,7 @@ import { users, emailVerificationTokens } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { randomBytes, createHash } from 'crypto';
 import { sendEmailVerificationLink } from '@/lib/email';
+import { getBaseUrl } from '@/utils/get-base-url';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { z } from 'zod';
 
@@ -52,7 +53,8 @@ export async function POST(request: NextRequest) {
             expiresAt: createExpirationDate(24) // New token expires in 24 hours
         });
 
-        await sendEmailVerificationLink(user.email, user.name, verificationToken);
+        const verificationLink = `${getBaseUrl()}/verify-email?token=${verificationToken}`;
+        await sendEmailVerificationLink(user.email, user.name, verificationLink);
 
         return NextResponse.json({ success: true, message: 'Um novo link de verificação foi enviado.' });
 

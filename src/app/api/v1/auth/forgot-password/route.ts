@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { users, passwordResetTokens } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { sendPasswordResetEmail } from '@/lib/email';
+import { getBaseUrl } from '@/utils/get-base-url';
 import crypto from 'crypto';
 
 export async function POST(req: NextRequest) {
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
       expiresAt,
     });
 
-    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000'}/reset-password?token=${resetToken}`;
+    const resetUrl = `${getBaseUrl()}/reset-password?token=${resetToken}`;
 
     await sendPasswordResetEmail(email, user.name, resetUrl);
 

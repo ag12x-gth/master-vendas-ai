@@ -3,9 +3,10 @@
 'use server';
 
 import { sendEmail as sendReplitEmail } from '@/utils/replitmail';
+import { getBaseUrl } from '@/utils/get-base-url';
 
 const getWelcomeEmailTemplate = (name: string): string => {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || '';
+    const baseUrl = getBaseUrl();
     return `
       <!DOCTYPE html>
       <html>
@@ -143,15 +144,8 @@ export const sendWelcomeEmail = async (to: string, name: string): Promise<void> 
     }
 };
 
-export const sendPasswordResetEmail = async (to: string, name: string, token: string): Promise<void> => {
+export const sendPasswordResetEmail = async (to: string, name: string, resetLink: string): Promise<void> => {
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-        if (!baseUrl) {
-            console.error("A variável de ambiente NEXT_PUBLIC_BASE_URL não está definida.");
-            throw new Error("A URL base da aplicação não está configurada.");
-        }
-
-        const resetLink = `${baseUrl}/reset-password?token=${token}`;
         const subject = 'Recupere sua senha do Master IA';
         const html = getPasswordResetTemplate(name, resetLink);
         
@@ -169,15 +163,8 @@ export const sendPasswordResetEmail = async (to: string, name: string, token: st
     }
 };
 
-export const sendEmailVerificationLink = async (to: string, name: string, token: string): Promise<void> => {
+export const sendEmailVerificationLink = async (to: string, name: string, verificationLink: string): Promise<void> => {
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-        if (!baseUrl) {
-            console.error("A variável de ambiente NEXT_PUBLIC_BASE_URL não está definida.");
-            throw new Error("A URL base da aplicação não está configurada.");
-        }
-
-        const verificationLink = `${baseUrl}/verify-email?token=${token}`;
         const subject = 'Verifique seu e-mail no Master IA';
         const html = getEmailVerificationTemplate(name, verificationLink);
         

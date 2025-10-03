@@ -8,6 +8,7 @@ import { hash } from 'bcryptjs';
 import { z } from 'zod';
 import { randomUUID, randomBytes, createHash } from 'crypto';
 import { sendEmailVerificationLink } from '@/lib/email';
+import { getBaseUrl } from '@/utils/get-base-url';
 import { getCompanyIdFromSession } from '@/app/actions';
 
 const inviteSchema = z.object({
@@ -68,7 +69,8 @@ export async function POST(request: NextRequest) {
              expiresAt: createExpirationDate(24)
          });
 
-         await sendEmailVerificationLink(invitedUser.email, invitedUser.name, verificationToken);
+         const verificationLink = `${getBaseUrl()}/verify-email?token=${verificationToken}`;
+         await sendEmailVerificationLink(invitedUser.email, invitedUser.name, verificationLink);
         
         return NextResponse.json({ success: true, message: 'Utilizador convidado com sucesso.' }, { status: 201 });
 
