@@ -73,7 +73,10 @@ Sistema completo de análise de reuniões em tempo real usando Google Meet. Quan
 3. **meeting_insights** - Post-meeting AI-generated insights (summary, pain points, recommendations)
 
 ### Services
-- **MeetingBaasService** (`src/services/meeting-baas.service.ts`) - Manages bot lifecycle
+- **MeetingBaasService** (`src/services/meeting-baas.service.ts`) - Manages bot lifecycle via REST API (not SDK)
+  - **CRITICAL**: Uses direct REST API calls instead of @meeting-baas/sdk
+  - **Required**: webhook_url parameter is mandatory in every bot creation request
+  - Webhook URL auto-configured using getBaseUrl() utility
 - **HumeEmotionService** (`src/services/hume-emotion.service.ts`) - Analyzes emotions and sentiment
 - **AIAnalysisService** (`src/services/ai-analysis.service.ts`) - Generates insights using Gemini AI
 
@@ -82,7 +85,7 @@ Sistema completo de análise de reuniões em tempo real usando Google Meet. Quan
 - `GET /api/v1/meetings` - List meetings
 - `GET /api/v1/meetings/[id]` - Get meeting details
 - `PATCH /api/v1/meetings/[id]` - Update meeting status
-- `POST /api/v1/meetings/webhook` - Meeting BaaS webhook handler
+- `POST /api/v1/meetings/webhook` - Meeting BaaS webhook handler (receives bot.status_change, transcript, video.frame events)
 
 ### Frontend Components
 - **MeetingRoomPanel** - Real-time transcription and emotion display
@@ -107,10 +110,24 @@ Required environment variables:
 - `GOOGLE_API_KEY_CALL` - Google Generative AI key for insights (fallbacks: GEMINI_API_KEY, GOOGLE_GENERATIVE_AI_API_KEY)
 - `OPENAI_API_KEY` - OpenAI API key (if using OpenAI instead of Gemini)
 
+### Implementation Notes (CRITICAL)
+- **Meeting BaaS API Requirement**: Direct REST API implementation required (SDK não funciona adequadamente)
+- **Mandatory webhook_url**: Every bot creation request MUST include webhook_url parameter
+- **Bot ID Extraction**: Webhooks send bot_id inside data.bot_id (not at root level)
+- **Duplicate Prevention**: API prevents creating multiple bots for same meeting URL (AlreadyStarted error)
+- **Active Meeting Required**: Bot only joins REAL, ACTIVE Google Meet sessions
+
 ### Documentation Links (Required Reading)
 - **Hume AI Documentation**: https://dev.hume.ai/intro
 - **Meeting BaaS Documentation**: https://docs.meetingbaas.com/updates
 - **Meeting BaaS GitHub**: https://github.com/Meeting-Baas
+
+### Integration Status
+✅ **Meeting BaaS Integration**: Fully functional (Oct 2025)
+- REST API integration tested and validated
+- Bot creation confirmed (bot_id: 57b8b3f2-2f7a-4f5e-a001-c676b00e2e01)
+- Webhooks received successfully (joining_call, in_waiting_room, waiting_room_timeout)
+- Proper error handling for duplicate bots and timeouts
 
 ## Auto-Recovery & Self-Healing System
 
