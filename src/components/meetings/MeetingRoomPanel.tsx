@@ -71,6 +71,33 @@ export function MeetingRoomPanel({ meetingId }: MeetingRoomPanelProps) {
     const positiveKeywords = ['sim', 'perfeito', 'ótimo', 'interessante', 'gostei', 'concordo'];
 
     useEffect(() => {
+        async function loadHistoricalData() {
+            try {
+                const response = await fetch(`/api/v1/meetings/${meetingId}/transcripts`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.transcripts && data.transcripts.length > 0) {
+                        const historicalTranscripts = data.transcripts.map((t: any) => ({
+                            meetingId,
+                            transcript: t.transcript,
+                            speaker: t.speaker,
+                            sentiment: t.sentiment,
+                            sentimentScore: parseFloat(t.sentimentScore || '0'),
+                            timestamp: t.timestamp,
+                        }));
+                        setTranscripts(historicalTranscripts);
+                        updateMeetingStats(historicalTranscripts);
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados históricos:', error);
+            }
+        }
+
+        loadHistoricalData();
+    }, [meetingId]);
+
+    useEffect(() => {
         let cleanup: (() => void) | undefined;
 
         async function initializeSocket() {
