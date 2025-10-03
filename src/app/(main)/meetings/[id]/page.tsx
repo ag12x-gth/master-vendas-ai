@@ -77,33 +77,45 @@ export default async function MeetingPage({ params }: MeetingPageProps) {
                             <CardTitle>Resumo da Reunião</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-sm mb-4">{insights.summaryText}</p>
+                            <p className="text-sm mb-4">{insights.summaryText || 'Nenhum resumo disponível'}</p>
                             
                             <div className="space-y-4">
                                 <div>
                                     <h4 className="font-semibold mb-2">Pontos-chave</h4>
                                     <ul className="list-disc list-inside space-y-1 text-sm">
-                                        {insights.keyPoints?.map((point, index) => (
-                                            <li key={index}>{point}</li>
-                                        ))}
+                                        {Array.isArray(insights.keyPoints) && insights.keyPoints.length > 0 ? (
+                                            insights.keyPoints.map((point: any, index: number) => (
+                                                <li key={index}>{point}</li>
+                                            ))
+                                        ) : (
+                                            <li className="text-muted-foreground">Nenhum ponto-chave identificado</li>
+                                        )}
                                     </ul>
                                 </div>
 
                                 <div>
                                     <h4 className="font-semibold mb-2">Dores Identificadas</h4>
                                     <ul className="list-disc list-inside space-y-1 text-sm">
-                                        {insights.painPoints?.map((point, index) => (
-                                            <li key={index}>{point}</li>
-                                        ))}
+                                        {Array.isArray(insights.painPoints) && insights.painPoints.length > 0 ? (
+                                            insights.painPoints.map((point: any, index: number) => (
+                                                <li key={index}>{point}</li>
+                                            ))
+                                        ) : (
+                                            <li className="text-muted-foreground">Nenhuma dor identificada</li>
+                                        )}
                                     </ul>
                                 </div>
 
                                 <div>
                                     <h4 className="font-semibold mb-2">Interesses</h4>
                                     <ul className="list-disc list-inside space-y-1 text-sm">
-                                        {insights.interests?.map((interest, index) => (
-                                            <li key={index}>{interest}</li>
-                                        ))}
+                                        {Array.isArray(insights.interests) && insights.interests.length > 0 ? (
+                                            insights.interests.map((interest: any, index: number) => (
+                                                <li key={index}>{interest}</li>
+                                            ))
+                                        ) : (
+                                            <li className="text-muted-foreground">Nenhum interesse identificado</li>
+                                        )}
                                     </ul>
                                 </div>
                             </div>
@@ -119,12 +131,12 @@ export default async function MeetingPage({ params }: MeetingPageProps) {
                                 <div>
                                     <h4 className="font-semibold mb-2">Score do Lead</h4>
                                     <div className="flex items-center gap-4">
-                                        <div className="text-3xl font-bold">{insights.leadScore}/100</div>
+                                        <div className="text-3xl font-bold">{insights.leadScore || 0}/100</div>
                                         <div className="flex-1">
                                             <div className="w-full bg-secondary rounded-full h-3">
                                                 <div 
                                                     className="bg-primary h-3 rounded-full" 
-                                                    style={{ width: `${insights.leadScore}%` }}
+                                                    style={{ width: `${insights.leadScore || 0}%` }}
                                                 />
                                             </div>
                                         </div>
@@ -155,24 +167,28 @@ export default async function MeetingPage({ params }: MeetingPageProps) {
                                 <div>
                                     <h4 className="font-semibold mb-2">Proposta Recomendada</h4>
                                     <p className="text-sm bg-secondary p-4 rounded-lg">
-                                        {insights.recommendedProposal}
+                                        {insights.recommendedProposal || 'Nenhuma proposta gerada ainda'}
                                     </p>
                                 </div>
 
                                 <div>
                                     <h4 className="font-semibold mb-2">Próximos Passos</h4>
                                     <ul className="list-decimal list-inside space-y-1 text-sm">
-                                        {insights.nextSteps?.map((step, index) => (
-                                            <li key={index}>{step}</li>
-                                        ))}
+                                        {Array.isArray(insights.nextSteps) && insights.nextSteps.length > 0 ? (
+                                            insights.nextSteps.map((step: any, index: number) => (
+                                                <li key={index}>{step}</li>
+                                            ))
+                                        ) : (
+                                            <li className="text-muted-foreground">Nenhum próximo passo definido</li>
+                                        )}
                                     </ul>
                                 </div>
 
-                                {insights.objections && insights.objections.length > 0 && (
+                                {Array.isArray(insights.objections) && insights.objections.length > 0 && (
                                     <div>
                                         <h4 className="font-semibold mb-2 text-destructive">Objeções</h4>
                                         <ul className="list-disc list-inside space-y-1 text-sm">
-                                            {insights.objections.map((objection, index) => (
+                                            {insights.objections.map((objection: any, index: number) => (
                                                 <li key={index}>{objection}</li>
                                             ))}
                                         </ul>
