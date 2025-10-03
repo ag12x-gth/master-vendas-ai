@@ -54,6 +54,7 @@ export function BulkCallDialog({
 
     for (let i = 0; i < contacts.length; i++) {
       const contact = contacts[i];
+      if (!contact) continue;
       
       const result = await initiateCall({
         phoneNumber: contact.phone,

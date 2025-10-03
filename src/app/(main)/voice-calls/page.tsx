@@ -8,11 +8,51 @@ import { BulkCallDialog } from '@/components/vapi-voice/BulkCallDialog';
 import { useVapiCalls } from '@/hooks/useVapiCalls';
 import { Phone, PhoneCall, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
+
+interface Contact {
+  id: string;
+  name: string;
+  phone: string;
+}
 
 export default function VoiceCallsPage() {
   const { metrics, loading } = useVapiCalls(true);
   const [showBulkDialog, setShowBulkDialog] = useState(false);
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [loadingContacts, setLoadingContacts] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    async function fetchContacts() {
+      setLoadingContacts(true);
+      try {
+        const response = await fetch('/api/v1/contacts?limit=100');
+        if (!response.ok) {
+          throw new Error('Erro ao buscar contatos');
+        }
+        const data = await response.json();
+        const formattedContacts = data.contacts.map((contact: any) => ({
+          id: contact.id,
+          name: contact.name,
+          phone: contact.phone,
+        }));
+        setContacts(formattedContacts);
+      } catch (error) {
+        console.error('Erro ao buscar contatos:', error);
+        toast({
+          title: 'Erro ao carregar contatos',
+          description: 'Não foi possível carregar a lista de contatos.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoadingContacts(false);
+      }
+    }
+
+    fetchContacts();
+  }, [toast]);
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-6 lg:p-8 pt-6">
@@ -72,7 +112,11 @@ export default function VoiceCallsPage() {
         </TabsContent>
       </Tabs>
 
-      <BulkCallDialog open={showBulkDialog} onOpenChange={setShowBulkDialog} />
+      <BulkCallDialog 
+        open={showBulkDialog} 
+        onOpenChange={setShowBulkDialog}
+        contacts={contacts}
+      />
     </div>
   );
 }
