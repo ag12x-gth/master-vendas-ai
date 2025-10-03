@@ -1,11 +1,11 @@
 modules = ["nodejs-20", "bash", "web", "nix", "postgresql-16", "go-1.21", "go-1.24"]
 [agent]
 expertMode = true
-integrations = ["javascript_object_storage:1.0.0"]
+integrations = ["javascript_object_storage:1.0.0", "replitmail:1.0.0"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["postgresql_17"]
+packages = ["postgresql_17", "chromium"]
 
 [workflows]
 runButton = "Project"
@@ -58,10 +58,6 @@ externalPort = 3002
 [[ports]]
 localPort = 37451
 externalPort = 8000
-
-[[ports]]
-localPort = 41113
-externalPort = 8008
 
 [[ports]]
 localPort = 42011
