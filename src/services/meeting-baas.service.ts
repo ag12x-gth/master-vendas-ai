@@ -46,25 +46,17 @@ export class MeetingBaasService {
         const cleanUrl = this.cleanGoogleMeetUrl(googleMeetUrl);
 
         try {
+            console.log('Tentando entrar na reunião:', {
+                bot_name: botName,
+                meeting_url: cleanUrl,
+                reserved: false
+            });
+
             const { success, data, error } = await baasClient.joinMeeting({
-            bot_name: botName,
-            meeting_url: cleanUrl,
-            reserved: true,
-            recording_mode: recordingMode,
-            speech_to_text: enableTranscription ? {
-                provider: 'Default'
-            } : undefined,
-            entry_message: 'Gravação e análise iniciada',
-            automatic_leave: {
-                waiting_room_timeout: 600,
-                noone_joined_timeout: 300,
-            },
-            ...(webhookUrl && {
-                webhooks: {
-                    all_events: webhookUrl,
-                }
-            })
-        });
+                bot_name: botName,
+                meeting_url: cleanUrl,
+                reserved: false
+            });
 
         if (!success || !data) {
             throw new Error(`Erro ao entrar na reunião: ${error || 'Erro desconhecido'}`);
