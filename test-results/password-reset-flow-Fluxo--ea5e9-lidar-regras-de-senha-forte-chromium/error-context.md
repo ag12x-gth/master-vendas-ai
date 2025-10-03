@@ -1,0 +1,67 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - img [ref=e5]
+        - heading "Master IA" [level=1] [ref=e8]
+      - region [ref=e9]:
+        - generic [ref=e11]:
+          - group [ref=e12]:
+            - generic [ref=e13]:
+              - img [ref=e14]
+              - paragraph [ref=e17]: "\"O objetivo do marketing é conhecer e entender o cliente tão bem que o produto ou serviço se vende sozinho.\""
+              - paragraph [ref=e18]: "- Peter Drucker"
+          - group [ref=e19]:
+            - generic [ref=e20]:
+              - img [ref=e21]
+              - paragraph [ref=e24]: "\"Marketing não é sobre as coisas que você faz, mas sobre as histórias que você conta.\""
+              - paragraph [ref=e25]: "- Seth Godin"
+          - group [ref=e26]:
+            - generic [ref=e27]:
+              - img [ref=e28]
+              - paragraph [ref=e31]: "\"As pessoas não compram o que você faz, elas compram o porquê você faz.\""
+              - paragraph [ref=e32]: "- Simon Sinek"
+          - group [ref=e33]:
+            - generic [ref=e34]:
+              - img [ref=e35]
+              - paragraph [ref=e38]: "\"A melhor publicidade é a que os clientes satisfeitos fazem.\""
+              - paragraph [ref=e39]: "- Philip Kotler"
+          - group [ref=e40]:
+            - generic [ref=e41]:
+              - img [ref=e42]
+              - paragraph [ref=e45]: "\"O ótimo marketing faz o cliente se sentir inteligente.\""
+              - paragraph [ref=e46]: "- Joe Chernov"
+    - generic [ref=e48]:
+      - link "Master IA" [ref=e50] [cursor=pointer]:
+        - /url: /
+        - img [ref=e51] [cursor=pointer]
+        - generic [ref=e54] [cursor=pointer]: Master IA
+      - generic [ref=e55]:
+        - heading "Crie sua Nova Senha" [level=2] [ref=e56]
+        - paragraph [ref=e57]: Defina uma senha forte para sua conta.
+      - generic [ref=e58]:
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - generic [ref=e61]: Nova Senha
+            - generic [ref=e62]:
+              - textbox "Nova Senha" [ref=e63]: "123"
+              - button [ref=e64] [cursor=pointer]:
+                - img [ref=e65] [cursor=pointer]
+          - generic [ref=e68]:
+            - generic [ref=e69]: Confirmar Nova Senha
+            - generic [ref=e70]:
+              - textbox "Confirmar Nova Senha" [active] [ref=e71]: "123"
+              - button [ref=e72] [cursor=pointer]:
+                - img [ref=e73] [cursor=pointer]
+        - button "Definir Senha" [disabled]
+  - button "Toggle theme" [ref=e77] [cursor=pointer]:
+    - img [ref=e78] [cursor=pointer]
+    - img
+    - generic [ref=e84] [cursor=pointer]: Toggle theme
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e85]
+```
