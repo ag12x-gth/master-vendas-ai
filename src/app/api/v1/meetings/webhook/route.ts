@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
 
             case 'transcript':
             case 'transcript.partial':
-            case 'transcript.final':
+            case 'transcript.final': {
                 const transcriptData = data?.transcript || data;
                 if (transcriptData?.text) {
                     const sentimentAnalysis = await humeEmotionService.analyzeTranscriptSentiment(transcriptData.text);
@@ -82,8 +82,9 @@ export async function POST(request: NextRequest) {
                     }
                 }
                 break;
+            }
 
-            case 'video.frame':
+            case 'video.frame': {
                 if (data?.frame_url) {
                     const emotionAnalysis = await humeEmotionService.analyzeVideoFrame(data.frame_url);
                     
@@ -97,6 +98,7 @@ export async function POST(request: NextRequest) {
                     }
                 }
                 break;
+            }
 
             default:
                 console.log(`Evento não tratado: ${event}`);
