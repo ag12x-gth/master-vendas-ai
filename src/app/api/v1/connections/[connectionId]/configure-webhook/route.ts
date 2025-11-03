@@ -55,10 +55,22 @@ export async function POST(request: NextRequest, { params }: { params: { connect
         const appAccessToken = await getAppAccessToken(appId, appSecret);
         
         // 4. Gerar a URL de Callback e Token de Verificação
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        let baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        
+        // Se não houver NEXT_PUBLIC_BASE_URL, usar REPLIT_DEV_DOMAIN (ambiente Replit)
+        if (!baseUrl && process.env.REPLIT_DEV_DOMAIN) {
+          baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN}`;
+        }
+        
         if (!baseUrl) {
           throw new Error("A variável de ambiente NEXT_PUBLIC_BASE_URL não está configurada. Não é possível construir a URL de callback.");
         }
+        
+        // Garantir que a URL seja HTTPS (Meta exige HTTPS para webhooks)
+        if (!baseUrl.startsWith('https://')) {
+          baseUrl = baseUrl.replace('http://', 'https://');
+        }
+        
         const callbackUrl = `${baseUrl}/api/webhooks/meta/${company.webhookSlug}`;
         const verifyToken = process.env.META_VERIFY_TOKEN; 
 
