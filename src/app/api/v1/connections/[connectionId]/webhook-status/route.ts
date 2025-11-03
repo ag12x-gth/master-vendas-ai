@@ -59,10 +59,25 @@ export async function GET(request: NextRequest, { params }: { params: { connecti
             return NextResponse.json({ status: 'NAO_CONFIGURADO' });
         }
 
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-        if (!baseUrl) {
-          throw new Error("A variável de ambiente NEXT_PUBLIC_BASE_URL não está configurada.");
+        // IMPORTANTE: Usar a mesma lógica do endpoint de configuração
+        // Priorizar REPLIT_DEV_DOMAIN para evitar comparação com localhost
+        let baseUrl: string;
+        
+        if (process.env.REPLIT_DEV_DOMAIN) {
+          // Ambiente Replit - usar o domínio público
+          baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN}`;
+        } else if (process.env.NEXT_PUBLIC_BASE_URL && !process.env.NEXT_PUBLIC_BASE_URL.includes('localhost')) {
+          // Produção ou ambiente personalizado (não localhost)
+          baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        } else {
+          throw new Error("Domínio público não configurado.");
         }
+        
+        // Garantir HTTPS
+        if (!baseUrl.startsWith('https://')) {
+          baseUrl = baseUrl.replace('http://', 'https://');
+        }
+        
         const expectedUrl = `${baseUrl}/api/webhooks/meta/${company.webhookSlug}`;
 
         if (subscription.callback_url !== expectedUrl) {

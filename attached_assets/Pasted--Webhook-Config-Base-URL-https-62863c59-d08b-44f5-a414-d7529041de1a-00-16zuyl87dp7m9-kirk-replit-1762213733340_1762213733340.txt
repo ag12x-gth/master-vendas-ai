@@ -1,0 +1,32 @@
+[Webhook Config] Base URL: https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev
+[Webhook Config] Webhook Slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+[Webhook Config] Callback URL completa: https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07
+[Webhook Config] Verify Token: zapmaster_verify_2024
+[Webhook Sync] Tentando excluir assinatura antiga para o App ID: 733445277925306
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+[Webhook Sync] Resposta da exclusão: { success: true }
+[Webhook Verification] Tentativa de verificação para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+[Webhook Verification] Mode: subscribe
+[Webhook Verification] Verify Token recebido: zapmaster_verify_2024
+[Webhook Verification] Verify Token esperado: zapmaster_verify_2024
+[Webhook Verification] Challenge: 1339297719
+✅ Webhook verificado com sucesso para o slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+ GET /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07?hub.mode=subscribe&hub.challenge=1339297719&hub.verify_token=zapmaster_verify_2024 200 in 66ms
+ POST /api/v1/connections/194c93a8-ba37-4342-91a6-6faf84fb4a7a/configure-webhook 200 in 2768ms
+ GET /api/v1/connections/194c93a8-ba37-4342-91a6-6faf84fb4a7a/webhook-status 200 in 472ms
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+💾 Persisted 0 cache entries to disk
+💾 Persisted 0 cache entries to disk
+💾 Persisted 0 cache entries to disk
+💾 Persisted 0 cache entries to disk
