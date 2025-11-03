@@ -55,15 +55,18 @@ export async function POST(request: NextRequest, { params }: { params: { connect
         const appAccessToken = await getAppAccessToken(appId, appSecret);
         
         // 4. Gerar a URL de Callback e Token de Verificação
-        let baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        // PRIORIDADE: Usar sempre REPLIT_DEV_DOMAIN quando disponível (domínio público)
+        // Nunca usar localhost para webhooks da Meta!
+        let baseUrl: string;
         
-        // Se não houver NEXT_PUBLIC_BASE_URL, usar REPLIT_DEV_DOMAIN (ambiente Replit)
-        if (!baseUrl && process.env.REPLIT_DEV_DOMAIN) {
+        if (process.env.REPLIT_DEV_DOMAIN) {
+          // Ambiente Replit - usar o domínio público
           baseUrl = `https://${process.env.REPLIT_DEV_DOMAIN}`;
-        }
-        
-        if (!baseUrl) {
-          throw new Error("A variável de ambiente NEXT_PUBLIC_BASE_URL não está configurada. Não é possível construir a URL de callback.");
+        } else if (process.env.NEXT_PUBLIC_BASE_URL && !process.env.NEXT_PUBLIC_BASE_URL.includes('localhost')) {
+          // Produção ou ambiente personalizado (não localhost)
+          baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        } else {
+          throw new Error("Domínio público não configurado. Meta webhooks requerem URL HTTPS pública (não localhost).");
         }
         
         // Garantir que a URL seja HTTPS (Meta exige HTTPS para webhooks)

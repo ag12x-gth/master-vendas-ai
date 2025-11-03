@@ -1,0 +1,43 @@
+GET /api/v1/connections/health 200 in 1018ms
+[Webhook Config] Base URL: https://localhost:5000
+[Webhook Config] Webhook Slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+[Webhook Config] Callback URL completa: https://localhost:5000/api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07
+[Webhook Config] Verify Token: zapmaster_verify_2024
+[Webhook Sync] Tentando excluir assinatura antiga para o App ID: 733445277925306
+[Webhook Sync] Resposta da exclusão: { success: true }
+Meta Webhook Subscription Error: {
+  error: {
+    message: '(#2200) Callback verification failed with the following errors: curl_errno = 56; curl_error = CONNECT tunnel failed, response 403; HTTP Status Code = 403; HTTP Message = Forbidden',
+    type: 'OAuthException',
+    code: 2200,
+    fbtrace_id: 'AuqN7pM7Fz1eFejW-NmY0_w'
+  }
+}
+Erro ao configurar webhook: Error: (#2200) Callback verification failed with the following errors: curl_errno = 56; curl_error = CONNECT tunnel failed, response 403; HTTP Status Code = 403; HTTP Message = Forbidden
+    at POST (webpack://nextn/src/app/api/v1/connections/[connectionId]/configure-webhook/route.ts?ee81:121:19)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (webpack://next/dist/esm/server/future/route-modules/app-route/module.js:195:37)
+    at async eT.execute (webpack://next/dist/esm/server/future/route-modules/app-route/module.js:124:26)
+    at async eT.handle (webpack://next/dist/esm/server/future/route-modules/app-route/module.js:270:30)
+    at async doRender (/home/runner/workspace/node_modules/next/src/server/base-server.ts:2251:30)
+    at async cacheEntry.responseCache.get.routeKind (/home/runner/workspace/node_modules/next/src/server/base-server.ts:2558:30)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/runner/workspace/node_modules/next/src/server/base-server.ts:2432:24)
+    at async DevServer.renderPageComponent (/home/runner/workspace/node_modules/next/src/server/base-server.ts:3016:16)
+    at async DevServer.renderToResponseImpl (/home/runner/workspace/node_modules/next/src/server/base-server.ts:3078:24)
+    at async DevServer.pipeImpl (/home/runner/workspace/node_modules/next/src/server/base-server.ts:1537:21)
+    at async DevServer.NextNodeServer.handleCatchallRenderRequest (/home/runner/workspace/node_modules/next/src/server/next-server.ts:1020:7)
+    at async DevServer.handleRequestImpl (/home/runner/workspace/node_modules/next/src/server/base-server.ts:1318:9)
+    at async <anonymous> (/home/runner/workspace/node_modules/next/src/server/dev/next-dev-server.ts:461:14)
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/src/trace/trace.ts:141:14)
+    at async DevServer.handleRequest (/home/runner/workspace/node_modules/next/src/server/dev/next-dev-server.ts:459:20)
+    at async invokeRender (/home/runner/workspace/node_modules/next/src/server/lib/router-server.ts:277:11)
+    at async handleRequest (/home/runner/workspace/node_modules/next/src/server/lib/router-server.ts:527:16)
+    at async NextCustomServer.requestHandlerImpl (/home/runner/workspace/node_modules/next/src/server/lib/router-server.ts:573:7)
+    at async Server.<anonymous> (/home/runner/workspace/server.js:25:9)
+ POST /api/v1/connections/194c93a8-ba37-4342-91a6-6faf84fb4a7a/configure-webhook 500 in 517ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
