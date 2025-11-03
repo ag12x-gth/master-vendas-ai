@@ -21,11 +21,18 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
     const challenge = searchParams.get('hub.challenge');
     const verifyToken = searchParams.get('hub.verify_token');
 
+    console.log(`[Webhook Verification] Tentativa de verificação para slug: ${params.slug}`);
+    console.log(`[Webhook Verification] Mode: ${mode}`);
+    console.log(`[Webhook Verification] Verify Token recebido: ${verifyToken}`);
+    console.log(`[Webhook Verification] Verify Token esperado: ${process.env.META_VERIFY_TOKEN}`);
+    console.log(`[Webhook Verification] Challenge: ${challenge}`);
+
     if (mode === 'subscribe' && verifyToken === process.env.META_VERIFY_TOKEN) {
         console.log(`✅ Webhook verificado com sucesso para o slug: ${params.slug}`);
         return new NextResponse(challenge, { status: 200 });
     } else {
-        console.error('Falha na verificação do Webhook. Tokens não correspondem ou modo inválido.');
+        console.error(`❌ Falha na verificação do Webhook para slug: ${params.slug}`);
+        console.error(`   Motivo: mode=${mode}, tokenMatch=${verifyToken === process.env.META_VERIFY_TOKEN}`);
         return new NextResponse('Forbidden', { status: 403 });
     }
 }
