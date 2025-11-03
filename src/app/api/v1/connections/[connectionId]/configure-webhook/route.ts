@@ -72,7 +72,12 @@ export async function POST(request: NextRequest, { params }: { params: { connect
         }
         
         const callbackUrl = `${baseUrl}/api/webhooks/meta/${company.webhookSlug}`;
-        const verifyToken = process.env.META_VERIFY_TOKEN; 
+        const verifyToken = process.env.META_VERIFY_TOKEN;
+        
+        console.log(`[Webhook Config] Base URL: ${baseUrl}`);
+        console.log(`[Webhook Config] Webhook Slug: ${company.webhookSlug}`);
+        console.log(`[Webhook Config] Callback URL completa: ${callbackUrl}`);
+        console.log(`[Webhook Config] Verify Token: ${verifyToken}`); 
 
         if (!verifyToken) {
             return NextResponse.json({ error: 'Token de verificação do webhook do servidor não configurado.' }, { status: 500 });
