@@ -52,7 +52,7 @@ export function QRCodeModal({ sessionId, sessionName, isOpen, onClose }: QRCodeM
           eventSource.close();
           setTimeout(() => {
             onClose();
-          }, 2000);
+          }, 1000);
         }
 
         if (data.status === 'disconnected') {

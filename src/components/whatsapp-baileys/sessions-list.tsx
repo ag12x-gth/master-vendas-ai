@@ -23,7 +23,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export function SessionsList() {
-  const { sessions, isLoading, createSession, deleteSession, reconnectSession } =
+  const { sessions, isLoading, createSession, deleteSession, reconnectSession, mutate } =
     useWhatsAppSessions();
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [selectedSessionName, setSelectedSessionName] = useState<string>('');
@@ -208,6 +208,7 @@ export function SessionsList() {
           setQrModalOpen(false);
           setSelectedSessionId(null);
           setSelectedSessionName('');
+          mutate();
         }}
       />
     </div>
