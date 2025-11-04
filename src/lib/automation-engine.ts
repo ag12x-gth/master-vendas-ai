@@ -167,7 +167,7 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
 
         // Criar prompt contextualizado
         const prompt = `Você é um assistente virtual inteligente de atendimento ao cliente via WhatsApp.
