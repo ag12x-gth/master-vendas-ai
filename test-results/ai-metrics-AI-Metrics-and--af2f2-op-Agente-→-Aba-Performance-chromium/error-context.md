@@ -1,0 +1,510 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - link "Master IA" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e6] [cursor=pointer]
+        - generic [ref=e9] [cursor=pointer]: Master IA
+      - navigation [ref=e10]:
+        - link "Dashboard" [ref=e11] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e12] [cursor=pointer]
+          - generic [ref=e17] [cursor=pointer]: Dashboard
+        - link "Primeiros Passos" [ref=e18] [cursor=pointer]:
+          - /url: /ajuda
+          - img [ref=e19] [cursor=pointer]
+          - generic [ref=e26] [cursor=pointer]: Primeiros Passos
+        - link "Atendimentos" [ref=e27] [cursor=pointer]:
+          - /url: /atendimentos
+          - img [ref=e28] [cursor=pointer]
+          - generic [ref=e31] [cursor=pointer]: Atendimentos
+        - link "Automações" [ref=e32] [cursor=pointer]:
+          - /url: /automations
+          - img [ref=e33] [cursor=pointer]
+          - generic [ref=e37] [cursor=pointer]: Automações
+        - generic [ref=e39] [cursor=pointer]:
+          - generic [ref=e40] [cursor=pointer]:
+            - img [ref=e41] [cursor=pointer]
+            - generic [ref=e46] [cursor=pointer]: Leads
+          - img [ref=e47] [cursor=pointer]
+        - generic [ref=e50] [cursor=pointer]:
+          - generic [ref=e51] [cursor=pointer]:
+            - img [ref=e52] [cursor=pointer]
+            - generic [ref=e54] [cursor=pointer]: WhatsApp
+          - img [ref=e55] [cursor=pointer]
+        - generic [ref=e58] [cursor=pointer]:
+          - generic [ref=e59] [cursor=pointer]:
+            - img [ref=e60] [cursor=pointer]
+            - generic [ref=e62] [cursor=pointer]: SMS
+          - img [ref=e63] [cursor=pointer]
+        - link "Galeria" [ref=e65] [cursor=pointer]:
+          - /url: /gallery
+          - img [ref=e66] [cursor=pointer]
+          - generic [ref=e68] [cursor=pointer]: Galeria
+        - link "Agentes de IA" [ref=e69] [cursor=pointer]:
+          - /url: /agentes-ia
+          - img [ref=e70] [cursor=pointer]
+          - generic [ref=e73] [cursor=pointer]: Agentes de IA
+        - link "Voice Calls" [ref=e74] [cursor=pointer]:
+          - /url: /voice-calls
+          - img [ref=e75] [cursor=pointer]
+          - generic [ref=e77] [cursor=pointer]: Voice Calls
+        - link "Reuniões" [ref=e78] [cursor=pointer]:
+          - /url: /meetings
+          - img [ref=e79] [cursor=pointer]
+          - generic [ref=e82] [cursor=pointer]: Reuniões
+        - link "Roteamento" [ref=e83] [cursor=pointer]:
+          - /url: /roteamento
+          - img [ref=e84] [cursor=pointer]
+          - generic [ref=e88] [cursor=pointer]: Roteamento
+      - navigation [ref=e89]:
+        - link "Configurações" [ref=e90] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e91] [cursor=pointer]
+          - generic [ref=e94] [cursor=pointer]: Configurações
+        - button "Recolher" [ref=e96] [cursor=pointer]:
+          - img [ref=e97] [cursor=pointer]
+          - generic [ref=e99] [cursor=pointer]: Recolher
+    - generic [ref=e100]:
+      - banner [ref=e101]:
+        - generic [ref=e102]:
+          - generic [ref=e103]:
+            - img [ref=e104]
+            - generic [ref=e106]: v2.4.1
+          - button "2 Notificações" [ref=e107] [cursor=pointer]:
+            - img [ref=e108] [cursor=pointer]
+            - generic [ref=e111] [cursor=pointer]: "2"
+            - generic [ref=e112] [cursor=pointer]: Notificações
+          - button "DI" [ref=e113] [cursor=pointer]:
+            - generic [ref=e115] [cursor=pointer]: DI
+      - main [ref=e116]:
+        - generic [ref=e117]:
+          - generic [ref=e118]:
+            - generic [ref=e119]:
+              - heading "Dashboard" [level=1] [ref=e120]
+              - paragraph [ref=e121]: Bem-vindo de volta! Aqui está uma visão geral da sua conta.
+            - button "out 06, 2025 - nov 04, 2025" [ref=e124] [cursor=pointer]:
+              - img [ref=e125] [cursor=pointer]
+              - text: out 06, 2025 - nov 04, 2025
+          - alert [ref=e127]:
+            - img [ref=e128]
+            - 'heading "Novidade na Versão 2.4.0: Agentes de IA!" [level=5] [ref=e133]'
+            - generic [ref=e134]:
+              - text: Agora você pode criar Agentes de IA e associá-los a cada conexão para automatizar seus atendimentos.
+              - link "Criar seu primeiro agente" [ref=e135] [cursor=pointer]:
+                - /url: /agentes-ia/new
+                - button "Criar seu primeiro agente" [active] [ref=e136] [cursor=pointer]:
+                  - text: Criar seu primeiro agente
+                  - img [ref=e137] [cursor=pointer]
+          - generic [ref=e140]:
+            - generic [ref=e142]:
+              - generic [ref=e143]:
+                - heading "Status das Conexões" [level=3] [ref=e144]:
+                  - img [ref=e145]
+                  - text: Status das Conexões
+                - paragraph [ref=e148]: "Última verificação: 1:59:44 AM"
+              - button "Atualizar" [ref=e149] [cursor=pointer]:
+                - img [ref=e150] [cursor=pointer]
+                - text: Atualizar
+            - generic [ref=e156]:
+              - generic [ref=e157]:
+                - generic [ref=e158]: "1"
+                - generic [ref=e159]: Saudáveis
+              - generic [ref=e160]:
+                - generic [ref=e161]: "0"
+                - generic [ref=e162]: Expiradas
+              - generic [ref=e163]:
+                - generic [ref=e164]: "0"
+                - generic [ref=e165]: Com Erro
+              - generic [ref=e166]:
+                - generic [ref=e167]: "1"
+                - generic [ref=e168]: Inativas
+          - generic [ref=e169]:
+            - generic [ref=e170]:
+              - generic [ref=e171]:
+                - heading "Valor Total em Leads" [level=3] [ref=e172]
+                - img [ref=e173]
+              - generic [ref=e175]:
+                - generic [ref=e176]: R$ 0,00
+                - paragraph [ref=e177]: Soma de oportunidades no período
+            - generic [ref=e178]:
+              - generic [ref=e179]:
+                - heading "Novos Contatos" [level=3] [ref=e180]
+                - img [ref=e181]
+              - generic [ref=e186]:
+                - generic [ref=e187]: "899"
+                - paragraph [ref=e188]: Contatos criados no período
+            - generic [ref=e189]:
+              - generic [ref=e190]:
+                - heading "Mensagens Enviadas" [level=3] [ref=e191]
+                - img [ref=e192]
+              - generic [ref=e195]:
+                - generic [ref=e196]: "3.167"
+                - paragraph [ref=e197]: Soma de todas as campanhas no período
+            - generic [ref=e198]:
+              - generic [ref=e199]:
+                - heading "Atendimentos Pendentes" [level=3] [ref=e200]
+                - img [ref=e201]
+              - generic [ref=e203]:
+                - generic [ref=e204]: "5"
+                - paragraph [ref=e205]: Aguardando 1ª resposta no período
+          - generic [ref=e206]:
+            - generic [ref=e207]:
+              - generic [ref=e208]:
+                - heading "Tendência de Atendimentos" [level=3] [ref=e209]
+                - paragraph [ref=e210]: Atendimentos iniciados vs. resolvidos no período.
+              - generic [ref=e214]:
+                - application [ref=e215]:
+                  - generic [ref=e219]:
+                    - generic [ref=e222]: 08/10
+                    - generic [ref=e225]: 11/10
+                    - generic [ref=e228]: 14/10
+                    - generic [ref=e231]: 17/10
+                    - generic [ref=e234]: 20/10
+                    - generic [ref=e237]: 23/10
+                    - generic [ref=e240]: 26/10
+                    - generic [ref=e243]: 29/10
+                    - generic [ref=e246]: 01/11
+                    - generic [ref=e249]: 04/11
+                  - generic [ref=e251]:
+                    - generic [ref=e254]: "0"
+                    - generic [ref=e257]: "200"
+                    - generic [ref=e260]: "400"
+                    - generic [ref=e263]: "600"
+                    - generic [ref=e266]: "800"
+                - generic [ref=e270]:
+                  - generic [ref=e271]: Iniciados
+                  - generic [ref=e273]: Resolvidos
+            - generic [ref=e275]:
+              - generic [ref=e276]:
+                - heading "Ranking de Atendentes" [level=3] [ref=e277]
+                - paragraph [ref=e278]: Performance da equipe no período selecionado.
+              - paragraph [ref=e280]: Nenhum dado de atendente encontrado para este período.
+          - generic [ref=e281]:
+            - generic [ref=e282]:
+              - generic [ref=e283]:
+                - heading "Desempenho das Campanhas" [level=3] [ref=e284]
+                - paragraph [ref=e285]: Comparativo de mensagens enviadas vs. lidas nas últimas campanhas.
+              - generic [ref=e289]:
+                - application [ref=e290]:
+                  - generic [ref=e294]:
+                    - generic [ref=e297]: Campanha - 08ed...
+                    - generic [ref=e300]: Campanha - 08ed...
+                    - generic [ref=e303]: Campanha - 08ed...
+                  - generic [ref=e305]:
+                    - generic [ref=e308]: "0"
+                    - generic [ref=e311]: "45"
+                    - generic [ref=e314]: "90"
+                    - generic [ref=e317]: "135"
+                    - generic [ref=e320]: "180"
+                - list [ref=e330]:
+                  - listitem [ref=e331]:
+                    - img [ref=e332]
+                    - generic [ref=e334]: enviadas
+                  - listitem [ref=e335]:
+                    - img [ref=e336]
+                    - generic [ref=e338]: lidas
+            - generic [ref=e339]:
+              - generic [ref=e340]:
+                - heading "Status das Mensagens" [level=3] [ref=e341]
+                - paragraph [ref=e342]: Distribuição geral de todas as mensagens enviadas.
+              - img [ref=e347]
+          - generic [ref=e348]:
+            - generic [ref=e349]:
+              - heading "Voice Calls (Vapi AI)" [level=3] [ref=e350]
+              - link "Ver Tudo" [ref=e351] [cursor=pointer]:
+                - /url: /voice-calls
+                - button "Ver Tudo" [ref=e352] [cursor=pointer]:
+                  - text: Ver Tudo
+                  - img [ref=e353] [cursor=pointer]
+            - generic [ref=e355]:
+              - generic [ref=e356]:
+                - generic [ref=e357]:
+                  - heading "Total de Chamadas" [level=3] [ref=e358]
+                  - img [ref=e359]
+                - generic [ref=e361]:
+                  - generic [ref=e362]: "7"
+                  - paragraph [ref=e363]: 4 concluídas
+              - generic [ref=e364]:
+                - generic [ref=e365]:
+                  - heading "Duração Média" [level=3] [ref=e366]
+                  - img [ref=e367]
+                - generic [ref=e370]:
+                  - generic [ref=e371]: 2min 3s
+                  - paragraph [ref=e372]: Por chamada
+              - generic [ref=e373]:
+                - generic [ref=e374]:
+                  - heading "Taxa de Sucesso" [level=3] [ref=e375]
+                  - img [ref=e376]
+                - generic [ref=e379]:
+                  - generic [ref=e380]: 57%
+                  - paragraph [ref=e381]: Chamadas bem-sucedidas
+              - generic [ref=e382]:
+                - generic [ref=e383]:
+                  - heading "Casos Resolvidos" [level=3] [ref=e384]
+                  - img [ref=e385]
+                - generic [ref=e388]:
+                  - generic [ref=e389]: "0"
+                  - paragraph [ref=e390]: Com resolução
+            - generic [ref=e391]:
+              - generic [ref=e392]:
+                - heading "Últimas Chamadas" [level=3] [ref=e393]
+                - paragraph [ref=e394]: Chamadas recentes realizadas pelo sistema
+              - table [ref=e398]:
+                - rowgroup [ref=e399]:
+                  - row "Cliente Telefone Status Data/Hora Duração Ações" [ref=e400]:
+                    - cell "Cliente" [ref=e401]
+                    - cell "Telefone" [ref=e402]
+                    - cell "Status" [ref=e403]
+                    - cell "Data/Hora" [ref=e404]
+                    - cell "Duração" [ref=e405]
+                    - cell "Ações" [ref=e406]
+                - rowgroup [ref=e407]:
+                  - row "João Santos +5521976543210 Concluída 03/10/2025 00:20 1:25 Detalhes" [ref=e408]:
+                    - cell "João Santos" [ref=e409]
+                    - cell "+5521976543210" [ref=e410]
+                    - cell "Concluída" [ref=e411]:
+                      - generic [ref=e412]:
+                        - img [ref=e413]
+                        - text: Concluída
+                    - cell "03/10/2025 00:20" [ref=e416]
+                    - cell "1:25" [ref=e417]
+                    - cell "Detalhes" [ref=e418]:
+                      - button "Detalhes" [ref=e419] [cursor=pointer]:
+                        - img [ref=e420] [cursor=pointer]
+                        - text: Detalhes
+                  - row "Pedro Oliveira +5541954321098 Falhou 02/10/2025 22:20 - Detalhes" [ref=e423]:
+                    - cell "Pedro Oliveira" [ref=e424]
+                    - cell "+5541954321098" [ref=e425]
+                    - cell "Falhou" [ref=e426]:
+                      - generic [ref=e427]:
+                        - img [ref=e428]
+                        - text: Falhou
+                    - cell "02/10/2025 22:20" [ref=e432]
+                    - cell "-" [ref=e433]
+                    - cell "Detalhes" [ref=e434]:
+                      - button "Detalhes" [ref=e435] [cursor=pointer]:
+                        - img [ref=e436] [cursor=pointer]
+                        - text: Detalhes
+                  - row "Carla Souza +5551943210987 Concluída 02/10/2025 21:20 4:00 Detalhes" [ref=e439]:
+                    - cell "Carla Souza" [ref=e440]
+                    - cell "+5551943210987" [ref=e441]
+                    - cell "Concluída" [ref=e442]:
+                      - generic [ref=e443]:
+                        - img [ref=e444]
+                        - text: Concluída
+                    - cell "02/10/2025 21:20" [ref=e447]
+                    - cell "4:00" [ref=e448]
+                    - cell "Detalhes" [ref=e449]:
+                      - button "Detalhes" [ref=e450] [cursor=pointer]:
+                        - img [ref=e451] [cursor=pointer]
+                        - text: Detalhes
+                  - row "Maria Silva +5511987654321 Concluída 03/10/2025 01:20 2:00 Detalhes" [ref=e454]:
+                    - cell "Maria Silva" [ref=e455]
+                    - cell "+5511987654321" [ref=e456]
+                    - cell "Concluída" [ref=e457]:
+                      - generic [ref=e458]:
+                        - img [ref=e459]
+                        - text: Concluída
+                    - cell "03/10/2025 01:20" [ref=e462]
+                    - cell "2:00" [ref=e463]
+                    - cell "Detalhes" [ref=e464]:
+                      - button "Detalhes" [ref=e465] [cursor=pointer]:
+                        - img [ref=e466] [cursor=pointer]
+                        - text: Detalhes
+                  - row "Ana Costa +5531965432109 Iniciada 02/10/2025 23:20 - Detalhes" [ref=e469]:
+                    - cell "Ana Costa" [ref=e470]
+                    - cell "+5531965432109" [ref=e471]
+                    - cell "Iniciada" [ref=e472]:
+                      - generic [ref=e473]:
+                        - img [ref=e474]
+                        - text: Iniciada
+                    - cell "02/10/2025 23:20" [ref=e476]
+                    - cell "-" [ref=e477]
+                    - cell "Detalhes" [ref=e478]:
+                      - button "Detalhes" [ref=e479] [cursor=pointer]:
+                        - img [ref=e480] [cursor=pointer]
+                        - text: Detalhes
+          - generic [ref=e483]:
+            - generic [ref=e484]:
+              - heading "Agentes de IA" [level=3] [ref=e485]
+              - link "Ver Todos os Agentes" [ref=e486] [cursor=pointer]:
+                - /url: /agentes-ia
+                - button "Ver Todos os Agentes" [ref=e487] [cursor=pointer]:
+                  - text: Ver Todos os Agentes
+                  - img [ref=e488] [cursor=pointer]
+            - generic [ref=e490]:
+              - generic [ref=e491]:
+                - generic [ref=e492]:
+                  - heading "Agentes Ativos" [level=3] [ref=e493]
+                  - img [ref=e494]
+                - generic [ref=e497]:
+                  - generic [ref=e498]: "2"
+                  - paragraph [ref=e499]: Total de agentes criados
+              - generic [ref=e500]:
+                - generic [ref=e501]:
+                  - heading "Mensagens da IA" [level=3] [ref=e502]
+                  - img [ref=e503]
+                - generic [ref=e505]:
+                  - generic [ref=e506]: "2"
+                  - paragraph [ref=e507]: 2 nos últimos 7 dias
+              - generic [ref=e508]:
+                - generic [ref=e509]:
+                  - heading "Taxa de Sucesso" [level=3] [ref=e510]
+                  - img [ref=e511]
+                - generic [ref=e514]:
+                  - generic [ref=e515]: 13%
+                  - paragraph [ref=e516]: 2 sucesso / 14 erros
+              - generic [ref=e517]:
+                - generic [ref=e518]:
+                  - heading "Conversas com IA" [level=3] [ref=e519]
+                  - img [ref=e520]
+                - generic [ref=e523]:
+                  - generic [ref=e524]: "7"
+                  - paragraph [ref=e525]: Atualmente ativas
+            - generic [ref=e526]:
+              - generic [ref=e527]:
+                - generic [ref=e528]:
+                  - heading "Atividade da IA nos Últimos 7 Dias" [level=3] [ref=e529]
+                  - paragraph [ref=e530]: Total de mensagens enviadas pelos agentes de IA
+                - img [ref=e534]:
+                  - generic [ref=e539]: 04/11
+                  - generic [ref=e541]:
+                    - generic [ref=e544]: "0"
+                    - generic [ref=e547]: "0.5"
+                    - generic [ref=e550]: "1"
+                    - generic [ref=e553]: "1.5"
+                    - generic [ref=e556]: "2"
+              - generic [ref=e560]:
+                - generic [ref=e561]:
+                  - heading "Top 5 Agentes por Performance" [level=3] [ref=e562]
+                  - paragraph [ref=e563]: Agentes com maior número de mensagens enviadas
+                - generic [ref=e565]:
+                  - link "#1 Agente Atendimento Antônio gpt-4-turbo 2 msgs" [ref=e566] [cursor=pointer]:
+                    - /url: /agentes-ia/a4e00903-c5c2-4973-9a54-bb0fa6325bf5
+                    - generic [ref=e567] [cursor=pointer]:
+                      - generic [ref=e568] [cursor=pointer]: "#1"
+                      - generic [ref=e569] [cursor=pointer]:
+                        - paragraph [ref=e570] [cursor=pointer]: Agente Atendimento Antônio
+                        - paragraph [ref=e571] [cursor=pointer]: gpt-4-turbo
+                    - generic [ref=e572] [cursor=pointer]: 2 msgs
+                  - link "#2 podkgpsdkgpsokdg gpt-4-turbo 0 msgs" [ref=e573] [cursor=pointer]:
+                    - /url: /agentes-ia/dee87bf1-723c-42be-a635-2c442fe6515e
+                    - generic [ref=e574] [cursor=pointer]:
+                      - generic [ref=e575] [cursor=pointer]: "#2"
+                      - generic [ref=e576] [cursor=pointer]:
+                        - paragraph [ref=e577] [cursor=pointer]: podkgpsdkgpsokdg
+                        - paragraph [ref=e578] [cursor=pointer]: gpt-4-turbo
+                    - generic [ref=e579] [cursor=pointer]: 0 msgs
+          - generic [ref=e580]:
+            - generic [ref=e581]:
+              - heading "Atalhos Rápidos" [level=3] [ref=e583]
+              - generic [ref=e584]:
+                - link "Campanha" [ref=e585] [cursor=pointer]:
+                  - /url: /campaigns
+                  - button "Campanha" [ref=e586] [cursor=pointer]:
+                    - img
+                    - text: Campanha
+                - link "Modelo" [ref=e588] [cursor=pointer]:
+                  - /url: /templates
+                  - button "Modelo" [ref=e589] [cursor=pointer]:
+                    - img
+                    - text: Modelo
+                - link "Contato" [ref=e591] [cursor=pointer]:
+                  - /url: /contacts
+                  - button "Contato" [ref=e592] [cursor=pointer]:
+                    - img
+                    - text: Contato
+            - generic [ref=e595]:
+              - generic [ref=e596]:
+                - heading "Campanhas em Andamento" [level=3] [ref=e597]
+                - paragraph [ref=e598]: Acompanhe os envios ativos e agendados.
+              - paragraph [ref=e600]: Nenhuma campanha em andamento.
+            - generic [ref=e601]:
+              - generic [ref=e602]:
+                - heading "Atendimentos Pendentes" [level=3] [ref=e603]
+                - paragraph [ref=e604]: Conversas aguardando uma primeira resposta.
+              - generic [ref=e606]:
+                - generic [ref=e607]:
+                  - generic [ref=e608]:
+                    - generic [ref=e610]: LE
+                    - generic [ref=e611]:
+                      - paragraph [ref=e612]:
+                        - link "LEAD SOROCABA 111" [ref=e613] [cursor=pointer]:
+                          - /url: /contacts/26a8974e-c0d9-4534-aff2-b4a63a7b3bfe
+                      - paragraph [ref=e614]: há 17 minutos
+                  - link [ref=e615] [cursor=pointer]:
+                    - /url: /atendimentos?conversationId=9c0ac53c-0644-48ce-8cbf-e1a720754056
+                    - button [ref=e616] [cursor=pointer]:
+                      - img [ref=e617] [cursor=pointer]
+                - generic [ref=e619]:
+                  - generic [ref=e620]:
+                    - generic [ref=e622]: LE
+                    - generic [ref=e623]:
+                      - paragraph [ref=e624]:
+                        - link "LEAD SOROCABA 148" [ref=e625] [cursor=pointer]:
+                          - /url: /contacts/cdd063a0-8da5-4351-af74-45d3584ac10e
+                      - paragraph [ref=e626]: há 3 dias
+                  - link [ref=e627] [cursor=pointer]:
+                    - /url: /atendimentos?conversationId=cba7360a-b63b-4907-b312-78365244e035
+                    - button [ref=e628] [cursor=pointer]:
+                      - img [ref=e629] [cursor=pointer]
+                - generic [ref=e631]:
+                  - generic [ref=e632]:
+                    - generic [ref=e634]: An
+                    - generic [ref=e635]:
+                      - paragraph [ref=e636]:
+                        - link "Anderson Sá" [ref=e637] [cursor=pointer]:
+                          - /url: /contacts/1f29df66-7cec-4a17-a848-19c3847f5277
+                      - paragraph [ref=e638]: há 3 dias
+                  - link [ref=e639] [cursor=pointer]:
+                    - /url: /atendimentos?conversationId=ecf301aa-2411-42d1-834e-90f2266f2866
+                    - button [ref=e640] [cursor=pointer]:
+                      - img [ref=e641] [cursor=pointer]
+                - generic [ref=e643]:
+                  - generic [ref=e644]:
+                    - generic [ref=e646]: At
+                    - generic [ref=e647]:
+                      - paragraph [ref=e648]:
+                        - link "Atendimento Nayra 6957" [ref=e649] [cursor=pointer]:
+                          - /url: /contacts/93e5abd9-9b51-4305-b3e3-d64d478f6109
+                      - paragraph [ref=e650]: há 4 dias
+                  - link [ref=e651] [cursor=pointer]:
+                    - /url: /atendimentos?conversationId=538ad91e-1eb6-4e96-9b03-c206ec88d8a6
+                    - button [ref=e652] [cursor=pointer]:
+                      - img [ref=e653] [cursor=pointer]
+  - button [ref=e655] [cursor=pointer]:
+    - img [ref=e657] [cursor=pointer]
+  - generic:
+    - generic [ref=e659]:
+      - heading "Console Monitor" [level=3] [ref=e660]
+      - generic [ref=e661]:
+        - button [ref=e662] [cursor=pointer]:
+          - img [ref=e663] [cursor=pointer]
+        - button [ref=e666] [cursor=pointer]:
+          - img [ref=e667] [cursor=pointer]
+        - button [ref=e670] [cursor=pointer]:
+          - img [ref=e671] [cursor=pointer]
+    - generic [ref=e674]:
+      - generic [ref=e675]:
+        - button "all" [ref=e676] [cursor=pointer]
+        - button "log" [ref=e677] [cursor=pointer]
+        - button "error" [ref=e678] [cursor=pointer]
+        - button "warn" [ref=e679] [cursor=pointer]
+        - button "info" [ref=e680] [cursor=pointer]
+      - textbox "Search..." [ref=e682]
+    - generic [ref=e683]:
+      - generic:
+        - img
+        - generic [ref=e685]: 1:59:42 AM
+        - generic [ref=e687]:
+          - text: "[Console Monitor] Iniciado - Capturando todos os logs"
+          - generic [ref=e688]: (2x)
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e689]
+  - generic [ref=e690]: "0.5"
+```

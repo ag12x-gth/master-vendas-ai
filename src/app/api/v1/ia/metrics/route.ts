@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { aiPersonas, messages, conversations, automationLogs, connections } from '@/lib/db/schema';
-import { eq, count, sql, desc, and, gte } from 'drizzle-orm';
+import { eq, count, sql, desc, and, gte, inArray } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { subDays } from 'date-fns';
 
@@ -45,7 +45,7 @@ export async function GET(_request: NextRequest) {
           .innerJoin(conversations, eq(messages.conversationId, conversations.id))
           .where(
             and(
-              sql`${conversations.connectionId} = ANY(${connectionIds})`,
+              inArray(conversations.connectionId, connectionIds),
               eq(messages.senderType, 'AI')
             )
           )
@@ -61,7 +61,7 @@ export async function GET(_request: NextRequest) {
           .innerJoin(conversations, eq(messages.conversationId, conversations.id))
           .where(
             and(
-              sql`${conversations.connectionId} = ANY(${connectionIds})`,
+              inArray(conversations.connectionId, connectionIds),
               eq(messages.senderType, 'AI'),
               gte(messages.sentAt, sevenDaysAgo)
             )
@@ -109,7 +109,7 @@ export async function GET(_request: NextRequest) {
           .from(conversations)
           .where(
             and(
-              sql`${conversations.connectionId} = ANY(${connectionIds})`,
+              inArray(conversations.connectionId, connectionIds),
               eq(conversations.aiActive, true)
             )
           )
@@ -128,7 +128,7 @@ export async function GET(_request: NextRequest) {
           .innerJoin(conversations, eq(messages.conversationId, conversations.id))
           .where(
             and(
-              sql`${conversations.connectionId} = ANY(${connectionIds})`,
+              inArray(conversations.connectionId, connectionIds),
               eq(messages.senderType, 'AI'),
               gte(messages.sentAt, sevenDaysAgo)
             )

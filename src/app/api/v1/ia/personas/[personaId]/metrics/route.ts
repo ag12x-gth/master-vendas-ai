@@ -62,7 +62,7 @@ export async function GET(
           .from(messages)
           .where(
             and(
-              sql`${messages.conversationId} = ANY(${conversationIds})`,
+              inArray(messages.conversationId, conversationIds),
               eq(messages.senderType, 'AI')
             )
           )
@@ -77,7 +77,7 @@ export async function GET(
           .from(messages)
           .where(
             and(
-              sql`${messages.conversationId} = ANY(${conversationIds})`,
+              inArray(messages.conversationId, conversationIds),
               eq(messages.senderType, 'AI'),
               gte(messages.sentAt, sevenDaysAgo)
             )
@@ -146,23 +146,23 @@ export async function GET(
       : [];
 
     // Dados diários dos últimos 7 dias
-    const dailyActivity = await db
-      .select({
-        date: sql<string>`DATE(${messages.sentAt})`,
-        count: count(),
-      })
-      .from(messages)
-      .where(
-        and(
-          conversationIds.length > 0
-            ? sql`${messages.conversationId} = ANY(${conversationIds})`
-            : sql`1=0`,
-          eq(messages.senderType, 'AI'),
-          gte(messages.sentAt, sevenDaysAgo)
-        )
-      )
-      .groupBy(sql`DATE(${messages.sentAt})`)
-      .orderBy(sql`DATE(${messages.sentAt})`);
+    const dailyActivity = conversationIds.length > 0
+      ? await db
+          .select({
+            date: sql<string>`DATE(${messages.sentAt})`,
+            count: count(),
+          })
+          .from(messages)
+          .where(
+            and(
+              inArray(messages.conversationId, conversationIds),
+              eq(messages.senderType, 'AI'),
+              gte(messages.sentAt, sevenDaysAgo)
+            )
+          )
+          .groupBy(sql`DATE(${messages.sentAt})`)
+          .orderBy(sql`DATE(${messages.sentAt})`)
+      : [];
 
     return NextResponse.json({
       persona: {
