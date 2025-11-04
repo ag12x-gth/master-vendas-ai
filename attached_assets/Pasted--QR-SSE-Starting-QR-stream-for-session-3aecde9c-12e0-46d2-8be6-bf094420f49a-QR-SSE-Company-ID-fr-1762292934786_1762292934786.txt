@@ -1,0 +1,82 @@
+[QR SSE] Starting QR stream for session: 3aecde9c-12e0-46d2-8be6-bf094420f49a
+[QR SSE] Company ID from session: 682b91ea-15ee-42da-8855-70309b237008
+ GET /api/v1/whatsapp/sessions 200 in 489ms
+[QR SSE] Connection found: YES
+[SessionManager] Getting emitter for 3aecde9c-12e0-46d2-8be6-bf094420f49a. Total sessions in map: 3
+[SessionManager] Session IDs in map: [
+  '466c4b65-91b0-4c1e-a383-5b844c0c9f74',
+  '4fa6af24-fd9e-4194-9d66-a26b292d706c',
+  '686a4111-e885-4175-8ecf-829e318097db'
+]
+[QR SSE] EventEmitter found: NO
+[QR SSE] EventEmitter not found for session: 3aecde9c-12e0-46d2-8be6-bf094420f49a
+ GET /api/v1/whatsapp/sessions/3aecde9c-12e0-46d2-8be6-bf094420f49a/qr 404 in 186ms
+[Baileys] SessionManager instance created and stored globally
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+[Baileys] Creating new session for connection 3aecde9c-12e0-46d2-8be6-bf094420f49a
+[Baileys] Initiating dynamic Baileys import...
+[Baileys] Fetching Baileys version...
+[Baileys] Using version: [ 2, 3000, 1027934701 ]
+[Baileys] Loading auth state from filesystem...
+[Baileys] Auth state loaded from /home/runner/workspace/whatsapp_sessions/session_3aecde9c-12e0-46d2-8be6-bf094420f49a
+[Baileys] Creating WASocket...
+[Baileys] WASocket created successfully
+[Baileys] Session setup complete for 3aecde9c-12e0-46d2-8be6-bf094420f49a
+[Baileys] Connection update for 3aecde9c-12e0-46d2-8be6-bf094420f49a: connecting undefined
+ POST /api/v1/whatsapp/sessions/3aecde9c-12e0-46d2-8be6-bf094420f49a 200 in 258ms
+[QR SSE] Starting QR stream for session: 3aecde9c-12e0-46d2-8be6-bf094420f49a
+[QR SSE] Company ID from session: 682b91ea-15ee-42da-8855-70309b237008
+[QR SSE] Connection found: YES
+[SessionManager] Getting emitter for 3aecde9c-12e0-46d2-8be6-bf094420f49a. Total sessions in map: 4
+[SessionManager] Session IDs in map: [
+  '466c4b65-91b0-4c1e-a383-5b844c0c9f74',
+  '4fa6af24-fd9e-4194-9d66-a26b292d706c',
+  '686a4111-e885-4175-8ecf-829e318097db',
+  '3aecde9c-12e0-46d2-8be6-bf094420f49a'
+]
+[QR SSE] EventEmitter found: YES
+[Baileys] SessionManager instance created and stored globally
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+[Baileys] Connection update for 3aecde9c-12e0-46d2-8be6-bf094420f49a: close Error: Connection Failure
+    at WebSocketClient.<anonymous> (/home/runner/workspace/node_modules/@whiskeysockets/baileys/src/Socket/socket.ts:920:7)
+    at WebSocketClient.emit (node:events:524:28)
+    at <anonymous> (/home/runner/workspace/node_modules/@whiskeysockets/baileys/src/Socket/socket.ts:563:23)
+    at Object.decodeFrame (/home/runner/workspace/node_modules/@whiskeysockets/baileys/src/Utils/noise-handler.ts:187:5)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  data: { reason: '401', location: 'atn' },
+  isBoom: true,
+  isServer: false,
+  output: {
+    statusCode: 401,
+    payload: {
+      statusCode: 401,
+      error: 'Unauthorized',
+      message: 'Connection Failure'
+    },
+    headers: {}
+  }
+}
+[Baileys] Connection closed for 3aecde9c-12e0-46d2-8be6-bf094420f49a. Status code: 401, Error: Connection Failure
+[Baileys] SessionManager instance created and stored globally
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[QR SSE] Cleanup completed for session: 3aecde9c-12e0-46d2-8be6-bf094420f49a
+ GET /api/v1/whatsapp/sessions/3aecde9c-12e0-46d2-8be6-bf094420f49a/qr 200 in 1189ms
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+[Baileys] Connection update for 686a4111-e885-4175-8ecf-829e318097db: undefined undefined
+[Baileys] QR Code generated for 686a4111-e885-4175-8ecf-829e318097db
+ GET /api/v1/whatsapp/sessions 200 in 101ms
+💾 Persisted 0 cache entries to disk
