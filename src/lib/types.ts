@@ -46,6 +46,15 @@ export type UserWithCompany = Omit<User, 'password'> & {
 export type ExtendedContact = Contact & {
     tags?: Tag[];
     lists?: ContactList[];
+    activeConversations?: Array<{
+        id: string;
+        connectionId: string | null;
+        connectionName: string | null;
+        connectionType: string | null;
+        status: string | null;
+        lastMessageAt: Date | null;
+        aiActive: boolean | null;
+    }>;
 };
 
 export type Conversation = typeof schema.conversations.$inferSelect & {

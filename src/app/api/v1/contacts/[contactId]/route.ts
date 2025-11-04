@@ -2,8 +2,8 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { contacts, contactsToContactLists, contactsToTags, tags, contactLists } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { contacts, contactsToContactLists, contactsToTags, tags, contactLists, conversations, connections } from '@/lib/db/schema';
+import { eq, and, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { getCompanyIdFromSession } from '@/app/actions';
 
@@ -59,10 +59,30 @@ export async function GET(request: NextRequest, { params }: { params: { contactI
     .innerJoin(contactsToContactLists, eq(contactLists.id, contactsToContactLists.listId))
     .where(eq(contactsToContactLists.contactId, contact.id));
 
+    // Buscar todas as conversas ativas do contato
+    const activeConversations = await db.select({
+        id: conversations.id,
+        connectionId: conversations.connectionId,
+        connectionName: connections.name,
+        connectionType: connections.type,
+        status: conversations.status,
+        lastMessageAt: conversations.lastMessageAt,
+        aiActive: conversations.aiActive,
+    }).from(conversations)
+    .leftJoin(connections, eq(conversations.connectionId, connections.id))
+    .where(
+      and(
+        eq(conversations.contactId, contact.id),
+        isNull(conversations.archivedAt)
+      )
+    )
+    .orderBy(conversations.lastMessageAt);
+
     const response = {
         ...contact,
         tags: contactTags,
-        lists: contactContactLists
+        lists: contactContactLists,
+        activeConversations: activeConversations
     }
     
     return NextResponse.json(response);
