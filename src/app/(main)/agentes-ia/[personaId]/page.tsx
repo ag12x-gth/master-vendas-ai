@@ -5,11 +5,13 @@ import { useEffect, useState } from 'react';
 import { notFound } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
 import { PersonaEditor } from '@/components/ia/persona-editor';
+import { PersonaMetrics } from '@/components/ia/persona-metrics';
 import type { Persona } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function EditPersonaPage({ params }: { params: { personaId: string } }) {
   const [persona, setPersona] = useState<Persona | null>(null);
@@ -68,7 +70,20 @@ export default function EditPersonaPage({ params }: { params: { personaId: strin
         </Link>
       </PageHeader>
 
-      <PersonaEditor persona={persona} />
+      <Tabs defaultValue="config" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+          <TabsTrigger value="config">Configurações</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="config" className="space-y-6 mt-6">
+          <PersonaEditor persona={persona} />
+        </TabsContent>
+        
+        <TabsContent value="performance" className="space-y-6 mt-6">
+          <PersonaMetrics personaId={personaId} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

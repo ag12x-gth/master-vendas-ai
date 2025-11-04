@@ -30,6 +30,7 @@ import { ConnectionAlerts } from '@/components/dashboard/connection-alerts';
 import { VapiMetricsCard } from '@/components/dashboard/vapi-metrics-card';
 import { CallKPIDashboard, RecentCallsTable } from '@/components/vapi-voice';
 import { useVapiCalls } from '@/hooks/useVapiCalls';
+import { AIPerformanceSection } from '@/components/dashboard/ai-performance-section';
 
 export default function DashboardClient() {
   const { metrics: vapiMetrics, calls: vapiCalls, loading: vapiLoading } = useVapiCalls(true);
@@ -137,6 +138,8 @@ export default function DashboardClient() {
           </CardContent>
         </Card>
       </div>
+
+      <AIPerformanceSection />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <QuickShortcuts />
