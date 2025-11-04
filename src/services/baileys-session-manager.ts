@@ -294,8 +294,83 @@ class BaileysSessionManager {
       });
 
       console.log(`[Baileys] Message saved from ${phoneNumber}`);
+
+      // Auto-resposta AI se habilitada
+      if (conversation.aiActive && messageContent.trim()) {
+        await this.handleAIAutoResponse(
+          connectionId,
+          conversation.id,
+          phoneNumber,
+          messageContent,
+          contact.name || contact.whatsappName || phoneNumber
+        );
+      }
     } catch (error) {
       console.error('[Baileys] Error handling incoming message:', error);
+    }
+  }
+
+  private async handleAIAutoResponse(
+    connectionId: string,
+    conversationId: string,
+    phoneNumber: string,
+    userMessage: string,
+    contactName: string
+  ): Promise<void> {
+    try {
+      console.log(`[Baileys AI] Generating auto-response for ${phoneNumber}`);
+
+      // Buscar histórico recente de mensagens
+      const recentMessages = await db.query.messages.findMany({
+        where: eq(messages.conversationId, conversationId),
+        orderBy: (messages, { desc }) => [desc(messages.sentAt)],
+        limit: 6,
+      });
+
+      const conversationHistory = recentMessages
+        .reverse()
+        .map((msg) => ({
+          role: msg.senderType === 'USER' ? ('user' as const) : ('assistant' as const),
+          content: msg.content || '',
+        }))
+        .filter((msg) => msg.content.trim());
+
+      // Gerar resposta com OpenAI
+      const { openAIService } = await import('./ai/openai-service');
+      const aiResponse = await openAIService.generateResponse(
+        userMessage,
+        contactName,
+        conversationHistory
+      );
+
+      // Enviar resposta via WhatsApp
+      const messageId = await this.sendMessage(connectionId, phoneNumber, {
+        text: aiResponse,
+      });
+
+      if (messageId) {
+        // Salvar mensagem da AI no banco
+        await db.insert(messages).values({
+          conversationId,
+          providerMessageId: messageId,
+          senderType: 'AI',
+          content: aiResponse,
+          contentType: 'TEXT',
+          status: 'sent',
+          sentAt: new Date(),
+        });
+
+        await db
+          .update(conversations)
+          .set({ lastMessageAt: new Date() })
+          .where(eq(conversations.id, conversationId));
+
+        console.log(`[Baileys AI] Auto-response sent to ${phoneNumber}`);
+      } else {
+        console.error(`[Baileys AI] Failed to send auto-response to ${phoneNumber}`);
+      }
+    } catch (error) {
+      console.error('[Baileys AI] Error in auto-response:', error);
     }
   }
 
