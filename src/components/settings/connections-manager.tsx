@@ -200,7 +200,10 @@ export function ConnectionsManager() {
             if (!res.ok) throw new Error('Falha ao carregar as conexões.');
             const data: ConnectionType[] = await res.json();
             
-            const initialConnections: Connection[] = data.map(c => ({ 
+            // Filtrar apenas conexões Meta API (excluir Baileys)
+            const metaApiConnections = data.filter(c => c.connectionType === 'meta_api' || !c.connectionType);
+            
+            const initialConnections: Connection[] = metaApiConnections.map(c => ({ 
                 ...c, 
                 connectionStatus: 'Não Verificado',
                 webhookStatus: 'VERIFICANDO'
