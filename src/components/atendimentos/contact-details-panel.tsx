@@ -9,12 +9,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '../ui/textarea';
-import { Loader2, Save, Phone, MessageSquare, AlertCircle } from 'lucide-react';
+import { Loader2, Save, Phone, MessageSquare, AlertCircle, Bot } from 'lucide-react';
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
 import { Alert, AlertDescription } from '../ui/alert';
 import { RelativeTime } from '../ui/relative-time';
 import Image from 'next/image';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+
+interface AIPersona {
+    id: string;
+    name: string;
+    description: string | null;
+}
 
 export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefined }) => {
     const { toast } = useToast();
@@ -23,6 +30,8 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
     const [isSaving, setIsSaving] = useState(false);
     const [isCalling, setIsCalling] = useState(false);
     const [notes, setNotes] = useState('');
+    const [aiPersonas, setAiPersonas] = useState<AIPersona[]>([]);
+    const [conversationPersonas, setConversationPersonas] = useState<Record<string, string | null>>({});
 
     const fetchDetails = useCallback(async (id: string) => {
         setLoading(true);
@@ -35,6 +44,26 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
             const contactData: ExtendedContact = await contactRes.json();
             setContact(contactData);
             setNotes(contactData.notes || '');
+
+            // Buscar agentes IA disponíveis
+            const personasRes = await fetch('/api/agentes-ia');
+            if (personasRes.ok) {
+                const personasData = await personasRes.json();
+                setAiPersonas(personasData.personas || []);
+            }
+
+            // Buscar agentes vinculados para cada conversa ativa
+            if (contactData.activeConversations) {
+                const personaMap: Record<string, string | null> = {};
+                for (const conv of contactData.activeConversations) {
+                    const convRes = await fetch(`/api/v1/conversations/${conv.id}`);
+                    if (convRes.ok) {
+                        const convData = await convRes.json();
+                        personaMap[conv.id] = convData.assignedPersonaId || null;
+                    }
+                }
+                setConversationPersonas(personaMap);
+            }
 
         } catch (error) {
             toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
@@ -112,6 +141,42 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
             setIsCalling(false);
         }
     }
+
+    const handlePersonaChange = async (conversationId: string, personaId: string) => {
+        try {
+            const response = await fetch(`/api/v1/conversations/${conversationId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    assignedPersonaId: personaId === 'none' ? null : personaId
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Falha ao atualizar agente IA');
+            }
+
+            setConversationPersonas(prev => ({
+                ...prev,
+                [conversationId]: personaId === 'none' ? null : personaId
+            }));
+
+            const personaName = personaId === 'none' 
+                ? 'Genérico' 
+                : aiPersonas.find(p => p.id === personaId)?.name || 'Desconhecido';
+
+            toast({ 
+                title: '✅ Agente IA Atualizado', 
+                description: `Agente ${personaName} vinculado à conversa.` 
+            });
+        } catch (error) {
+            toast({ 
+                variant: 'destructive', 
+                title: 'Erro', 
+                description: (error as Error).message 
+            });
+        }
+    }
     
     if (loading) {
          return (
@@ -185,7 +250,7 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
                         </CardHeader>
                         <CardContent className="space-y-2">
                             {contact.activeConversations.map((conv) => (
-                                <div key={conv.id} className="p-3 rounded-lg border bg-muted/30 space-y-1.5">
+                                <div key={conv.id} className="p-3 rounded-lg border bg-muted/30 space-y-2">
                                     <div className="flex items-start justify-between gap-2">
                                         <div className="flex-1">
                                             <p className="font-medium text-sm">{conv.connectionName || 'Sem nome'}</p>
@@ -208,6 +273,35 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
                                         <p className="text-xs text-muted-foreground">
                                             Última mensagem: <RelativeTime date={conv.lastMessageAt} />
                                         </p>
+                                    )}
+                                    {conv.aiActive && (
+                                        <div className="space-y-1.5 pt-1 border-t">
+                                            <Label className="text-xs flex items-center gap-1.5">
+                                                <Bot className="h-3 w-3" />
+                                                Agente IA
+                                            </Label>
+                                            <Select 
+                                                value={conversationPersonas[conv.id] || 'none'} 
+                                                onValueChange={(value) => handlePersonaChange(conv.id, value)}
+                                            >
+                                                <SelectTrigger className="h-8 text-xs">
+                                                    <SelectValue placeholder="Selecione um agente" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="none">Agente Genérico</SelectItem>
+                                                    {aiPersonas.map((persona) => (
+                                                        <SelectItem key={persona.id} value={persona.id}>
+                                                            {persona.name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {conversationPersonas[conv.id] && (
+                                                <p className="text-xs text-muted-foreground italic">
+                                                    {aiPersonas.find(p => p.id === conversationPersonas[conv.id])?.description}
+                                                </p>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
                             ))}

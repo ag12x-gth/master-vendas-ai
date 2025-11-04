@@ -62,6 +62,49 @@ Instruções:
     }
   }
 
+  async generateResponseWithPersona(
+    userMessage: string,
+    contactName: string | undefined,
+    conversationHistory: ChatMessage[],
+    persona: any
+  ): Promise<string> {
+    try {
+      const systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um assistente especializado.`;
+      
+      const enrichedPrompt = `${systemPrompt}
+
+${contactName ? `O nome do cliente é ${contactName}.` : ''}`;
+
+      const messages: ChatMessage[] = [
+        { role: 'system', content: enrichedPrompt },
+        ...conversationHistory.slice(-6),
+        { role: 'user', content: userMessage },
+      ];
+
+      console.log(`[OpenAI] Generating response with persona: ${persona.name}`);
+      console.log(`[OpenAI] Message: ${userMessage.substring(0, 50)}`);
+
+      const temperature = persona.temperature ? parseFloat(persona.temperature.toString()) : 0.7;
+      const maxTokens = persona.maxOutputTokens || 500;
+
+      const completion = await this.client.chat.completions.create({
+        model: persona.model || 'gpt-4o-mini',
+        messages,
+        temperature,
+        max_tokens: maxTokens,
+      });
+
+      const response = completion.choices[0]?.message?.content || 'Desculpe, não consegui processar sua mensagem.';
+      
+      console.log(`[OpenAI] Response generated with ${persona.name}:`, response.substring(0, 50));
+
+      return response;
+    } catch (error) {
+      console.error('[OpenAI] Error generating response with persona:', error);
+      throw error;
+    }
+  }
+
   async isAvailable(): Promise<boolean> {
     try {
       await this.client.models.list();

@@ -1,7 +1,7 @@
 import { Boom } from '@hapi/boom';
 import { EventEmitter } from 'events';
 import { db } from '@/lib/db';
-import { connections, conversations, messages, contacts } from '@/lib/db/schema';
+import { connections, conversations, messages, contacts, aiPersonas } from '@/lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import pino from 'pino';
 import path from 'path';
@@ -347,6 +347,15 @@ class BaileysSessionManager {
     try {
       console.log(`[Baileys AI] Generating auto-response for ${phoneNumber}`);
 
+      // Buscar conversa com agente IA vinculado
+      const [conversation] = await db
+        .select({
+          assignedPersonaId: conversations.assignedPersonaId,
+        })
+        .from(conversations)
+        .where(eq(conversations.id, conversationId))
+        .limit(1);
+
       // Buscar histórico recente de mensagens
       const recentMessages = await db.query.messages.findMany({
         where: eq(messages.conversationId, conversationId),
@@ -362,13 +371,43 @@ class BaileysSessionManager {
         }))
         .filter((msg) => msg.content.trim());
 
-      // Gerar resposta com OpenAI
-      const { openAIService } = await import('./ai/openai-service');
-      const aiResponse = await openAIService.generateResponse(
-        userMessage,
-        contactName,
-        conversationHistory
-      );
+      let aiResponse: string;
+
+      // Se tem agente IA personalizado vinculado, usar ele
+      if (conversation?.assignedPersonaId) {
+        const [persona] = await db
+          .select()
+          .from(aiPersonas)
+          .where(eq(aiPersonas.id, conversation.assignedPersonaId))
+          .limit(1);
+
+        if (persona) {
+          console.log(`[Baileys AI] Using persona: ${persona.name}`);
+          const { openAIService } = await import('./ai/openai-service');
+          aiResponse = await openAIService.generateResponseWithPersona(
+            userMessage,
+            contactName,
+            conversationHistory,
+            persona
+          );
+        } else {
+          // Fallback para genérico se persona não existir mais
+          const { openAIService } = await import('./ai/openai-service');
+          aiResponse = await openAIService.generateResponse(
+            userMessage,
+            contactName,
+            conversationHistory
+          );
+        }
+      } else {
+        // Sem agente personalizado, usar genérico
+        const { openAIService } = await import('./ai/openai-service');
+        aiResponse = await openAIService.generateResponse(
+          userMessage,
+          contactName,
+          conversationHistory
+        );
+      }
 
       // Enviar resposta via WhatsApp
       const messageId = await this.sendMessage(connectionId, phoneNumber, {

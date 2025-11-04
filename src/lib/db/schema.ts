@@ -281,6 +281,7 @@ import {
     assignedTo: text('assigned_to').references(() => users.id, { onDelete: 'set null' }),
     lastMessageAt: timestamp('last_message_at').defaultNow().notNull(),
     aiActive: boolean('ai_active').default(true).notNull(),
+    assignedPersonaId: text('assigned_persona_id').references(() => aiPersonas.id, { onDelete: 'set null' }),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
     archivedAt: timestamp('archived_at'),
