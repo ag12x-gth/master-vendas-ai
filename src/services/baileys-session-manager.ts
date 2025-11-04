@@ -26,6 +26,28 @@ class BaileysSessionManager {
     return path.join(process.cwd(), 'whatsapp_sessions', `session_${connectionId}`);
   }
 
+  async clearFilesystemAuth(connectionId: string): Promise<void> {
+    try {
+      const authPath = this.getAuthPath(connectionId);
+      const fs = await import('fs/promises');
+      
+      try {
+        await fs.access(authPath);
+        await fs.rm(authPath, { recursive: true, force: true });
+        console.log(`[Baileys] Cleared filesystem auth for ${connectionId} at ${authPath}`);
+      } catch (error: any) {
+        if (error.code === 'ENOENT') {
+          console.log(`[Baileys] Filesystem auth already clean for ${connectionId}`);
+        } else {
+          throw error;
+        }
+      }
+    } catch (error) {
+      console.error('[Baileys] Error clearing filesystem auth:', error);
+      throw error;
+    }
+  }
+
   async createSession(connectionId: string, companyId: string): Promise<void> {
     try {
       if (this.sessions.has(connectionId)) {

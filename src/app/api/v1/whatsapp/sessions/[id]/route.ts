@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sessionManager } from '@/services/baileys-session-manager';
+import { clearAuthState } from '@/services/baileys-auth-db';
 import { db } from '@/lib/db';
 import { connections, baileysAuthState } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
@@ -100,8 +101,15 @@ export async function POST(
         return NextResponse.json({ error: 'Session not found' }, { status: 404 });
       }
 
+      console.log(`[API] Reconnecting session ${params.id} - clearing old session and credentials...`);
+      
       await sessionManager.deleteSession(params.id);
+      
+      await sessionManager.clearFilesystemAuth(params.id);
+      
+      await clearAuthState(params.id);
 
+      console.log(`[API] Creating new session for ${params.id}...`);
       await sessionManager.createSession(params.id, connection.companyId);
 
       return NextResponse.json({
