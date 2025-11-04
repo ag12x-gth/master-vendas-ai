@@ -242,11 +242,12 @@ export function ConnectionsManager() {
     const groupedConnections = useMemo(() => {
         const groups = new Map<string, Connection[]>();
         connections.forEach(conn => {
-            const group = groups.get(conn.wabaId);
+            const wabaId = conn.wabaId || 'no-waba-id';
+            const group = groups.get(wabaId);
             if (group) {
                 group.push(conn);
             } else {
-                groups.set(conn.wabaId, [conn]);
+                groups.set(wabaId, [conn]);
             }
         });
         return Array.from(groups.entries());
@@ -412,11 +413,11 @@ export function ConnectionsManager() {
                       </div>
                       <div className="space-y-2">
                       <Label htmlFor="wabaId">ID da Conta do WhatsApp Business (WABA ID)</Label>
-                      <Input id="wabaId" name="wabaId" placeholder="Seu WABA ID" defaultValue={editingConnection?.wabaId} required/>
+                      <Input id="wabaId" name="wabaId" placeholder="Seu WABA ID" defaultValue={editingConnection?.wabaId || ''} required/>
                       </div>
                       <div className="space-y-2">
                       <Label htmlFor="phoneNumberId">ID do Número de Telefone</Label>
-                      <Input id="phoneNumberId" name="phoneNumberId" placeholder="Seu ID do número de telefone" defaultValue={editingConnection?.phoneNumberId} required />
+                      <Input id="phoneNumberId" name="phoneNumberId" placeholder="Seu ID do número de telefone" defaultValue={editingConnection?.phoneNumberId || ''} required />
                       </div>
                       <div className="space-y-2">
                           <Label htmlFor="appId">ID do Aplicativo (App ID)</Label>

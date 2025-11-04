@@ -28,6 +28,7 @@ export async function GET(_request: NextRequest) {
                 id: connections.id,
                 companyId: connections.companyId,
                 config_name: connections.config_name,
+                connectionType: connections.connectionType,
                 wabaId: connections.wabaId,
                 phoneNumberId: connections.phoneNumberId,
                 appId: connections.appId,
@@ -35,7 +36,7 @@ export async function GET(_request: NextRequest) {
                 webhookSecret: connections.webhookSecret,
                 appSecret: connections.appSecret,
                 isActive: connections.isActive,
-                assignedPersonaId: connections.assignedPersonaId, // **CORREÇÃO AQUI**
+                assignedPersonaId: connections.assignedPersonaId,
                 createdAt: connections.createdAt
             })
             .from(connections)
