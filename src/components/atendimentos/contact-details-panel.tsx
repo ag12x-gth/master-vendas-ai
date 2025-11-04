@@ -9,9 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '../ui/textarea';
-import { Loader2, Save, Phone } from 'lucide-react';
+import { Loader2, Save, Phone, MessageSquare, AlertCircle } from 'lucide-react';
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
+import { Alert, AlertDescription } from '../ui/alert';
+import { RelativeTime } from '../ui/relative-time';
 import Image from 'next/image';
 
 export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefined }) => {
@@ -158,6 +160,58 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
                         </>
                     )}
                 </Button>
+
+                {contact.activeConversations && contact.activeConversations.length > 1 && (
+                    <Alert className="border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/20">
+                        <AlertCircle className="h-4 w-4 text-amber-600" />
+                        <AlertDescription className="text-sm">
+                            <span className="font-semibold">Conversas Múltiplas Detectadas</span>
+                            <p className="text-xs text-muted-foreground mt-1">
+                                Este contato está em conversa com {contact.activeConversations.length} números diferentes simultaneamente.
+                            </p>
+                        </AlertDescription>
+                    </Alert>
+                )}
+
+                {contact.activeConversations && contact.activeConversations.length > 0 && (
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-sm flex items-center gap-2">
+                                <MessageSquare className="h-4 w-4" />
+                                Conversas Ativas ({contact.activeConversations.length})
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                            {contact.activeConversations.map((conv) => (
+                                <div key={conv.id} className="p-3 rounded-lg border bg-muted/30 space-y-1.5">
+                                    <div className="flex items-start justify-between gap-2">
+                                        <div className="flex-1">
+                                            <p className="font-medium text-sm">{conv.connectionName || 'Sem nome'}</p>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <Badge variant="outline" className="text-xs">
+                                                    {conv.connectionType === 'meta_api' ? 'Meta API' : 'Baileys'}
+                                                </Badge>
+                                                <Badge variant={conv.status === 'NEW' ? 'default' : 'secondary'} className="text-xs">
+                                                    {conv.status}
+                                                </Badge>
+                                                {conv.aiActive && (
+                                                    <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                                                        IA Ativa
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {conv.lastMessageAt && (
+                                        <p className="text-xs text-muted-foreground">
+                                            Última mensagem: <RelativeTime date={conv.lastMessageAt} />
+                                        </p>
+                                    )}
+                                </div>
+                            ))}
+                        </CardContent>
+                    </Card>
+                )}
 
                 <Card>
                     <CardHeader className="pb-2">
