@@ -180,10 +180,10 @@ INSTRUÇÕES:
             });
         }
 
-        // Configurar OpenAI
-        const apiKey = process.env.OPENAI_API_KEY;
+        // Configurar OpenAI (suporta múltiplos nomes de secret)
+        const apiKey = process.env.OPENAI_API_KEY || process.env.openai_apikey_gpt_padrao;
         if (!apiKey) {
-            throw new Error('Chave API do OpenAI não configurada.');
+            throw new Error('Chave API do OpenAI não configurada. Configure OPENAI_API_KEY ou openai_apikey_gpt_padrao nos Secrets.');
         }
 
         const openai = new OpenAI({ apiKey });
