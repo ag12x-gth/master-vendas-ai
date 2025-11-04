@@ -1,0 +1,82 @@
+GET /api/v1/whatsapp/sessions 200 in 89ms
+ GET /whatsapp-sessoes 200 in 349ms
+ GET /api/v1/whatsapp/sessions 200 in 111ms
+💾 Persisted 0 cache entries to disk
+ GET /api/v1/whatsapp/sessions 200 in 124ms
+ GET /api/v1/whatsapp/sessions 200 in 79ms
+[Baileys] Creating new session for connection 8249cecd-c21f-4c3b-ab35-caa2222587d2
+[Baileys] Fetching Baileys version...
+[Baileys] Using version: [ 2, 3000, 1027934701 ]
+[Baileys] Loading auth state...
+[Baileys] Auth state loaded, creds exists: true
+[Baileys] Creating WASocket...
+[Baileys] WASocket created successfully
+[Baileys] Session setup complete for 8249cecd-c21f-4c3b-ab35-caa2222587d2
+[Baileys] Connection update for 8249cecd-c21f-4c3b-ab35-caa2222587d2: connecting undefined
+ POST /api/v1/whatsapp/sessions 200 in 215ms
+[Baileys] Connection update for 8249cecd-c21f-4c3b-ab35-caa2222587d2: close TypeError: bufferUtil.mask is not a function
+    at module.exports.mask (webpack://nextn/node_modules/ws/lib/buffer-util.js?2654:121:1)
+    at frame (webpack://nextn/node_modules/ws/lib/sender.js?6b8b:164:7)
+    at dispatch (webpack://nextn/node_modules/ws/lib/sender.js?6b8b:500:29)
+    at send (webpack://nextn/node_modules/ws/lib/sender.js?6b8b:407:12)
+    at WebSocket.send (webpack://nextn/node_modules/ws/lib/websocket.js?55f9:477:1)
+    at WebSocketClient.send (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Socket/Client/websocket.js?f5f4:46:1)
+    at node:internal/util:441:7
+    at new Promise (<anonymous>)
+    at WebSocketClient.send (node:internal/util:427:12)
+    at eval (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Socket/socket.js?dc87:55:1)
+    at eval (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Utils/generics.js?e5fd:125:1)
+    at new Promise (<anonymous>)
+    at promiseTimeout (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Utils/generics.js?e5fd:116:1)
+    at sendRawMessage (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Socket/socket.js?dc87:53:29)
+    at validateConnection (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Socket/socket.js?dc87:287:1)
+    at async WebSocketClient.eval (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Socket/socket.js?dc87:640:1)
+[Baileys] Connection closed for 8249cecd-c21f-4c3b-ab35-caa2222587d2. Status code: undefined, Error: bufferUtil.mask is not a function
+[Baileys] Unexpected closure (statusCode: undefined). Not retrying to avoid infinite loop.
+[Baileys] Error in connection.update handler: Error [ERR_UNHANDLED_ERROR]: Unhandled error. ({ message: 'bufferUtil.mask is not a function' })
+    at EventEmitter.emit (node:events:513:17)
+    at EventEmitter.eval (webpack://nextn/src/services/baileys-session-manager.ts?de44:119:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'ERR_UNHANDLED_ERROR',
+  context: { message: 'bufferUtil.mask is not a function' }
+}
+ GET /api/v1/whatsapp/sessions 200 in 114ms
+💾 Persisted 0 cache entries to disk
+ GET /api/v1/whatsapp/sessions 200 in 95ms
+ GET /api/v1/whatsapp/sessions 200 in 88ms
+💾 Persisted 0 cache entries to disk
+💾 Persisted 0 cache entries to disk
+💾 Persisted 0 cache entries to disk
+ GET /api/v1/whatsapp/sessions 200 in 100ms
+ GET /api/v1/whatsapp/sessions 200 in 124ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/whatsapp/sessions 200 in 116ms
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ GET /api/v1/whatsapp/sessions 200 in 115ms
+ GET /api/v1/whatsapp/sessions 200 in 108ms
+ GET /api/v1/whatsapp/sessions 200 in 120ms
+ GET /api/v1/whatsapp/sessions 200 in 211ms
+ GET /api/v1/whatsapp/sessions 200 in 92ms
+ GET /api/v1/whatsapp/sessions 200 in 85ms
+ GET /api/v1/whatsapp/sessions 200 in 89ms
+ GET /api/v1/whatsapp/sessions 200 in 97ms
+ GET /api/v1/whatsapp/sessions 200 in 84ms
+ GET /api/v1/whatsapp/sessions 200 in 97ms
+ GET /api/v1/whatsapp/sessions 200 in 107ms
+ GET /api/v1/whatsapp/sessions 200 in 117ms
+ GET /api/v1/whatsapp/sessions 200 in 85ms
+💾 Persisted 0 cache entries to disk
+ GET /api/v1/whatsapp/sessions 200 in 98ms
+ GET /api/v1/whatsapp/sessions 200 in 101ms
+ GET /api/v1/whatsapp/sessions 200 in 105ms
+ GET /api/v1/whatsapp/sessions 200 in 95ms
+ GET /api/v1/whatsapp/sessions 200 in 102ms
+ GET /api/v1/whatsapp/sessions 200 in 125ms
+ GET /api/v1/whatsapp/sessions 200 in 115ms
+ GET /api/v1/whatsapp/sessions 200 in 102ms
+ GET /api/v1/whatsapp/sessions 200 in 89ms
+ GET /api/v1/whatsapp/sessions 200 in 87ms
