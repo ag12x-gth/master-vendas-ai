@@ -1,24 +1,15 @@
-import makeWASocket, {
-  DisconnectReason,
-  WASocket,
-  fetchLatestBaileysVersion,
-  makeCacheableSignalKeyStore,
-  useMultiFileAuthState,
-  Browsers,
-  delay,
-} from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import { EventEmitter } from 'events';
-import { useDatabaseAuthState } from './baileys-auth-db';
 import { db } from '@/lib/db';
 import { connections, conversations, messages, contacts } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import pino from 'pino';
+import path from 'path';
 
 const logger = pino({ level: 'silent' });
 
 interface SessionData {
-  socket: WASocket;
+  socket: any;
   emitter: EventEmitter;
   qr?: string;
   status: 'connecting' | 'connected' | 'disconnected' | 'qr' | 'failed';
@@ -31,6 +22,10 @@ class BaileysSessionManager {
   private readonly MAX_RETRY_ATTEMPTS = 3;
   private readonly RECONNECT_INTERVAL = 5000;
 
+  private getAuthPath(connectionId: string): string {
+    return path.join(process.cwd(), 'whatsapp_sessions', `session_${connectionId}`);
+  }
+
   async createSession(connectionId: string, companyId: string): Promise<void> {
     try {
       if (this.sessions.has(connectionId)) {
@@ -42,13 +37,21 @@ class BaileysSessionManager {
       
       const emitter = new EventEmitter();
       
+      console.log(`[Baileys] Initiating dynamic Baileys import...`);
+      const Baileys = await import('@whiskeysockets/baileys');
+      
+      if (!Baileys.useMultiFileAuthState || !Baileys.makeWASocket || !Baileys.Browsers) {
+        throw new Error('Baileys functions not available');
+      }
+      
       console.log(`[Baileys] Fetching Baileys version...`);
-      const { version } = await fetchLatestBaileysVersion();
+      const { version } = await Baileys.fetchLatestBaileysVersion();
       console.log(`[Baileys] Using version:`, version);
       
-      console.log(`[Baileys] Loading auth state...`);
-      const { state, saveCreds } = await useDatabaseAuthState(connectionId);
-      console.log(`[Baileys] Auth state loaded, creds exists:`, !!state.creds);
+      console.log(`[Baileys] Loading auth state from filesystem...`);
+      const authPath = this.getAuthPath(connectionId);
+      const { state, saveCreds } = await Baileys.useMultiFileAuthState(authPath);
+      console.log(`[Baileys] Auth state loaded from ${authPath}`);
 
       const sessionData: SessionData = {
         socket: null as any,
@@ -60,19 +63,12 @@ class BaileysSessionManager {
       this.sessions.set(connectionId, sessionData);
 
       console.log(`[Baileys] Creating WASocket...`);
-      const sock = makeWASocket({
+      const sock = Baileys.makeWASocket({
         version,
-        auth: {
-          creds: state.creds,
-          keys: makeCacheableSignalKeyStore(state.keys, logger),
-        },
+        auth: state,
         printQRInTerminal: false,
         logger,
-        browser: Browsers.macOS('Master IA'),
-        defaultQueryTimeoutMs: 60000,
-        syncFullHistory: false,
-        markOnlineOnConnect: true,
-        generateHighQualityLinkPreview: true,
+        browser: Baileys.Browsers.macOS('Chrome'),
       });
 
       sessionData.socket = sock;
@@ -99,12 +95,37 @@ class BaileysSessionManager {
           if (connection === 'close') {
             const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
             const errorMessage = lastDisconnect?.error?.message;
-            const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
+            const shouldReconnect = statusCode !== 401;
             
             console.log(`[Baileys] Connection closed for ${connectionId}. Status code: ${statusCode}, Error: ${errorMessage}`);
 
-            if (statusCode === undefined || statusCode === 500) {
-              console.log(`[Baileys] Unexpected closure (statusCode: ${statusCode}). Not retrying to avoid infinite loop.`);
+            if (statusCode === 515) {
+              console.log(`[Baileys] Error 515 - WhatsApp stream error. Will reconnect...`);
+              sessionData.retryCount++;
+              
+              if (sessionData.retryCount < this.MAX_RETRY_ATTEMPTS) {
+                console.log(`[Baileys] Attempting reconnect (${sessionData.retryCount}/${this.MAX_RETRY_ATTEMPTS})`);
+                await new Promise(resolve => setTimeout(resolve, this.RECONNECT_INTERVAL));
+                this.sessions.delete(connectionId);
+                await this.createSession(connectionId, companyId);
+              } else {
+                sessionData.status = 'failed';
+                await db
+                  .update(connections)
+                  .set({ 
+                    status: 'failed', 
+                    qrCode: null,
+                    isActive: false 
+                  })
+                  .where(eq(connections.id, connectionId));
+                emitter.emit('error', { message: 'Max reconnection attempts reached' });
+                this.sessions.delete(connectionId);
+              }
+              return;
+            }
+
+            if (statusCode === undefined) {
+              console.log(`[Baileys] Unexpected closure (statusCode: undefined). Not retrying to avoid infinite loop.`);
               sessionData.status = 'failed';
               
               await db
@@ -125,11 +146,11 @@ class BaileysSessionManager {
               sessionData.retryCount++;
               console.log(`[Baileys] Attempting reconnect (${sessionData.retryCount}/${this.MAX_RETRY_ATTEMPTS})`);
               
-              await delay(this.RECONNECT_INTERVAL);
+              await new Promise(resolve => setTimeout(resolve, this.RECONNECT_INTERVAL));
               this.sessions.delete(connectionId);
               await this.createSession(connectionId, companyId);
             } else {
-              sessionData.status = statusCode === DisconnectReason.loggedOut ? 'disconnected' : 'failed';
+              sessionData.status = statusCode === 401 ? 'disconnected' : 'failed';
               
               await db
                 .update(connections)
