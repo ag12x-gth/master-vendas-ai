@@ -32,125 +32,174 @@ class BaileysSessionManager {
   private readonly RECONNECT_INTERVAL = 5000;
 
   async createSession(connectionId: string, companyId: string): Promise<void> {
-    if (this.sessions.has(connectionId)) {
-      console.log(`[Baileys] Session ${connectionId} already exists`);
-      return;
-    }
+    try {
+      if (this.sessions.has(connectionId)) {
+        console.log(`[Baileys] Session ${connectionId} already exists`);
+        return;
+      }
 
-    console.log(`[Baileys] Creating new session for connection ${connectionId}`);
-    
-    const emitter = new EventEmitter();
-    const { version } = await fetchLatestBaileysVersion();
-    const { state, saveCreds } = await useDatabaseAuthState(connectionId);
-
-    const sessionData: SessionData = {
-      socket: null as any,
-      emitter,
-      status: 'connecting',
-      retryCount: 0,
-    };
-
-    this.sessions.set(connectionId, sessionData);
-
-    const sock = makeWASocket({
-      version,
-      auth: {
-        creds: state.creds,
-        keys: makeCacheableSignalKeyStore(state.keys, logger),
-      },
-      printQRInTerminal: false,
-      logger,
-      browser: Browsers.macOS('Master IA'),
-      defaultQueryTimeoutMs: 60000,
-      syncFullHistory: false,
-      markOnlineOnConnect: true,
-      generateHighQualityLinkPreview: true,
-    });
-
-    sessionData.socket = sock;
-
-    sock.ev.on('connection.update', async (update) => {
-      const { connection, lastDisconnect, qr } = update;
+      console.log(`[Baileys] Creating new session for connection ${connectionId}`);
       
-      console.log(`[Baileys] Connection update for ${connectionId}:`, connection);
+      const emitter = new EventEmitter();
+      
+      console.log(`[Baileys] Fetching Baileys version...`);
+      const { version } = await fetchLatestBaileysVersion();
+      console.log(`[Baileys] Using version:`, version);
+      
+      console.log(`[Baileys] Loading auth state...`);
+      const { state, saveCreds } = await useDatabaseAuthState(connectionId);
+      console.log(`[Baileys] Auth state loaded, creds exists:`, !!state.creds);
 
-      if (qr) {
-        console.log(`[Baileys] QR Code generated for ${connectionId}`);
-        sessionData.qr = qr;
-        sessionData.status = 'qr';
-        emitter.emit('qr', qr);
+      const sessionData: SessionData = {
+        socket: null as any,
+        emitter,
+        status: 'connecting',
+        retryCount: 0,
+      };
 
-        await db
-          .update(connections)
-          .set({ qrCode: qr, status: 'connecting' })
-          .where(eq(connections.id, connectionId));
-      }
+      this.sessions.set(connectionId, sessionData);
 
-      if (connection === 'close') {
-        const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
-        const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
-        
-        console.log(`[Baileys] Connection closed for ${connectionId}. Status code: ${statusCode}`);
+      console.log(`[Baileys] Creating WASocket...`);
+      const sock = makeWASocket({
+        version,
+        auth: {
+          creds: state.creds,
+          keys: makeCacheableSignalKeyStore(state.keys, logger),
+        },
+        printQRInTerminal: false,
+        logger,
+        browser: Browsers.macOS('Master IA'),
+        defaultQueryTimeoutMs: 60000,
+        syncFullHistory: false,
+        markOnlineOnConnect: true,
+        generateHighQualityLinkPreview: true,
+      });
 
-        if (shouldReconnect && sessionData.retryCount < this.MAX_RETRY_ATTEMPTS) {
-          sessionData.retryCount++;
-          console.log(`[Baileys] Attempting reconnect (${sessionData.retryCount}/${this.MAX_RETRY_ATTEMPTS})`);
+      sessionData.socket = sock;
+      console.log(`[Baileys] WASocket created successfully`);
+
+      sock.ev.on('connection.update', async (update) => {
+        try {
+          const { connection, lastDisconnect, qr } = update;
           
-          await delay(this.RECONNECT_INTERVAL);
-          this.sessions.delete(connectionId);
-          await this.createSession(connectionId, companyId);
-        } else {
-          sessionData.status = statusCode === DisconnectReason.loggedOut ? 'disconnected' : 'failed';
-          
-          await db
-            .update(connections)
-            .set({ 
-              status: sessionData.status, 
-              qrCode: null,
-              isActive: false 
-            })
-            .where(eq(connections.id, connectionId));
+          console.log(`[Baileys] Connection update for ${connectionId}:`, connection, lastDisconnect?.error);
 
-          emitter.emit('disconnected', { reason: statusCode });
-          this.sessions.delete(connectionId);
+          if (qr) {
+            console.log(`[Baileys] QR Code generated for ${connectionId}`);
+            sessionData.qr = qr;
+            sessionData.status = 'qr';
+            emitter.emit('qr', qr);
+
+            await db
+              .update(connections)
+              .set({ qrCode: qr, status: 'connecting' })
+              .where(eq(connections.id, connectionId));
+          }
+
+          if (connection === 'close') {
+            const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
+            const errorMessage = lastDisconnect?.error?.message;
+            const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
+            
+            console.log(`[Baileys] Connection closed for ${connectionId}. Status code: ${statusCode}, Error: ${errorMessage}`);
+
+            if (statusCode === undefined || statusCode === 500) {
+              console.log(`[Baileys] Unexpected closure (statusCode: ${statusCode}). Not retrying to avoid infinite loop.`);
+              sessionData.status = 'failed';
+              
+              await db
+                .update(connections)
+                .set({ 
+                  status: 'failed', 
+                  qrCode: null,
+                  isActive: false 
+                })
+                .where(eq(connections.id, connectionId));
+
+              emitter.emit('error', { message: errorMessage || 'Connection closed unexpectedly' });
+              this.sessions.delete(connectionId);
+              return;
+            }
+
+            if (shouldReconnect && sessionData.retryCount < this.MAX_RETRY_ATTEMPTS) {
+              sessionData.retryCount++;
+              console.log(`[Baileys] Attempting reconnect (${sessionData.retryCount}/${this.MAX_RETRY_ATTEMPTS})`);
+              
+              await delay(this.RECONNECT_INTERVAL);
+              this.sessions.delete(connectionId);
+              await this.createSession(connectionId, companyId);
+            } else {
+              sessionData.status = statusCode === DisconnectReason.loggedOut ? 'disconnected' : 'failed';
+              
+              await db
+                .update(connections)
+                .set({ 
+                  status: sessionData.status, 
+                  qrCode: null,
+                  isActive: false 
+                })
+                .where(eq(connections.id, connectionId));
+
+              emitter.emit('disconnected', { reason: statusCode });
+              this.sessions.delete(connectionId);
+            }
+          }
+
+          if (connection === 'open') {
+            console.log(`[Baileys] Connected successfully: ${connectionId}`);
+            sessionData.status = 'connected';
+            sessionData.retryCount = 0;
+
+            const phoneNumber = sock.user?.id?.split(':')[0] || '';
+            sessionData.phone = phoneNumber;
+
+            await db
+              .update(connections)
+              .set({
+                status: 'connected',
+                phone: phoneNumber,
+                qrCode: null,
+                isActive: true,
+                lastConnected: new Date(),
+              })
+              .where(eq(connections.id, connectionId));
+
+            emitter.emit('connected', { phone: phoneNumber });
+          }
+        } catch (error) {
+          console.error(`[Baileys] Error in connection.update handler:`, error);
         }
-      }
+      });
 
-      if (connection === 'open') {
-        console.log(`[Baileys] Connected successfully: ${connectionId}`);
-        sessionData.status = 'connected';
-        sessionData.retryCount = 0;
+      sock.ev.on('messages.upsert', async ({ messages: newMessages, type }) => {
+        if (type !== 'notify') return;
 
-        const phoneNumber = sock.user?.id?.split(':')[0] || '';
-        sessionData.phone = phoneNumber;
+        for (const msg of newMessages) {
+          if (!msg.message) continue;
+          if (msg.key.fromMe) continue;
 
-        await db
-          .update(connections)
-          .set({
-            status: 'connected',
-            phone: phoneNumber,
-            qrCode: null,
-            isActive: true,
-            lastConnected: new Date(),
-          })
-          .where(eq(connections.id, connectionId));
+          await this.handleIncomingMessage(connectionId, companyId, msg);
+        }
+      });
 
-        emitter.emit('connected', { phone: phoneNumber });
-      }
-    });
-
-    sock.ev.on('messages.upsert', async ({ messages: newMessages, type }) => {
-      if (type !== 'notify') return;
-
-      for (const msg of newMessages) {
-        if (!msg.message) continue;
-        if (msg.key.fromMe) continue;
-
-        await this.handleIncomingMessage(connectionId, companyId, msg);
-      }
-    });
-
-    sock.ev.on('creds.update', saveCreds);
+      sock.ev.on('creds.update', saveCreds);
+      
+      console.log(`[Baileys] Session setup complete for ${connectionId}`);
+    } catch (error) {
+      console.error(`[Baileys] Error creating session ${connectionId}:`, error);
+      this.sessions.delete(connectionId);
+      
+      await db
+        .update(connections)
+        .set({ 
+          status: 'failed', 
+          qrCode: null,
+          isActive: false 
+        })
+        .where(eq(connections.id, connectionId));
+      
+      throw error;
+    }
   }
 
   private async handleIncomingMessage(

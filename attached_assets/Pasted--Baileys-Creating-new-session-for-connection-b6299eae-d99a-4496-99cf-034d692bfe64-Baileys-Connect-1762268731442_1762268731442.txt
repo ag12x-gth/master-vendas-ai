@@ -1,0 +1,226 @@
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 81ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 105ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 129ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 550ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 114ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 84ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 87ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 84ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 121ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 98ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 296ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 92ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 91ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+💾 Persisted 0 cache entries to disk
+ GET /api/v1/whatsapp/sessions 200 in 143ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 86ms
+💾 Persisted 0 cache entries to disk
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 99ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 159ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 99ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 89ms
+💾 Persisted 0 cache entries to disk
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 99ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+💾 Persisted 0 cache entries to disk
+ GET /api/v1/whatsapp/sessions 200 in 126ms
+ GET /whatsapp-sessoes 200 in 471ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 111ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+ GET /api/v1/whatsapp/sessions 200 in 97ms
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+ GET /api/v1/whatsapp/sessions 200 in 74ms
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+💾 Persisted 0 cache entries to disk
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+ GET /api/v1/whatsapp/sessions 200 in 97ms
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 91ms
+ GET /api/v1/whatsapp/sessions/b6299eae-d99a-4496-99cf-034d692bfe64/qr 404 in 210ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ GET /api/v1/whatsapp/sessions 200 in 114ms
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+💾 Persisted 0 cache entries to disk
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+ GET /api/v1/whatsapp/sessions 200 in 112ms
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+ GET /api/v1/whatsapp/sessions 200 in 91ms
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+ GET /api/v1/whatsapp/sessions 200 in 112ms
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+ GET /api/v1/whatsapp/sessions 200 in 95ms
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+ GET /api/v1/whatsapp/sessions 200 in 119ms
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+ GET /api/v1/whatsapp/sessions 200 in 117ms
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 97ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+ GET /api/v1/whatsapp/sessions 200 in 97ms
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+[Baileys] Creating new session for connection b6299eae-d99a-4496-99cf-034d692bfe64
+ GET /api/v1/whatsapp/sessions 200 in 135ms
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: connecting
+[Baileys] Connection update for b6299eae-d99a-4496-99cf-034d692bfe64: close
+[Baileys] Connection closed for b6299eae-d99a-4496-99cf-034d692bfe64. Status code: undefined
+[Baileys] Attempting reconnect (1/3)
+[Baileys] Creating new session for con
