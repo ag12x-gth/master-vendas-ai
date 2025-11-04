@@ -20,6 +20,7 @@ import type {
   Message,
 } from './types';
 import { sendWhatsappTextMessage } from './facebookApiService';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 
 type LogLevel = 'INFO' | 'WARN' | 'ERROR';
@@ -144,49 +145,89 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
     await logAutomation('INFO', `Conversa roteada para o Agente de IA (Persona ID: ${personaId}).`, logContextBase);
 
     try {
-        const response = await fetch('https://multidesk-master-ia-agentes.vs1kre.easypanel.host/personas/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                message: message.content,
-                company_id: companyId,
-                persona_id: personaId,
-                contact_id: contact.id,
-                context: {
-                    conversation_id: conversation.id
-                }
-            })
+        // Buscar mensagens anteriores da conversa para contexto
+        const previousMessages = await db.query.messages.findMany({
+            where: eq(messages.conversationId, conversation.id),
+            orderBy: (messages, { asc }) => [asc(messages.sentAt)],
+            limit: 10
         });
 
-        const data = await response.json();
-        if (!response.ok) {
-            throw new Error(data.error?.message || data.error || 'Erro desconhecido da API de IA.');
+        // Construir histórico de conversa
+        const conversationHistory = previousMessages
+            .map(msg => {
+                const role = msg.senderType === 'CONTACT' ? 'Usuário' : 'Assistente';
+                return `${role}: ${msg.content}`;
+            })
+            .join('\n');
+
+        // Configurar Google Gemini AI
+        const apiKey = process.env.GOOGLE_API_KEY_CALL || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+        if (!apiKey) {
+            throw new Error('Chave API do Google Gemini não configurada.');
         }
 
-        if (data.message) {
-            const messageParts = data.message.split(/\n\s*\n/); // Divide por parágrafos
-            for (const part of messageParts) {
-                if (part.trim()) {
-                     const sentMessage = await sendWhatsappTextMessage({
-                        connectionId: conversation.connectionId!,
-                        to: contact.phone,
-                        text: part.trim(),
-                    });
-                     await db.insert(messages).values({
-                        conversationId: conversation.id,
-                        senderType: 'AI',
-                        senderId: 'ai_agent',
-                        content: part.trim(),
-                        contentType: 'TEXT',
-                        providerMessageId: (sentMessage as any).messages?.[0]?.id,
-                    });
-                    await sleep(1500); // Pausa entre as mensagens
-                }
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+        // Criar prompt contextualizado
+        const prompt = `Você é um assistente virtual inteligente de atendimento ao cliente via WhatsApp.
+
+CONTEXTO DA CONVERSA:
+Nome do contato: ${contact.name || 'Cliente'}
+Telefone: ${contact.phone}
+
+HISTÓRICO DA CONVERSA:
+${conversationHistory}
+
+INSTRUÇÕES:
+- Responda de forma cordial, profissional e útil
+- Seja breve e direto (máximo 2-3 parágrafos)
+- Use linguagem natural e amigável
+- Se não souber algo, seja honesto e ofereça alternativas
+- Não invente informações
+
+MENSAGEM ATUAL DO USUÁRIO:
+${message.content}
+
+RESPOSTA DO ASSISTENTE:`;
+
+        // Gerar resposta com IA
+        const result = await model.generateContent(prompt);
+        const aiResponse = result.response.text();
+
+        if (!aiResponse || aiResponse.trim().length === 0) {
+            throw new Error('IA retornou resposta vazia.');
+        }
+
+        // Enviar resposta para o WhatsApp
+        const messageParts = aiResponse.split(/\n\s*\n/).filter(part => part.trim().length > 0);
+        
+        for (const part of messageParts) {
+            if (part.trim()) {
+                const sentMessage = await sendWhatsappTextMessage({
+                    connectionId: conversation.connectionId!,
+                    to: contact.phone,
+                    text: part.trim(),
+                });
+                
+                await db.insert(messages).values({
+                    conversationId: conversation.id,
+                    senderType: 'AI',
+                    senderId: 'ai_agent',
+                    content: part.trim(),
+                    contentType: 'TEXT',
+                    providerMessageId: (sentMessage as any).messages?.[0]?.id,
+                });
+                
+                await sleep(1500); // Pausa entre as mensagens para parecer mais natural
             }
         }
+
+        await logAutomation('INFO', `IA respondeu com sucesso usando Google Gemini.`, logContextBase);
         return true;
+        
     } catch (error) {
-        await logAutomation('ERROR', `Falha ao comunicar com a API de Agentes: ${(error as Error).message}`, logContextBase);
+        await logAutomation('ERROR', `Falha ao comunicar com a IA: ${(error as Error).message}`, logContextBase);
         return false;
     }
 }
