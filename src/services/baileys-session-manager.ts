@@ -295,8 +295,11 @@ class BaileysSessionManager {
 
       console.log(`[Baileys] Message saved from ${phoneNumber}`);
 
-      // Auto-resposta AI se habilitada
-      if (conversation.aiActive && messageContent.trim()) {
+      // Verificar se é um grupo (grupos têm @g.us no remoteJid)
+      const isGroup = remoteJid.includes('@g.us');
+      
+      // Auto-resposta AI se habilitada E não for grupo
+      if (conversation.aiActive && messageContent.trim() && !isGroup) {
         await this.handleAIAutoResponse(
           connectionId,
           conversation.id,
@@ -304,6 +307,8 @@ class BaileysSessionManager {
           messageContent,
           contact.name || contact.whatsappName || phoneNumber
         );
+      } else if (isGroup && conversation.aiActive) {
+        console.log(`[Baileys AI] Skipping auto-response for group: ${phoneNumber}`);
       }
     } catch (error) {
       console.error('[Baileys] Error handling incoming message:', error);

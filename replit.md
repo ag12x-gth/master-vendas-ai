@@ -18,11 +18,12 @@ The application is built on Next.js 14.2.33 with TypeScript, utilizing an App Ro
 **Technical Implementations:**
 - **Frontend:** Next.js 14.2.33, TypeScript, Tailwind CSS, ShadCN UI.
 - **Backend:** Next.js API Routes, Drizzle ORM.
-- **AI Integration:** Supports Google Generative AI (`gemini-1.5-flash`) and OpenAI ChatGPT (`gpt-4o-mini`) for various AI tasks and WhatsApp auto-responses.
+- **AI Integration:** Supports Google Generative AI (`gemini-1.5-flash`) and OpenAI ChatGPT (`gpt-4o-mini`) for various AI tasks and WhatsApp auto-responses. **AI auto-responses exclude group conversations** - only individual chats receive automated responses.
 - **WhatsApp API Strategy:** Integrates Meta Official API for compliance and scalability, alongside Baileys (`@whiskeysockets/baileys`) for WhatsApp Web multi-device protocol with filesystem-based authentication. A global singleton pattern manages sessions.
 - **Voice AI Integration:** Vapi AI for voice call escalation from WhatsApp, leveraging traditional telephony (Twilio/Telnyx) and AI assistants.
 - **Performance Optimization:** Features an enhanced caching system with disk persistence.
 - **Real-time Meeting Analysis:** Integrates Meeting BaaS for Google Meet bot participation, Hume AI for emotion/sentiment analysis, and a multi-modal AI for real-time insights delivered via Socket.IO to the Closer's UI.
+- **QR Code Modal Resilience:** SSE stream with client disconnect detection, auto-cleanup, 5-minute timeout, and automatic reconnection (up to 3 attempts).
 
 **Feature Specifications:**
 - Landing page and authentication.
