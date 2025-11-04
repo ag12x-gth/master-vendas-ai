@@ -63,8 +63,8 @@ export async function GET(request: NextRequest, { params }: { params: { contactI
     const activeConversations = await db.select({
         id: conversations.id,
         connectionId: conversations.connectionId,
-        connectionName: connections.name,
-        connectionType: connections.type,
+        connectionName: connections.config_name,
+        connectionType: connections.connectionType,
         status: conversations.status,
         lastMessageAt: conversations.lastMessageAt,
         aiActive: conversations.aiActive,

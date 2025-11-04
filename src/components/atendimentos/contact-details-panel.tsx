@@ -65,8 +65,10 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
                 body: JSON.stringify(payload),
             });
             if (!response.ok) throw new Error('Falha ao salvar alterações.');
-            const updatedContact = await response.json();
-            setContact(updatedContact);
+            
+            // Refetch full contact data to preserve activeConversations
+            await fetchDetails(contact.id);
+            
             toast({ title: 'Salvo!', description: 'As informações do contato foram atualizadas.' });
         } catch (error) {
             toast({ variant: 'destructive', title: 'Erro ao Salvar', description: (error as Error).message });
