@@ -66,6 +66,7 @@ export type Conversation = typeof schema.conversations.$inferSelect & {
     unreadCount?: number;
     connectionName?: string | null;
     connectionType?: string | null;
+    contactActiveConversationsCount?: number | null;
 };
 
 export type KanbanFunnel = typeof schema.kanbanBoards.$inferSelect & {

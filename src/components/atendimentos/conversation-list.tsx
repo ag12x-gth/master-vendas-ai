@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Check, CheckCheck, Clock, MessageSquare, Smartphone } from 'lucide-react';
+import { Search, Check, CheckCheck, Clock, MessageSquare, Smartphone, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { RelativeTime } from '../ui/relative-time';
@@ -44,7 +44,15 @@ const ConversationListItem = ({ conversation, isSelected, onSelect }: { conversa
             <div className="flex-1 overflow-hidden">
                 <div className="flex flex-col">
                     <div className="flex justify-between items-baseline gap-2">
-                        <p className="font-semibold truncate pr-2">{conversation.contactName}</p>
+                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                            <p className="font-semibold truncate">{conversation.contactName}</p>
+                            {conversation.contactActiveConversationsCount && conversation.contactActiveConversationsCount > 1 && (
+                                <Badge variant="secondary" className="shrink-0 text-xs bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300 flex items-center gap-1">
+                                    <Users className="h-3 w-3" />
+                                    {conversation.contactActiveConversationsCount}
+                                </Badge>
+                            )}
+                        </div>
                         {conversation.connectionName && (
                             <Badge variant="outline" className="shrink-0 text-xs">
                                 {conversation.connectionName}

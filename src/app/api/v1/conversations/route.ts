@@ -22,6 +22,22 @@ export async function GET(_request: NextRequest) {
             .from(messages)
             .as('last_message_sq');
 
+        // Subquery para contar conversas ativas por contato
+        const activeConversationsCountSubquery = db
+            .select({
+                contactId: conversations.contactId,
+                count: sql<number>`COUNT(*)`.as('active_count')
+            })
+            .from(conversations)
+            .where(
+                and(
+                    eq(conversations.companyId, companyId),
+                    sql`${conversations.archivedAt} IS NULL`
+                )
+            )
+            .groupBy(conversations.contactId)
+            .as('active_conv_count_sq');
+
         const companyConversations = await db.select({
             id: conversations.id,
             status: conversations.status,
@@ -35,6 +51,7 @@ export async function GET(_request: NextRequest) {
             connectionType: connections.connectionType,
             lastMessage: lastMessageSubquery.lastMessageContent,
             lastMessageStatus: lastMessageSubquery.lastMessageStatus,
+            contactActiveConversationsCount: activeConversationsCountSubquery.count,
         })
         .from(conversations)
         .innerJoin(contacts, eq(conversations.contactId, contacts.id))
@@ -45,6 +62,10 @@ export async function GET(_request: NextRequest) {
                 eq(conversations.id, lastMessageSubquery.conversationId),
                 eq(lastMessageSubquery.rowNumber, 1)
             )
+        )
+        .leftJoin(
+            activeConversationsCountSubquery,
+            eq(contacts.id, activeConversationsCountSubquery.contactId)
         )
         .where(eq(conversations.companyId, companyId))
         .orderBy(desc(conversations.lastMessageAt));
