@@ -36,8 +36,31 @@ export function QRCodeModal({ sessionId, sessionName, isOpen, onClose }: QRCodeM
     const maxReconnectAttempts = 3;
     let reconnectTimeout: NodeJS.Timeout | null = null;
 
-    const connectEventSource = () => {
+    const connectEventSource = async (isReconnect: boolean = false) => {
       if (!sessionId || !isOpen) return;
+
+      if (isReconnect) {
+        try {
+          console.log('[QR Modal] Reconnecting - calling reconnect API first...');
+          const response = await fetch(`/api/v1/whatsapp/sessions/${sessionId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'reconnect' }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to reconnect session');
+          }
+          
+          console.log('[QR Modal] Session reconnected successfully, now connecting SSE...');
+          await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (error) {
+          console.error('[QR Modal] Error reconnecting session:', error);
+          setStatus('error');
+          setError('Não foi possível reconectar. Tente novamente.');
+          return;
+        }
+      }
 
       eventSource = new EventSource(`/api/v1/whatsapp/sessions/${sessionId}/qr`);
 
@@ -89,7 +112,7 @@ export function QRCodeModal({ sessionId, sessionName, isOpen, onClose }: QRCodeM
             reconnectAttempts++;
             console.log(`[QR Modal] Reconnecting... Attempt ${reconnectAttempts}/${maxReconnectAttempts}`);
             reconnectTimeout = setTimeout(() => {
-              connectEventSource();
+              connectEventSource(true);
             }, 2000);
           } else if (currentStatus !== 'connected') {
             setStatus('error');
