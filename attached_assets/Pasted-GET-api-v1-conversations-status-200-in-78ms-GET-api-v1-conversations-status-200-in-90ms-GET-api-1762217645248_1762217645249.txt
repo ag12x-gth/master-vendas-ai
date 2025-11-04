@@ -1,0 +1,36 @@
+GET /api/v1/conversations/status 200 in 78ms
+ GET /api/v1/conversations/status 200 in 90ms
+ GET /api/v1/conversations/status 200 in 79ms
+ GET /api/v1/conversations/status 200 in 75ms
+ ○ Compiling /api/webhooks/meta/[slug] ...
+ ✓ Compiled /api/webhooks/meta/[slug] in 2.2s (2240 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 200 in 4171ms
+[Automation Engine] Gatilho recebido para a conversa 08290f4a-ebcf-4bc6-a578-03010e4cf5e5 e mensagem b0fb1b63-ba38-4f21-a885-546cb58aba50
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+[Automation|INFO|Conv:08290f4a-ebcf-4bc6-a578-03010e4cf5e5|Rule:N/A] Conversa roteada para o Agente de IA (Persona ID: a4e00903-c5c2-4973-9a54-bb0fa6325bf5). {}
+ GET /api/v1/conversations/status 200 in 199ms
+[Automation|ERROR|Conv:08290f4a-ebcf-4bc6-a578-03010e4cf5e5|Rule:N/A] Falha ao comunicar com a IA: 401 Incorrect API key provided: sk-or-v1*************************************************************fab7. You can find your API key at https://platform.openai.com/account/api-keys. {}
+ ✓ Compiled /api/v1/conversations in 409ms (2242 modules)
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/conversations 200 in 1004ms
+ ✓ Compiled /api/v1/conversations/[conversationId]/messages in 418ms (2245 modules)
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/conversations/08290f4a-ebcf-4bc6-a578-03010e4cf5e5/messages 200 in 773ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ GET /api/v1/conversations/status 200 in 93ms
+ GET /api/v1/conversations/status 200 in 82ms
