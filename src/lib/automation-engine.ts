@@ -20,7 +20,7 @@ import type {
   Message,
 } from './types';
 import { sendWhatsappTextMessage } from './facebookApiService';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import OpenAI from 'openai';
 
 
 type LogLevel = 'INFO' | 'WARN' | 'ERROR';
@@ -152,55 +152,58 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
             limit: 10
         });
 
-        // Construir histórico de conversa
-        const conversationHistory = previousMessages
-            .map(msg => {
-                const role = msg.senderType === 'CONTACT' ? 'Usuário' : 'Assistente';
-                return `${role}: ${msg.content}`;
-            })
-            .join('\n');
+        // Construir histórico de conversa para OpenAI
+        const chatMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+            {
+                role: 'system',
+                content: `Você é um assistente virtual inteligente de atendimento ao cliente via WhatsApp.
 
-        // Configurar Google Gemini AI
-        const apiKey = process.env.GOOGLE_API_KEY_CALL || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        if (!apiKey) {
-            throw new Error('Chave API do Google Gemini não configurada.');
-        }
-
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-
-        // Criar prompt contextualizado
-        const prompt = `Você é um assistente virtual inteligente de atendimento ao cliente via WhatsApp.
-
-CONTEXTO DA CONVERSA:
-Nome do contato: ${contact.name || 'Cliente'}
-Telefone: ${contact.phone}
-
-HISTÓRICO DA CONVERSA:
-${conversationHistory}
+CONTEXTO DO CONTATO:
+- Nome: ${contact.name || 'Cliente'}
+- Telefone: ${contact.phone}
 
 INSTRUÇÕES:
 - Responda de forma cordial, profissional e útil
 - Seja breve e direto (máximo 2-3 parágrafos)
-- Use linguagem natural e amigável
+- Use linguagem natural e amigável em português
 - Se não souber algo, seja honesto e ofereça alternativas
 - Não invente informações
+- Mantenha um tom conversacional apropriado para WhatsApp`
+            }
+        ];
 
-MENSAGEM ATUAL DO USUÁRIO:
-${message.content}
+        // Adicionar histórico de mensagens
+        for (const msg of previousMessages) {
+            chatMessages.push({
+                role: msg.senderType === 'CONTACT' ? 'user' : 'assistant',
+                content: msg.content
+            });
+        }
 
-RESPOSTA DO ASSISTENTE:`;
+        // Configurar OpenAI
+        const apiKey = process.env.OPENAI_API_KEY;
+        if (!apiKey) {
+            throw new Error('Chave API do OpenAI não configurada.');
+        }
 
-        // Gerar resposta com IA
-        const result = await model.generateContent(prompt);
-        const aiResponse = result.response.text();
+        const openai = new OpenAI({ apiKey });
+
+        // Gerar resposta com ChatGPT
+        const completion = await openai.chat.completions.create({
+            model: 'gpt-4o-mini', // Modelo rápido e econômico
+            messages: chatMessages,
+            temperature: 0.7,
+            max_tokens: 500,
+        });
+
+        const aiResponse = completion.choices[0]?.message?.content;
 
         if (!aiResponse || aiResponse.trim().length === 0) {
             throw new Error('IA retornou resposta vazia.');
         }
 
         // Enviar resposta para o WhatsApp
-        const messageParts = aiResponse.split(/\n\s*\n/).filter(part => part.trim().length > 0);
+        const messageParts = aiResponse.split(/\n\s*\n/).filter((part: string) => part.trim().length > 0);
         
         for (const part of messageParts) {
             if (part.trim()) {
@@ -223,7 +226,7 @@ RESPOSTA DO ASSISTENTE:`;
             }
         }
 
-        await logAutomation('INFO', `IA respondeu com sucesso usando Google Gemini.`, logContextBase);
+        await logAutomation('INFO', `IA respondeu com sucesso usando ChatGPT (OpenAI).`, logContextBase);
         return true;
         
     } catch (error) {
