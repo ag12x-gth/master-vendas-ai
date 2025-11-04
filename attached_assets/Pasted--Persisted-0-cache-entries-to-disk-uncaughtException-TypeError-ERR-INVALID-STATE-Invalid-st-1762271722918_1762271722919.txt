@@ -1,0 +1,665 @@
+💾 Persisted 0 cache entries to disk
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 79ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 103ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 79ms
+[Baileys] Creating new session for connection e5749987-1597-41f3-9e99-dbac9865148a
+[Baileys] Fetching Baileys version...
+[Baileys] Using version: [ 2, 3000, 1027934701 ]
+[Baileys] Loading auth state...
+[Baileys] Auth state loaded, creds exists: true
+[Baileys] Creating WASocket...
+[Baileys] WASocket created successfully
+[Baileys] Session setup complete for e5749987-1597-41f3-9e99-dbac9865148a
+[Baileys] Connection update for e5749987-1597-41f3-9e99-dbac9865148a: connecting undefined
+ POST /api/v1/whatsapp/sessions 200 in 182ms
+ GET /api/v1/whatsapp/sessions 200 in 115ms
+[Baileys] Connection update for e5749987-1597-41f3-9e99-dbac9865148a: undefined undefined
+[Baileys] QR Code generated for e5749987-1597-41f3-9e99-dbac9865148a
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 97ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 108ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 83ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 97ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 93ms
+ GET /api/v1/whatsapp/sessions 200 in 106ms
+[Baileys] Connection update for e5749987-1597-41f3-9e99-dbac9865148a: undefined undefined
+[Baileys] Connection update for e5749987-1597-41f3-9e99-dbac9865148a: close Error: Stream Errored (restart required)
+    at WebSocketClient.eval (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Socket/socket.js?dc87:741:1)
+    at WebSocketClient.emit (node:events:524:28)
+    at eval (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Socket/socket.js?dc87:433:1)
+    at Object.decodeFrame (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Utils/noise-handler.js?8940:141:1)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  data: { tag: 'stream:error', attrs: { code: '515' }, content: undefined },
+  isBoom: true,
+  isServer: true,
+  output: {
+    statusCode: 515,
+    payload: {
+      statusCode: 515,
+      error: 'Unknown',
+      message: 'Stream Errored (restart required)'
+    },
+    headers: {}
+  }
+}
+[Baileys] Connection closed for e5749987-1597-41f3-9e99-dbac9865148a. Status code: 515, Error: Stream Errored (restart required)
+[Baileys] Attempting reconnect (1/3)
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 108ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+[Baileys] Creating new session for connection e5749987-1597-41f3-9e99-dbac9865148a
+[Baileys] Fetching Baileys version...
+[Baileys] Using version: [ 2, 3000, 1027934701 ]
+[Baileys] Loading auth state...
+[Baileys] Auth state loaded, creds exists: true
+[Baileys] Creating WASocket...
+[Baileys] WASocket created successfully
+[Baileys] Session setup complete for e5749987-1597-41f3-9e99-dbac9865148a
+[Baileys] Connection update for e5749987-1597-41f3-9e99-dbac9865148a: connecting undefined
+[Baileys] Connection update for e5749987-1597-41f3-9e99-dbac9865148a: close TypeError [ERR_INVALID_ARG_TYPE]: The "data" argument must be of type string or an instance of Buffer, TypedArray, or DataView. Received an instance of Object
+    at Cipheriv.update (node:internal/crypto/cipher:177:11)
+    at aesEncryptGCM (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Utils/crypto.js?15f5:46:1)
+    at encrypt (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Utils/noise-handler.js?8940:19:37)
+    at Object.processHandshake (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Utils/noise-handler.js?8940:89:1)
+    at async validateConnection (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Socket/socket.js?dc87:276:1)
+    at async WebSocketClient.eval (webpack://nextn/node_modules/@whiskeysockets/baileys/lib/Socket/socket.js?dc87:640:1) {
+  code: 'ERR_INVALID_ARG_TYPE'
+}
+[Baileys] Connection closed for e5749987-1597-41f3-9e99-dbac9865148a. Status code: undefined, Error: The "data" argument must be of type string or an instance of Buffer, TypedArray, or DataView. Received an instance of Object
+[Baileys] Unexpected closure (statusCode: undefined). Not retrying to avoid infinite loop.
+[Baileys] Error in connection.update handler: Error [ERR_UNHANDLED_ERROR]: Unhandled error. ({
+  message: 'The "data" argument must be of type string or an instance of Buffer, TypedArray, or DataView. Received an instance of Object'
+})
+    at EventEmitter.emit (node:events:513:17)
+    at EventEmitter.eval (webpack://nextn/src/services/baileys-session-manager.ts?de44:119:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5) {
+  code: 'ERR_UNHANDLED_ERROR',
+  context: {
+    message: 'The "data" argument must be of type string or an instance of Buffer, TypedArray, or DataView. Received an instance of Object'
+  }
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 103ms
+ GET /api/v1/whatsapp/sessions/e5749987-1597-41f3-9e99-dbac9865148a/qr 200 in 26730ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 102ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 80ms
+ GET /api/v1/whatsapp/sessions 200 in 83ms
+ GET /api/v1/whatsapp/sessions 200 in 88ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 94ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 103ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 108ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 118ms
+ GET /api/v1/whatsapp/sessions 200 in 89ms
+ GET /api/v1/whatsapp/sessions/e5749987-1597-41f3-9e99-dbac9865148a/qr 200 in 51488ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 100ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 93ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 120ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ GET /api/v1/whatsapp/sessions 200 in 89ms
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
+ ⨯ uncaughtException: TypeError [ERR_INVALID_STATE]: Invalid state: Controller is already closed
+    at ReadableStreamDefaultController.enqueue (node:internal/webstreams/readablestream:1070:13)
+    at Timeout.eval (webpack://nextn/src/app/api/v1/whatsapp/sessions/[id]/qr/route.ts?f241:72:22)
+    at listOnTimeout (node:internal/timers:581:17)
+    at process.processTimers (node:internal/timers:519:7) {
+  code: 'ERR_INVALID_STATE'
+}
