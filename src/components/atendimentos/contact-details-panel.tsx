@@ -46,7 +46,7 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
             setNotes(contactData.notes || '');
 
             // Buscar agentes IA disponíveis
-            const personasRes = await fetch('/api/agentes-ia');
+            const personasRes = await fetch('/api/v1/ia/personas');
             if (personasRes.ok) {
                 const personasData = await personasRes.json();
                 setAiPersonas(personasData.personas || []);
