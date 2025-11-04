@@ -74,11 +74,14 @@ export async function POST(
       content: message,
     });
 
+    const temperature = parseFloat(String(persona.temperature || 0.7));
+    const maxTokens = parseInt(String(persona.maxTokens || 500), 10);
+
     const completion = await openai.chat.completions.create({
       model: persona.model,
       messages,
-      temperature: parseFloat(String(persona.temperature || 0.7)),
-      max_tokens: parseInt(String(persona.maxTokens || 500), 10),
+      temperature: isNaN(temperature) ? 0.7 : Math.max(0, Math.min(2, temperature)),
+      max_tokens: isNaN(maxTokens) ? 500 : Math.max(1, Math.min(4000, maxTokens)),
     });
 
     const aiResponse = completion.choices[0]?.message?.content;
