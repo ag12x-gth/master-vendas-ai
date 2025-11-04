@@ -1,0 +1,84 @@
+1 of 1 error
+Next.js (14.2.33) is outdated (learn more)
+Server Error
+Error: Cannot find module './vendor-chunks/tailwind-merge.js'
+Require stack:
+- /home/runner/workspace/.next/server/webpack-runtime.js
+- /home/runner/workspace/.next/server/app/api/v1/conversations/status/route.js
+- /home/runner/workspace/node_modules/next/dist/server/require.js
+- /home/runner/workspace/node_modules/next/dist/server/load-components.js
+- /home/runner/workspace/node_modules/next/dist/build/utils.js
+- /home/runner/workspace/node_modules/next/dist/server/dev/hot-middleware.js
+- /home/runner/workspace/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /home/runner/workspace/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /home/runner/workspace/node_modules/next/dist/server/lib/router-server.js
+- /home/runner/workspace/node_modules/next/dist/server/lib/start-server.js
+- /home/runner/workspace/node_modules/next/dist/server/next.js
+- /home/runner/workspace/server.js
+
+This error happened while generating the page. Any console logs will be displayed in the terminal window.
+Call Stack
+nextResolveSimple
+file:///home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs (4:1004)
+<unknown>
+file:///home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs (3:2630)
+<unknown>
+file:///home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs (3:1542)
+resolveTsPaths
+file:///home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs (4:760)
+<unknown>
+file:///home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs (4:1102)
+m._resolveFilename
+file:///home/runner/workspace/node_modules/tsx/dist/register-B7jrtLTO.mjs (1:789)
+Next.js
+Array.reduce
+<anonymous>
+Next.js
+Array.map
+<anonymous>
+Next.js
+__webpack_require__.X
+file:///home/runner/workspace/.next/server/webpack-runtime.js (167:22)
+<unknown>
+file:///home/runner/workspace/.next/server/app/(main)/atendimentos/page.js (1133:47)
+Object.<anonymous>
+file:///home/runner/workspace/.next/server/app/(main)/atendimentos/page.js (1136:3)
+Object.transformer
+file:///home/runner/workspace/node_modules/tsx/dist/register-D46fvsV_.cjs (3:1104)
+Next.js
+Module.mod.require
+file:///home/runner/workspace/node_modules/next/src/server/require-hook.ts (70:26)
+requirePage
+file:///home/runner/workspace/node_modules/next/src/server/require.ts (127:9)
+<anonymous>
+file:///home/runner/workspace/node_modules/next/src/server/load-components.ts (206:16)
+async loadComponentsImpl
+file:///home/runner/workspace/node_modules/next/src/server/load-components.ts (205:24)
+async DevServer.findPageComponentsImpl
+file:///home/runner/workspace/node_modules/next/src/server/next-server.ts (768:28)
+async DevServer.findPageComponents
+file:///home/runner/workspace/node_modules/next/src/server/dev/next-dev-server.ts (835:14)
+async DevServer.renderPageComponent
+file:///home/runner/workspace/node_modules/next/src/server/base-server.ts (3003:20)
+async DevServer.renderToResponseImpl
+file:///home/runner/workspace/node_modules/next/src/server/base-server.ts (3078:24)
+async DevServer.pipeImpl
+file:///home/runner/workspace/node_modules/next/src/server/base-server.ts (1537:21)
+async DevServer.NextNodeServer.handleCatchallRenderRequest
+file:///home/runner/workspace/node_modules/next/src/server/next-server.ts (1020:7)
+async DevServer.handleRequestImpl
+file:///home/runner/workspace/node_modules/next/src/server/base-server.ts (1318:9)
+async <anonymous>
+file:///home/runner/workspace/node_modules/next/src/server/dev/next-dev-server.ts (461:14)
+async Span.traceAsyncFn
+file:///home/runner/workspace/node_modules/next/src/trace/trace.ts (141:14)
+async DevServer.handleRequest
+file:///home/runner/workspace/node_modules/next/src/server/dev/next-dev-server.ts (459:20)
+async invokeRender
+file:///home/runner/workspace/node_modules/next/src/server/lib/router-server.ts (277:11)
+async handleRequest
+file:///home/runner/workspace/node_modules/next/src/server/lib/router-server.ts (527:16)
+async NextCustomServer.requestHandlerImpl
+file:///home/runner/workspace/node_modules/next/src/server/lib/router-server.ts (573:7)
+async Server.<anonymous>
+file:///home/runner/workspace/server.js (25:9)
