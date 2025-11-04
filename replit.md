@@ -18,7 +18,7 @@ The application is built on Next.js 14.2.33 with TypeScript, utilizing an App Ro
 **Technical Implementations:**
 - **Frontend:** Next.js 14.2.33, TypeScript, Tailwind CSS, ShadCN UI.
 - **Backend:** Next.js API Routes, Drizzle ORM.
-- **AI Integration:** Supports Google Generative AI (`gemini-1.5-flash`) and OpenAI ChatGPT (`gpt-4o-mini`) for various AI tasks and WhatsApp auto-responses. **AI auto-responses exclude group conversations** - only individual chats receive automated responses.
+- **AI Integration:** Supports Google Generative AI (`gemini-1.5-flash`) and OpenAI ChatGPT (`gpt-4o-mini`) for various AI tasks and WhatsApp auto-responses. **AI auto-responses exclude group conversations** - only individual chats receive automated responses. **Personalized AI Agents:** Each conversation can be assigned a custom AI persona from the `/agentes-ia` library, allowing per-conversation agent selection with unique system prompts, temperature, and token limits. The system validates multi-tenant security by ensuring personas belong to the correct company.
 - **WhatsApp API Strategy:** Integrates Meta Official API for compliance and scalability, alongside Baileys (`@whiskeysockets/baileys`) for WhatsApp Web multi-device protocol with filesystem-based authentication. A global singleton pattern manages sessions.
 - **Voice AI Integration:** Vapi AI for voice call escalation from WhatsApp, leveraging traditional telephony (Twilio/Telnyx) and AI assistants.
 - **Performance Optimization:** Features an enhanced caching system with disk persistence.
