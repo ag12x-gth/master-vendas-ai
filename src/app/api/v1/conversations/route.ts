@@ -25,13 +25,14 @@ export async function GET(_request: NextRequest) {
         const companyConversations = await db.select({
             id: conversations.id,
             status: conversations.status,
-            aiActive: conversations.aiActive, // CORREÇÃO: Campo adicionado
+            aiActive: conversations.aiActive,
             lastMessageAt: conversations.lastMessageAt,
             contactId: contacts.id,
             contactName: contacts.name,
             contactAvatar: contacts.avatarUrl,
             phone: contacts.phone,
             connectionName: connections.config_name,
+            connectionType: connections.connectionType,
             lastMessage: lastMessageSubquery.lastMessageContent,
             lastMessageStatus: lastMessageSubquery.lastMessageStatus,
         })

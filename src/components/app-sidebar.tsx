@@ -93,7 +93,8 @@ const allNavItems = [
     subItems: [
       { href: '/campaigns', label: 'Campanhas', icon: Send, roles: ['admin', 'superadmin'] },
       { href: '/templates', label: 'Modelos', icon: MessageSquareText, roles: ['admin', 'superadmin'] },
-      { href: '/connections', label: 'Conexões', icon: Plug, roles: ['admin', 'superadmin'] },
+      { href: '/connections', label: 'Conexões Meta API', icon: Plug, roles: ['admin', 'superadmin'] },
+      { href: '/whatsapp-sessoes', label: 'Sessões Baileys', icon: BotMessageSquare, roles: ['admin', 'superadmin'] },
     ],
   },
    {

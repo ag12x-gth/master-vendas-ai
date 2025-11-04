@@ -1,0 +1,95 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { sessionManager } from '@/services/baileys-session-manager';
+import { db } from '@/lib/db';
+import { connections, messages, conversations } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
+import { getCompanyIdFromSession } from '@/app/actions';
+
+export const dynamic = 'force-dynamic';
+
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const companyId = await getCompanyIdFromSession();
+
+    const body = await request.json();
+    const { to, text, conversationId } = body;
+
+    if (!to || !text) {
+      return NextResponse.json(
+        { error: 'Missing required fields: to, text' },
+        { status: 400 }
+      );
+    }
+
+    const connection = await db.query.connections.findFirst({
+      where: and(
+        eq(connections.id, params.id),
+        eq(connections.companyId, companyId)
+      ),
+    });
+
+    if (!connection || connection.connectionType !== 'baileys') {
+      return NextResponse.json(
+        { error: 'Invalid Baileys session' },
+        { status: 404 }
+      );
+    }
+
+    const messageId = await sessionManager.sendMessage(params.id, to, {
+      text,
+    });
+
+    if (!messageId) {
+      return NextResponse.json(
+        { error: 'Failed to send message - session not connected' },
+        { status: 500 }
+      );
+    }
+
+    if (conversationId) {
+      const conversation = await db.query.conversations.findFirst({
+        where: and(
+          eq(conversations.id, conversationId),
+          eq(conversations.companyId, companyId),
+          eq(conversations.connectionId, params.id)
+        ),
+      });
+
+      if (!conversation) {
+        return NextResponse.json(
+          { error: 'Conversation not found or does not belong to this company/connection' },
+          { status: 404 }
+        );
+      }
+
+      await db.insert(messages).values({
+        conversationId,
+        providerMessageId: messageId,
+        senderType: 'AGENT',
+        content: text,
+        contentType: 'TEXT',
+        status: 'sent',
+        sentAt: new Date(),
+      });
+
+      await db
+        .update(conversations)
+        .set({ lastMessageAt: new Date() })
+        .where(eq(conversations.id, conversationId));
+    }
+
+    return NextResponse.json({
+      success: true,
+      messageId,
+    });
+  } catch (error) {
+    console.error('[API] Error sending message:', error);
+    return NextResponse.json(
+      { error: 'Failed to send message' },
+      { status: 500 }
+    );
+  }
+}

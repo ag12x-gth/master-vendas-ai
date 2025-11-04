@@ -56,6 +56,7 @@ export type Conversation = typeof schema.conversations.$inferSelect & {
     lastMessageStatus: Message['status'];
     unreadCount?: number;
     connectionName?: string | null;
+    connectionType?: string | null;
 };
 
 export type KanbanFunnel = typeof schema.kanbanBoards.$inferSelect & {

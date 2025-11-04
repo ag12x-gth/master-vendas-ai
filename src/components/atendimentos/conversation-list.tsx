@@ -6,7 +6,8 @@ import type { Conversation, Message } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Search, Check, CheckCheck, Clock } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Search, Check, CheckCheck, Clock, MessageSquare, Smartphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { RelativeTime } from '../ui/relative-time';
@@ -42,8 +43,13 @@ const ConversationListItem = ({ conversation, isSelected, onSelect }: { conversa
             </Avatar>
             <div className="flex-1 overflow-hidden">
                 <div className="flex flex-col">
-                    <div className="flex justify-between items-baseline">
+                    <div className="flex justify-between items-baseline gap-2">
                         <p className="font-semibold truncate pr-2">{conversation.contactName}</p>
+                        {conversation.connectionName && (
+                            <Badge variant="outline" className="shrink-0 text-xs">
+                                {conversation.connectionName}
+                            </Badge>
+                        )}
                     </div>
                      <RelativeTime date={conversation.lastMessageAt} />
                 </div>
@@ -72,17 +78,41 @@ export function ConversationList({
     onSelectConversation: (id: string) => void,
 }) {
     const [search, setSearch] = useState('');
+    const [sourceFilter, setSourceFilter] = useState<'all' | 'meta_api' | 'baileys'>('all');
 
     const filteredConversations = useMemo(() => {
-        return conversations.filter(c => 
-            c.contactName.toLowerCase().includes(search.toLowerCase()) ||
-            c.phone.includes(search)
-        );
-    }, [conversations, search]);
+        let filtered = conversations;
+        
+        if (sourceFilter !== 'all') {
+            filtered = filtered.filter(c => c.connectionType === sourceFilter);
+        }
+        
+        if (search) {
+            filtered = filtered.filter(c => 
+                c.contactName.toLowerCase().includes(search.toLowerCase()) ||
+                c.phone.includes(search)
+            );
+        }
+        
+        return filtered;
+    }, [conversations, search, sourceFilter]);
 
     return (
         <div className="h-full flex flex-col">
-            <div className="p-4 border-b shrink-0">
+            <div className="p-4 border-b shrink-0 space-y-3">
+                <Tabs value={sourceFilter} onValueChange={(v) => setSourceFilter(v as any)}>
+                    <TabsList className="grid w-full grid-cols-3">
+                        <TabsTrigger value="all">Todas</TabsTrigger>
+                        <TabsTrigger value="meta_api">
+                            <MessageSquare className="h-4 w-4 mr-1.5" />
+                            Meta
+                        </TabsTrigger>
+                        <TabsTrigger value="baileys">
+                            <Smartphone className="h-4 w-4 mr-1.5" />
+                            Baileys
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
                 <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
