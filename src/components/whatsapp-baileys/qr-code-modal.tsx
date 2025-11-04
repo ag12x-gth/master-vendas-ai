@@ -31,57 +31,89 @@ export function QRCodeModal({ sessionId, sessionName, isOpen, onClose }: QRCodeM
       return;
     }
 
-    const eventSource = new EventSource(`/api/v1/whatsapp/sessions/${sessionId}/qr`);
+    let eventSource: EventSource | null = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 3;
+    let reconnectTimeout: NodeJS.Timeout | null = null;
 
-    eventSource.onmessage = async (event) => {
-      try {
-        const data = JSON.parse(event.data);
+    const connectEventSource = () => {
+      if (!sessionId || !isOpen) return;
 
-        if (data.qr) {
-          const qrDataUrl = await QRCode.toDataURL(data.qr, {
-            width: 300,
-            margin: 2,
-          });
-          setQrCode(qrDataUrl);
-          setStatus('qr');
-          setError(null);
+      eventSource = new EventSource(`/api/v1/whatsapp/sessions/${sessionId}/qr`);
+
+      eventSource.onmessage = async (event) => {
+        try {
+          const data = JSON.parse(event.data);
+
+          if (data.qr) {
+            const qrDataUrl = await QRCode.toDataURL(data.qr, {
+              width: 300,
+              margin: 2,
+            });
+            setQrCode(qrDataUrl);
+            setStatus('qr');
+            setError(null);
+            reconnectAttempts = 0;
+          }
+
+          if (data.status === 'connected') {
+            setStatus('connected');
+            eventSource?.close();
+            setTimeout(() => {
+              onClose();
+            }, 1000);
+          }
+
+          if (data.status === 'disconnected') {
+            setStatus('error');
+            setError(data.reason ? `Falha ao conectar (${data.reason})` : 'Falha ao conectar');
+            eventSource?.close();
+          }
+
+          if (data.status === 'error') {
+            setStatus('error');
+            setError(data.message || 'Erro desconhecido ao conectar');
+            eventSource?.close();
+          }
+        } catch (err) {
+          console.error('Error parsing SSE data:', err);
         }
+      };
 
-        if (data.status === 'connected') {
-          setStatus('connected');
-          eventSource.close();
-          setTimeout(() => {
-            onClose();
-          }, 1000);
+      eventSource.onerror = (err) => {
+        console.error('EventSource error:', err);
+        
+        if (eventSource?.readyState === EventSource.CLOSED) {
+          const currentStatus = status;
+          if (reconnectAttempts < maxReconnectAttempts && currentStatus !== 'error' && currentStatus !== 'connected') {
+            reconnectAttempts++;
+            console.log(`[QR Modal] Reconnecting... Attempt ${reconnectAttempts}/${maxReconnectAttempts}`);
+            reconnectTimeout = setTimeout(() => {
+              connectEventSource();
+            }, 2000);
+          } else if (currentStatus !== 'connected') {
+            setStatus('error');
+            setError('Não foi possível conectar ao servidor. Tente novamente.');
+          }
+          eventSource?.close();
         }
+      };
 
-        if (data.status === 'disconnected') {
-          setStatus('error');
-          setError(data.reason ? `Falha ao conectar (${data.reason})` : 'Falha ao conectar');
-          eventSource.close();
-        }
-
-        if (data.status === 'error') {
-          setStatus('error');
-          setError(data.message || 'Erro desconhecido ao conectar');
-          eventSource.close();
-        }
-      } catch (err) {
-        console.error('Error parsing SSE data:', err);
-      }
+      eventSource.onopen = () => {
+        console.log('[QR Modal] EventSource connected');
+        reconnectAttempts = 0;
+      };
     };
 
-    eventSource.onerror = (err) => {
-      console.error('EventSource error:', err);
-      if (eventSource.readyState === EventSource.CLOSED) {
-        setStatus('error');
-        setError('Conexão com servidor foi encerrada');
-      }
-      eventSource.close();
-    };
+    connectEventSource();
 
     return () => {
-      eventSource.close();
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+      }
+      if (eventSource) {
+        eventSource.close();
+      }
     };
   }, [sessionId, isOpen, onClose]);
 

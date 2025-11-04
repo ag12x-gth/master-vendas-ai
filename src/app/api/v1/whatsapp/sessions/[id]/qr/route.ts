@@ -46,6 +46,7 @@ export async function GET(
     }
 
     const encoder = new TextEncoder();
+    let cleanupFn: (() => void) | null = null;
     
     const stream = new ReadableStream({
       start(controller) {
@@ -56,8 +57,13 @@ export async function GET(
             try {
               controller.enqueue(data);
             } catch (error) {
-              console.error('[QR SSE] Error enqueueing data:', error);
+              if (error instanceof Error && error.message.includes('Controller is already closed')) {
+                console.log('[QR SSE] Client disconnected, stopping stream');
+              } else {
+                console.error('[QR SSE] Error enqueueing data:', error);
+              }
               isClosed = true;
+              cleanup();
             }
           }
         };
@@ -68,8 +74,16 @@ export async function GET(
               controller.close();
               isClosed = true;
             } catch (error) {
-              console.error('[QR SSE] Error closing controller:', error);
+              console.log('[QR SSE] Controller already closed');
             }
+            cleanup();
+          }
+        };
+
+        const cleanup = () => {
+          if (cleanupFn) {
+            cleanupFn();
+            cleanupFn = null;
           }
         };
 
@@ -87,19 +101,19 @@ export async function GET(
         const onConnected = (data: any) => {
           const message = `data: ${JSON.stringify({ status: 'connected', phone: data?.phone })}\n\n`;
           safeEnqueue(encoder.encode(message));
-          safeClose();
+          setTimeout(() => safeClose(), 100);
         };
 
         const onDisconnected = (data: any) => {
           const message = `data: ${JSON.stringify({ status: 'disconnected', reason: data?.reason })}\n\n`;
           safeEnqueue(encoder.encode(message));
-          safeClose();
+          setTimeout(() => safeClose(), 100);
         };
 
         const onError = (error: any) => {
           const message = `data: ${JSON.stringify({ status: 'error', message: error?.message || 'Connection failed' })}\n\n`;
           safeEnqueue(encoder.encode(message));
-          safeClose();
+          setTimeout(() => safeClose(), 100);
         };
 
         emitter.on('qr', onQR);
@@ -108,19 +122,35 @@ export async function GET(
         emitter.on('error', onError);
 
         const keepAliveInterval = setInterval(() => {
-          safeEnqueue(encoder.encode(': keepalive\n\n'));
+          if (!isClosed) {
+            safeEnqueue(encoder.encode(': keepalive\n\n'));
+          }
         }, 30000);
 
-        return () => {
-          isClosed = true;
+        const autoCloseTimeout = setTimeout(() => {
+          console.log('[QR SSE] Auto-closing stream after 5 minutes');
+          safeClose();
+        }, 5 * 60 * 1000);
+
+        cleanupFn = () => {
+          if (!isClosed) {
+            isClosed = true;
+          }
           clearInterval(keepAliveInterval);
+          clearTimeout(autoCloseTimeout);
           emitter.off('qr', onQR);
           emitter.off('connected', onConnected);
           emitter.off('disconnected', onDisconnected);
           emitter.off('error', onError);
+          console.log('[QR SSE] Cleanup completed for session:', params.id);
         };
       },
       cancel() {
+        console.log('[QR SSE] Stream cancelled by client for session:', params.id);
+        if (cleanupFn) {
+          cleanupFn();
+          cleanupFn = null;
+        }
       },
     });
 
