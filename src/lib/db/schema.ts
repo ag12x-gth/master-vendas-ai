@@ -99,16 +99,32 @@ import {
     id: text('id').primaryKey().default(sql`gen_random_uuid()`),
     companyId: text('company_id').notNull().references(() => companies.id),
     config_name: text('config_name').notNull(),
-    wabaId: text('waba_id').notNull(),
-    phoneNumberId: text('phone_number_id').notNull(),
-    appId: text('app_id'),
-    accessToken: text('access_token').notNull(),
-    webhookSecret: text('webhook_secret').notNull(),
-    appSecret: text('app_secret').notNull().default(''),
     connectionType: text('connection_type').default('meta_api').notNull(),
+    
+    wabaId: text('waba_id'),
+    phoneNumberId: text('phone_number_id'),
+    appId: text('app_id'),
+    accessToken: text('access_token'),
+    webhookSecret: text('webhook_secret'),
+    appSecret: text('app_secret').default(''),
+    
+    sessionId: text('session_id'),
+    phone: text('phone'),
+    qrCode: text('qr_code'),
+    status: text('status'),
+    lastConnected: timestamp('last_connected'),
+    
     isActive: boolean('is_active').default(false).notNull(),
     assignedPersonaId: text('assigned_persona_id').references(() => aiPersonas.id, { onDelete: 'set null' }),
     createdAt: timestamp('created_at').defaultNow(),
+  });
+
+  export const baileysAuthState = pgTable('baileys_auth_state', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    connectionId: text('connection_id').notNull().references(() => connections.id, { onDelete: 'cascade' }),
+    creds: jsonb('creds'),
+    keys: jsonb('keys'),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
   });
   
   export const apiKeys = pgTable('api_keys', {
