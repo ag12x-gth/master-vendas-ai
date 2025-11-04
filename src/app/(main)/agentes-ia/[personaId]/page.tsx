@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
 import { PersonaEditor } from '@/components/ia/persona-editor';
 import { PersonaMetrics } from '@/components/ia/persona-metrics';
+import { AgentTestChat } from '@/components/ia/agent-test-chat';
 import type { Persona } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft } from 'lucide-react';
@@ -71,9 +72,10 @@ export default function EditPersonaPage({ params }: { params: { personaId: strin
       </PageHeader>
 
       <Tabs defaultValue="config" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+        <TabsList className="grid w-full grid-cols-3 max-w-[600px]">
           <TabsTrigger value="config">Configurações</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="test">Testar</TabsTrigger>
         </TabsList>
         
         <TabsContent value="config" className="space-y-6 mt-6">
@@ -82,6 +84,12 @@ export default function EditPersonaPage({ params }: { params: { personaId: strin
         
         <TabsContent value="performance" className="space-y-6 mt-6">
           <PersonaMetrics personaId={personaId} />
+        </TabsContent>
+        
+        <TabsContent value="test" className="mt-6">
+          <div className="h-[calc(100vh-300px)] min-h-[600px]">
+            <AgentTestChat personaId={personaId} personaName={persona.name} />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
