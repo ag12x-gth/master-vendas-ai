@@ -42,14 +42,18 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
         
         const [connection] = await db.select({ appSecret: connections.appSecret })
             .from(connections)
-            .where(and(eq(connections.companyId, company.id), eq(connections.isActive, true)))
+            .where(and(
+                eq(connections.companyId, company.id), 
+                eq(connections.connectionType, 'meta_api'),
+                eq(connections.isActive, true)
+            ))
             .limit(1);
 
         const decryptedAppSecret = connection ? decrypt(connection.appSecret) : null;
 
         if (!decryptedAppSecret) {
             console.error(`App Secret não encontrado ou falhou ao desencriptar para a empresa com slug: ${slug}`);
-            return new NextResponse('App Secret for active connection not configured or decryption failed', { status: 400 });
+            return new NextResponse('App Secret for active Meta connection not configured or decryption failed', { status: 400 });
         }
 
         const signature = request.headers.get('x-hub-signature-256');
