@@ -1,0 +1,82 @@
+GET /api/v1/conversations/status 200 in 77ms
+ ✓ Compiled /api/webhooks/meta/[slug] in 400ms (2249 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 200 in 771ms
+[Automation Engine] Gatilho recebido para a conversa 08290f4a-ebcf-4bc6-a578-03010e4cf5e5 e mensagem ab8b4ea3-686e-4ccf-8a2d-55fc968d7a4d
+[Automation|INFO|Conv:08290f4a-ebcf-4bc6-a578-03010e4cf5e5|Rule:N/A] Conversa roteada para o Agente de IA (Persona ID: a4e00903-c5c2-4973-9a54-bb0fa6325bf5). {}
+[Automation|ERROR|Conv:08290f4a-ebcf-4bc6-a578-03010e4cf5e5|Rule:N/A] Falha ao comunicar com a IA: 401 Incorrect API key provided: sk-or-v1*************************************************************fab7. You can find your API key at https://platform.openai.com/account/api-keys. {}
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+ GET /api/v1/conversations/status 200 in 181ms
+ GET /api/v1/conversations 200 in 167ms
+ GET /api/v1/conversations/08290f4a-ebcf-4bc6-a578-03010e4cf5e5/messages 200 in 97ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ GET /api/v1/conversations/status 200 in 73ms
+ GET /api/v1/conversations/status 200 in 91ms
+ GET /api/v1/conversations/status 200 in 73ms
+ GET /api/v1/conversations/status 200 in 79ms
+ GET /api/v1/conversations/status 200 in 77ms
+ ○ Compiling /agentes-ia ...
+ ✓ Compiled /agentes-ia in 3.9s (3327 modules)
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/conversations/status 200 in 3387ms
+ GET /agentes-ia 200 in 4700ms
+ GET /api/v1/conversations/status 200 in 109ms
+ ○ Compiling /api/v1/ia/personas ...
+ ✓ Compiled /api/v1/ia/personas in 593ms (2273 modules)
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+(node:1515) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 SIGINT listeners added to [process]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1515) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 SIGTERM listeners added to [process]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+ GET /api/v1/ia/personas 200 in 953ms
+ GET /api/v1/ia/personas 200 in 163ms
+ GET /api/v1/ia/personas 200 in 100ms
+ GET /api/v1/ia/personas 200 in 95ms
+ ○ Compiling /agentes-ia/[personaId] ...
+ ✓ Compiled /agentes-ia/[personaId] in 1218ms (3343 modules)
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ ✓ Compiled /api/v1/ia/personas/[personaId] in 444ms (2282 modules)
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/ia/personas/a4e00903-c5c2-4973-9a54-bb0fa6325bf5 200 in 2082ms
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ GET /api/v1/ia/personas/a4e00903-c5c2-4973-9a54-bb0fa6325bf5 200 in 174ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
