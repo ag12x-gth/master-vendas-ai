@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { db } from '@/lib/db';
-import { aiPersonas } from '@/lib/db/schema';
+import { aiPersonas, aiCredentials } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import OpenAI from 'openai';
 
@@ -45,7 +45,17 @@ export async function POST(
       return NextResponse.json({ error: 'Agente não encontrado' }, { status: 404 });
     }
 
-    const apiKey = persona.credentials?.apiKey || process.env.OPENAI_API_KEY || process.env.openai_apikey_gpt_padrao;
+    let apiKey = process.env.OPENAI_API_KEY || process.env.openai_apikey_gpt_padrao;
+
+    if (persona.credentialId) {
+      const credential = await db.query.aiCredentials.findFirst({
+        where: eq(aiCredentials.id, persona.credentialId),
+      });
+      
+      if (credential?.apiKey) {
+        apiKey = credential.apiKey;
+      }
+    }
     
     if (!apiKey) {
       return NextResponse.json({ 
