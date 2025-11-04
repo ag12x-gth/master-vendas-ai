@@ -29,11 +29,12 @@ The application is built on Next.js 14.2.33 with TypeScript, utilizing an App Ro
 - Landing page and authentication.
 - Dashboard with analytics (including Vapi metrics).
 - WhatsApp/SMS campaign management.
-- Contact Management (CRM).
+- Contact Management (CRM) with multi-conversation detection.
 - AI integration framework.
 - Kanban boards for lead management.
 - Template management and media gallery.
 - Dedicated Voice Calls page with history, analytics, and bulk campaign functionality.
+- Visual indicators for contacts with multiple active conversations across different connections.
 
 **System Design Choices:**
 - **Development Environment:** Configured for Replit, runs on port 5000.
