@@ -1,0 +1,34 @@
+GET /api/v1/conversations/status 200 in 124ms
+ GET /api/v1/conversations/status 200 in 95ms
+[Baileys] Connection update for 686a4111-e885-4175-8ecf-829e318097db: undefined undefined
+[Baileys] QR Code generated for 686a4111-e885-4175-8ecf-829e318097db
+ GET /api/v1/conversations/status 200 in 114ms
+App Secret não encontrado ou falhou ao desencriptar para a empresa com slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 400 in 132ms
+App Secret não encontrado ou falhou ao desencriptar para a empresa com slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 400 in 134ms
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+App Secret não encontrado ou falhou ao desencriptar para a empresa com slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 400 in 116ms
+ GET /api/v1/conversations/status 200 in 97ms
+App Secret não encontrado ou falhou ao desencriptar para a empresa com slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 400 in 197ms
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/conversations/status 200 in 93ms
+ GET /api/v1/conversations/status 200 in 140ms
+[Baileys] Connection update for 686a4111-e885-4175-8ecf-829e318097db: undefined undefined
+[Baileys] QR Code generated for 686a4111-e885-4175-8ecf-829e318097db
+ GET /api/v1/conversations/status 200 in 114ms
+ GET /api/v1/conversations/status 200 in 127ms
+💾 Persisted 0 cache entries to disk
+ GET /api/v1/conversations/status 200 in 118ms
+💾 Persisted 0 cache entries to disk
+App Secret não encontrado ou falhou ao desencriptar para a empresa com slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 400 in 171ms
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+ GET /api/v1/conversations/status 200 in 100ms
+💾 Persisted 0 cache entries to disk
+[Baileys] Connection update for 686a4111-e885-4175-8ecf-829e318097db: undefined undefined
+[Baileys] QR Code generated for 686a4111-e885-4175-8ecf-829e318097db
+ GET /api/v1/conversations/status 200 in 100ms
