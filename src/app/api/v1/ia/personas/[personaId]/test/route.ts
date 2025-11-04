@@ -85,7 +85,7 @@ export async function POST(
     });
 
     const temperature = parseFloat(String(persona.temperature || 0.7));
-    const maxTokens = parseInt(String(persona.maxTokens || 500), 10);
+    const maxTokens = parseInt(String(persona.maxOutputTokens || 500), 10);
 
     const completion = await openai.chat.completions.create({
       model: persona.model,
