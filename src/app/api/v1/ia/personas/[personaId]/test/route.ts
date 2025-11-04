@@ -77,8 +77,8 @@ export async function POST(
     const completion = await openai.chat.completions.create({
       model: persona.model,
       messages,
-      temperature: persona.temperature || 0.7,
-      max_tokens: persona.maxTokens || 500,
+      temperature: parseFloat(String(persona.temperature || 0.7)),
+      max_tokens: parseInt(String(persona.maxTokens || 500), 10),
     });
 
     const aiResponse = completion.choices[0]?.message?.content;
