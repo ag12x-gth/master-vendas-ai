@@ -12,7 +12,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    console.log('[QR SSE] Starting QR stream for session:', params.id);
+    
     const companyId = await getCompanyIdFromSession();
+    console.log('[QR SSE] Company ID from session:', companyId);
 
     const connection = await db.query.connections.findFirst({
       where: and(
@@ -21,7 +24,10 @@ export async function GET(
       ),
     });
 
+    console.log('[QR SSE] Connection found:', connection ? 'YES' : 'NO');
+
     if (!connection) {
+      console.error('[QR SSE] Connection not found. Session ID:', params.id, 'Company ID:', companyId);
       return new Response(JSON.stringify({ error: 'Session not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
@@ -29,8 +35,10 @@ export async function GET(
     }
 
     const emitter = sessionManager.getEventEmitter(params.id);
+    console.log('[QR SSE] EventEmitter found:', emitter ? 'YES' : 'NO');
     
     if (!emitter) {
+      console.error('[QR SSE] EventEmitter not found for session:', params.id);
       return new Response(JSON.stringify({ error: 'Session not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json' },

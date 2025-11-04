@@ -1,0 +1,190 @@
+react-dom.development.js:38560 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+firebase.ts:50  Firebase configuration not found. Firebase features will be disabled.
+eval @ firebase.ts:50
+console-monitor.tsx:87 [Console Monitor] Iniciado - Capturando todos os logs
+analytics-context.tsx:21 Analytics não está disponível ou está a inicializar.
+console-monitor.tsx:87 [Console Monitor] Iniciado - Capturando todos os logs
+analytics-context.tsx:21 Analytics não está disponível ou está a inicializar.
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/58f662ed5ba12a72-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/c3f6eb667c0186c5-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+[NOVO] Explique os erros do Console usando o Copilot no Edge: clique em
+         
+         para explicar um erro.
+        Saiba mais
+        Não mostrar novamente
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/58f662ed5ba12a72-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/c3f6eb667c0186c5-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433 Fetch terminou o carregamento: GET "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/whatsapp/sessions".
+fetchCallImpl @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433
+fetch @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3439
+fetcher @ use-whatsapp-sessions.ts:14
+eval @ index.mjs:60
+eval @ index.mjs:345
+execute @ index.mjs:559
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/58f662ed5ba12a72-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/c3f6eb667c0186c5-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433 Fetch terminou o carregamento: GET "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/whatsapp/sessions".
+fetchCallImpl @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433
+fetch @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3439
+fetcher @ use-whatsapp-sessions.ts:14
+eval @ index.mjs:60
+eval @ index.mjs:345
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/58f662ed5ba12a72-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/c3f6eb667c0186c5-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433 Fetch terminou o carregamento: GET "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/whatsapp/sessions".
+fetchCallImpl @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433
+fetch @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3439
+fetcher @ use-whatsapp-sessions.ts:14
+eval @ index.mjs:60
+eval @ index.mjs:345
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/58f662ed5ba12a72-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/c3f6eb667c0186c5-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433 Fetch terminou o carregamento: GET "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/whatsapp/sessions".
+fetchCallImpl @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433
+fetch @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3439
+fetcher @ use-whatsapp-sessions.ts:14
+eval @ index.mjs:60
+eval @ index.mjs:345
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+qr:1   GET https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/whatsapp/sessions/d2624d13-daad-4d20-80d1-897d28949d34/qr 404 (Not Found)
+EventSource falha ao carregar: GET "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/whatsapp/sessions/d2624d13-daad-4d20-80d1-897d28949d34/qr".
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/58f662ed5ba12a72-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/c3f6eb667c0186c5-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433 Fetch terminou o carregamento: GET "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/whatsapp/sessions".
+fetchCallImpl @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433
+fetch @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3439
+fetcher @ use-whatsapp-sessions.ts:14
+eval @ index.mjs:60
+eval @ index.mjs:345
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/58f662ed5ba12a72-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/c3f6eb667c0186c5-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433 Fetch terminou o carregamento: GET "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/whatsapp/sessions".
+fetchCallImpl @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433
+fetch @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3439
+fetcher @ use-whatsapp-sessions.ts:14
+eval @ index.mjs:60
+eval @ index.mjs:345
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/58f662ed5ba12a72-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/c3f6eb667c0186c5-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433 Fetch terminou o carregamento: GET "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/whatsapp/sessions".
+fetchCallImpl @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433
+fetch @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3439
+fetcher @ use-whatsapp-sessions.ts:14
+eval @ index.mjs:60
+eval @ index.mjs:345
+onRevalidate @ index.mjs:496
+revalidateAllKeys @ config-context-client-BoS53ST9.mjs:384
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/58f662ed5ba12a72-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/c3f6eb667c0186c5-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433 Fetch terminou o carregamento: GET "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/whatsapp/sessions".
+fetchCallImpl @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433
+fetch @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3439
+fetcher @ use-whatsapp-sessions.ts:14
+eval @ index.mjs:60
+eval @ index.mjs:345
+onRevalidate @ index.mjs:496
+revalidateAllKeys @ config-context-client-BoS53ST9.mjs:384
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/58f662ed5ba12a72-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+whatsapp-sessoes:1  The resource https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/static/media/c3f6eb667c0186c5-s.p.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.
+main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433 Fetch terminou o carregamento: GET "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/whatsapp/sessions".
+fetchCallImpl @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3433
+fetch @ main.js?attr=zkRXkHBFJx5uuYOP6GTjPmD0Mv-mtd2waExFegdxjujUjgHJOMjL_KLoami6h5BzAdnOvKaietboDjXSyVhSNyoKWORUarAmNq1UnsXTFLlaQmpdOJmvZQoFqHx2SgxzDVMYyhUC3I1PVZZhcWXxIQ:3439
+fetcher @ use-whatsapp-sessions.ts:14
+eval @ index.mjs:60
+eval @ index.mjs:345
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+execute @ index.mjs:562
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559
+setTimeout
+next @ index.mjs:552
+Promise.then
+execute @ index.mjs:559

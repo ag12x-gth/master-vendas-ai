@@ -77,7 +77,7 @@ app.prepare().then(() => {
     console.log('Fallback Socket.IO made globally available');
   }
 
-  server.listen(port, (err) => {
+  server.listen(port, async (err) => {
     if (err) {
       if (err.code === 'EADDRINUSE') {
         console.error(`❌ Porta ${port} já está em uso!`);
@@ -99,6 +99,14 @@ app.prepare().then(() => {
     } else {
       console.log(`> Ready on http://${hostname}:${port}`);
       console.log('> Socket.IO server initialized');
+      
+      try {
+        require('tsx/cjs');
+        const { sessionManager } = require('./src/services/baileys-session-manager.ts');
+        await sessionManager.initializeSessions();
+      } catch (error) {
+        console.error('❌ Baileys session initialization error:', error.message);
+      }
     }
   });
 });

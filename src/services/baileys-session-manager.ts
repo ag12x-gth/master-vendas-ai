@@ -350,6 +350,8 @@ class BaileysSessionManager {
   }
 
   getEventEmitter(connectionId: string): EventEmitter | undefined {
+    console.log(`[SessionManager] Getting emitter for ${connectionId}. Total sessions in map:`, this.sessions.size);
+    console.log(`[SessionManager] Session IDs in map:`, Array.from(this.sessions.keys()));
     return this.sessions.get(connectionId)?.emitter;
   }
 
@@ -360,6 +362,56 @@ class BaileysSessionManager {
       phone: data.phone,
     }));
   }
+
+  async initializeSessions(): Promise<void> {
+    try {
+      console.log('[Baileys] Initializing sessions from database...');
+      
+      const existingConnections = await db.query.connections.findMany({
+        where: and(
+          eq(connections.connectionType, 'baileys'),
+          eq(connections.isActive, true)
+        ),
+      });
+
+      console.log(`[Baileys] Found ${existingConnections.length} active sessions to restore`);
+
+      for (const connection of existingConnections) {
+        try {
+          const fs = await import('fs/promises');
+          const authPath = this.getAuthPath(connection.id);
+          
+          await fs.access(authPath);
+          console.log(`[Baileys] Restoring session ${connection.id} (${connection.config_name})`);
+          
+          await this.createSession(connection.id, connection.companyId);
+        } catch (error: any) {
+          if (error.code === 'ENOENT') {
+            console.log(`[Baileys] Auth not found for ${connection.id}, marking as disconnected`);
+            await db
+              .update(connections)
+              .set({ status: 'disconnected', isActive: false })
+              .where(eq(connections.id, connection.id));
+          } else {
+            console.error(`[Baileys] Error restoring session ${connection.id}:`, error);
+          }
+        }
+      }
+
+      console.log('[Baileys] Session initialization complete');
+    } catch (error) {
+      console.error('[Baileys] Error during session initialization:', error);
+    }
+  }
 }
 
-export const sessionManager = new BaileysSessionManager();
+declare global {
+  var baileysSessionManager: BaileysSessionManager | undefined;
+}
+
+export const sessionManager = global.baileysSessionManager || new BaileysSessionManager();
+
+if (!global.baileysSessionManager) {
+  global.baileysSessionManager = sessionManager;
+  console.log('[Baileys] SessionManager instance created and stored globally');
+}

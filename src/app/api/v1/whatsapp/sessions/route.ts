@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         config_name: name,
         connectionType: 'baileys',
         status: 'connecting',
-        isActive: false,
+        isActive: true,
       })
       .returning();
 
