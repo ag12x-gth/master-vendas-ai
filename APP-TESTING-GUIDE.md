@@ -18,8 +18,8 @@ Validar 5 funcionalidades principais do sistema de monitoramento de performance 
 
 ## 🔐 Credenciais de Teste
 - **URL**: http://localhost:5000
-- **Email**: diegomaninhu@gmail.com
-- **Senha**: MasterIA2025!
+- **Email**: [Fornecido pelo usuário]
+- **Senha**: [Fornecida pelo usuário]
 
 ---
 
@@ -28,8 +28,8 @@ Validar 5 funcionalidades principais do sistema de monitoramento de performance 
 ### Passo 1: Autenticação
 ```
 1. Navegar para http://localhost:5000/login
-2. Preencher campo email: diegomaninhu@gmail.com
-3. Preencher campo senha: MasterIA2025!
+2. Preencher campo email com credenciais fornecidas
+3. Preencher campo senha com credenciais fornecidas
 4. Clicar em "Entrar"
 5. Verificar redirecionamento para /dashboard
 ```

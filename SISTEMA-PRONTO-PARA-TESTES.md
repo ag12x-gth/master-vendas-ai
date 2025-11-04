@@ -189,8 +189,8 @@ O agente executará os testes automaticamente e relatará os resultados.
 ---
 
 ## 🔐 Credenciais de Teste
-**Email**: diegomaninhu@gmail.com  
-**Senha**: MasterIA2025!  
+**Email**: [Fornecido pelo usuário]  
+**Senha**: [Fornecida pelo usuário]  
 **URL**: http://localhost:5000
 
 ---

@@ -36,13 +36,17 @@ const MASKED_PLACEHOLDER = '***';
 const cpfRegex = /\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g;
 const phoneRegex = /\b(?:\+?\d{1,3}[-.\s]?)?\(?\d{2,3}\)?[-.\s]?\d{4,5}[-.\s]?\d{4}\b/g;
 const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+const apiKeyRegex = /\b(?:sk-[a-zA-Z0-9-]+|Bearer\s+[a-zA-Z0-9\-_.]+|api[_-]?key[:\s=]+[a-zA-Z0-9\-_.]+|token[:\s=]+[a-zA-Z0-9\-_.]+)\b/gi;
+const passwordRegex = /(?:password|senha|pass)[:\s=]+[^\s]+/gi;
 
 function maskPII(text: string): string {
     if (!text) return text;
     return text
         .replace(cpfRegex, MASKED_PLACEHOLDER)
         .replace(phoneRegex, MASKED_PLACEHOLDER)
-        .replace(emailRegex, MASKED_PLACEHOLDER);
+        .replace(emailRegex, MASKED_PLACEHOLDER)
+        .replace(apiKeyRegex, '***REDACTED***')
+        .replace(passwordRegex, 'password=***REDACTED***');
 }
 
 // Função de logging tolerante a falhas
@@ -132,7 +136,8 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
         }
         await logAutomation('INFO', `Ação executada com sucesso: ${action.type}`, logContext);
     } catch (error) {
-        await logAutomation('ERROR', `Falha ao executar ação: ${action.type}`, { ...logContext, details: { action, errorMessage: (error as Error).message } });
+        const sanitizedError = maskPII((error as Error).message);
+        await logAutomation('ERROR', `Falha ao executar ação: ${action.type}`, { ...logContext, details: { action, errorMessage: sanitizedError } });
     }
 }
 
@@ -230,7 +235,8 @@ INSTRUÇÕES:
         return true;
         
     } catch (error) {
-        await logAutomation('ERROR', `Falha ao comunicar com a IA: ${(error as Error).message}`, logContextBase);
+        const sanitizedMessage = maskPII((error as Error).message);
+        await logAutomation('ERROR', `Falha ao comunicar com a IA: ${sanitizedMessage}`, logContextBase);
         return false;
     }
 }
