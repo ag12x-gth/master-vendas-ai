@@ -2,7 +2,7 @@ import { Boom } from '@hapi/boom';
 import { EventEmitter } from 'events';
 import { db } from '@/lib/db';
 import { connections, conversations, messages, contacts } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import pino from 'pino';
 import path from 'path';
 
@@ -238,54 +238,52 @@ class BaileysSessionManager {
         msg.message?.imageMessage?.caption ||
         '';
 
-      let contact = await db.query.contacts.findFirst({
-        where: and(
-          eq(contacts.phone, phoneNumber),
-          eq(contacts.companyId, companyId)
-        ),
-      });
+      const [contact] = await db
+        .insert(contacts)
+        .values({
+          companyId,
+          name: msg.pushName || phoneNumber,
+          phone: phoneNumber,
+          whatsappName: msg.pushName,
+        })
+        .onConflictDoUpdate({
+          target: [contacts.phone, contacts.companyId],
+          set: {
+            whatsappName: msg.pushName || sql`${contacts.whatsappName}`,
+          },
+        })
+        .returning();
 
       if (!contact) {
-        const [newContact] = await db
-          .insert(contacts)
-          .values({
-            companyId,
-            name: msg.pushName || phoneNumber,
-            phone: phoneNumber,
-            whatsappName: msg.pushName,
-          })
-          .returning();
-        contact = newContact;
+        console.error('[Baileys] Failed to create/update contact');
+        return;
       }
 
-      let conversation = await db.query.conversations.findFirst({
-        where: and(
-          eq(conversations.contactId, contact!.id),
-          eq(conversations.connectionId, connectionId)
-        ),
-      });
+      const [conversation] = await db
+        .insert(conversations)
+        .values({
+          companyId,
+          contactId: contact.id,
+          connectionId,
+          status: 'NEW',
+          lastMessageAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: [conversations.contactId, conversations.connectionId],
+          set: {
+            lastMessageAt: new Date(),
+            archivedAt: null,
+          },
+        })
+        .returning();
 
       if (!conversation) {
-        const [newConv] = await db
-          .insert(conversations)
-          .values({
-            companyId,
-            contactId: contact!.id,
-            connectionId,
-            status: 'NEW',
-            lastMessageAt: new Date(),
-          })
-          .returning();
-        conversation = newConv;
-      } else {
-        await db
-          .update(conversations)
-          .set({ lastMessageAt: new Date(), archivedAt: null })
-          .where(eq(conversations.id, conversation.id));
+        console.error('[Baileys] Failed to create/update conversation');
+        return;
       }
 
       await db.insert(messages).values({
-        conversationId: conversation!.id,
+        conversationId: conversation.id,
         providerMessageId: msg.key.id,
         senderType: 'USER',
         content: messageContent,
