@@ -1,3 +1,5 @@
+'use client';
+
 import { SessionsList } from '@/components/whatsapp-baileys/sessions-list';
 
 export default function WhatsAppSessionsPage() {
