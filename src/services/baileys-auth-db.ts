@@ -125,3 +125,14 @@ export async function useDatabaseAuthState(connectionId: string) {
     },
   };
 }
+
+export async function clearAuthState(connectionId: string) {
+  try {
+    await db
+      .delete(baileysAuthState)
+      .where(eq(baileysAuthState.connectionId, connectionId));
+    console.log(`[Baileys Auth] Cleared auth state for connection ${connectionId}`);
+  } catch (error) {
+    console.error('[Baileys Auth] Error clearing auth state:', error);
+  }
+}

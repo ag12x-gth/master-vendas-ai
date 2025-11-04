@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sessionManager } from '@/services/baileys-session-manager';
+import { clearAuthState } from '@/services/baileys-auth-db';
 import { db } from '@/lib/db';
 import { connections } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
@@ -33,6 +34,7 @@ export async function POST(request: NextRequest) {
       .returning();
 
     if (connection) {
+      await clearAuthState(connection.id);
       await sessionManager.createSession(connection.id, companyId);
 
       return NextResponse.json({

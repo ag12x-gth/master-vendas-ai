@@ -44,10 +44,12 @@ export function QRCodeModal({ sessionId, sessionName, isOpen, onClose }: QRCodeM
           });
           setQrCode(qrDataUrl);
           setStatus('qr');
+          setError(null);
         }
 
         if (data.status === 'connected') {
           setStatus('connected');
+          eventSource.close();
           setTimeout(() => {
             onClose();
           }, 2000);
@@ -55,16 +57,26 @@ export function QRCodeModal({ sessionId, sessionName, isOpen, onClose }: QRCodeM
 
         if (data.status === 'disconnected') {
           setStatus('error');
-          setError('Falha ao conectar');
+          setError(data.reason ? `Falha ao conectar (${data.reason})` : 'Falha ao conectar');
+          eventSource.close();
+        }
+
+        if (data.status === 'error') {
+          setStatus('error');
+          setError(data.message || 'Erro desconhecido ao conectar');
+          eventSource.close();
         }
       } catch (err) {
         console.error('Error parsing SSE data:', err);
       }
     };
 
-    eventSource.onerror = () => {
-      setStatus('error');
-      setError('Erro ao conectar com o servidor');
+    eventSource.onerror = (err) => {
+      console.error('EventSource error:', err);
+      if (eventSource.readyState === EventSource.CLOSED) {
+        setStatus('error');
+        setError('Conexão com servidor foi encerrada');
+      }
       eventSource.close();
     };
 

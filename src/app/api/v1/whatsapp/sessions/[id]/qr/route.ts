@@ -41,42 +41,75 @@ export async function GET(
     
     const stream = new ReadableStream({
       start(controller) {
+        let isClosed = false;
+
+        const safeEnqueue = (data: Uint8Array) => {
+          if (!isClosed) {
+            try {
+              controller.enqueue(data);
+            } catch (error) {
+              console.error('[QR SSE] Error enqueueing data:', error);
+              isClosed = true;
+            }
+          }
+        };
+
+        const safeClose = () => {
+          if (!isClosed) {
+            try {
+              controller.close();
+              isClosed = true;
+            } catch (error) {
+              console.error('[QR SSE] Error closing controller:', error);
+            }
+          }
+        };
+
         const sessionData = sessionManager.getSession(params.id);
         if (sessionData?.qr) {
           const data = `data: ${JSON.stringify({ qr: sessionData.qr })}\n\n`;
-          controller.enqueue(encoder.encode(data));
+          safeEnqueue(encoder.encode(data));
         }
 
         const onQR = (qr: string) => {
           const data = `data: ${JSON.stringify({ qr })}\n\n`;
-          controller.enqueue(encoder.encode(data));
+          safeEnqueue(encoder.encode(data));
         };
 
-        const onConnected = () => {
-          const data = `data: ${JSON.stringify({ status: 'connected' })}\n\n`;
-          controller.enqueue(encoder.encode(data));
-          controller.close();
+        const onConnected = (data: any) => {
+          const message = `data: ${JSON.stringify({ status: 'connected', phone: data?.phone })}\n\n`;
+          safeEnqueue(encoder.encode(message));
+          safeClose();
         };
 
-        const onDisconnected = () => {
-          const data = `data: ${JSON.stringify({ status: 'disconnected' })}\n\n`;
-          controller.enqueue(encoder.encode(data));
-          controller.close();
+        const onDisconnected = (data: any) => {
+          const message = `data: ${JSON.stringify({ status: 'disconnected', reason: data?.reason })}\n\n`;
+          safeEnqueue(encoder.encode(message));
+          safeClose();
+        };
+
+        const onError = (error: any) => {
+          const message = `data: ${JSON.stringify({ status: 'error', message: error?.message || 'Connection failed' })}\n\n`;
+          safeEnqueue(encoder.encode(message));
+          safeClose();
         };
 
         emitter.on('qr', onQR);
         emitter.on('connected', onConnected);
         emitter.on('disconnected', onDisconnected);
+        emitter.on('error', onError);
 
         const keepAliveInterval = setInterval(() => {
-          controller.enqueue(encoder.encode(': keepalive\n\n'));
+          safeEnqueue(encoder.encode(': keepalive\n\n'));
         }, 30000);
 
         return () => {
+          isClosed = true;
           clearInterval(keepAliveInterval);
           emitter.off('qr', onQR);
           emitter.off('connected', onConnected);
           emitter.off('disconnected', onDisconnected);
+          emitter.off('error', onError);
         };
       },
       cancel() {
