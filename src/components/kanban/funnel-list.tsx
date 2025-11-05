@@ -83,7 +83,7 @@ export function FunnelList() {
         <h2 className="text-2xl font-bold flex items-center gap-2">
           <Filter className="h-6 w-6" /> Funis Kanban
         </h2>
-        <Link href="/funnels/new" passHref>
+        <Link href="/kanban/new" passHref>
           <Button>
             <PlusCircle className="mr-2 h-4 w-4" />
             Criar Funil
@@ -144,7 +144,7 @@ export function FunnelList() {
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              <Link href={`/funnels/${funnel.id}`} passHref>
+              <Link href={`/kanban/${funnel.id}`} passHref>
                 <div className="cursor-pointer">
                   <h3 className="text-lg font-bold text-primary">{funnel.name}</h3>
                   <div className="mt-4 flex items-center justify-between text-muted-foreground">

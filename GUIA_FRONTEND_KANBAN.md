@@ -1,5 +1,12 @@
 # 🗺️ GUIA COMPLETO: Como Acessar o Kanban e Configuração de Agentes IA
 
+## ✅ **PROBLEMAS CORRIGIDOS (05/11/2025)**
+- ✅ Links corrigidos: `/funnels/` → `/kanban/`
+- ✅ Página de criação de funil criada em `/kanban/new`
+- ✅ Menu de navegação atualizado com item "Pipeline Kanban"
+
+---
+
 ## 📍 **1. ONDE ESTÁ NO MENU**
 
 Após fazer login, você verá no **menu lateral esquerdo**:
