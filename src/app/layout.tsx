@@ -1,6 +1,6 @@
 
 import type { Metadata } from 'next';
-import './globals.css?inline';
+import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { PT_Sans } from 'next/font/google'
 import { cn } from '@/lib/utils';
