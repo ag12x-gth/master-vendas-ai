@@ -278,7 +278,7 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
                                         <div className="space-y-1.5 pt-1 border-t">
                                             <Label className="text-xs flex items-center gap-1.5">
                                                 <Bot className="h-3 w-3" />
-                                                Agente IA
+                                                Agente IA (Fallback Manual)
                                             </Label>
                                             <Select 
                                                 value={conversationPersonas[conv.id] || 'none'} 
@@ -296,6 +296,9 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
                                                     ))}
                                                 </SelectContent>
                                             </Select>
+                                            <p className="text-xs text-muted-foreground">
+                                                ⚠️ Usado apenas se não houver agente no Kanban ou na Conexão
+                                            </p>
                                             {conversationPersonas[conv.id] && (
                                                 <p className="text-xs text-muted-foreground italic">
                                                     {aiPersonas.find(p => p.id === conversationPersonas[conv.id])?.description}

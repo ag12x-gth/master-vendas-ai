@@ -139,12 +139,12 @@ Abaixo, você verá cada estágio do seu funil:
 
 ---
 
-## 🔄 **3. COMO FUNCIONA O SISTEMA DE FALLBACK**
+## 🔄 **3. COMO FUNCIONA O SISTEMA DE FALLBACK (HIERARQUIA COMPLETA)**
 
-Quando um cliente manda mensagem, o sistema escolhe o agente seguindo esta ordem:
+Quando um cliente manda mensagem, o sistema escolhe o agente seguindo esta ordem de prioridade:
 
 ```
-1️⃣ TEM configuração específica do estágio?
+1️⃣ TEM configuração específica do estágio? (PRIORIDADE MÁXIMA)
    ├─ SIM → USA esse agente ✅
    └─ NÃO → Vai para o próximo nível ⬇️
 
@@ -152,8 +152,18 @@ Quando um cliente manda mensagem, o sistema escolhe o agente seguindo esta ordem
    ├─ SIM → USA esse agente ✅
    └─ NÃO → Vai para o próximo nível ⬇️
 
-3️⃣ USA o agente padrão da conexão WhatsApp ✅
+3️⃣ TEM agente padrão na Conexão WhatsApp?
+   ├─ SIM → USA esse agente ✅
+   └─ NÃO → Vai para o próximo nível ⬇️
+
+4️⃣ TEM agente manual configurado em /atendimentos? (ÚLTIMO FALLBACK)
+   ├─ SIM → USA esse agente ✅
+   └─ NÃO → Vai para o próximo nível ⬇️
+
+5️⃣ USA "Agente Genérico" (resposta básica) ⚠️
 ```
+
+**⚠️ IMPORTANTE:** A configuração manual em `/atendimentos` é apenas um **fallback de emergência**, usado somente quando nenhuma outra configuração existe.
 
 ---
 

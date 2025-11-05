@@ -169,57 +169,69 @@ async function selectIntelligentPersona(
             orderBy: (kanbanLeads, { desc }) => [desc(kanbanLeads.createdAt)],
         });
 
-        if (!activeLead) {
-            await logAutomation('INFO', `Contato sem lead ativo no Kanban. Usando agente padrão da conexão.`, logContextBase);
+        const contactType = conversation.contactType || 'PASSIVE';
+
+        if (activeLead) {
+            await logAutomation('INFO', `Lead encontrado no funil "${activeLead.board.name}" (Tipo: ${activeLead.board.funnelType || 'GENERAL'}, Estágio: ${activeLead.stageId})`, logContextBase);
+
+            let stagePersonaConfig = await db.query.kanbanStagePersonas.findFirst({
+                where: and(
+                    eq(kanbanStagePersonas.boardId, activeLead.boardId),
+                    eq(kanbanStagePersonas.stageId, activeLead.stageId)
+                )
+            });
+
+            if (stagePersonaConfig) {
+                const selectedPersonaId = contactType === 'ACTIVE' 
+                    ? stagePersonaConfig.activePersonaId 
+                    : stagePersonaConfig.passivePersonaId;
+
+                if (selectedPersonaId) {
+                    await logAutomation('INFO', `✅ [Prioridade 1] Agente IA selecionado (nível estágio): Funil="${activeLead.board.name}", Estágio="${activeLead.stageId}", Tipo="${contactType}"`, logContextBase);
+                    return selectedPersonaId;
+                }
+            }
+
+            const boardPersonaConfig = await db.query.kanbanStagePersonas.findFirst({
+                where: and(
+                    eq(kanbanStagePersonas.boardId, activeLead.boardId),
+                    isNull(kanbanStagePersonas.stageId)
+                )
+            });
+
+            if (boardPersonaConfig) {
+                const selectedPersonaId = contactType === 'ACTIVE' 
+                    ? boardPersonaConfig.activePersonaId 
+                    : boardPersonaConfig.passivePersonaId;
+
+                if (selectedPersonaId) {
+                    await logAutomation('INFO', `✅ [Prioridade 2] Agente IA selecionado (nível funil): Funil="${activeLead.board.name}", Tipo="${contactType}"`, logContextBase);
+                    return selectedPersonaId;
+                }
+            }
+        } else {
+            await logAutomation('INFO', `Contato sem lead ativo no Kanban. Seguindo hierarquia de fallback...`, logContextBase);
+        }
+
+        if (defaultPersonaId) {
+            await logAutomation('INFO', `✅ [Prioridade 3] Usando agente padrão da conexão WhatsApp`, logContextBase);
             return defaultPersonaId;
         }
 
-        await logAutomation('INFO', `Lead encontrado no funil "${activeLead.board.name}" (Tipo: ${activeLead.board.funnelType || 'GENERAL'}, Estágio: ${activeLead.stageId})`, logContextBase);
-
-        const contactType = conversation.contactType || 'PASSIVE';
-
-        let stagePersonaConfig = await db.query.kanbanStagePersonas.findFirst({
-            where: and(
-                eq(kanbanStagePersonas.boardId, activeLead.boardId),
-                eq(kanbanStagePersonas.stageId, activeLead.stageId)
-            )
-        });
-
-        if (stagePersonaConfig) {
-            const selectedPersonaId = contactType === 'ACTIVE' 
-                ? stagePersonaConfig.activePersonaId 
-                : stagePersonaConfig.passivePersonaId;
-
-            if (selectedPersonaId) {
-                await logAutomation('INFO', `Agente IA selecionado (nível estágio): Funil="${activeLead.board.name}", Estágio="${activeLead.stageId}", Tipo="${contactType}"`, logContextBase);
-                return selectedPersonaId;
-            }
+        if (conversation.assignedPersonaId) {
+            await logAutomation('INFO', `✅ [Prioridade 4] Usando agente configurado manualmente na conversa (último fallback)`, logContextBase);
+            return conversation.assignedPersonaId;
         }
 
-        const boardPersonaConfig = await db.query.kanbanStagePersonas.findFirst({
-            where: and(
-                eq(kanbanStagePersonas.boardId, activeLead.boardId),
-                isNull(kanbanStagePersonas.stageId)
-            )
-        });
-
-        if (boardPersonaConfig) {
-            const selectedPersonaId = contactType === 'ACTIVE' 
-                ? boardPersonaConfig.activePersonaId 
-                : boardPersonaConfig.passivePersonaId;
-
-            if (selectedPersonaId) {
-                await logAutomation('INFO', `Agente IA selecionado (nível funil): Funil="${activeLead.board.name}", Tipo="${contactType}"`, logContextBase);
-                return selectedPersonaId;
-            }
-        }
-
-        await logAutomation('INFO', `Sem configuração específica de agente IA. Usando agente padrão da conexão.`, logContextBase);
-        return defaultPersonaId;
+        await logAutomation('INFO', `⚠️ [Prioridade 5] Nenhum agente configurado. Sistema usará "Agente Genérico" (resposta básica).`, logContextBase);
+        return null;
 
     } catch (error) {
         await logAutomation('ERROR', `Erro ao selecionar agente IA inteligente: ${(error as Error).message}`, logContextBase);
-        return defaultPersonaId;
+        
+        if (defaultPersonaId) return defaultPersonaId;
+        if (conversation.assignedPersonaId) return conversation.assignedPersonaId;
+        return null;
     }
 }
 
