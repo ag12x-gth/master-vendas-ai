@@ -72,7 +72,7 @@ export default function EditPersonaPage({ params }: { params: { personaId: strin
         </Link>
       </PageHeader>
 
-      <Tabs defaultValue="config" className="w-full" onValueChange={() => setRefreshTrigger(prev => prev + 1)}>
+      <Tabs defaultValue="config" className="w-full">
         <TabsList className="grid w-full grid-cols-4 max-w-[800px]">
           <TabsTrigger value="config">Configurações</TabsTrigger>
           <TabsTrigger value="sections">Seções RAG</TabsTrigger>
@@ -81,7 +81,13 @@ export default function EditPersonaPage({ params }: { params: { personaId: strin
         </TabsList>
         
         <TabsContent value="config" className="space-y-6 mt-6">
-          <PersonaEditor persona={persona} onSaveSuccess={() => setRefreshTrigger(prev => prev + 1)} />
+          <PersonaEditor 
+            persona={persona} 
+            onSaveSuccess={() => {
+              // Recarrega dados após salvar para sincronizar estado
+              setRefreshTrigger(prev => prev + 1);
+            }} 
+          />
         </TabsContent>
         
         <TabsContent value="sections" className="space-y-6 mt-6">
