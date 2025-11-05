@@ -218,13 +218,25 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
             }
         ];
 
-        // Adicionar histórico de mensagens (APENAS mensagens do usuário, não da IA)
-        const userMessages = previousMessages.filter(msg => msg.senderType === 'CONTACT' || msg.senderType === 'USER');
-        await logAutomation('INFO', `Incluindo ${userMessages.length} mensagens do histórico do usuário`, logContextBase);
+        // Adicionar histórico COMPLETO da conversa (usuário + IA) para manter contexto
+        const recentMessages = previousMessages.slice(-10); // Últimas 10 mensagens (5 pares usuário-IA)
+        await logAutomation('INFO', `Incluindo ${recentMessages.length} mensagens do histórico (usuário + IA)`, logContextBase);
         
-        for (const msg of userMessages) {
+        for (const msg of recentMessages) {
+            // Determinar o role com base em quem enviou a mensagem
+            let role: 'user' | 'assistant';
+            
+            if (msg.senderType === 'CONTACT' || msg.senderType === 'USER') {
+                role = 'user';
+            } else if (msg.senderType === 'AI' || msg.senderType === 'SYSTEM') {
+                role = 'assistant';
+            } else {
+                // Mensagens de outros tipos (BUSINESS, etc) são tratadas como usuário
+                role = 'user';
+            }
+            
             chatMessages.push({
-                role: 'user',
+                role: role,
                 content: msg.content
             });
         }
