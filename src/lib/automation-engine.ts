@@ -10,6 +10,7 @@ import {
   messages,
   automationLogs,
   connections,
+  aiPersonas,
 } from './db/schema';
 import { and, eq, or, isNull, sql } from 'drizzle-orm';
 import type {
@@ -150,6 +151,22 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
     await logAutomation('INFO', `Conversa roteada para o Agente de IA (Persona ID: ${personaId}).`, logContextBase);
 
     try {
+        // Buscar a persona do banco de dados
+        const persona = await db.query.aiPersonas.findFirst({
+            where: eq(aiPersonas.id, personaId)
+        });
+
+        if (!persona) {
+            throw new Error(`Persona ${personaId} não encontrada no banco de dados.`);
+        }
+
+        await logAutomation('INFO', `Usando persona: ${persona.name} (Provider: ${persona.provider}, Model: ${persona.model})`, logContextBase);
+
+        // Verificar se a persona usa OpenAI
+        if (persona.provider !== 'OPENAI') {
+            throw new Error(`Persona usa provider ${persona.provider}, mas apenas OPENAI é suportado nesta função.`);
+        }
+
         // Buscar mensagens anteriores da conversa para contexto
         const previousMessages = await db.query.messages.findMany({
             where: eq(messages.conversationId, conversation.id),
@@ -157,23 +174,21 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
             limit: 10
         });
 
+        // Construir system prompt da persona
+        const systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um assistente virtual inteligente de atendimento ao cliente via WhatsApp.`;
+        
+        // Enriquecer com contexto do contato
+        const enrichedSystemPrompt = `${systemPrompt}
+
+CONTEXTO DO CONTATO:
+- Nome: ${contact.name || 'Cliente'}
+- Telefone: ${contact.phone}`;
+
         // Construir histórico de conversa para OpenAI
         const chatMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
             {
                 role: 'system',
-                content: `Você é um assistente virtual inteligente de atendimento ao cliente via WhatsApp.
-
-CONTEXTO DO CONTATO:
-- Nome: ${contact.name || 'Cliente'}
-- Telefone: ${contact.phone}
-
-INSTRUÇÕES:
-- Responda de forma cordial, profissional e útil
-- Seja breve e direto (máximo 2-3 parágrafos)
-- Use linguagem natural e amigável em português
-- Se não souber algo, seja honesto e ofereça alternativas
-- Não invente informações
-- Mantenha um tom conversacional apropriado para WhatsApp`
+                content: enrichedSystemPrompt
             }
         ];
 
@@ -193,12 +208,16 @@ INSTRUÇÕES:
 
         const openai = new OpenAI({ apiKey });
 
-        // Gerar resposta com ChatGPT
+        // Converter temperature de string para número (vem como decimal do banco)
+        const temperature = persona.temperature ? parseFloat(persona.temperature.toString()) : 0.7;
+        const maxTokens = persona.maxOutputTokens || 500;
+
+        // Gerar resposta com ChatGPT usando parâmetros da persona
         const completion = await openai.chat.completions.create({
-            model: 'gpt-4o-mini', // Modelo rápido e econômico
+            model: persona.model || 'gpt-4o-mini',
             messages: chatMessages,
-            temperature: 0.7,
-            max_tokens: 500,
+            temperature: temperature,
+            max_tokens: maxTokens,
         });
 
         const aiResponse = completion.choices[0]?.message?.content;
