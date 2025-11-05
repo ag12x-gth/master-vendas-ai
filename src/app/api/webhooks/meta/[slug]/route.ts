@@ -54,13 +54,7 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
         
         console.log(`✅ [Meta Webhook] Company encontrada: ${company.id}`);
         
-        const [connection] = await db.select({ 
-            id: connections.id,
-            configName: connections.configName,
-            phoneNumberId: connections.phoneNumberId,
-            appSecret: connections.appSecret,
-            isActive: connections.isActive
-        })
+        const [connection] = await db.select()
             .from(connections)
             .where(and(
                 eq(connections.companyId, company.id), 
@@ -74,12 +68,12 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
             return new NextResponse('No active Meta API connection found', { status: 400 });
         }
 
-        console.log(`✅ [Meta Webhook] Conexão ativa: ${connection.configName} (Phone ID: ${connection.phoneNumberId})`);
+        console.log(`✅ [Meta Webhook] Conexão ativa: ${connection.config_name} (Phone ID: ${connection.phoneNumberId})`);
 
         const decryptedAppSecret = connection ? decrypt(connection.appSecret) : null;
 
         if (!decryptedAppSecret) {
-            console.error(`❌ [Meta Webhook] Falha ao descriptografar App Secret para ${connection.configName}`);
+            console.error(`❌ [Meta Webhook] Falha ao descriptografar App Secret para ${connection.config_name}`);
             return new NextResponse('App Secret for active Meta connection not configured or decryption failed', { status: 400 });
         }
 
@@ -95,7 +89,10 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
         const expectedSignature = `sha256=${hmac.digest('hex')}`;
         
         if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
-            console.warn(`❌ [Meta Webhook] Assinatura HMAC inválida`);
+            console.error(`❌ [Meta Webhook] Assinatura HMAC inválida`);
+            console.error(`   Recebida: ${signature.substring(0, 20)}...`);
+            console.error(`   Esperada: ${expectedSignature.substring(0, 20)}...`);
+            console.error(`   Connection: ${connection.config_name}`);
             return new NextResponse('Invalid signature', { status: 403 });
         }
         
