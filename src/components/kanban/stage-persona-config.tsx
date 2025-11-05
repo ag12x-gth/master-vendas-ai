@@ -150,14 +150,13 @@ export function StagePersonaConfig({ boardId, stages, funnelType }: StagePersona
               </Label>
               <div className="flex gap-2">
                 <Select
-                  value={getConfigForStage(null)?.activePersonaId || ''}
+                  value={getConfigForStage(null)?.activePersonaId || undefined}
                   onValueChange={(value) => handleSave(null, 'active', value || null)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione um agente..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Nenhum</SelectItem>
                     {personas.map((persona) => (
                       <SelectItem key={persona.id} value={persona.id}>
                         {persona.name} ({persona.provider})
@@ -178,14 +177,13 @@ export function StagePersonaConfig({ boardId, stages, funnelType }: StagePersona
               </Label>
               <div className="flex gap-2">
                 <Select
-                  value={getConfigForStage(null)?.passivePersonaId || ''}
+                  value={getConfigForStage(null)?.passivePersonaId || undefined}
                   onValueChange={(value) => handleSave(null, 'passive', value || null)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione um agente..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Nenhum</SelectItem>
                     {personas.map((persona) => (
                       <SelectItem key={persona.id} value={persona.id}>
                         {persona.name} ({persona.provider})
@@ -231,14 +229,13 @@ export function StagePersonaConfig({ boardId, stages, funnelType }: StagePersona
                   </Label>
                   <div className="flex gap-2">
                     <Select
-                      value={config?.activePersonaId || ''}
+                      value={config?.activePersonaId || undefined}
                       onValueChange={(value) => handleSave(stage.id, 'active', value || null)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione um agente..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Nenhum</SelectItem>
                         {personas.map((persona) => (
                           <SelectItem key={persona.id} value={persona.id}>
                             {persona.name} ({persona.provider})
@@ -262,14 +259,13 @@ export function StagePersonaConfig({ boardId, stages, funnelType }: StagePersona
                   </Label>
                   <div className="flex gap-2">
                     <Select
-                      value={config?.passivePersonaId || ''}
+                      value={config?.passivePersonaId || undefined}
                       onValueChange={(value) => handleSave(stage.id, 'passive', value || null)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione um agente..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Nenhum</SelectItem>
                         {personas.map((persona) => (
                           <SelectItem key={persona.id} value={persona.id}>
                             {persona.name} ({persona.provider})

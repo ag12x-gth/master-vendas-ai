@@ -1,0 +1,48 @@
+1 of 1 error
+Next.js (14.2.33) is outdated (learn more)
+
+Unhandled Runtime Error
+Error: A <Select.Item /> must have a value prop that is not an empty string. This is because the Select value can be set to an empty string to clear the selection and show the placeholder.
+
+Call Stack
+eval
+../src/select.tsx (1278:13)
+React
+renderWithHooks
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (11121:1)
+updateForwardRef
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (15854:1)
+beginWork$1
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (18521:1)
+beginWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (26927:1)
+performUnitOfWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25748:1)
+workLoopSync
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25464:1)
+renderRootSync
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25419:1)
+recoverFromConcurrentError
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24597:1)
+performSyncWorkOnRoot
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24899:1)
+flushSyncWorkAcrossRoots_impl
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (7758:1)
+flushSyncWorkOnAllRoots
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (7718:1)
+commitRootImpl
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (26369:1)
+commitRoot
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (26077:1)
+commitRootWhenReady
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24749:1)
+finishConcurrentRender
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24714:1)
+performConcurrentWorkOnRoot
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24559:1)
+workLoop
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (256:1)
+flushWork
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (225:1)
+MessagePort.performWorkUntilDeadline
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (534:1)
