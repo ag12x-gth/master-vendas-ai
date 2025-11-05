@@ -184,6 +184,8 @@ CONTEXTO DO CONTATO:
 - Nome: ${contact.name || 'Cliente'}
 - Telefone: ${contact.phone}`;
 
+        await logAutomation('INFO', `System Prompt configurado (${enrichedSystemPrompt.length} chars)`, logContextBase);
+
         // Construir histórico de conversa para OpenAI
         const chatMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
             {
@@ -192,10 +194,13 @@ CONTEXTO DO CONTATO:
             }
         ];
 
-        // Adicionar histórico de mensagens
-        for (const msg of previousMessages) {
+        // Adicionar histórico de mensagens (APENAS mensagens do usuário, não da IA)
+        const userMessages = previousMessages.filter(msg => msg.senderType === 'CONTACT' || msg.senderType === 'USER');
+        await logAutomation('INFO', `Incluindo ${userMessages.length} mensagens do histórico do usuário`, logContextBase);
+        
+        for (const msg of userMessages) {
             chatMessages.push({
-                role: msg.senderType === 'CONTACT' ? 'user' : 'assistant',
+                role: 'user',
                 content: msg.content
             });
         }
