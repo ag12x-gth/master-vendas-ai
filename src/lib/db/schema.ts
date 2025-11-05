@@ -267,6 +267,19 @@ import {
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
   });
+
+  export const personaPromptSections = pgTable('persona_prompt_sections', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    personaId: text('persona_id').notNull().references(() => aiPersonas.id, { onDelete: 'cascade' }),
+    sectionName: text('section_name').notNull(),
+    content: text('content').notNull(),
+    language: text('language').notNull().default('all'),
+    priority: integer('priority').default(0).notNull(),
+    tags: text('tags').array(),
+    isActive: boolean('is_active').default(true).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+  });
   
   // ==============================
   // CONVERSATIONS & MESSAGES
@@ -689,5 +702,16 @@ export const meetingInsightsRelations = relations(meetingInsights, ({ one }) => 
     meeting: one(meetings, {
         fields: [meetingInsights.meetingId],
         references: [meetings.id],
+    }),
+}));
+
+export const aiPersonasRelations = relations(aiPersonas, ({ many }) => ({
+    promptSections: many(personaPromptSections),
+}));
+
+export const personaPromptSectionsRelations = relations(personaPromptSections, ({ one }) => ({
+    persona: one(aiPersonas, {
+        fields: [personaPromptSections.personaId],
+        references: [aiPersonas.id],
     }),
 }));
