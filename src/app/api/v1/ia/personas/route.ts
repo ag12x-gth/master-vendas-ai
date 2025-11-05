@@ -4,20 +4,22 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { aiPersonas } from '@/lib/db/schema';
+import { aiPersonas, personaPromptSections } from '@/lib/db/schema';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { z } from 'zod';
 import { desc, eq } from 'drizzle-orm';
+import { parsePromptIntoSections } from '@/lib/rag/prompt-parser';
 
 const personaCreateSchema = z.object({
   name: z.string().min(1, 'O nome é obrigatório.'),
   systemPrompt: z.string().optional().nullable(),
-  provider: z.enum(['GEMINI', 'OPENAI']).optional(), // Tornando opcional
+  provider: z.enum(['GEMINI', 'OPENAI']).optional(),
   model: z.string().min(1),
   credentialId: z.string().uuid().optional().nullable(),
   temperature: z.string(),
   topP: z.string(),
   maxOutputTokens: z.number().int().optional(),
+  useRag: z.boolean().optional().default(false),
 });
 
 
@@ -49,8 +51,58 @@ export async function POST(request: NextRequest) {
         const [newPersona] = await db.insert(aiPersonas).values({
             companyId,
             ...parsed.data,
-            provider: 'OPENAI', // Força o provedor como OpenAI
+            provider: 'OPENAI',
         }).returning();
+
+        if (!newPersona) {
+            return NextResponse.json({ error: 'Erro ao criar agente.' }, { status: 500 });
+        }
+
+        if (parsed.data.useRag && parsed.data.systemPrompt && parsed.data.systemPrompt.trim().length > 0) {
+            console.log('[PersonaAPI] RAG ativo com systemPrompt preenchido - fazendo parsing automático...');
+            
+            try {
+                const sections = await parsePromptIntoSections(
+                    parsed.data.systemPrompt,
+                    {
+                        useAI: true,
+                        defaultLanguage: 'pt',
+                    },
+                    companyId
+                );
+
+                console.log(`[PersonaAPI] Parser gerou ${sections.length} seções, salvando no banco...`);
+
+                const sectionValues = sections.map(section => ({
+                    personaId: newPersona.id,
+                    sectionName: section.sectionName,
+                    content: section.content,
+                    language: section.language,
+                    priority: section.priority,
+                    tags: section.tags || [],
+                    isActive: true,
+                }));
+
+                await db.transaction(async (tx) => {
+                    await tx.insert(personaPromptSections).values(sectionValues);
+                    await tx.update(aiPersonas)
+                        .set({ systemPrompt: null })
+                        .where(eq(aiPersonas.id, newPersona.id));
+                });
+
+                console.log(`[PersonaAPI] ✅ ${sections.length} seções criadas e systemPrompt limpo`);
+                
+                return NextResponse.json({
+                    ...newPersona,
+                    systemPrompt: null,
+                    _ragSectionsCreated: sections.length,
+                }, { status: 201 });
+
+            } catch (parserError) {
+                console.error('[PersonaAPI] Erro ao fazer parsing automático:', parserError);
+                console.log('[PersonaAPI] Mantendo systemPrompt original, usuário pode migrar depois');
+            }
+        }
 
         return NextResponse.json(newPersona, { status: 201 });
 

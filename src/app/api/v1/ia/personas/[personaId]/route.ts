@@ -4,10 +4,11 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { aiPersonas } from '@/lib/db/schema';
+import { aiPersonas, personaPromptSections } from '@/lib/db/schema';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { z } from 'zod';
 import { and, eq } from 'drizzle-orm';
+import { parsePromptIntoSections } from '@/lib/rag/prompt-parser';
 
 const personaUpdateSchema = z.object({
   name: z.string().min(1, 'O nome é obrigatório').optional(),
@@ -20,6 +21,7 @@ const personaUpdateSchema = z.object({
   maxOutputTokens: z.number().int().optional(),
   mcpServerUrl: z.string().url("A URL do servidor MCP é inválida.").optional().nullable(),
   mcpServerHeaders: z.record(z.string()).optional().nullable(),
+  useRag: z.boolean().optional(),
 });
 
 // GET /api/v1/ia/personas/[personaId] - Fetch a single agent
@@ -54,11 +56,22 @@ export async function PUT(request: NextRequest, { params }: { params: { personaI
         if (!parsed.success) {
             return NextResponse.json({ error: 'Dados inválidos.', details: parsed.error.flatten() }, { status: 400 });
         }
-        
+
+        const [currentAgent] = await db.select()
+            .from(aiPersonas)
+            .where(and(eq(aiPersonas.id, personaId), eq(aiPersonas.companyId, companyId)));
+
+        if (!currentAgent) {
+            return NextResponse.json({ error: 'Agente não encontrado ou não pertence à sua empresa.' }, { status: 404 });
+        }
+
+        const ragWasActivated = !currentAgent.useRag && parsed.data.useRag === true;
+        const promptToMigrate = parsed.data.systemPrompt ?? currentAgent.systemPrompt;
+
         const [updated] = await db.update(aiPersonas)
             .set({
                 ...parsed.data,
-                provider: 'OPENAI', // Força o provedor
+                provider: 'OPENAI',
                 updatedAt: new Date(),
             })
             .where(and(eq(aiPersonas.id, personaId), eq(aiPersonas.companyId, companyId)))
@@ -66,6 +79,52 @@ export async function PUT(request: NextRequest, { params }: { params: { personaI
             
         if (!updated) {
             return NextResponse.json({ error: 'Agente não encontrado ou não pertence à sua empresa.' }, { status: 404 });
+        }
+
+        if (ragWasActivated && promptToMigrate && promptToMigrate.trim().length > 0) {
+            console.log('[PersonaAPI] RAG foi ativado em agente existente com systemPrompt - fazendo migração automática...');
+            
+            try {
+                const sections = await parsePromptIntoSections(
+                    promptToMigrate,
+                    {
+                        useAI: true,
+                        defaultLanguage: 'pt',
+                    },
+                    companyId
+                );
+
+                console.log(`[PersonaAPI] Parser gerou ${sections.length} seções, salvando no banco...`);
+
+                const sectionValues = sections.map(section => ({
+                    personaId: updated.id,
+                    sectionName: section.sectionName,
+                    content: section.content,
+                    language: section.language,
+                    priority: section.priority,
+                    tags: section.tags || [],
+                    isActive: true,
+                }));
+
+                await db.transaction(async (tx) => {
+                    await tx.insert(personaPromptSections).values(sectionValues);
+                    await tx.update(aiPersonas)
+                        .set({ systemPrompt: null })
+                        .where(eq(aiPersonas.id, updated.id));
+                });
+
+                console.log(`[PersonaAPI] ✅ ${sections.length} seções criadas e systemPrompt limpo`);
+                
+                return NextResponse.json({
+                    ...updated,
+                    systemPrompt: null,
+                    _ragSectionsCreated: sections.length,
+                });
+
+            } catch (parserError) {
+                console.error('[PersonaAPI] Erro ao fazer migração automática:', parserError);
+                console.log('[PersonaAPI] Mantendo systemPrompt original, usuário pode migrar manualmente');
+            }
         }
 
         return NextResponse.json(updated);
