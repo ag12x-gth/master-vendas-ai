@@ -10,6 +10,25 @@ Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control pan
 
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### November 5, 2025 - Bug Fix: Baileys Connection Health Check
+- **Issue**: Dashboard incorrectly showed "Falha ao descriptografar o token de acesso" for Baileys connections
+- **Root Cause**: Health check endpoint was attempting to decrypt `accessToken` for ALL connections, including Baileys (which use QR code auth and have NULL token)
+- **Solution**: Updated `/api/v1/connections/health` to differentiate between connection types:
+  - Baileys connections: Considered healthy if active (no token check needed)
+  - Meta API connections: Verify and decrypt accessToken as before
+- **Files Modified**: `src/app/api/v1/connections/health/route.ts`
+- **Documentation**: `BAILEYS_CONNECTION_HEALTH_FIX.md`
+
+### November 5, 2025 - Mobile Responsiveness Implementation
+- **Achievement**: Complete mobile-first responsive design across all 7 phases (19-26h plan)
+- **Coverage**: 375px (iPhone SE) to 2560px (4K monitors) with 8 breakpoints
+- **New Components**: 15 responsive components including MobileNav, ResponsiveSidebar, useResponsive hook
+- **Critical Fix**: MobileNav route corrected from `/conversations` to `/atendimentos`
+- **Files**: `tailwind.config.mjs`, `src/hooks/useResponsive.ts`, `src/components/responsive/*`, `src/app/(main)/layout.tsx`
+- **Documentation**: `MOBILE_RESPONSIVE_PLAN.md`, `RESPONSIVE_IMPLEMENTATION_SUMMARY.md`
+
 ## System Architecture
 
 ### Technology Stack

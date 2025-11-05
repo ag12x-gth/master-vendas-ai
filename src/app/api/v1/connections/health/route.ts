@@ -13,7 +13,7 @@ const FACEBOOK_API_VERSION = process.env.FACEBOOK_API_VERSION || 'v20.0';
 interface ConnectionHealth {
   id: string;
   name: string;
-  phoneNumberId: string;
+  phoneNumberId: string | null;
   isActive: boolean;
   status: 'healthy' | 'expired' | 'error' | 'inactive';
   lastChecked: Date;
@@ -31,6 +31,7 @@ export async function GET(_request: NextRequest) {
         name: connections.config_name,
         phoneNumberId: connections.phoneNumberId,
         accessToken: connections.accessToken,
+        connectionType: connections.connectionType,
         isActive: connections.isActive,
         createdAt: connections.createdAt
       })
@@ -50,26 +51,39 @@ export async function GET(_request: NextRequest) {
         lastChecked: new Date()
       };
 
-      // Se a conexão está ativa, verificar o token
+      // Se a conexão está ativa, verificar baseado no tipo
       if (connection.isActive) {
         try {
-          const accessToken = decrypt(connection.accessToken);
-          if (!accessToken) {
-            health.status = 'error';
-            health.errorMessage = 'Falha ao desencriptar o token de acesso';
+          // Conexões Baileys não precisam de accessToken (usam sessão de arquivo)
+          // Apenas verificar Meta API connections
+          if (connection.connectionType === 'baileys' || !connection.connectionType) {
+            // Baileys connection - considerada saudável se ativa
+            health.status = 'healthy';
           } else {
-            // Testar o token com a API do Facebook
-            const response = await fetch(`https://graph.facebook.com/${FACEBOOK_API_VERSION}/${connection.phoneNumberId}`, {
-              method: 'GET',
-              headers: {
-                'Authorization': `Bearer ${accessToken}`,
-              },
-            });
+            // Meta API connection - verificar token
+            if (!connection.accessToken) {
+              health.status = 'error';
+              health.errorMessage = 'Token de acesso não configurado';
+            } else {
+              const accessToken = decrypt(connection.accessToken);
+              if (!accessToken) {
+                health.status = 'error';
+                health.errorMessage = 'Falha ao desencriptar o token de acesso';
+              } else {
+              // Testar o token com a API do Facebook
+              const response = await fetch(`https://graph.facebook.com/${FACEBOOK_API_VERSION}/${connection.phoneNumberId}`, {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${accessToken}`,
+                },
+              });
 
-            if (!response.ok) {
-              const errorData = await response.json();
-              health.status = 'expired';
-              health.errorMessage = errorData.error?.message || 'Token de acesso inválido ou expirado';
+              if (!response.ok) {
+                const errorData = await response.json();
+                health.status = 'expired';
+                health.errorMessage = errorData.error?.message || 'Token de acesso inválido ou expirado';
+              }
+              }
             }
           }
         } catch (error) {
