@@ -258,12 +258,29 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
             throw new Error(`Persona usa provider ${persona.provider}, mas apenas OPENAI é suportado nesta função.`);
         }
 
-        // Buscar mensagens anteriores da conversa para contexto
-        const previousMessages = await db.query.messages.findMany({
+        // ✅ FIX: Buscar mensagens mais recentes primeiro (DESC) e reverter para ordem cronológica
+        // Isso garante que pegamos as mensagens MAIS NOVAS, não as antigas
+        const allMessages = await db.query.messages.findMany({
             where: eq(messages.conversationId, conversation.id),
-            orderBy: (messages, { asc }) => [asc(messages.sentAt)],
-            limit: 10
+            orderBy: (messages, { desc }) => [desc(messages.sentAt)],
+            limit: 20  // Buscar mais mensagens para garantir que temos contexto suficiente
         });
+
+        // Reverter para ordem cronológica (mais antiga → mais recente)
+        const chronologicalMessages = allMessages.reverse();
+        
+        // Garantir que a mensagem atual (trigger) está incluída no histórico
+        // Se não estiver, adicionar explicitamente
+        const triggerMessageExists = chronologicalMessages.some(msg => msg.id === message.id);
+        if (!triggerMessageExists) {
+            chronologicalMessages.push(message);
+            await logAutomation('INFO', `Mensagem atual (trigger) adicionada explicitamente ao contexto`, logContextBase);
+        }
+
+        // Pegar apenas as últimas 10 mensagens para enviar ao LLM (evitar excesso de tokens)
+        const recentMessages = chronologicalMessages.slice(-10);
+        
+        await logAutomation('INFO', `Incluindo ${recentMessages.length} mensagens do histórico (incluindo mensagem atual)`, logContextBase);
 
         // SISTEMA DE PROMPTS DINÂMICOS (RAG)
         // 1. Detectar idioma da mensagem atual
@@ -304,9 +321,6 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
         ];
 
         // Adicionar histórico COMPLETO da conversa (usuário + IA) para manter contexto
-        const recentMessages = previousMessages.slice(-10); // Últimas 10 mensagens (5 pares usuário-IA)
-        await logAutomation('INFO', `Incluindo ${recentMessages.length} mensagens do histórico (usuário + IA)`, logContextBase);
-        
         for (const msg of recentMessages) {
             // Determinar o role com base em quem enviou a mensagem
             let role: 'user' | 'assistant';
@@ -389,6 +403,20 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
 export async function processIncomingMessageTrigger(conversationId: string, messageId: string): Promise<void> {
     console.log(`[Automation Engine] Gatilho recebido para a conversa ${conversationId} e mensagem ${messageId}`);
     
+    // ✅ FIX: Controle de idempotência - verificar se já processamos esta mensagem
+    // Evita respostas duplicadas quando webhook é reenviado
+    const alreadyProcessed = await db.query.automationLogs.findFirst({
+        where: and(
+            eq(automationLogs.conversationId, conversationId),
+            sql`${automationLogs.details}->>'processedMessageId' = ${messageId}`
+        )
+    });
+
+    if (alreadyProcessed) {
+        console.log(`[Automation Engine] Mensagem ${messageId} já foi processada. Ignorando para evitar duplicação.`);
+        return;
+    }
+    
     const convoResult = await db.query.conversations.findFirst({
         where: eq(conversations.id, conversationId),
         with: { connection: true, contact: true }
@@ -420,7 +448,14 @@ export async function processIncomingMessageTrigger(conversationId: string, mess
             
             if (selectedPersonaId) {
                 const aiResponded = await callExternalAIAgent(context, selectedPersonaId);
-                if (aiResponded) return; // Se a IA respondeu, o fluxo termina aqui.
+                if (aiResponded) {
+                    // ✅ Marcar mensagem como processada após sucesso
+                    await logAutomation('INFO', 'Mensagem processada com sucesso pela IA', { 
+                        ...logContextBase, 
+                        details: { processedMessageId: messageId }
+                    });
+                    return; // Se a IA respondeu, o fluxo termina aqui.
+                }
             } else {
                 await logAutomation('INFO', 'Sem agente IA configurado para esta conversa.', logContextBase);
             }
