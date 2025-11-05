@@ -23,6 +23,14 @@ interface AIPersona {
     description: string | null;
 }
 
+interface EffectivePersona {
+    effectivePersonaId: string | null;
+    source: 'stage' | 'funnel' | 'connection' | 'conversation' | 'none';
+    details: any;
+    persona: AIPersona | null;
+    manualPersonaId: string | null;
+}
+
 export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefined }) => {
     const { toast } = useToast();
     const [contact, setContact] = useState<ExtendedContact | null>(null);
@@ -32,6 +40,7 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
     const [notes, setNotes] = useState('');
     const [aiPersonas, setAiPersonas] = useState<AIPersona[]>([]);
     const [conversationPersonas, setConversationPersonas] = useState<Record<string, string | null>>({});
+    const [effectivePersonas, setEffectivePersonas] = useState<Record<string, EffectivePersona>>({});
 
     const fetchDetails = useCallback(async (id: string) => {
         setLoading(true);
@@ -52,17 +61,27 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
                 setAiPersonas(personasData.personas || []);
             }
 
-            // Buscar agentes vinculados para cada conversa ativa
+            // Buscar agentes vinculados e efetivos para cada conversa ativa
             if (contactData.activeConversations) {
                 const personaMap: Record<string, string | null> = {};
+                const effectiveMap: Record<string, EffectivePersona> = {};
+                
                 for (const conv of contactData.activeConversations) {
                     const convRes = await fetch(`/api/v1/conversations/${conv.id}`);
                     if (convRes.ok) {
                         const convData = await convRes.json();
                         personaMap[conv.id] = convData.assignedPersonaId || null;
                     }
+                    
+                    const effectiveRes = await fetch(`/api/v1/conversations/${conv.id}/effective-persona`);
+                    if (effectiveRes.ok) {
+                        const effectiveData = await effectiveRes.json();
+                        effectiveMap[conv.id] = effectiveData;
+                    }
                 }
+                
                 setConversationPersonas(personaMap);
+                setEffectivePersonas(effectiveMap);
             }
 
         } catch (error) {
@@ -274,38 +293,63 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
                                             Última mensagem: <RelativeTime date={conv.lastMessageAt} />
                                         </p>
                                     )}
-                                    {conv.aiActive && (
-                                        <div className="space-y-1.5 pt-1 border-t">
-                                            <Label className="text-xs flex items-center gap-1.5">
-                                                <Bot className="h-3 w-3" />
-                                                Agente IA (Fallback Manual)
-                                            </Label>
-                                            <Select 
-                                                value={conversationPersonas[conv.id] || 'none'} 
-                                                onValueChange={(value) => handlePersonaChange(conv.id, value)}
-                                            >
-                                                <SelectTrigger className="h-8 text-xs">
-                                                    <SelectValue placeholder="Selecione um agente" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="none">Agente Genérico</SelectItem>
-                                                    {aiPersonas.map((persona) => (
-                                                        <SelectItem key={persona.id} value={persona.id}>
-                                                            {persona.name}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            <p className="text-xs text-muted-foreground">
-                                                ⚠️ Usado apenas se não houver agente no Kanban ou na Conexão
-                                            </p>
-                                            {conversationPersonas[conv.id] && (
-                                                <p className="text-xs text-muted-foreground italic">
-                                                    {aiPersonas.find(p => p.id === conversationPersonas[conv.id])?.description}
-                                                </p>
-                                            )}
-                                        </div>
-                                    )}
+                                    {conv.aiActive && (() => {
+                                        const effective = effectivePersonas[conv.id];
+                                        if (!effective) return null;
+                                        
+                                        return (
+                                            <div className="space-y-3 pt-2 border-t">
+                                                <div className="space-y-1.5">
+                                                    <Label className="text-xs flex items-center gap-1.5 font-semibold">
+                                                        <Bot className="h-3 w-3 text-primary" />
+                                                        Agente IA Ativo
+                                                    </Label>
+                                                    <div className="p-2 rounded-md bg-primary/5 border border-primary/20">
+                                                        <p className="text-sm font-medium text-primary">
+                                                            {effective.persona?.name || 'Agente Genérico'}
+                                                        </p>
+                                                        <p className="text-xs text-muted-foreground mt-0.5">
+                                                            {effective.source === 'stage' && `🎯 Estágio: ${effective.details?.stageId}`}
+                                                            {effective.source === 'funnel' && `📊 Funil: ${effective.details?.boardName}`}
+                                                            {effective.source === 'connection' && `📱 Conexão padrão`}
+                                                            {effective.source === 'conversation' && `👤 Configuração manual`}
+                                                            {effective.source === 'none' && `⚠️ Resposta básica genérica`}
+                                                        </p>
+                                                        {effective.persona?.description && (
+                                                            <p className="text-xs text-muted-foreground italic mt-1">
+                                                                {effective.persona.description}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="space-y-1.5">
+                                                    <Label className="text-xs flex items-center gap-1.5 text-muted-foreground">
+                                                        Fallback Manual (Opcional)
+                                                    </Label>
+                                                    <Select 
+                                                        value={conversationPersonas[conv.id] || 'none'} 
+                                                        onValueChange={(value) => handlePersonaChange(conv.id, value)}
+                                                    >
+                                                        <SelectTrigger className="h-8 text-xs">
+                                                            <SelectValue placeholder="Selecione um agente" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="none">Nenhum</SelectItem>
+                                                            {aiPersonas.map((persona) => (
+                                                                <SelectItem key={persona.id} value={persona.id}>
+                                                                    {persona.name}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Usado apenas se não houver no Kanban ou Conexão
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                             ))}
                         </CardContent>
