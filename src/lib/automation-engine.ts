@@ -493,6 +493,7 @@ export async function processIncomingMessageTrigger(conversationId: string, mess
         message: message,
     };
 
+    let anyRuleExecuted = false;
     for (const rule of rules) {
         const ruleLogContext = { ...logContextBase, ruleId: rule.id };
         let allConditionsMet = true;
@@ -509,6 +510,15 @@ export async function processIncomingMessageTrigger(conversationId: string, mess
             for (const action of rule.actions) {
                 await executeAction(action, context, rule.id);
             }
+            anyRuleExecuted = true;
         }
+    }
+    
+    // ✅ Marcar mensagem como processada após executar regras de automação
+    if (anyRuleExecuted) {
+        await logAutomation('INFO', 'Mensagem processada com sucesso por regras de automação', { 
+            ...logContextBase, 
+            details: { processedMessageId: messageId }
+        });
     }
 }
