@@ -186,20 +186,28 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
         await logAutomation('INFO', `Idioma detectado: ${detectedLanguage}`, logContextBase);
 
         // 2. Buscar seções relevantes do prompt
-        const promptSections = await getPersonaPromptSections(personaId, detectedLanguage);
-        
         let systemPrompt: string;
         
-        if (promptSections.length > 0) {
-            // Se existem seções no novo sistema, usar prompts modulares
-            const contextInfo = `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contact.name || 'Cliente'}\n- Telefone: ${contact.phone}`;
-            systemPrompt = assembleDynamicPrompt(promptSections, contextInfo);
-            await logAutomation('INFO', `Sistema RAG: ${promptSections.length} seções carregadas (${estimateTokenCount(systemPrompt)} tokens estimados)`, logContextBase);
+        // Verificar se o agente está configurado para usar RAG
+        if (persona.useRag) {
+            const promptSections = await getPersonaPromptSections(personaId, detectedLanguage);
+            
+            if (promptSections.length > 0) {
+                // Se existem seções e RAG está ativo, usar prompts modulares
+                const contextInfo = `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contact.name || 'Cliente'}\n- Telefone: ${contact.phone}`;
+                systemPrompt = assembleDynamicPrompt(promptSections, contextInfo);
+                await logAutomation('INFO', `Sistema RAG ativo: ${promptSections.length} seções carregadas (${estimateTokenCount(systemPrompt)} tokens estimados)`, logContextBase);
+            } else {
+                // RAG ativo mas sem seções - avisar e usar fallback
+                systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um assistente virtual inteligente de atendimento ao cliente via WhatsApp.`;
+                systemPrompt += `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contact.name || 'Cliente'}\n- Telefone: ${contact.phone}`;
+                await logAutomation('WARN', `RAG ativo mas sem seções encontradas. Usando systemPrompt tradicional (${estimateTokenCount(systemPrompt)} tokens estimados)`, logContextBase);
+            }
         } else {
-            // Fallback: usar systemPrompt tradicional da tabela ai_personas
+            // RAG desativado: usar systemPrompt tradicional da tabela ai_personas
             systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um assistente virtual inteligente de atendimento ao cliente via WhatsApp.`;
             systemPrompt += `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contact.name || 'Cliente'}\n- Telefone: ${contact.phone}`;
-            await logAutomation('INFO', `Fallback: usando systemPrompt tradicional (${estimateTokenCount(systemPrompt)} tokens estimados)`, logContextBase);
+            await logAutomation('INFO', `RAG desativado: usando systemPrompt tradicional (${estimateTokenCount(systemPrompt)} tokens estimados)`, logContextBase);
         }
 
         // Construir histórico de conversa para OpenAI

@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -18,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreVertical, Edit, Copy, Trash2, Loader2, Bot } from 'lucide-react';
+import { MoreVertical, Edit, Copy, Trash2, Loader2, Bot, FileText, Globe } from 'lucide-react';
 import Link from 'next/link';
 import type { Persona } from '@/lib/types';
 import {
@@ -134,9 +135,27 @@ export function PersonaList() {
               </DropdownMenu>
             </CardHeader>
             <CardContent className="flex-1">
-              <CardDescription className="line-clamp-3">
-                {persona.systemPrompt || 'Nenhuma descrição fornecida.'}
-              </CardDescription>
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  {persona.useRag ? (
+                    <Badge className="bg-green-600 hover:bg-green-700">
+                      <FileText className="mr-1 h-3 w-3" />
+                      RAG Ativo
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary">
+                      <FileText className="mr-1 h-3 w-3" />
+                      Prompt Tradicional
+                    </Badge>
+                  )}
+                  <Badge variant="outline">
+                    {persona.model}
+                  </Badge>
+                </div>
+                <CardDescription className="line-clamp-2">
+                  {persona.systemPrompt || 'Nenhuma descrição fornecida.'}
+                </CardDescription>
+              </div>
             </CardContent>
             <CardFooter>
               <Link href={`/agentes-ia/${persona.id}`} passHref className="w-full">

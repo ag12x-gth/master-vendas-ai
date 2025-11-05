@@ -264,6 +264,7 @@ import {
     maxOutputTokens: integer('max_output_tokens').default(2048),
     mcpServerUrl: text('mcp_server_url'),
     mcpServerHeaders: jsonb('mcp_server_headers').$type<Record<string, string>>(),
+    useRag: boolean('use_rag').default(false).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
   });

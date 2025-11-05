@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/page-header';
 import { PersonaEditor } from '@/components/ia/persona-editor';
 import { PersonaMetrics } from '@/components/ia/persona-metrics';
 import { AgentTestChat } from '@/components/ia/agent-test-chat';
+import { RagSectionsManager } from '@/components/ia/rag-sections-manager';
 import type { Persona } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, ArrowLeft } from 'lucide-react';
@@ -72,14 +73,19 @@ export default function EditPersonaPage({ params }: { params: { personaId: strin
       </PageHeader>
 
       <Tabs defaultValue="config" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 max-w-[600px]">
+        <TabsList className="grid w-full grid-cols-4 max-w-[800px]">
           <TabsTrigger value="config">Configurações</TabsTrigger>
+          <TabsTrigger value="sections">Seções RAG</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="test">Testar</TabsTrigger>
         </TabsList>
         
         <TabsContent value="config" className="space-y-6 mt-6">
           <PersonaEditor persona={persona} />
+        </TabsContent>
+        
+        <TabsContent value="sections" className="space-y-6 mt-6">
+          <RagSectionsManager personaId={personaId} />
         </TabsContent>
         
         <TabsContent value="performance" className="space-y-6 mt-6">

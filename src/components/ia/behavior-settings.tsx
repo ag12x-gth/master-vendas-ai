@@ -20,7 +20,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Save, Bot, Loader2, Share2, List, AlertTriangle } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Save, Bot, Loader2, Share2, List, AlertTriangle, Info } from 'lucide-react';
 import type { Persona as Agent } from '@/lib/types';
 import { Slider } from '../ui/slider';
 import { useState, useEffect } from 'react';
@@ -57,6 +58,7 @@ export function BehaviorSettings({
     maxOutputTokens: agent?.maxOutputTokens || 2048,
     mcpServerUrl: agent?.mcpServerUrl || '',
     mcpServerHeaders: agent?.mcpServerHeaders ? JSON.stringify(agent.mcpServerHeaders, null, 2) : '',
+    useRag: agent?.useRag || false,
   });
 
   const [availableTools, setAvailableTools] = useState<McpTool[]>([]);
@@ -75,6 +77,7 @@ export function BehaviorSettings({
         maxOutputTokens: agent?.maxOutputTokens || 2048,
         mcpServerUrl: agent?.mcpServerUrl || '',
         mcpServerHeaders: agent?.mcpServerHeaders ? JSON.stringify(agent.mcpServerHeaders, null, 2) : '',
+        useRag: agent?.useRag || false,
     });
     setAvailableTools([]);
   }, [agent]);
@@ -135,6 +138,7 @@ export function BehaviorSettings({
             topP: payload.topP.toString(),
             mcpServerUrl: payload.mcpServerUrl || null,
             mcpServerHeaders: parsedHeaders,
+            useRag: payload.useRag,
         }),
       });
 
@@ -179,9 +183,37 @@ export function BehaviorSettings({
                     </div>
                 </div>
 
+                <div className="space-y-4 rounded-lg border p-4">
+                    <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                            <Label htmlFor="use-rag" className="text-base font-semibold">
+                                Sistema RAG (Prompts Modulares)
+                            </Label>
+                            <p className="text-sm text-muted-foreground">
+                                Ative para usar seções modulares do prompt, otimizando tokens e permitindo multi-idioma.
+                            </p>
+                        </div>
+                        <Switch
+                            id="use-rag"
+                            checked={formData.useRag}
+                            onCheckedChange={(checked) => setFormData({ ...formData, useRag: checked })}
+                        />
+                    </div>
+                    
+                    {formData.useRag && (
+                        <Alert>
+                            <Info className="h-4 w-4" />
+                            <AlertTitle>Sistema RAG Ativo</AlertTitle>
+                            <AlertDescription>
+                                O agente usará seções modulares. Gerencie-as na aba &quot;Seções RAG&quot;. O prompt tradicional abaixo será ignorado durante a execução.
+                            </AlertDescription>
+                        </Alert>
+                    )}
+                </div>
+
                 <div className="space-y-2">
                     <Label htmlFor="system-prompt" className="text-base font-semibold">
-                        Instruções e Base de Conhecimento
+                        Instruções e Base de Conhecimento {formData.useRag && '(Inativo - Usando RAG)'}
                     </Label>
                     <p className="text-sm text-muted-foreground">
                         Descreva como a IA deve se comportar e adicione aqui todo o conhecimento sobre sua empresa (horários, políticas, etc.).
@@ -193,6 +225,7 @@ export function BehaviorSettings({
                         className="min-h-[250px] text-base"
                         value={formData.systemPrompt || ''}
                         onChange={handleInputChange}
+                        disabled={formData.useRag}
                     />
                 </div>
 
