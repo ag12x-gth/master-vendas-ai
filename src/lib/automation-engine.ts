@@ -22,6 +22,12 @@ import type {
 } from './types';
 import { sendWhatsappTextMessage } from './facebookApiService';
 import OpenAI from 'openai';
+import {
+  detectLanguage,
+  getPersonaPromptSections,
+  assembleDynamicPrompt,
+  estimateTokenCount,
+} from './prompt-utils';
 
 
 type LogLevel = 'INFO' | 'WARN' | 'ERROR';
@@ -174,23 +180,33 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
             limit: 10
         });
 
-        // Construir system prompt da persona
-        const systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um assistente virtual inteligente de atendimento ao cliente via WhatsApp.`;
+        // SISTEMA DE PROMPTS DINÂMICOS (RAG)
+        // 1. Detectar idioma da mensagem atual
+        const detectedLanguage = detectLanguage(message.content);
+        await logAutomation('INFO', `Idioma detectado: ${detectedLanguage}`, logContextBase);
+
+        // 2. Buscar seções relevantes do prompt
+        const promptSections = await getPersonaPromptSections(personaId, detectedLanguage);
         
-        // Enriquecer com contexto do contato
-        const enrichedSystemPrompt = `${systemPrompt}
-
-CONTEXTO DO CONTATO:
-- Nome: ${contact.name || 'Cliente'}
-- Telefone: ${contact.phone}`;
-
-        await logAutomation('INFO', `System Prompt configurado (${enrichedSystemPrompt.length} chars)`, logContextBase);
+        let systemPrompt: string;
+        
+        if (promptSections.length > 0) {
+            // Se existem seções no novo sistema, usar prompts modulares
+            const contextInfo = `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contact.name || 'Cliente'}\n- Telefone: ${contact.phone}`;
+            systemPrompt = assembleDynamicPrompt(promptSections, contextInfo);
+            await logAutomation('INFO', `Sistema RAG: ${promptSections.length} seções carregadas (${estimateTokenCount(systemPrompt)} tokens estimados)`, logContextBase);
+        } else {
+            // Fallback: usar systemPrompt tradicional da tabela ai_personas
+            systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um assistente virtual inteligente de atendimento ao cliente via WhatsApp.`;
+            systemPrompt += `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contact.name || 'Cliente'}\n- Telefone: ${contact.phone}`;
+            await logAutomation('INFO', `Fallback: usando systemPrompt tradicional (${estimateTokenCount(systemPrompt)} tokens estimados)`, logContextBase);
+        }
 
         // Construir histórico de conversa para OpenAI
         const chatMessages: OpenAI.Chat.ChatCompletionMessageParam[] = [
             {
                 role: 'system',
-                content: enrichedSystemPrompt
+                content: systemPrompt
             }
         ];
 

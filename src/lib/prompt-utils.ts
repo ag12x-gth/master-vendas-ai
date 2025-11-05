@@ -1,5 +1,4 @@
 // src/lib/prompt-utils.ts
-'use server';
 
 import { db } from './db';
 import { personaPromptSections } from './db/schema';
