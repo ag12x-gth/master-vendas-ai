@@ -27,6 +27,7 @@ import {
   Route,
   Phone,
   Video,
+  Kanban,
 } from 'lucide-react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
@@ -74,6 +75,7 @@ const allNavItems = [
   { href: '/ajuda', label: 'Primeiros Passos', icon: LifeBuoy, roles: ['admin', 'atendente', 'superadmin'] },
   { href: '/atendimentos', label: 'Atendimentos', icon: MessagesSquare, roles: ['admin', 'atendente', 'superadmin'] },
   { href: '/automations', label: 'Automações', icon: GitBranch, roles: ['admin', 'superadmin'] },
+  { href: '/kanban', label: 'Pipeline Kanban', icon: Kanban, roles: ['admin', 'superadmin'] },
   {
     label: 'Leads',
     icon: Users,
