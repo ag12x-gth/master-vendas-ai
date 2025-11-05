@@ -2,11 +2,13 @@
 'use client';
 
 import { KanbanView } from '@/components/kanban/kanban-view';
+import { StagePersonaConfig } from '@/components/kanban/stage-persona-config';
 import type { KanbanFunnel, KanbanCard as KanbanCardType } from '@/lib/types';
 import { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Kanban as KanbanIcon, Bot } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { DropResult } from '@hello-pangea/dnd';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function FunnelPage({ params }: { params: { funnelId: string } }) {
   const [funnel, setFunnel] = useState<KanbanFunnel | null>(null);
@@ -83,8 +85,42 @@ export default function FunnelPage({ params }: { params: { funnelId: string } })
   }
 
   return (
-    <div className="h-full">
-      <KanbanView funnel={funnel} cards={cards} onMoveCard={handleMoveCard} onUpdateCards={fetchFunnelData} />
+    <div className="h-full flex flex-col">
+      <Tabs defaultValue="kanban" className="flex-1 flex flex-col">
+        <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
+          <TabsTrigger 
+            value="kanban" 
+            className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
+          >
+            <KanbanIcon className="h-4 w-4 mr-2" />
+            Visualização do Funil
+          </TabsTrigger>
+          <TabsTrigger 
+            value="agents" 
+            className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
+          >
+            <Bot className="h-4 w-4 mr-2" />
+            Agentes IA por Estágio
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="kanban" className="flex-1 mt-0">
+          <KanbanView 
+            funnel={funnel} 
+            cards={cards} 
+            onMoveCard={handleMoveCard} 
+            onUpdateCards={fetchFunnelData} 
+          />
+        </TabsContent>
+
+        <TabsContent value="agents" className="flex-1 mt-4 overflow-auto p-4">
+          <StagePersonaConfig 
+            boardId={params.funnelId} 
+            stages={funnel.stages}
+            funnelType={funnel.funnelType}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

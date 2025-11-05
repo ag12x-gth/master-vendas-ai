@@ -2,12 +2,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db, kanbanStagePersonas, kanbanBoards } from '@/lib/db';
 import { getUserSession } from '@/app/actions';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 
 const stagePersonaCreateSchema = z.object({
   boardId: z.string().uuid('ID do board inválido'),
-  stageId: z.string().min(1, 'ID do estágio é obrigatório'),
+  stageId: z.string().min(1, 'ID do estágio é obrigatório').nullable().optional(),
   activePersonaId: z.string().uuid('ID do agente ativo inválido').nullable().optional(),
   passivePersonaId: z.string().uuid('ID do agente passivo inválido').nullable().optional(),
 });
@@ -63,7 +63,9 @@ export async function POST(request: NextRequest) {
     const parsed = stagePersonaCreateSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.errors[0].message }, { status: 400 });
+      return NextResponse.json({ 
+        error: parsed.error.errors[0]?.message || 'Dados inválidos' 
+      }, { status: 400 });
     }
 
     const board = await db.query.kanbanBoards.findFirst({
@@ -78,10 +80,15 @@ export async function POST(request: NextRequest) {
     }
 
     const existing = await db.query.kanbanStagePersonas.findFirst({
-      where: and(
-        eq(kanbanStagePersonas.boardId, parsed.data.boardId),
-        eq(kanbanStagePersonas.stageId, parsed.data.stageId)
-      )
+      where: parsed.data.stageId 
+        ? and(
+            eq(kanbanStagePersonas.boardId, parsed.data.boardId),
+            eq(kanbanStagePersonas.stageId, parsed.data.stageId)
+          )
+        : and(
+            eq(kanbanStagePersonas.boardId, parsed.data.boardId),
+            isNull(kanbanStagePersonas.stageId)
+          )
     });
 
     let result;

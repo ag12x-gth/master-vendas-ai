@@ -351,7 +351,7 @@ import {
   export const kanbanStagePersonas = pgTable('kanban_stage_personas', {
     id: text('id').primaryKey().default(sql`gen_random_uuid()`),
     boardId: text('board_id').notNull().references(() => kanbanBoards.id, { onDelete: 'cascade' }),
-    stageId: text('stage_id').notNull(),
+    stageId: text('stage_id'),
     activePersonaId: text('active_persona_id').references(() => aiPersonas.id, { onDelete: 'set null' }),
     passivePersonaId: text('passive_persona_id').references(() => aiPersonas.id, { onDelete: 'set null' }),
     createdAt: timestamp('created_at').defaultNow().notNull(),
