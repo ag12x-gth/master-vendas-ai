@@ -6,6 +6,7 @@ import { contacts, contactsToContactLists, contactsToTags, tags, contactLists } 
 import { and, asc, count, desc, eq, ilike, or, sql, inArray, SQL } from 'drizzle-orm';
 import { z } from 'zod';
 import { getCompanyIdFromSession } from '@/app/actions';
+import { getCachedOrFetch, CacheTTL, apiCache } from '@/lib/api-cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,6 +41,35 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         const tagId = searchParams.get('tagId');
         const listId = searchParams.get('listId');
         const listIds = searchParams.getAll('listIds');
+
+        // Cache key baseado em todos os parâmetros
+        const cacheKey = `contacts:${companyId}:${page}:${limit}:${search || ''}:${sortBy}:${sortOrder}:${tagId || ''}:${listId || ''}:${listIds.join(',')}`;
+        
+        // Buscar dados com cache (60 segundos)
+        const data = await getCachedOrFetch(cacheKey, async () => {
+            return await fetchContactsData({ companyId, page, limit, search, sortBy, sortOrder, tagId, listId, listIds });
+        }, CacheTTL.MEDIUM);
+
+        return NextResponse.json(data);
+    } catch (error) {
+        console.error("Erro ao buscar contatos:", error);
+        const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor.';
+        return NextResponse.json({ error: errorMessage, details: (error as Error).stack }, { status: 500 });
+    }
+}
+
+async function fetchContactsData(params: {
+    companyId: string;
+    page: number;
+    limit: number;
+    search: string | null;
+    sortBy: string;
+    sortOrder: string;
+    tagId: string | null;
+    listId: string | null;
+    listIds: string[];
+}) {
+        const { companyId, page, limit, search, sortBy, sortOrder, tagId, listId, listIds } = params;
 
         const offset = (page - 1) * limit;
 
@@ -107,39 +137,64 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         
         const totalContacts = totalContactsResult[0]?.value ?? 0;
         
-        const contactsWithRelations = await Promise.all(companyContacts.map(async (contact) => {
-            const contactTags = await db.select({
+        // ✅ OTIMIZAÇÃO: Resolver N+1 query problem
+        // Em vez de fazer 2 queries por contato, fazemos apenas 2 queries totais
+        const contactIds = companyContacts.map(c => c.id);
+        
+        // Buscar todas as tags de uma vez
+        const allTagsQuery = contactIds.length > 0 
+            ? db.select({
+                contactId: contactsToTags.contactId,
                 id: tags.id,
                 name: tags.name,
                 color: tags.color
-            }).from(tags)
+            })
+            .from(tags)
             .innerJoin(contactsToTags, eq(tags.id, contactsToTags.tagId))
-            .where(eq(contactsToTags.contactId, contact.id));
-
-            const contactContactLists = await db.select({
+            .where(inArray(contactsToTags.contactId, contactIds))
+            : Promise.resolve([]);
+        
+        // Buscar todas as listas de uma vez
+        const allListsQuery = contactIds.length > 0
+            ? db.select({
+                contactId: contactsToContactLists.contactId,
                 id: contactLists.id,
                 name: contactLists.name,
-            }).from(contactLists)
+            })
+            .from(contactLists)
             .innerJoin(contactsToContactLists, eq(contactLists.id, contactsToContactLists.listId))
-            .where(eq(contactsToContactLists.contactId, contact.id));
-
-            return {
-                ...contact,
-                tags: contactTags,
-                lists: contactContactLists,
-            }
+            .where(inArray(contactsToContactLists.contactId, contactIds))
+            : Promise.resolve([]);
+        
+        const [allTags, allLists] = await Promise.all([allTagsQuery, allListsQuery]);
+        
+        // Agrupar tags e listas por contactId
+        const tagsByContact: Record<string, Array<{id: string, name: string, color: string}>> = {};
+        for (const tag of allTags) {
+            if (!tag.contactId || !tag.id || !tag.name) continue;
+            if (!tagsByContact[tag.contactId]) tagsByContact[tag.contactId] = [];
+            tagsByContact[tag.contactId].push({ id: tag.id, name: tag.name, color: tag.color || '' });
+        }
+        
+        const listsByContact: Record<string, Array<{id: string, name: string}>> = {};
+        for (const list of allLists) {
+            if (!list.contactId || !list.id || !list.name) continue;
+            if (!listsByContact[list.contactId]) listsByContact[list.contactId] = [];
+            listsByContact[list.contactId].push({ id: list.id, name: list.name });
+        }
+        
+        // Combinar os dados
+        const contactsWithRelations = companyContacts.map(contact => ({
+            ...contact,
+            tags: tagsByContact[contact.id] || [],
+            lists: listsByContact[contact.id] || [],
         }));
 
 
-        return NextResponse.json({
+        return {
             data: contactsWithRelations,
             totalPages: Math.ceil(totalContacts / limit),
-        });
-    } catch (error) {
-        console.error("Erro ao buscar contatos:", error);
-        const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor.';
-        return NextResponse.json({ error: errorMessage, details: (error as Error).stack }, { status: 500 });
-    }
+        };
 }
 
 
@@ -179,6 +234,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         return createdContact;
     });
+
+    // Invalidar cache ao criar novo contato
+    apiCache.invalidatePattern(`contacts:${companyId}`);
 
     return NextResponse.json(newContact, { status: 201 });
   } catch (error: any) {

@@ -1,0 +1,97 @@
+// src/lib/api-cache.ts
+// Sistema de cache em memória simples para API routes
+// Reduz drasticamente a carga no banco de dados para dados frequentemente acessados
+
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  ttl: number;
+}
+
+class SimpleCache {
+  private cache: Map<string, CacheEntry<any>>;
+  private maxSize: number;
+
+  constructor(maxSize = 500) {
+    this.cache = new Map();
+    this.maxSize = maxSize;
+  }
+
+  get<T>(key: string): T | null {
+    const entry = this.cache.get(key);
+    
+    if (!entry) return null;
+    
+    const now = Date.now();
+    if (now - entry.timestamp > entry.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+    
+    return entry.data as T;
+  }
+
+  set<T>(key: string, data: T, ttl: number): void {
+    if (this.cache.size >= this.maxSize) {
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey) this.cache.delete(firstKey);
+    }
+
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl,
+    });
+  }
+
+  delete(key: string): void {
+    this.cache.delete(key);
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  invalidatePattern(pattern: string): void {
+    const keysToDelete: string[] = [];
+    for (const key of this.cache.keys()) {
+      if (key.includes(pattern)) {
+        keysToDelete.push(key);
+      }
+    }
+    keysToDelete.forEach(key => this.cache.delete(key));
+  }
+
+  getStats() {
+    return {
+      size: this.cache.size,
+      maxSize: this.maxSize,
+    };
+  }
+}
+
+export const apiCache = new SimpleCache(500);
+
+export async function getCachedOrFetch<T>(
+  key: string,
+  fetcher: () => Promise<T>,
+  ttl: number = 30000 // 30 segundos padrão
+): Promise<T> {
+  const cached = apiCache.get<T>(key);
+  if (cached !== null) {
+    return cached;
+  }
+
+  const data = await fetcher();
+  apiCache.set(key, data, ttl);
+  return data;
+}
+
+// TTLs recomendados por tipo de dados
+export const CacheTTL = {
+  REAL_TIME: 5000,      // 5s - dados em tempo real (conversas ativas)
+  SHORT: 30000,         // 30s - dados frequentes (lista de conversas)
+  MEDIUM: 60000,        // 1min - dados semi-estáticos (contatos)
+  LONG: 300000,         // 5min - dados estáticos (configurações, stats)
+  VERY_LONG: 900000,    // 15min - dados raramente alterados (listas, tags)
+} as const;
