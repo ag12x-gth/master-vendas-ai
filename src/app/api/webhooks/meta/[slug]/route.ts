@@ -41,15 +41,26 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
 // POST /api/webhooks/meta/[slug] - Receives events from Meta
 export async function POST(request: NextRequest, { params }: { params: { slug: string } }) {
     const { slug } = params;
+    const timestamp = new Date().toISOString();
+    
+    console.log(`🔔 [Meta Webhook] ${timestamp} - POST recebido para slug: ${slug}`);
     
     try {
         const [company] = await db.select({ id: companies.id }).from(companies).where(eq(companies.webhookSlug, slug)).limit(1);
         if (!company) {
-            console.warn(`Webhook recebido para slug não encontrado: ${slug}`);
+            console.warn(`❌ [Meta Webhook] Slug não encontrado: ${slug}`);
             return new NextResponse('Company slug not found', { status: 404 });
         }
         
-        const [connection] = await db.select({ appSecret: connections.appSecret })
+        console.log(`✅ [Meta Webhook] Company encontrada: ${company.id}`);
+        
+        const [connection] = await db.select({ 
+            id: connections.id,
+            configName: connections.configName,
+            phoneNumberId: connections.phoneNumberId,
+            appSecret: connections.appSecret,
+            isActive: connections.isActive
+        })
             .from(connections)
             .where(and(
                 eq(connections.companyId, company.id), 
@@ -58,16 +69,23 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
             ))
             .limit(1);
 
+        if (!connection) {
+            console.error(`❌ [Meta Webhook] Nenhuma conexão Meta API ativa encontrada para company ${company.id}`);
+            return new NextResponse('No active Meta API connection found', { status: 400 });
+        }
+
+        console.log(`✅ [Meta Webhook] Conexão ativa: ${connection.configName} (Phone ID: ${connection.phoneNumberId})`);
+
         const decryptedAppSecret = connection ? decrypt(connection.appSecret) : null;
 
         if (!decryptedAppSecret) {
-            console.error(`App Secret não encontrado ou falhou ao desencriptar para a empresa com slug: ${slug}`);
+            console.error(`❌ [Meta Webhook] Falha ao descriptografar App Secret para ${connection.configName}`);
             return new NextResponse('App Secret for active Meta connection not configured or decryption failed', { status: 400 });
         }
 
         const signature = request.headers.get('x-hub-signature-256');
         if (!signature) {
-             console.warn('Webhook recebido sem assinatura.');
+             console.warn(`❌ [Meta Webhook] Webhook sem assinatura HMAC`);
              return new NextResponse('Signature missing', { status: 400 });
         }
         
@@ -77,21 +95,26 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
         const expectedSignature = `sha256=${hmac.digest('hex')}`;
         
         if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
-            console.warn('Assinatura do webhook inválida.');
+            console.warn(`❌ [Meta Webhook] Assinatura HMAC inválida`);
             return new NextResponse('Invalid signature', { status: 403 });
         }
         
+        console.log(`✅ [Meta Webhook] Assinatura HMAC validada`);
+        
         const payload = JSON.parse(rawBody);
+        
+        console.log(`📦 [Meta Webhook] Payload recebido:`, JSON.stringify(payload, null, 2));
         
         // Don't await this, respond to Meta immediately
         processWebhookEvents(payload, company.id).catch(err => {
-            console.error('[Webhook] Erro não tratado no processamento de eventos em background:', err);
+            console.error(`❌ [Meta Webhook] Erro no processamento em background:`, err);
         });
         
+        console.log(`✅ [Meta Webhook] ${timestamp} - Webhook processado com sucesso`);
         return new NextResponse('OK', { status: 200 });
 
     } catch (error) {
-        console.error('Erro crítico ao processar o webhook:', error);
+        console.error(`❌ [Meta Webhook] Erro crítico:`, error);
         return NextResponse.json({ error: 'Erro interno do servidor.' }, { status: 500 });
     }
 }
@@ -197,11 +220,19 @@ async function processIncomingMessage(
     { messageData, contactData, metadata, companyId }:
     { messageData: any, contactData: any, metadata: any, companyId: string }
 ) {
+    const phone = sanitizePhone(contactData.wa_id);
+    const messagePreview = getMessageContent(messageData).substring(0, 50);
+    
+    console.log(`📨 [Meta Webhook] Nova mensagem de ${contactData.profile.name} (${phone}): "${messagePreview}"`);
+    
     const { conversationId, newMessageId } = await db.transaction(async (tx) => {
         const [connection] = await tx.select().from(connections).where(and(eq(connections.phoneNumberId, metadata.phone_number_id), eq(connections.companyId, companyId)));
         if (!connection) {
+            console.error(`❌ [Meta Webhook] Conexão não encontrada para Phone Number ID: ${metadata.phone_number_id}`);
             throw new Error('Connection not found');
         }
+
+        console.log(`✅ [Meta Webhook] Conexão encontrada: ${connection.configName}`);
 
         const initialPhone = sanitizePhone(contactData.wa_id);
         if (!initialPhone) throw new Error('Invalid phone number');
@@ -210,8 +241,10 @@ async function processIncomingMessage(
         let [contact] = await tx.select().from(contacts).where(and(eq(contacts.companyId, companyId), inArray(contacts.phone, phoneVariations)));
 
         if (!contact) {
+            console.log(`➕ [Meta Webhook] Criando novo contato: ${contactData.profile.name} (${canonicalizeBrazilPhone(initialPhone)})`);
             [contact] = await tx.insert(contacts).values({ companyId: companyId, name: contactData.profile.name || canonicalizeBrazilPhone(initialPhone), phone: canonicalizeBrazilPhone(initialPhone) }).returning();
         } else {
+             console.log(`✅ [Meta Webhook] Contato existente encontrado: ${contact.name} (ID: ${contact.id})`);
              const [updatedContact] = await tx.update(contacts).set({ whatsappName: contactData.profile.name, profileLastSyncedAt: new Date() }).where(eq(contacts.id, contact.id)).returning();
              if (updatedContact) contact = updatedContact;
         }
@@ -220,8 +253,10 @@ async function processIncomingMessage(
             
         let [conversation] = await tx.select().from(conversations).where(and(eq(conversations.contactId, contact.id), eq(conversations.connectionId, connection.id)));
         if (!conversation) {
+            console.log(`➕ [Meta Webhook] Criando nova conversa para ${contact.name}`);
             [conversation] = await tx.insert(conversations).values({ companyId, contactId: contact.id, connectionId: connection.id }).returning();
         } else {
+            console.log(`✅ [Meta Webhook] Conversa existente atualizada (ID: ${conversation.id})`);
             [conversation] = await tx.update(conversations).set({ lastMessageAt: new Date(), status: 'IN_PROGRESS', archivedAt: null, archivedBy: null }).where(eq(conversations.id, conversation.id)).returning();
         }
 
@@ -241,8 +276,9 @@ async function processIncomingMessage(
                         const extension = contentType.split('/')[1] || 'bin';
                         const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.${extension}`;
                         permanentMediaUrl = await uploadFileToS3(s3Key, mediaBuffer, contentType);
+                        console.log(`📎 [Meta Webhook] Mídia salva: ${s3Key}`);
                     } catch (s3Error) {
-                        console.error(`[Webhook] Falha ao salvar mídia no S3:`, s3Error);
+                        console.error(`❌ [Meta Webhook] Falha ao salvar mídia no S3:`, s3Error);
                     }
                 }
             }
@@ -260,11 +296,16 @@ async function processIncomingMessage(
         }).returning();
 
         if (!newMessage) throw new Error('Falha ao salvar a nova mensagem.');
+        
+        console.log(`✅ [Meta Webhook] Mensagem salva no banco (ID: ${newMessage.id}) na conversa ${conversation.id}`);
             
         return { conversationId: conversation.id, newMessageId: newMessage.id };
     });
 
     if (conversationId && newMessageId) {
+      console.log(`🤖 [Meta Webhook] Disparando automações para conversa ${conversationId}`);
       await processIncomingMessageTrigger(conversationId, newMessageId);
     }
+    
+    console.log(`✅ [Meta Webhook] Processamento completo para ${contactData.profile.name}`);
 }
