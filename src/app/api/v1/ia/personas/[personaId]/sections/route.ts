@@ -1,6 +1,6 @@
 // src/app/api/v1/ia/personas/[personaId]/sections/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserFromSession } from '@/lib/auth';
+import { getCompanyIdFromSession } from '@/app/actions';
 import { db } from '@/lib/db';
 import { aiPersonas, personaPromptSections } from '@/lib/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
@@ -10,11 +10,7 @@ export async function GET(
   { params }: { params: { personaId: string } }
 ) {
   try {
-    const user = await getUserFromSession();
-    if (!user) {
-      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
-    }
-
+    const companyId = await getCompanyIdFromSession();
     const { personaId } = params;
 
     const persona = await db
@@ -23,7 +19,7 @@ export async function GET(
       .where(
         and(
           eq(aiPersonas.id, personaId),
-          eq(aiPersonas.companyId, user.companyId)
+          eq(aiPersonas.companyId, companyId)
         )
       )
       .limit(1);
@@ -53,11 +49,7 @@ export async function POST(
   { params }: { params: { personaId: string } }
 ) {
   try {
-    const user = await getUserFromSession();
-    if (!user) {
-      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
-    }
-
+    const companyId = await getCompanyIdFromSession();
     const { personaId } = params;
 
     const persona = await db
@@ -66,7 +58,7 @@ export async function POST(
       .where(
         and(
           eq(aiPersonas.id, personaId),
-          eq(aiPersonas.companyId, user.companyId)
+          eq(aiPersonas.companyId, companyId)
         )
       )
       .limit(1);
