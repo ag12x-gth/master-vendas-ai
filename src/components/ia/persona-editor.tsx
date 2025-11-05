@@ -7,7 +7,13 @@ import { useRouter } from 'next/navigation';
 import { useAnalytics } from '@/contexts/analytics-context';
 import { useState, useEffect } from 'react';
 
-export function PersonaEditor({ persona: initialAgent }: { persona: Agent | null }) {
+export function PersonaEditor({ 
+  persona: initialAgent,
+  onSaveSuccess: onSaveSuccessCallback
+}: { 
+  persona: Agent | null;
+  onSaveSuccess?: () => void;
+}) {
     const router = useRouter();
     const { trackEvent } = useAnalytics();
     
@@ -32,6 +38,8 @@ export function PersonaEditor({ persona: initialAgent }: { persona: Agent | null
             router.push(`/agentes-ia/${savedAgent.id}`);
         } else {
              trackEvent('agent_updated', { agentId: savedAgent.id, agentName: savedAgent.name });
+             // Chama callback externo para atualizar página principal
+             onSaveSuccessCallback?.();
         }
     };
     

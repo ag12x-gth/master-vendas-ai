@@ -18,31 +18,31 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 export default function EditPersonaPage({ params }: { params: { personaId: string } }) {
   const [persona, setPersona] = useState<Persona | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const { toast } = useToast();
   const { personaId } = params;
 
+  const fetchPersona = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/v1/ia/personas/${personaId}`);
+      if (!response.ok) {
+          if (response.status === 404) notFound();
+          throw new Error('Falha ao carregar os dados do agente.');
+      }
+      const data = await response.json();
+      setPersona(data);
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!personaId) return;
-
-    const fetchPersona = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`/api/v1/ia/personas/${personaId}`);
-        if (!response.ok) {
-            if (response.status === 404) notFound();
-            throw new Error('Falha ao carregar os dados do agente.');
-        }
-        const data = await response.json();
-        setPersona(data);
-      } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchPersona();
-  }, [personaId, toast]);
+  }, [personaId, refreshTrigger, toast]);
 
   if (loading) {
     return (
@@ -72,7 +72,7 @@ export default function EditPersonaPage({ params }: { params: { personaId: strin
         </Link>
       </PageHeader>
 
-      <Tabs defaultValue="config" className="w-full">
+      <Tabs defaultValue="config" className="w-full" onValueChange={() => setRefreshTrigger(prev => prev + 1)}>
         <TabsList className="grid w-full grid-cols-4 max-w-[800px]">
           <TabsTrigger value="config">Configurações</TabsTrigger>
           <TabsTrigger value="sections">Seções RAG</TabsTrigger>
@@ -81,7 +81,7 @@ export default function EditPersonaPage({ params }: { params: { personaId: strin
         </TabsList>
         
         <TabsContent value="config" className="space-y-6 mt-6">
-          <PersonaEditor persona={persona} />
+          <PersonaEditor persona={persona} onSaveSuccess={() => setRefreshTrigger(prev => prev + 1)} />
         </TabsContent>
         
         <TabsContent value="sections" className="space-y-6 mt-6">
