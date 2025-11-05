@@ -296,6 +296,8 @@ import {
     lastMessageAt: timestamp('last_message_at').defaultNow().notNull(),
     aiActive: boolean('ai_active').default(true).notNull(),
     assignedPersonaId: text('assigned_persona_id').references(() => aiPersonas.id, { onDelete: 'set null' }),
+    contactType: text('contact_type').default('PASSIVE').notNull(),
+    source: text('source'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
     archivedAt: timestamp('archived_at'),
@@ -325,6 +327,8 @@ import {
     id: text('id').primaryKey().default(sql`gen_random_uuid()`),
     companyId: text('company_id').references(() => companies.id).notNull(),
     name: text('name').notNull(),
+    funnelType: text('funnel_type').default('GENERAL'),
+    objective: text('objective'),
     stages: jsonb('stages').$type<KanbanStage[]>().notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   });
@@ -342,6 +346,17 @@ import {
     externalProvider: text('external_provider'),
   }, (table) => ({
       externalIdProviderUnique: unique('kanban_leads_external_id_provider_unique').on(table.externalId, table.externalProvider),
+  }));
+
+  export const kanbanStagePersonas = pgTable('kanban_stage_personas', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    boardId: text('board_id').notNull().references(() => kanbanBoards.id, { onDelete: 'cascade' }),
+    stageId: text('stage_id').notNull(),
+    activePersonaId: text('active_persona_id').references(() => aiPersonas.id, { onDelete: 'set null' }),
+    passivePersonaId: text('passive_persona_id').references(() => aiPersonas.id, { onDelete: 'set null' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  }, (table) => ({
+    boardStageUnique: unique('kanban_stage_personas_board_stage_unique').on(table.boardId, table.stageId),
   }));
   
   // ==============================
@@ -713,6 +728,41 @@ export const aiPersonasRelations = relations(aiPersonas, ({ many }) => ({
 export const personaPromptSectionsRelations = relations(personaPromptSections, ({ one }) => ({
     persona: one(aiPersonas, {
         fields: [personaPromptSections.personaId],
+        references: [aiPersonas.id],
+    }),
+}));
+
+export const kanbanBoardsRelations = relations(kanbanBoards, ({ one, many }) => ({
+    company: one(companies, {
+        fields: [kanbanBoards.companyId],
+        references: [companies.id],
+    }),
+    leads: many(kanbanLeads),
+    stagePersonas: many(kanbanStagePersonas),
+}));
+
+export const kanbanLeadsRelations = relations(kanbanLeads, ({ one }) => ({
+    board: one(kanbanBoards, {
+        fields: [kanbanLeads.boardId],
+        references: [kanbanBoards.id],
+    }),
+    contact: one(contacts, {
+        fields: [kanbanLeads.contactId],
+        references: [contacts.id],
+    }),
+}));
+
+export const kanbanStagePersonasRelations = relations(kanbanStagePersonas, ({ one }) => ({
+    board: one(kanbanBoards, {
+        fields: [kanbanStagePersonas.boardId],
+        references: [kanbanBoards.id],
+    }),
+    activePersona: one(aiPersonas, {
+        fields: [kanbanStagePersonas.activePersonaId],
+        references: [aiPersonas.id],
+    }),
+    passivePersona: one(aiPersonas, {
+        fields: [kanbanStagePersonas.passivePersonaId],
         references: [aiPersonas.id],
     }),
 }));

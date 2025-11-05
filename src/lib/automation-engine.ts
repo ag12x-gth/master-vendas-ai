@@ -28,6 +28,7 @@ import {
   assembleDynamicPrompt,
   estimateTokenCount,
 } from './prompt-utils';
+import { kanbanLeads, kanbanBoards, kanbanStagePersonas } from './db';
 
 
 type LogLevel = 'INFO' | 'WARN' | 'ERROR';
@@ -149,6 +150,62 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
 }
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+async function selectIntelligentPersona(
+    context: AutomationTriggerContext,
+    defaultPersonaId: string | null
+): Promise<string | null> {
+    const { contact, conversation, companyId } = context;
+    const logContextBase: LogContext = { companyId, conversationId: conversation.id };
+
+    try {
+        const activeLead = await db.query.kanbanLeads.findFirst({
+            where: and(
+                eq(kanbanLeads.contactId, contact.id),
+            ),
+            with: {
+                board: true
+            },
+            orderBy: (kanbanLeads, { desc }) => [desc(kanbanLeads.createdAt)],
+        });
+
+        if (!activeLead) {
+            await logAutomation('INFO', `Contato sem lead ativo no Kanban. Usando agente padrão da conexão.`, logContextBase);
+            return defaultPersonaId;
+        }
+
+        await logAutomation('INFO', `Lead encontrado no funil "${activeLead.board.name}" (Tipo: ${activeLead.board.funnelType || 'GENERAL'}, Estágio: ${activeLead.stageId})`, logContextBase);
+
+        const stagePersonaConfig = await db.query.kanbanStagePersonas.findFirst({
+            where: and(
+                eq(kanbanStagePersonas.boardId, activeLead.boardId),
+                eq(kanbanStagePersonas.stageId, activeLead.stageId)
+            )
+        });
+
+        if (!stagePersonaConfig) {
+            await logAutomation('INFO', `Sem configuração de agente IA para este estágio. Usando agente padrão da conexão.`, logContextBase);
+            return defaultPersonaId;
+        }
+
+        const contactType = conversation.contactType || 'PASSIVE';
+        const selectedPersonaId = contactType === 'ACTIVE' 
+            ? stagePersonaConfig.activePersonaId 
+            : stagePersonaConfig.passivePersonaId;
+
+        if (!selectedPersonaId) {
+            await logAutomation('INFO', `Sem agente IA configurado para tipo "${contactType}" neste estágio. Usando agente padrão.`, logContextBase);
+            return defaultPersonaId;
+        }
+
+        await logAutomation('INFO', `Agente IA selecionado baseado em: Funil="${activeLead.board.name}", Estágio="${activeLead.stageId}", Tipo="${contactType}"`, logContextBase);
+        return selectedPersonaId;
+
+    } catch (error) {
+        await logAutomation('ERROR', `Erro ao selecionar agente IA inteligente: ${(error as Error).message}`, logContextBase);
+        return defaultPersonaId;
+    }
+}
 
 async function callExternalAIAgent(context: AutomationTriggerContext, personaId: string) {
     const { companyId, conversation, contact, message } = context;
@@ -316,8 +373,8 @@ export async function processIncomingMessageTrigger(conversationId: string, mess
 
     const logContextBase = { companyId: convoResult.companyId, conversationId };
     
-    // VERIFICAÇÃO #1: Roteamento para IA
-    if (convoResult.aiActive && convoResult.connection.assignedPersonaId) {
+    // VERIFICAÇÃO #1: Roteamento para IA (Sistema Inteligente Multi-Dimensional)
+    if (convoResult.aiActive) {
         const message = await db.query.messages.findFirst({ where: eq(messages.id, messageId) });
         if (message) {
             const context: AutomationTriggerContext = {
@@ -326,8 +383,19 @@ export async function processIncomingMessageTrigger(conversationId: string, mess
                 contact: convoResult.contact,
                 message: message,
             };
-            const aiResponded = await callExternalAIAgent(context, convoResult.connection.assignedPersonaId);
-            if (aiResponded) return; // Se a IA respondeu, o fluxo termina aqui.
+            
+            // Seleção inteligente do agente IA baseado em: Funil + Estágio + Tipo de Contato
+            const selectedPersonaId = await selectIntelligentPersona(
+                context,
+                convoResult.connection.assignedPersonaId
+            );
+            
+            if (selectedPersonaId) {
+                const aiResponded = await callExternalAIAgent(context, selectedPersonaId);
+                if (aiResponded) return; // Se a IA respondeu, o fluxo termina aqui.
+            } else {
+                await logAutomation('INFO', 'Sem agente IA configurado para esta conversa.', logContextBase);
+            }
         }
     }
     
