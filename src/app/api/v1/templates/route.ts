@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { templates } from '@/lib/db/schema';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { eq, desc } from 'drizzle-orm';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,11 +14,15 @@ export async function GET(_request: NextRequest) {
     try {
         const companyId = await getCompanyIdFromSession();
 
-        const companyTemplates = await db
-            .select()
-            .from(templates)
-            .where(eq(templates.companyId, companyId))
-            .orderBy(desc(templates.updatedAt));
+        // Cache de templates (5 minutos - dados relativamente estáticos)
+        const cacheKey = `templates:${companyId}`;
+        const companyTemplates = await getCachedOrFetch(cacheKey, async () => {
+            return await db
+                .select()
+                .from(templates)
+                .where(eq(templates.companyId, companyId))
+                .orderBy(desc(templates.updatedAt));
+        }, CacheTTL.LONG);
 
         return NextResponse.json(companyTemplates);
 

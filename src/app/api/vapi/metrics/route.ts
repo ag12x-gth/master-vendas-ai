@@ -2,12 +2,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { vapiCalls, vapiTranscripts } from '@/lib/db/schema';
 import { sql, and, gte, lte, eq, desc } from 'drizzle-orm';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
+    
+    // Cache com base nas datas
+    const cacheKey = `vapi-metrics:${startDate || 'all'}:${endDate || 'all'}`;
+    const data = await getCachedOrFetch(cacheKey, async () => {
+      return await fetchVapiMetrics(startDate, endDate);
+    }, CacheTTL.SHORT);
+
+    return NextResponse.json(data);
+  } catch (error: any) {
+    console.error('Error fetching Vapi metrics:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch metrics', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+async function fetchVapiMetrics(startDate: string | null, endDate: string | null) {
 
     const filters = [];
     if (startDate) {
@@ -84,20 +103,12 @@ export async function GET(request: NextRequest) {
       createdAt: call.createdAt,
     }));
 
-    return NextResponse.json({
+    return {
       summary: {
         ...summaryResult,
         successRate,
       },
       callsByDay,
       recentCalls,
-    });
-
-  } catch (error: any) {
-    console.error('Error fetching Vapi metrics:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch metrics', details: error.message },
-      { status: 500 }
-    );
-  }
+    };
 }

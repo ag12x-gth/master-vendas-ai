@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { campaigns, connections, smsGateways, smsDeliveryReports, templates as templateSchema, whatsappDeliveryReports } from '@/lib/db/schema';
 import { eq, and, desc, sql, or, type SQL, count } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,11 +16,38 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page') || '1', 10);
         const limit = parseInt(searchParams.get('limit') || '10', 10);
-        const channel = searchParams.get('channel'); // Get channel from params
+        const channel = searchParams.get('channel');
         const connectionId = searchParams.get('connectionId');
         const templateId = searchParams.get('templateId');
         const gatewayId = searchParams.get('gatewayId');
         const offset = (page - 1) * limit;
+        
+        // Cache baseado nos filtros
+        const cacheKey = `campaigns:${companyId}:${page}:${limit}:${channel || ''}:${connectionId || ''}:${templateId || ''}:${gatewayId || ''}`;
+        const data = await getCachedOrFetch(cacheKey, async () => {
+            return await fetchCampaignsData({ companyId, page, limit, channel, connectionId, templateId, gatewayId, offset });
+        }, CacheTTL.MEDIUM);
+
+        return NextResponse.json(data);
+
+    } catch (error) {
+        console.error('Erro ao buscar campanhas:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor.';
+        return NextResponse.json({ error: errorMessage, details: (error as Error).stack }, { status: 500 });
+    }
+}
+
+async function fetchCampaignsData(params: {
+    companyId: string;
+    page: number;
+    limit: number;
+    channel: string | null;
+    connectionId: string | null;
+    templateId: string | null;
+    gatewayId: string | null;
+    offset: number;
+}) {
+        const { companyId, page, limit, channel, connectionId, templateId, gatewayId, offset } = params;
 
         // Subqueries for WhatsApp
         const sentWhatsappSubquery = db.select({ value: sql<number>`count(*)::int` }).from(whatsappDeliveryReports).where(eq(whatsappDeliveryReports.campaignId, campaigns.id));
@@ -85,14 +113,8 @@ export async function GET(request: NextRequest) {
         
         const paginatedCampaigns = await companyCampaignsQuery.limit(limit).offset(offset);
 
-        return NextResponse.json({
+        return {
             data: paginatedCampaigns,
             totalPages,
-        });
-
-    } catch (error) {
-        console.error('Erro ao buscar campanhas:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor.';
-        return NextResponse.json({ error: errorMessage, details: (error as Error).stack }, { status: 500 });
-    }
+        };
 }

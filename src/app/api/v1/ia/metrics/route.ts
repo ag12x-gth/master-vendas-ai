@@ -5,10 +5,29 @@ import { aiPersonas, messages, conversations, automationLogs, connections } from
 import { eq, count, sql, desc, and, gte, inArray } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { subDays } from 'date-fns';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 export async function GET(_request: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();
+    
+    // Cache de métricas IA (30 segundos)
+    const cacheKey = `ia-metrics:${companyId}`;
+    const data = await getCachedOrFetch(cacheKey, async () => {
+      return await fetchIAMetrics(companyId);
+    }, CacheTTL.SHORT);
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error('Erro ao buscar métricas gerais de IA:', error);
+    return NextResponse.json(
+      { error: (error as Error).message },
+      { status: 500 }
+    );
+  }
+}
+
+async function fetchIAMetrics(companyId: string) {
     
     const sevenDaysAgo = subDays(new Date(), 7);
     const thirtyDaysAgo = subDays(new Date(), 30);
@@ -160,7 +179,7 @@ export async function GET(_request: NextRequest) {
       .orderBy(desc(count(messages.id)))
       .limit(5);
 
-    return NextResponse.json({
+    return {
       summary: {
         totalPersonas,
         totalAIMessages,
@@ -173,12 +192,5 @@ export async function GET(_request: NextRequest) {
       },
       dailyActivity,
       topPersonas,
-    });
-  } catch (error) {
-    console.error('Erro ao buscar métricas gerais de IA:', error);
-    return NextResponse.json(
-      { error: (error as Error).message },
-      { status: 500 }
-    );
-  }
+    };
 }

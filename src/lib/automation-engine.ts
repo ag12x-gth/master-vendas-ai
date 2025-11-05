@@ -29,6 +29,7 @@ import {
   estimateTokenCount,
 } from './prompt-utils';
 import { kanbanLeads, kanbanBoards, kanbanStagePersonas } from './db';
+import { apiCache } from './api-cache';
 
 
 type LogLevel = 'INFO' | 'WARN' | 'ERROR';
@@ -385,6 +386,9 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
                     contentType: 'TEXT',
                     providerMessageId: (sentMessage as any).messages?.[0]?.id,
                 });
+                
+                // Invalidar cache de conversas após inserir mensagem
+                apiCache.invalidatePattern(`conversations:${companyId}`);
                 
                 await sleep(1500); // Pausa entre as mensagens para parecer mais natural
             }

@@ -4,12 +4,28 @@ import { db } from '@/lib/db';
 import { conversations, contacts, messages, connections } from '@/lib/db/schema';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(_request: NextRequest) {
     try {
         const companyId = await getCompanyIdFromSession();
+        
+        // Cache de conversas (30 segundos - dados dinâmicos)
+        const cacheKey = `conversations:${companyId}`;
+        const data = await getCachedOrFetch(cacheKey, async () => {
+            return await fetchConversationsData(companyId);
+        }, CacheTTL.SHORT);
+
+        return NextResponse.json(data);
+    } catch (error) {
+        if (process.env.NODE_ENV !== 'production') console.debug('Erro ao buscar conversas:', error);
+        return NextResponse.json({ error: (error as Error).message }, { status: 500 });
+    }
+}
+
+async function fetchConversationsData(companyId: string) {
         
         const lastMessageSubquery = db
             .select({
@@ -70,10 +86,5 @@ export async function GET(_request: NextRequest) {
         .where(eq(conversations.companyId, companyId))
         .orderBy(desc(conversations.lastMessageAt));
         
-        return NextResponse.json(companyConversations);
-
-    } catch (error) {
-        if (process.env.NODE_ENV !== 'production') console.debug('Erro ao buscar conversas:', error);
-        return NextResponse.json({ error: (error as Error).message }, { status: 500 });
-    }
+        return companyConversations;
 }
