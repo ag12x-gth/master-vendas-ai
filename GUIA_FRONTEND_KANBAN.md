@@ -4,6 +4,7 @@
 - ✅ Links corrigidos: `/funnels/` → `/kanban/`
 - ✅ Página de criação de funil criada em `/kanban/new`
 - ✅ Menu de navegação atualizado com item "Pipeline Kanban"
+- ✅ Erro do SelectItem corrigido em todos os componentes (criação de funil + configuração de agentes IA)
 
 ---
 
