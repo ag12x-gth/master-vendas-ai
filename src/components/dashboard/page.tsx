@@ -40,12 +40,14 @@ export default function DashboardClient() {
   });
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 sm:gap-6 pb-20 md:pb-6">
       <PageHeader
         title="Dashboard"
         description="Bem-vindo de volta! Aqui está uma visão geral da sua conta."
       >
-        <DateRangePicker onDateChange={setDateRange} initialDate={dateRange} />
+        <div className="hidden sm:block">
+          <DateRangePicker onDateChange={setDateRange} initialDate={dateRange} />
+        </div>
       </PageHeader>
       
       <Alert className="border-primary/50 text-primary-foreground bg-primary/10">
@@ -66,7 +68,7 @@ export default function DashboardClient() {
       
       <StatsCards dateRange={dateRange} />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-5">
         <Card className="lg:col-span-3">
             <CardHeader>
                 <CardTitle className="text-lg">Tendência de Atendimentos</CardTitle>
@@ -87,7 +89,7 @@ export default function DashboardClient() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-lg">Desempenho das Campanhas</CardTitle>
@@ -141,7 +143,7 @@ export default function DashboardClient() {
 
       <AIPerformanceSection />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
         <QuickShortcuts />
         <OngoingCampaigns />
         <PendingConversations />

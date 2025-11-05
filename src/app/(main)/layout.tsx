@@ -1,7 +1,8 @@
 
 
 import '../globals.css';
-import { AppSidebar, SidebarProvider } from '@/components/app-sidebar';
+import { AppSidebar, SidebarProvider, MobileMenuButton } from '@/components/app-sidebar';
+import { MobileNav } from '@/components/responsive/mobile-nav';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SessionProvider, MainContent } from '@/contexts/session-context';
 import type { ReactNode } from 'react';
@@ -48,10 +49,12 @@ export default async function MainLayout({
                 >
                     <SidebarProvider>
                 <div className="flex h-screen w-full bg-background overflow-hidden">
+                    <MobileMenuButton />
                     <AppSidebar />
                     <MainContent>
                         {children}
                     </MainContent>
+                    <MobileNav />
                 </div>
                     </SidebarProvider>
                     <ConsoleMonitor />

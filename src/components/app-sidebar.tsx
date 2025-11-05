@@ -3,7 +3,7 @@
 'use client';
 
 import Link from 'next/link';
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import {
   BotMessageSquare,
   LayoutDashboard,
@@ -28,6 +28,8 @@ import {
   Phone,
   Video,
   Kanban,
+  Menu,
+  X,
 } from 'lucide-react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import {
@@ -45,18 +47,37 @@ import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
 import { useSession } from '@/contexts/session-context';
 import { Skeleton } from './ui/skeleton';
+import { useResponsive } from '@/hooks/useResponsive';
 
 interface SidebarContextType {
   isExpanded: boolean;
   setExpanded: (expanded: boolean) => void;
+  isMobileOpen: boolean;
+  setMobileOpen: (open: boolean) => void;
+  toggleMobile: () => void;
 }
 
 const SidebarContext = createContext<SidebarContextType | undefined>(undefined);
 
 export function SidebarProvider({ children }: { children: ReactNode }) {
   const [isExpanded, setExpanded] = useState(true);
+  const [isMobileOpen, setMobileOpen] = useState(false);
+
+  const toggleMobile = () => setMobileOpen(!isMobileOpen);
+
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileOpen]);
+
   return (
-    <SidebarContext.Provider value={{ isExpanded, setExpanded }}>
+    <SidebarContext.Provider value={{ isExpanded, setExpanded, isMobileOpen, setMobileOpen, toggleMobile }}>
       {children}
     </SidebarContext.Provider>
   );
@@ -68,6 +89,24 @@ export function useSidebar() {
     throw new Error('useSidebar must be used within a SidebarProvider');
   }
   return context;
+}
+
+export function MobileMenuButton() {
+  const { toggleMobile, isMobileOpen } = useSidebar();
+  const { isMobile } = useResponsive();
+
+  if (!isMobile) return null;
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={toggleMobile}
+      className="md:hidden fixed top-3 left-3 z-50 bg-background border border-border shadow-lg"
+    >
+      {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+    </Button>
+  );
 }
 
 const allNavItems = [
@@ -189,16 +228,38 @@ const NavItemGroup = ({ item, isExpanded }: { item: any, isExpanded: boolean }) 
 }
 
 export function AppSidebar() {
-  const { isExpanded, setExpanded } = useSidebar();
+  const { isExpanded, setExpanded, isMobileOpen, setMobileOpen } = useSidebar();
   const { session, loading } = useSession();
+  const { isMobile } = useResponsive();
   const userRole = session?.userData?.role;
   const navItems = allNavItems.filter(item => userRole && item.roles.includes(userRole));
   const pathname = usePathname();
 
+  useEffect(() => {
+    if (isMobile) {
+      setMobileOpen(false);
+    }
+  }, [pathname, isMobile, setMobileOpen]);
+
   return (
-    <aside className={cn(
-        "hidden flex-col border-r bg-background sm:flex transition-[width] duration-300",
-        isExpanded ? "w-52" : "w-14"
+    <>
+      {isMobile && isMobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 md:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+      <aside className={cn(
+        "flex-col border-r bg-background transition-all duration-300",
+        isMobile 
+          ? cn(
+              "fixed inset-y-0 left-0 z-50 w-64 md:hidden",
+              isMobileOpen ? "translate-x-0" : "-translate-x-full"
+            )
+          : cn(
+              "hidden sm:flex",
+              isExpanded ? "w-52" : "w-14"
+            )
       )}>
         <div className={cn("flex h-14 items-center border-b", isExpanded ? "px-4" : "justify-center")}>
              <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
@@ -278,5 +339,6 @@ export function AppSidebar() {
         </nav>
       </TooltipProvider>
     </aside>
+    </>
   );
 }
