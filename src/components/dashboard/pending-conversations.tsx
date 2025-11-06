@@ -23,7 +23,8 @@ export function PendingConversations() {
             try {
                 const response = await fetch('/api/v1/conversations');
                 if (!response.ok) throw new Error('Falha ao buscar conversas.');
-                const data: Conversation[] = await response.json();
+                const responseData = await response.json();
+                const data: Conversation[] = responseData.data || responseData;
                 const pendingConversations = data.filter(c => c.status === 'NEW').slice(0, 4);
                 setConversations(pendingConversations);
             } catch (error) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import {
   Table,
   TableBody,
@@ -39,11 +39,12 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import Link from 'next/link';
 import { CallButton } from '@/components/vapi-voice/CallButton';
 import { BulkCallDialog } from '@/components/vapi-voice/BulkCallDialog';
+import { useDebounce } from '@/hooks/use-debounce';
 
 type ViewType = 'table' | 'grid';
 type SortKey = 'name' | 'createdAt';
 
-const ContactGrid = ({ contacts, onRowClick }: { contacts: ExtendedContact[], onRowClick: (id: string) => void }) => {
+const ContactGrid = memo(({ contacts, onRowClick }: { contacts: ExtendedContact[], onRowClick: (id: string) => void }) => {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {contacts.map(contact => (
@@ -77,9 +78,11 @@ const ContactGrid = ({ contacts, onRowClick }: { contacts: ExtendedContact[], on
             ))}
         </div>
     )
-}
+});
 
-const ContactTableView = ({ contacts, onRowClick, selectedRows, onSelectedRowsChange, isMobile, onDelete, onSort }: { 
+ContactGrid.displayName = 'ContactGrid';
+
+const ContactTableView = memo(({ contacts, onRowClick, selectedRows, onSelectedRowsChange, isMobile, onDelete, onSort }: { 
     contacts: ExtendedContact[], 
     onRowClick: (id: string) => void
     selectedRows: string[],
@@ -253,7 +256,9 @@ const ContactTableView = ({ contacts, onRowClick, selectedRows, onSelectedRowsCh
             </Table>
         </div>
     )
- }
+});
+
+ContactTableView.displayName = 'ContactTableView';
 
 export function ContactTable() {
   const [contacts, setContacts] = useState<ExtendedContact[]>([]);
@@ -276,6 +281,8 @@ export function ContactTable() {
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
   const [availableLists, setAvailableLists] = useState<ContactList[]>([]);
   
+  const debouncedSearch = useDebounce(search, 500);
+  
   const fetchContacts = useCallback(async () => {
     setLoading(true);
     try {
@@ -286,7 +293,7 @@ export function ContactTable() {
         });
         if (sortByField) params.set('sortBy', sortByField);
         if (sortOrder) params.set('sortOrder', sortOrder);
-        if (search) params.set('search', search);
+        if (debouncedSearch) params.set('search', debouncedSearch);
         if (tagFilter !== 'all') params.set('tagId', tagFilter);
         if (listFilter !== 'all') params.set('listId', listFilter);
         
@@ -302,14 +309,10 @@ export function ContactTable() {
     } finally {
         setLoading(false);
     }
-  }, [page, limit, sortBy, search, tagFilter, listFilter, toast]);
+  }, [page, limit, sortBy, debouncedSearch, tagFilter, listFilter, toast]);
 
   useEffect(() => {
-    const debounce = setTimeout(() => {
-        fetchContacts();
-    }, 300)
-
-    return () => clearTimeout(debounce)
+    fetchContacts();
   }, [fetchContacts]);
   
   useEffect(() => {

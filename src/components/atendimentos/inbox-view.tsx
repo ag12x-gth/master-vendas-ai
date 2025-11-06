@@ -62,7 +62,8 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
     try {
       const res = await fetch('/api/v1/conversations');
       if (!res.ok) throw new Error('Falha ao carregar as conversas.');
-      const data: Conversation[] = await res.json();
+      const response = await res.json();
+      const data: Conversation[] = response.data || response;
       
       setConversations(data);
       return data || [];

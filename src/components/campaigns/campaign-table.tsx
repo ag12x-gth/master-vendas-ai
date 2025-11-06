@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +35,7 @@ import { DateRangePicker } from '../ui/date-range-picker';
 import type { DateRange } from 'react-day-picker';
 import { addDays } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { useDebounce } from '@/hooks/use-debounce';
 
 
 type CampaignTableProps = {
@@ -58,7 +59,7 @@ const statusConfig = {
 } as const;
 
 
-function CampaignCard({ campaign, onUpdate, onDelete, allTemplates }: { campaign: Campaign, onUpdate: () => void, onDelete: (id: string) => void, allTemplates: Template[] }) {
+const CampaignCard = memo(({ campaign, onUpdate, onDelete, allTemplates }: { campaign: Campaign, onUpdate: () => void, onDelete: (id: string) => void, allTemplates: Template[] }) => {
     const { toast } = useToast();
     const [isTriggering, setIsTriggering] = useState(false);
     const statusKey = campaign.status as keyof typeof statusConfig;
@@ -208,7 +209,9 @@ function CampaignCard({ campaign, onUpdate, onDelete, allTemplates }: { campaign
         </CardFooter>
       </Card>
     );
-  }
+});
+
+CampaignCard.displayName = 'CampaignCard';
 
 export function CampaignTable({ channel }: CampaignTableProps) {
   const { toast } = useToast();
@@ -236,6 +239,10 @@ export function CampaignTable({ channel }: CampaignTableProps) {
   const [selectedId, setSelectedId] = useState('all');
   const [view, setView] = useState<ViewType>('grid');
 
+  const debouncedFilterType = useDebounce(filterType, 500);
+  const debouncedSelectedId = useDebounce(selectedId, 500);
+  const debouncedDateRange = useDebounce(dateRange, 500);
+
   const fetchCampaigns = useCallback(async () => {
     setLoading(true);
     try {
@@ -244,12 +251,12 @@ export function CampaignTable({ channel }: CampaignTableProps) {
             page: page.toString(),
             limit: limit.toString(),
         });
-        if (dateRange?.from) params.set('startDate', dateRange.from.toISOString());
-        if (dateRange?.to) params.set('endDate', dateRange.to.toISOString());
+        if (debouncedDateRange?.from) params.set('startDate', debouncedDateRange.from.toISOString());
+        if (debouncedDateRange?.to) params.set('endDate', debouncedDateRange.to.toISOString());
 
-        if (filterType === 'connection' && selectedId !== 'all') params.set('connectionId', selectedId);
-        if (filterType === 'template' && selectedId !== 'all') params.set('templateId', selectedId);
-        if (filterType === 'gateway' && selectedId !== 'all') params.set('gatewayId', selectedId);
+        if (debouncedFilterType === 'connection' && debouncedSelectedId !== 'all') params.set('connectionId', debouncedSelectedId);
+        if (debouncedFilterType === 'template' && debouncedSelectedId !== 'all') params.set('templateId', debouncedSelectedId);
+        if (debouncedFilterType === 'gateway' && debouncedSelectedId !== 'all') params.set('gatewayId', debouncedSelectedId);
 
         const response = await fetch(`/api/v1/campaigns?${params.toString()}`);
         if (!response.ok) throw new Error('Falha ao buscar campanhas.');
@@ -271,7 +278,7 @@ export function CampaignTable({ channel }: CampaignTableProps) {
     } finally {
         setLoading(false);
     }
-  }, [toast, channel, page, limit, dateRange, filterType, selectedId]);
+  }, [toast, channel, page, limit, debouncedDateRange, debouncedFilterType, debouncedSelectedId]);
 
   useEffect(() => {
     fetchCampaigns();
@@ -302,7 +309,8 @@ export function CampaignTable({ channel }: CampaignTableProps) {
 
   const handleFilterTypeChange = (type: string) => {
     setFilterType(type);
-    setSelectedId('all'); // Reset selection when type changes
+    setSelectedId('all');
+    setPage(1);
   };
 
   const handleCampaignDeleted = (campaignId: string) => {

@@ -1,4 +1,4 @@
-renderização dinâmica sempre E2E: `tests/RESULTADOS-E2E-TESTS.md` (Teste requer manual)/e2e/ai-metrics.spec.ts`// src/app/api/v1/conversations/route.ts
+// src/app/api/v1/conversations/route.ts
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { conversations, contacts, messages, connections } from '@/lib/db/schema';
@@ -8,14 +8,17 @@ import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
     try {
         const companyId = await getCompanyIdFromSession();
         
-        // Cache de conversas (30 segundos - dados dinâmicos)
-        const cacheKey = `conversations:${companyId}`;
+        const { searchParams } = new URL(request.url);
+        const limit = parseInt(searchParams.get('limit') || '50', 10);
+        const offset = parseInt(searchParams.get('offset') || '0', 10);
+        
+        const cacheKey = `conversations:${companyId}:${limit}:${offset}`;
         const data = await getCachedOrFetch(cacheKey, async () => {
-            return await fetchConversationsData(companyId);
+            return await fetchConversationsData(companyId, limit, offset);
         }, CacheTTL.SHORT);
 
         return NextResponse.json(data);
@@ -25,7 +28,7 @@ export async function GET(_request: NextRequest) {
     }
 }
 
-async function fetchConversationsData(companyId: string) {
+async function fetchConversationsData(companyId: string, limit: number = 50, offset: number = 0) {
         
         const lastMessageSubquery = db
             .select({
@@ -84,7 +87,21 @@ async function fetchConversationsData(companyId: string) {
             eq(contacts.id, activeConversationsCountSubquery.contactId)
         )
         .where(eq(conversations.companyId, companyId))
-        .orderBy(desc(conversations.lastMessageAt));
+        .orderBy(desc(conversations.lastMessageAt))
+        .limit(limit)
+        .offset(offset);
         
-        return companyConversations;
+        const [totalCountResult] = await db
+            .select({ count: sql<number>`count(*)::int` })
+            .from(conversations)
+            .where(eq(conversations.companyId, companyId));
+        
+        const totalCount = totalCountResult?.count || 0;
+        
+        return {
+            data: companyConversations,
+            total: totalCount,
+            limit,
+            offset
+        };
 }

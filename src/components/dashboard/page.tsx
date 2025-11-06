@@ -2,7 +2,8 @@
 // src/components/dashboard/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import type { DateRange } from 'react-day-picker';
 import { subDays, startOfDay } from 'date-fns';
 import {
@@ -13,24 +14,84 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { StatsCards } from '@/components/analytics/stats-cards';
-import { CampaignPerformanceChart } from '@/components/analytics/campaign-performance-chart';
-import { MessageStatusChart } from '@/components/analytics/message-status-chart';
 import { QuickShortcuts } from '@/components/dashboard/quick-shortcuts';
 import { OngoingCampaigns } from '@/components/dashboard/ongoing-campaigns';
 import { PendingConversations } from '@/components/dashboard/pending-conversations';
 import { PageHeader } from '@/components/page-header';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
-import { AttendanceTrendChart } from '@/components/analytics/attendance-trend-chart';
-import { AgentPerformanceTable } from '@/components/analytics/agent-performance-table';
 import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
-import { Rocket, ArrowRight } from 'lucide-react';
+import { Rocket, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { ConnectionAlerts } from '@/components/dashboard/connection-alerts';
-import { VapiMetricsCard } from '@/components/dashboard/vapi-metrics-card';
-import { CallKPIDashboard, RecentCallsTable } from '@/components/vapi-voice';
 import { useVapiCalls } from '@/hooks/useVapiCalls';
-import { AIPerformanceSection } from '@/components/dashboard/ai-performance-section';
+
+const CampaignPerformanceChart = dynamic(() => import('@/components/analytics/campaign-performance-chart').then(mod => ({ default: mod.CampaignPerformanceChart })), { 
+  ssr: false,
+  loading: () => <ChartSkeleton />
+});
+
+const MessageStatusChart = dynamic(() => import('@/components/analytics/message-status-chart').then(mod => ({ default: mod.MessageStatusChart })), { 
+  ssr: false,
+  loading: () => <ChartSkeleton />
+});
+
+const AttendanceTrendChart = dynamic(() => import('@/components/analytics/attendance-trend-chart').then(mod => ({ default: mod.AttendanceTrendChart })), { 
+  ssr: false,
+  loading: () => <ChartSkeleton />
+});
+
+const AgentPerformanceTable = dynamic(() => import('@/components/analytics/agent-performance-table').then(mod => ({ default: mod.AgentPerformanceTable })), { 
+  ssr: false,
+  loading: () => <TableSkeleton />
+});
+
+const CallKPIDashboard = dynamic(() => import('@/components/vapi-voice').then(mod => ({ default: mod.CallKPIDashboard })), { 
+  ssr: false,
+  loading: () => <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"><CardSkeleton /><CardSkeleton /><CardSkeleton /><CardSkeleton /></div>
+});
+
+const RecentCallsTable = dynamic(() => import('@/components/vapi-voice').then(mod => ({ default: mod.RecentCallsTable })), { 
+  ssr: false,
+  loading: () => <TableSkeleton />
+});
+
+const AIPerformanceSection = dynamic(() => import('@/components/dashboard/ai-performance-section').then(mod => ({ default: mod.AIPerformanceSection })), { 
+  ssr: false,
+  loading: () => <div className="space-y-4"><CardSkeleton /><CardSkeleton /></div>
+});
+
+function ChartSkeleton() {
+  return (
+    <div className="h-[300px] w-full animate-pulse bg-muted rounded-md flex items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+    </div>
+  );
+}
+
+function TableSkeleton() {
+  return (
+    <div className="space-y-3">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="h-12 w-full animate-pulse bg-muted rounded-md" />
+      ))}
+    </div>
+  );
+}
+
+function CardSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <div className="h-4 w-24 animate-pulse bg-muted rounded" />
+      </CardHeader>
+      <CardContent>
+        <div className="h-8 w-16 animate-pulse bg-muted rounded mb-2" />
+        <div className="h-3 w-32 animate-pulse bg-muted rounded" />
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function DashboardClient() {
   const { metrics: vapiMetrics, calls: vapiCalls, loading: vapiLoading } = useVapiCalls(true);
