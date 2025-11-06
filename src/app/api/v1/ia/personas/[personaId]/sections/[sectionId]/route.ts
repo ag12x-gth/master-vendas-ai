@@ -15,6 +15,10 @@ export async function PUT(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
     const user = session.user;
+    
+    if (!user.companyId) {
+      return NextResponse.json({ error: 'Usuário sem empresa associada' }, { status: 400 });
+    }
 
     const { personaId, sectionId } = params;
 
@@ -44,9 +48,11 @@ export async function PUT(
       )
       .limit(1);
 
-    if (!existingSection.length) {
+    if (!existingSection.length || !existingSection[0]) {
       return NextResponse.json({ error: 'Seção não encontrada' }, { status: 404 });
     }
+    
+    const section = existingSection[0];
 
     const body = await request.json();
     const { sectionName, content, language, priority, tags } = body;
@@ -54,11 +60,11 @@ export async function PUT(
     const [updatedSection] = await db
       .update(personaPromptSections)
       .set({
-        sectionName: sectionName || existingSection[0].sectionName,
-        content: content || existingSection[0].content,
-        language: language || existingSection[0].language,
-        priority: priority !== undefined ? priority : existingSection[0].priority,
-        tags: tags !== undefined ? tags : existingSection[0].tags,
+        sectionName: sectionName || section.sectionName,
+        content: content || section.content,
+        language: language || section.language,
+        priority: priority !== undefined ? priority : section.priority,
+        tags: tags !== undefined ? tags : section.tags,
         updatedAt: new Date(),
       })
       .where(eq(personaPromptSections.id, sectionId))
@@ -84,6 +90,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
     const user = session.user;
+    
+    if (!user.companyId) {
+      return NextResponse.json({ error: 'Usuário sem empresa associada' }, { status: 400 });
+    }
 
     const { personaId, sectionId } = params;
 

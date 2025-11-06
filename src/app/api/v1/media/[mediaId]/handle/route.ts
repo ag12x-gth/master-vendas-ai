@@ -39,6 +39,9 @@ export async function POST(request: NextRequest, { params }: { params: { mediaId
         }
         
         const wabaId = connection.wabaId;
+        if (!wabaId) {
+            return NextResponse.json({ error: 'Conexão não possui WABA ID configurado.' }, { status: 400 });
+        }
 
         const existingHandles = (asset.metaHandles || []) as MetaHandle[];
         const existingHandle = existingHandles.find(h => h.wabaId === wabaId);

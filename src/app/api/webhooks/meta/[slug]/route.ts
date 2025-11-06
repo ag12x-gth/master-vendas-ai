@@ -70,7 +70,7 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
 
         console.log(`✅ [Meta Webhook] Conexão ativa: ${connection.config_name} (Phone ID: ${connection.phoneNumberId})`);
 
-        const decryptedAppSecret = connection ? decrypt(connection.appSecret) : null;
+        const decryptedAppSecret = (connection && connection.appSecret) ? decrypt(connection.appSecret) : null;
 
         if (!decryptedAppSecret) {
             console.error(`❌ [Meta Webhook] Falha ao descriptografar App Secret para ${connection.config_name}`);
@@ -229,7 +229,7 @@ async function processIncomingMessage(
             throw new Error('Connection not found');
         }
 
-        console.log(`✅ [Meta Webhook] Conexão encontrada: ${connection.configName}`);
+        console.log(`✅ [Meta Webhook] Conexão encontrada: ${connection.config_name}`);
 
         const initialPhone = sanitizePhone(contactData.wa_id);
         if (!initialPhone) throw new Error('Invalid phone number');

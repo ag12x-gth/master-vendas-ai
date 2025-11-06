@@ -66,6 +66,14 @@ export async function POST(_request: NextRequest) {
 
         for (const conn of uniqueWabas) {
             try {
+                if (!conn.wabaId) {
+                    console.warn(`Conexão ${conn.config_name} não possui WABA ID. Pulando sincronização.`);
+                    continue;
+                }
+                
+                if (!conn.accessToken) {
+                    throw new Error(`Token de acesso ausente para a conexão associada à WABA ${conn.wabaId}`);
+                }
                 const decryptedToken = decrypt(conn.accessToken);
                 if (!decryptedToken) {
                     throw new Error(`Falha ao desencriptar token para a conexão associada à WABA ${conn.wabaId}`);
