@@ -216,9 +216,12 @@ Preferred communication style: Simple, everyday language.
 - Meta Template ID: `624920360610224`
 - Category: UTILITY (transactional, high approval rate)
 - Status: ⏳ PENDING (awaiting Meta approval)
+- Submitted at: 06/11/2025 05:56
 - Learned: Headers cannot contain emojis, formatting, asterisks, or newlines
 - First attempt: Rejected (emoji in header)
 - Second attempt: SUCCESS - Template accepted, awaiting approval
 - Approval time: Typically 5 minutes to 4 hours for UTILITY templates
 - Next step: When approved, test real message sending via campaign
 - Contacts available for testing: 5 contacts (Marco, Walison, Diego, José, LEAD SOROCABA 4)
+- **Fixed**: React Hydration error in MobileMenuButton (server/client mismatch) - Added mounted state to ensure consistent SSR/CSR rendering (06/11/2025 06:05)
+- Full documentation: `docs/TEMPLATE_REAL_SUBMISSION_GUIDE.md`, `docs/NEXT_STEPS_AFTER_APPROVAL.md`
