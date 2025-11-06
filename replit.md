@@ -33,9 +33,10 @@ Preferred communication style: Simple, everyday language.
 - Data Models: Companies, users, connections, campaigns, contacts, conversations, messages, AI personas, automation rules
 
 **WhatsApp Integration**
-- Meta Cloud API: Official WhatsApp Business API integration
+- Meta Cloud API: Official WhatsApp Business API integration (v21.0)
 - Baileys Library: @whiskeysockets/baileys 7.0.0-rc.6 for QR code sessions
 - Dual Mode: Supports both Cloud API and local QR-based sessions
+- **WhatsApp Templates v2**: Complete message template management system with Meta Cloud API v21.0 integration (✅ E2E tested 06/11/2025)
 
 ### Core Architectural Decisions
 
@@ -163,3 +164,48 @@ Preferred communication style: Simple, everyday language.
 
 **CORS and CSRF**
 - Next.js built-in CORS handling and CSRF protection.
+
+## Recent System Features
+
+### WhatsApp Templates v2 System (Completed 06/11/2025)
+
+**Status**: ✅ Production-ready, E2E tested
+
+**Components**:
+- Interface: `/templates-v2` - Complete template builder with real-time preview
+- API Routes: 
+  - `GET /api/v1/message-templates` - List templates
+  - `POST /api/v1/message-templates` - Create templates
+  - `POST /api/v1/message-templates/[id]/submit` - Submit to Meta Cloud API
+- Service Layer: `src/lib/metaTemplatesService.ts` - Meta Cloud API v21.0 integration
+- Database: `message_templates` table with full template lifecycle tracking
+
+**Features**:
+- Template Builder with validation (header 60 chars, body 1024 chars)
+- Real-time preview of templates
+- Variable detection and validation ({{1}}, {{2}}, etc.)
+- Component types: HEADER, BODY, FOOTER, BUTTONS (preserved as UPPERCASE for Meta API)
+- Emoji and Unicode validation
+- Name validation (lowercase, numbers, underscore only)
+- Category support: UTILITY, MARKETING, AUTHENTICATION
+- Status tracking: DRAFT → PENDING → APPROVED/REJECTED
+- Integration with campaign system for message dispatching
+
+**E2E Test Results** (06/11/2025):
+- ✅ Template creation and storage
+- ✅ Campaign queue processing
+- ✅ Meta Cloud API integration (payload format validated)
+- ✅ Delivery report tracking
+- ✅ Error handling and logging
+- Test infrastructure: 3 test contacts, 1 contact list, 2 templates, 1 campaign executed
+- Full documentation: `docs/WHATSAPP_TEMPLATES_V2_E2E_GUIDE.md`
+
+**Critical Technical Notes**:
+- Component types MUST be uppercase (HEADER, BODY, FOOTER, BUTTONS) - Meta API requirement
+- Template names: lowercase only, no spaces, underscore separator
+- Dual table structure: `message_templates` (v2) and `templates` (v1 legacy) - campaigns reference legacy table
+- Hook import fix: Changed `@/hooks/use-responsive` to `@/hooks/use-mobile` (correct path)
+
+**Active Meta Connections**:
+- roseli-5865-2 (WABA: 399691246563833, Phone: 391262387407327)
+- Empresa-0589 (WABA: WABA123456)
