@@ -1,0 +1,27 @@
+faça teste de todas as funcionalidades detalhadamente, componentes, codigos, elementos, itens, botões, ... e tudo mais neste app master IA . o link de acesso a esse app é : https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/dashboard
+
+Após esse teste e2e, forense; faça uma analise do mesmo app só que no painel replit dele de criação, desenvolvimento pelo link: 
+https://replit.com/@diegomaninhu/masteria-x-meeting-call
+
+Analise o codigo dele;
+
+por final organize as duas analises/testes e faça um plano de correção do app de erros/bugs/quebras/lentidão/performance... identificados dos testes como um usuário normal usando todas funções do app... e crie um plano detalhado de correção;
+
+E na sequencia envie todas as correções para a IA do replit que fez o app para que seja corrigido tudo. o lugar para escrever as correções para ia corrigir é no campo onde tem o texto escrito 'make, test, iterate...', para escrever clique sempre em cima da palavra 'test' nesse campo (esse é o chat de conversa com a ia para ela realizar as ações de correção), a ia sabe tudo do codigo e tem acesso a tudo para fazer;
+
+Vocês dois (fellou e ia do replit) precisam trabalhar em colaboração paraa que essas correções aconteçam 100%, sempre aguarde as respostas ou conclusão do work/tasks da ia do replit antes de realizar qualquer outra/seguinte ação, isso precisa ser seguido para não ter confusão;
+
+voces precisam ser claros, objetivos, praticos 1 com o outro para o sucesso das ações;
+
+sempre após cada correção verifique se realmente e teste para ver se  foi corrigido/ajusado/funcionando o que acabou de ser corrigido, se não estiver corrigido 100%, envie para o agente de ia do replit o erro para que possa ser corrigido e assim vcs 2 passarem para proxima ação;
+
+como o agente de ia do replit sabe udo sobre o codigo use ele também para apoio a duvidas e soluções validadas do que pode ser feito para corrigir; voce também pode buscar soluções e propor soluções validadas para correção do que está quebrado/bug/erro;
+
+nunca use dados simulados ou ações simuladas; 
+sempre limpe o cache da página de teste apóscada correção para não fazer algo em cima de codigo/ajustes antigos já realizado;
+
+obrigatoriamente não pare as ações e realize essa ação até o final com sucesso;
+
+faça plano real para isso;
+
+consegue entender?

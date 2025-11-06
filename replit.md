@@ -8,6 +8,25 @@ Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control pan
 
 Preferred communication style: Simple, everyday language.
 
+## Troubleshooting
+
+### Layout/CSS Quebrado (Problema Recorrente)
+
+**Sintoma**: Layout aparece sem CSS, apenas HTML puro (texto e links sem estilo).
+
+**Causa**: Erro EADDRINUSE - Porta 5000 bloqueada impede o servidor Next.js de iniciar e processar Tailwind CSS.
+
+**Solução Rápida**:
+1. Clique em "Stop" no workflow Frontend
+2. Aguarde 3 segundos
+3. Clique em "Run" novamente
+
+**Arquivos Críticos** (não deletar):
+- `tailwind.config.js` - Configuração do Tailwind CSS
+- `postcss.config.js` - Processador CSS necessário
+
+Se os arquivos acima estiverem faltando, o CSS não funcionará.
+
 ## System Architecture
 
 ### Technology Stack
