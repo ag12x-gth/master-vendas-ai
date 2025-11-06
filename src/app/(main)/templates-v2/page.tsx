@@ -58,7 +58,7 @@ import {
 import { TemplateBuilder } from '@/components/message-templates/template-builder';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { useIsMobile } from '@/hooks/use-responsive';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Connection {
   id: string;
