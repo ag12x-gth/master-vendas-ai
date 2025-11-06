@@ -142,6 +142,7 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
 
                     const components: Record<string, unknown>[] = [];
                     if (requiresMedia && campaign.mediaAssetId) {
+                        if (!connection.wabaId) throw new Error(`Conexão ${connection.config_name} não possui WABA ID configurado.`);
                         const { handle, asset } = await getMediaData(campaign.mediaAssetId, connection.id, connection.wabaId);
                         const headerType = template.headerType!.toLowerCase() as 'image' | 'video' | 'document';
                         const mediaObject: { id: string; filename?: string } = { id: handle };

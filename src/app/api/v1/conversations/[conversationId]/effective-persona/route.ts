@@ -88,10 +88,10 @@ export async function GET(
       }
     }
 
-    if (!effectivePersonaId && conversation.connection.assignedPersonaId) {
+    if (!effectivePersonaId && conversation.connection?.assignedPersonaId) {
       effectivePersonaId = conversation.connection.assignedPersonaId;
       source = 'connection';
-      details = { connectionName: conversation.connection.name };
+      details = { connectionName: conversation.connection.config_name };
     }
 
     if (!effectivePersonaId && conversation.assignedPersonaId) {
@@ -113,7 +113,6 @@ export async function GET(
       persona: personaInfo ? {
         id: personaInfo.id,
         name: personaInfo.name,
-        description: personaInfo.description,
         provider: personaInfo.provider
       } : null,
       manualPersonaId: conversation.assignedPersonaId

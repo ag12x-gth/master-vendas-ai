@@ -100,6 +100,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const components: any[] = [];
         if (template.headerType && template.headerType !== 'NONE' && template.headerType !== 'TEXT') {
             if (!mediaAssetId) throw new Error("Este modelo requer um anexo de mídia.");
+            if (!connection.wabaId) throw new Error("Conexão não possui WABA ID configurado.");
             const { handle, asset } = await getMediaData(mediaAssetId, connection.id, connection.wabaId);
             const headerType = template.headerType.toLowerCase() as 'image' | 'video' | 'document';
             

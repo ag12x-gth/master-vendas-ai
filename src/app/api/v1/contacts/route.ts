@@ -172,15 +172,17 @@ async function fetchContactsData(params: {
         const tagsByContact: Record<string, Array<{id: string, name: string, color: string}>> = {};
         for (const tag of allTags) {
             if (!tag.contactId || !tag.id || !tag.name) continue;
-            if (!tagsByContact[tag.contactId]) tagsByContact[tag.contactId] = [];
-            tagsByContact[tag.contactId].push({ id: tag.id, name: tag.name, color: tag.color || '' });
+            const existing = tagsByContact[tag.contactId] ?? [];
+            existing.push({ id: tag.id, name: tag.name, color: tag.color || '' });
+            tagsByContact[tag.contactId] = existing;
         }
         
         const listsByContact: Record<string, Array<{id: string, name: string}>> = {};
         for (const list of allLists) {
             if (!list.contactId || !list.id || !list.name) continue;
-            if (!listsByContact[list.contactId]) listsByContact[list.contactId] = [];
-            listsByContact[list.contactId].push({ id: list.id, name: list.name });
+            const existing = listsByContact[list.contactId] ?? [];
+            existing.push({ id: list.id, name: list.name });
+            listsByContact[list.contactId] = existing;
         }
         
         // Combinar os dados
