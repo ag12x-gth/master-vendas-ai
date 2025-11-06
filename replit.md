@@ -209,3 +209,16 @@ Preferred communication style: Simple, everyday language.
 **Active Meta Connections**:
 - roseli-5865-2 (WABA: 399691246563833, Phone: 391262387407327)
 - Empresa-0589 (WABA: WABA123456)
+
+**Real Template Submission (06/11/2025)**:
+- ✅ REAL template submitted to Meta Cloud API v21.0
+- Template Name: `lembrete_consulta_masterial`
+- Meta Template ID: `624920360610224`
+- Category: UTILITY (transactional, high approval rate)
+- Status: ⏳ PENDING (awaiting Meta approval)
+- Learned: Headers cannot contain emojis, formatting, asterisks, or newlines
+- First attempt: Rejected (emoji in header)
+- Second attempt: SUCCESS - Template accepted, awaiting approval
+- Approval time: Typically 5 minutes to 4 hours for UTILITY templates
+- Next step: When approved, test real message sending via campaign
+- Contacts available for testing: 5 contacts (Marco, Walison, Diego, José, LEAD SOROCABA 4)

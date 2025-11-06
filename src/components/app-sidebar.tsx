@@ -94,8 +94,13 @@ export function useSidebar() {
 export function MobileMenuButton() {
   const { toggleMobile, isMobileOpen } = useSidebar();
   const { isMobile } = useResponsive();
+  const [mounted, setMounted] = useState(false);
 
-  if (!isMobile) return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || !isMobile) return null;
 
   return (
     <Button
