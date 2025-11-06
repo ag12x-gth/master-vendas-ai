@@ -1,4 +1,4 @@
-// src/app/api/v1/conversations/route.ts
+renderização dinâmica sempre E2E: `tests/RESULTADOS-E2E-TESTS.md` (Teste requer manual)/e2e/ai-metrics.spec.ts`// src/app/api/v1/conversations/route.ts
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { conversations, contacts, messages, connections } from '@/lib/db/schema';
