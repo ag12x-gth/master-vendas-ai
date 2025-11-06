@@ -2,59 +2,11 @@
 
 ## Overview
 
-Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control panel with AI automation capabilities. The platform enables businesses to manage multi-channel campaigns, customer service conversations, and AI-powered chatbots through an intuitive dashboard.
-
-**Core Purpose**: Centralized platform for managing WhatsApp/SMS campaigns, customer conversations, contact management (CRM), and AI-driven customer service automation using Meta's WhatsApp Business API and Baileys library.
+Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control panel with AI automation capabilities. The platform enables businesses to manage multi-channel campaigns, customer service conversations, and AI-powered chatbots through an intuitive dashboard. Its core purpose is to provide a centralized platform for managing WhatsApp/SMS campaigns, customer conversations, contact management (CRM), and AI-driven customer service automation using Meta's WhatsApp Business API and Baileys library.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-
-## Recent Changes
-
-### November 6, 2025 - Production Build TypeScript Fixes (Complete)
-- **Issue**: Build failing with 20+ TypeScript errors preventing production deployment
-- **Root Cause**: Multiple null safety violations with `decrypt()` function and schema property mismatches
-- **Solution**: Systematic null safety pattern implementation across entire codebase
-- **Files Modified** (14 files):
-  - `src/app/api/v1/contacts/route.ts` - Fixed tagsByContact undefined
-  - `src/app/api/v1/conversations/[conversationId]/effective-persona/route.ts` - Fixed connection null, removed non-existent description property
-  - `src/app/api/v1/conversations/start/route.ts` - Added wabaId null check before getMediaData
-  - `src/lib/campaign-sender.ts` - Added wabaId null check before getMediaData
-  - `src/app/api/v1/ia/personas/[personaId]/sections/[sectionId]/route.ts` - Fixed user.companyId null, section undefined
-  - `src/app/api/v1/media/[mediaId]/handle/route.ts` - Added wabaId null check
-  - `src/app/api/v1/templates/sync/route.ts` - Added wabaId and accessToken null checks with early continue
-  - `src/app/api/webhooks/meta/[slug]/route.ts` - Fixed appSecret null, configName → config_name, accessToken null (line 265)
-- **Critical Pattern**: `decrypt()` requires `string`, not `string | null`. Must check null before calling
-- **Schema Fixes**: Changed `connection.name` → `connection.config_name`, removed `aiPersonas.description`
-- **Final Fix**: Added null check for `connection.accessToken` before decrypt in webhook media processing (line 265-271)
-- **Status**: ✅ Production build passing without TypeScript errors
-- **Validation**: All null safety checks in place, ready for deployment
-
-### November 6, 2025 - Deployment Fix: Module Not Found Error
-- **Issue**: Build failing with "Module not found: Can't resolve '@/lib/auth'"
-- **Root Cause**: API route importing from non-existent `@/lib/auth` module
-- **Solution**: Corrected imports to use `getUserSession` from `@/app/actions`
-- **Files Modified**: `src/app/api/v1/ia/personas/[personaId]/sections/[sectionId]/route.ts`
-- **Status**: Resolved in subsequent TypeScript fixes
-- **Documentation**: `DEPLOYMENT_FIX_MODULE_NOT_FOUND.md`
-
-### November 5, 2025 - Bug Fix: Baileys Connection Health Check
-- **Issue**: Dashboard incorrectly showed "Falha ao descriptografar o token de acesso" for Baileys connections
-- **Root Cause**: Health check endpoint was attempting to decrypt `accessToken` for ALL connections, including Baileys (which use QR code auth and have NULL token)
-- **Solution**: Updated `/api/v1/connections/health` to differentiate between connection types:
-  - Baileys connections: Considered healthy if active (no token check needed)
-  - Meta API connections: Verify and decrypt accessToken as before
-- **Files Modified**: `src/app/api/v1/connections/health/route.ts`
-- **Documentation**: `BAILEYS_CONNECTION_HEALTH_FIX.md`
-
-### November 5, 2025 - Mobile Responsiveness Implementation
-- **Achievement**: Complete mobile-first responsive design across all 7 phases (19-26h plan)
-- **Coverage**: 375px (iPhone SE) to 2560px (4K monitors) with 8 breakpoints
-- **New Components**: 15 responsive components including MobileNav, ResponsiveSidebar, useResponsive hook
-- **Critical Fix**: MobileNav route corrected from `/conversations` to `/atendimentos`
-- **Files**: `tailwind.config.mjs`, `src/hooks/useResponsive.ts`, `src/components/responsive/*`, `src/app/(main)/layout.tsx`
-- **Documentation**: `MOBILE_RESPONSIVE_PLAN.md`, `RESPONSIVE_IMPLEMENTATION_SUMMARY.md`
 
 ## System Architecture
 
@@ -84,200 +36,130 @@ Preferred communication style: Simple, everyday language.
 - Meta Cloud API: Official WhatsApp Business API integration
 - Baileys Library: @whiskeysockets/baileys 7.0.0-rc.6 for QR code sessions
 - Dual Mode: Supports both Cloud API and local QR-based sessions
-- Session Management: Filesystem-based auth state persistence in `whatsapp_sessions/`
 
 ### Core Architectural Decisions
 
 **1. Dual WhatsApp Connection Strategy**
-- **Problem**: Need to support both official Meta API and local WhatsApp connections
-- **Solution**: Implemented dual-mode system with `BaileysSessionManager` for QR code sessions and Meta Cloud API handlers
-- **Rationale**: Provides flexibility for users without business verification while maintaining official API support
-- **Implementation**: Separate service layers with unified connection interface
+- Supports both official Meta API and local WhatsApp connections (Baileys for QR code sessions).
+- Provides flexibility for users without business verification while maintaining official API support.
 
 **2. Real-time Communication Architecture**
-- **Problem**: Need instant updates for conversations, campaign status, and AI responses
-- **Solution**: Socket.IO integration with custom server.js wrapping Next.js
-- **Rationale**: Next.js native WebSocket support is limited; custom server enables full Socket.IO capabilities
-- **Trade-offs**: Slight deployment complexity, but essential for real-time features
+- Socket.IO integration for instant updates on conversations, campaign status, and AI responses.
+- Uses a custom server.js wrapper for Next.js to leverage full Socket.IO capabilities.
 
 **3. AI Personas and Automation Engine**
-- **Problem**: Multiple AI providers with different conversation contexts
-- **Solution**: Persona-based architecture with provider abstraction (OpenAI, Google Gemini)
-- **Implementation**: 
-  - `ai-personas` table stores AI configurations
-  - Automation rules trigger AI responses based on conversation state
-  - Vector database for RAG (Retrieval-Augmented Generation) capabilities
-- **Providers**: OpenAI GPT models, Google Gemini via AI SDK
+- Persona-based architecture with provider abstraction (OpenAI, Google Gemini) for multiple AI providers.
+- `ai-personas` table stores AI configurations, and automation rules trigger AI responses.
+- Vector database for RAG (Retrieval-Augmented Generation) capabilities.
 
 **4. Campaign Queue Management**
-- **Problem**: Need to process thousands of messages without overwhelming APIs
-- **Solution**: Custom queue system with rate limiting and retry logic
-- **Implementation**: Database-backed queue with status tracking (pending, sending, sent, failed)
-- **Rate Limits**: Configurable per connection to respect provider limits
+- Custom queue system with rate limiting and retry logic to process messages efficiently without overwhelming APIs.
+- Database-backed queue with status tracking.
 
 **5. Encryption Strategy**
-- **Problem**: Sensitive data (API keys, tokens) must be encrypted at rest
-- **Solution**: AES-256-GCM encryption with environment-based key
-- **Implementation**: `src/lib/crypto.ts` with automatic key hashing for compatibility
-- **Warning**: Key changes require data re-encryption
+- AES-256-GCM encryption with an environment-based key for sensitive data (API keys, tokens) at rest.
+- Implemented via `src/lib/crypto.ts`.
 
 **6. Multi-tenant Architecture**
-- **Problem**: Support multiple companies/users with data isolation
-- **Solution**: Company-based tenant model with user relationships
-- **Schema**: `companies` -> `users`, `connections`, `contacts`, `campaigns`
-- **Access Control**: JWT tokens include `companyId` for row-level security
+- Company-based tenant model with user relationships for data isolation among multiple companies/users.
+- JWT tokens include `companyId` for row-level security.
 
 ### API Architecture
 
 **Webhook System**
-- **Meta Webhooks**: `/api/webhooks/meta/[slug]` with signature verification
-- **Verification Flow**: Hub challenge-response with verify token
-- **Security**: HMAC signature validation using app secret
-- **Event Processing**: Asynchronous message processing with automation triggers
+- Meta Webhooks: `/api/webhooks/meta/[slug]` with signature verification and HMAC validation.
+- Asynchronous message processing with automation triggers.
 
 **RESTful Endpoints**
-- `/api/v1/connections`: WhatsApp connection management
-- `/api/v1/campaigns`: Campaign CRUD and execution
-- `/api/v1/contacts`: CRM operations
-- `/api/v1/conversations`: Conversation and message management
-- `/api/v1/ia/personas`: AI agent configuration
-- `/api/v1/whatsapp/sessions`: Baileys session control
+- Provides endpoints for managing connections, campaigns, contacts, conversations, AI personas, and Baileys sessions.
 
 **Authentication Flow**
-1. User login generates JWT with `userId` and `companyId`
-2. Token stored in HTTP-only cookie (`__session`)
-3. Middleware validates token on protected routes
-4. Email verification required for full access
+- JWT-based authentication with `userId` and `companyId` stored in HTTP-only cookies.
+- Middleware validates tokens on protected routes, and email verification is required.
 
 ### Data Flow Patterns
 
 **Incoming WhatsApp Message**
-1. Meta webhook receives event → signature verification
-2. Message stored in database with conversation linking
-3. Automation engine evaluates rules for conversation
-4. If AI-enabled: Persona processes message with context
-5. Response sent via Meta API or Baileys
-6. Socket.IO broadcasts updates to connected clients
+- Meta webhook receives event, verifies signature, stores message, and links to conversations.
+- Automation engine evaluates rules, AI persona processes messages, and responses are sent via Meta API or Baileys.
+- Socket.IO broadcasts updates to clients.
 
 **Campaign Execution**
-1. User creates campaign with message template
-2. Queue processor fetches contacts in batches
-3. Rate limiter enforces provider-specific delays
-4. Messages sent via selected connection (Meta/Baileys)
-5. Status updates tracked per message
-6. Real-time progress via Socket.IO
+- User creates campaign, queue processor fetches contacts, rate limiter applies delays.
+- Messages sent via selected connection, status tracked, and real-time progress via Socket.IO.
 
 ### Performance Considerations
 
 **Caching Strategy**
-- Custom "Replit Enhanced Cache" for API responses
-- In-memory + disk persistence for session data
-- Cache invalidation on data mutations
+- Custom "Replit Enhanced Cache" for API responses (in-memory + disk persistence).
+- Cache invalidation on data mutations.
 
 **Database Optimization**
-- Indexed columns: `companyId`, `connectionId`, `phoneNumber`
-- Timestamp-based partitioning for messages table (planned)
-- Connection pooling via `pg.Pool`
+- Indexed columns (`companyId`, `connectionId`, `phoneNumber`).
+- Connection pooling via `pg.Pool`.
 
 **Frontend Optimization**
-- Route-based code splitting (Next.js automatic)
-- Lazy loading for dashboard widgets
-- ShadCN components tree-shaken by default
+- Route-based code splitting, lazy loading for dashboard widgets, and tree-shaken ShadCN components.
 
 ## External Dependencies
 
 ### Third-Party APIs
 
 **Meta/WhatsApp Business Platform**
-- Graph API v23.0 for WhatsApp Cloud API
-- Required: Business App ID, App Secret, Phone Number ID
-- Authentication: Access tokens (user/system)
-- Webhook subscriptions for real-time events
-- Rate limits: Tier-based (10k/day default)
+- Graph API v23.0 for WhatsApp Cloud API, requiring Business App ID, App Secret, and Phone Number ID.
+- Uses access tokens and webhook subscriptions for real-time events.
 
 **Baileys WhatsApp Library**
-- Purpose: QR code-based WhatsApp sessions without business verification
-- Version: 7.0.0-rc.6 (release candidate)
-- Auth persistence: JSON files in `whatsapp_sessions/`
-- Connection lifecycle: QR generation, pairing, session maintenance
-- Limitations: Single-device mode, periodic re-authentication needed
+- @whiskeysockets/baileys 7.0.0-rc.6 for QR code-based WhatsApp sessions without business verification.
+- Auth persistence in JSON files in `whatsapp_sessions/`.
 
 ### AI/ML Services
 
 **OpenAI**
-- Models: GPT-3.5-turbo, GPT-4
-- SDK: `@ai-sdk/openai` for streaming responses
-- Usage: AI persona conversations, message generation
-- API Key: Required via environment variable
+- Models: GPT-3.5-turbo, GPT-4 via `@ai-sdk/openai` for AI persona conversations and message generation.
 
 **Google Generative AI**
-- Model: Gemini Pro
-- SDK: `@ai-sdk/google`, `@google/generative-ai`
-- Usage: Alternative AI provider for personas
-- API Key: GEMINI_API_KEY environment variable
+- Model: Gemini Pro via `@ai-sdk/google`, `@google/generative-ai` as an alternative AI provider.
 
 **Vector Database (pgvector)**
-- Extension: PostgreSQL with pgvector for embeddings
-- Purpose: RAG for AI context enhancement
-- Schema: Separate migration in `drizzle/vector/`
-- Connection: `VECTOR_DB_URL` environment variable
+- PostgreSQL with pgvector extension for RAG (Retrieval-Augmented Generation) capabilities.
 
 ### Cloud Services
 
 **AWS Services**
-- **S3**: Media file storage (images, documents, audio)
-- **CloudFront**: CDN for media delivery
-- **SES v2**: Email notifications and verification
-- Configuration: IAM credentials via environment variables
-- Bucket: Specified by `AWS_S3_BUCKET_NAME`
+- **S3**: Media file storage.
+- **CloudFront**: CDN for media delivery.
+- **SES v2**: Email notifications and verification.
 
 **Google Cloud Storage**
-- Alternative to S3 for file storage
-- SDK: `@google-cloud/storage`
-- Authentication: Service account credentials
+- Alternative to S3 for file storage.
 
 ### Infrastructure
 
 **PostgreSQL (Neon)**
-- Hosted database provider
-- Connection: `DATABASE_URL` with SSL
-- Separate instance for vector data (`VECTOR_DB_URL`)
+- Hosted database provider, including a separate instance for vector data.
 
 **Firebase (Optional)**
-- App Hosting for deployment
-- Secret Manager for environment variables
-- Configuration: `firebase.json` with backend config
+- App Hosting and Secret Manager for environment variables.
 
 **Replit Deployment**
-- Development environment with native PostgreSQL
-- Secrets management via Replit interface
-- Port: 5000 (configurable)
+- Development environment with native PostgreSQL and secrets management.
 
 ### Monitoring and Testing
 
 **Playwright**
-- End-to-end testing framework
-- Version: 1.55.1
-- Configuration: `playwright.config.ts`
-- Screenshot/video capture for failures
+- End-to-end testing framework (v1.55.1).
 
 **Socket.IO Client**
-- Real-time testing and connection verification
-- Browser and Node.js compatibility
+- For real-time testing and connection verification.
 
 ### Security Dependencies
 
 **Encryption**
-- `crypto` (Node.js built-in): AES-256-GCM encryption
-- Key derivation: SHA-256 hash of `ENCRYPTION_KEY`
-- IV generation: Random 16 bytes per operation
+- Node.js built-in `crypto` for AES-256-GCM encryption.
 
 **JWT**
-- Library: Custom implementation using `crypto.sign`
-- Secret: `JWT_SECRET_KEY` environment variable
-- Expiration: Configurable per token type
+- Custom implementation using `crypto.sign` for JWT tokens.
 
 **CORS and CSRF**
-- Next.js built-in CORS handling
-- CSRF protection for state-changing operations
-- Origin validation for webhooks
+- Next.js built-in CORS handling and CSRF protection.

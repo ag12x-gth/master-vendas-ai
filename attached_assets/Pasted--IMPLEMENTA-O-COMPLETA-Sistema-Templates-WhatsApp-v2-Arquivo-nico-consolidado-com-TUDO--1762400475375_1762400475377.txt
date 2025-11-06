@@ -1,0 +1,697 @@
+# 🚀 IMPLEMENTAÇÃO COMPLETA - Sistema Templates WhatsApp v2
+
+> **Arquivo único consolidado com TUDO que você precisa**  
+> **Copie este arquivo inteiro para o projeto masteria-x-meeting-call**
+
+---
+
+# PARTE 1: PROMPT PARA O AGENT3
+
+**INSTRUÇÕES:** Copie a seção abaixo (PARTE 1 completa) e cole no Agent3 do Replit.
+
+---
+
+## 🤖 PROMPT PARA AGENT3 - Implementação Sistema Templates WhatsApp v2
+
+Implemente completamente o **Sistema de Templates WhatsApp (Meta Cloud API v21.0)** no projeto usando o código fornecido neste arquivo.
+
+### 🎯 OBJETIVO
+Criar funcionalidade `/templates-v2` COMPLETA e FUNCIONAL para gerenciar Message Templates do WhatsApp Business via Meta Cloud API, incluindo:
+- CRUD completo de templates
+- Visual Builder com validação em tempo real
+- Submissão à Meta Cloud API
+- Sincronização de status
+- Interface mobile-first
+
+---
+
+## ✅ CHECKLIST DE IMPLEMENTAÇÃO
+
+Execute TODAS as etapas abaixo NA ORDEM:
+
+### **ETAPA 1: Preparar Banco de Dados**
+
+1. Abra o arquivo de schema do banco (provavelmente `shared/schema.ts` ou `src/lib/db/schema.ts`)
+
+2. Adicione EXATAMENTE esta tabela:
+
+```typescript
+export const messageTemplates = pgTable('message_templates', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar('name', { length: 512 }).notNull(),
+  displayName: varchar('display_name', { length: 255 }),
+  metaTemplateId: varchar('meta_template_id', { length: 255 }),
+  wabaId: varchar('waba_id', { length: 255 }).notNull(),
+  category: varchar('category', { length: 50 }).notNull(),
+  language: varchar('language', { length: 10 }).notNull().default('pt_BR'),
+  parameterFormat: varchar('parameter_format', { length: 20 }).default('POSITIONAL'),
+  status: varchar('status', { length: 50 }).notNull().default('DRAFT'),
+  rejectedReason: text('rejected_reason'),
+  components: jsonb('components').notNull(),
+  messageSendTtlSeconds: integer('message_send_ttl_seconds'),
+  companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+  connectionId: text('connection_id').notNull().references(() => connections.id, { onDelete: 'cascade' }),
+  createdBy: text('created_by').references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+  submittedAt: timestamp('submitted_at'),
+  approvedAt: timestamp('approved_at'),
+  sentCount: integer('sent_count').default(0),
+  lastUsedAt: timestamp('last_used_at'),
+  isActive: boolean('is_active').default(true),
+  allowCategoryChange: boolean('allow_category_change').default(true),
+}, (table) => ({
+  uniqueNameWaba: unique('message_templates_name_waba_unique').on(table.name, table.wabaId),
+}));
+```
+
+3. Rodar migration:
+```bash
+npm run db:push
+```
+
+**IMPORTANTE:** Se houver warning de data loss, use:
+```bash
+npm run db:push --force
+```
+
+---
+
+### **ETAPA 2: Instalar Dependências**
+
+Execute:
+```bash
+npm install @radix-ui/react-dialog @radix-ui/react-select @radix-ui/react-label date-fns
+```
+
+---
+
+### **ETAPA 3: Criar Service Layer**
+
+Crie o arquivo: `src/lib/metaTemplatesService.ts`
+
+Use o código da **PARTE 2** deste arquivo (seção "Service Layer").
+
+---
+
+### **ETAPA 4: Criar Componente Template Builder**
+
+1. Criar pasta: `src/components/message-templates/`
+
+2. Criar arquivo: `src/components/message-templates/template-builder.tsx`
+
+Use o código da **PARTE 3** deste arquivo (seção "Template Builder Component").
+
+---
+
+### **ETAPA 5: Criar API Routes**
+
+#### 5.1. CRUD Principal
+Crie: `src/app/api/v1/message-templates/route.ts`
+
+Use o código da **PARTE 4** deste arquivo (seção "API Route - CRUD").
+
+#### 5.2. Submeter à Meta
+Crie: `src/app/api/v1/message-templates/[id]/submit/route.ts`
+
+Use o código da **PARTE 5** deste arquivo (seção "API Route - Submit").
+
+#### 5.3. Sincronizar Status
+Crie: `src/app/api/v1/message-templates/[id]/sync-status/route.ts`
+
+Use o código da **PARTE 6** deste arquivo (seção "API Route - Sync").
+
+---
+
+### **ETAPA 6: Criar Página Principal**
+
+Crie: `src/app/(main)/templates-v2/page.tsx`
+
+Use o código da **PARTE 7** deste arquivo (seção "Página Principal").
+
+---
+
+### **ETAPA 7: Ajustar Imports**
+
+Verifique TODOS os imports nos arquivos criados e ajuste conforme a estrutura do projeto:
+
+```typescript
+import { db } from '@/lib/db';                    // ← Verificar caminho
+import { decrypt } from '@/lib/crypto';           // ← Verificar se existe
+import { requireCompanySession } from '@/lib/auth-helpers';  // ← Ajustar nome
+import { useToast } from '@/hooks/use-toast';     // ← Verificar caminho
+import { Button } from '@/components/ui/button';  // ← Verificar ShadCN
+```
+
+---
+
+### **ETAPA 8: Variáveis de Ambiente**
+
+Adicione ao `.env`:
+
+```bash
+FACEBOOK_API_VERSION=v21.0
+ENCRYPTION_KEY=your-32-char-encryption-key-here
+```
+
+---
+
+### **ETAPA 9: Adicionar ao Menu/Sidebar**
+
+Adicione link para `/templates-v2` no menu:
+
+```typescript
+{
+  title: "Templates WhatsApp",
+  icon: MessageSquare,
+  url: "/templates-v2",
+}
+```
+
+---
+
+### **ETAPA 10: Testar Completamente**
+
+1. Criar template válido
+2. Submeter à Meta
+3. Sincronizar status
+4. Deletar template
+5. Testar responsividade (desktop + mobile)
+
+---
+
+## ✅ CRITÉRIOS DE SUCESSO
+
+A implementação está COMPLETA quando:
+
+- [x] Página `/templates-v2` carrega sem erros
+- [x] Listagem de templates funciona com filtros
+- [x] Criar template valida corretamente (emojis, nome, limites)
+- [x] Submeter à Meta retorna `metaTemplateId` e status PENDING
+- [x] Sincronizar status atualiza corretamente
+- [x] Deletar template remove do DB
+- [x] Interface mobile-first responsiva
+
+---
+
+# PARTE 2: SERVICE LAYER (metaTemplatesService.ts)
+
+```typescript
+import { db } from '@/lib/db';
+import { connections, messageTemplates } from './db/schema';
+import { eq } from 'drizzle-orm';
+import { decrypt } from './crypto';
+
+const FACEBOOK_API_VERSION = process.env.FACEBOOK_API_VERSION || 'v21.0';
+
+interface MetaTemplateComponent {
+  type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
+  format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
+  text?: string;
+  example?: {
+    header_text?: string[];
+    body_text?: string[][];
+    header_handle?: string[];
+  };
+  buttons?: Array<{
+    type: 'QUICK_REPLY' | 'URL' | 'PHONE_NUMBER';
+    text: string;
+    url?: string;
+    phone_number?: string;
+    example?: string[];
+  }>;
+}
+
+interface CreateTemplatePayload {
+  name: string;
+  language: string;
+  category: 'MARKETING' | 'UTILITY' | 'AUTHENTICATION';
+  components: MetaTemplateComponent[];
+  allow_category_change?: boolean;
+}
+
+interface SubmitTemplateResult {
+  success: boolean;
+  metaTemplateId?: string;
+  status?: string;
+  error?: string;
+  errorDetails?: any;
+}
+
+export async function submitTemplateToMeta(
+  templateId: string
+): Promise<SubmitTemplateResult> {
+  try {
+    console.log(`[META SERVICE] 🔍 Buscando template no DB: ${templateId}`);
+    
+    const [template] = await db
+      .select()
+      .from(messageTemplates)
+      .where(eq(messageTemplates.id, templateId));
+
+    if (!template) {
+      console.log('[META SERVICE] ❌ Template não encontrado no DB');
+      return {
+        success: false,
+        error: 'Template não encontrado',
+      };
+    }
+
+    console.log(`[META SERVICE] ✅ Template encontrado: ${template.name}`);
+
+    if (template.status !== 'DRAFT' && template.status !== 'REJECTED') {
+      console.log(`[META SERVICE] ❌ Status inválido: ${template.status}`);
+      return {
+        success: false,
+        error: `Template não pode ser submetido. Status atual: ${template.status}`,
+      };
+    }
+
+    const [connection] = await db
+      .select()
+      .from(connections)
+      .where(eq(connections.id, template.connectionId));
+
+    if (!connection) {
+      return {
+        success: false,
+        error: 'Conexão não encontrada',
+      };
+    }
+
+    const accessToken = decrypt(connection.accessToken);
+    if (!accessToken) {
+      return {
+        success: false,
+        error: 'Falha ao desencriptar token de acesso',
+      };
+    }
+
+    const url = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/${template.wabaId}/message_templates`;
+
+    const rawComponents = template.components as MetaTemplateComponent[];
+    
+    const validComponents = rawComponents
+      .filter(comp => {
+        if (comp.type === 'FOOTER' && (!comp.text || comp.text.trim() === '')) {
+          return false;
+        }
+        if (comp.type === 'HEADER' && comp.format === 'TEXT' && (!comp.text || comp.text.trim() === '')) {
+          return false;
+        }
+        return true;
+      })
+      .map(comp => ({
+        ...comp,
+        type: comp.type.toLowerCase(),
+        ...(comp.format && { format: comp.format }),
+      }));
+
+    const payload: any = {
+      name: template.name,
+      language: template.language,
+      category: template.category as 'MARKETING' | 'UTILITY' | 'AUTHENTICATION',
+      components: validComponents,
+      allow_category_change: template.allowCategoryChange ?? true,
+    };
+
+    console.log('[META SERVICE] 📤 Enviando para Meta API...');
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      await db
+        .update(messageTemplates)
+        .set({
+          status: 'REJECTED',
+          rejectedReason: responseData.error?.message || 'Erro desconhecido',
+          updatedAt: new Date(),
+        })
+        .where(eq(messageTemplates.id, templateId));
+
+      return {
+        success: false,
+        error: responseData.error?.message || 'Falha ao submeter template',
+        errorDetails: responseData.error,
+      };
+    }
+
+    const metaTemplateId = responseData.id;
+    const status = responseData.status || 'PENDING';
+
+    await db
+      .update(messageTemplates)
+      .set({
+        metaTemplateId,
+        status,
+        submittedAt: new Date(),
+        approvedAt: status === 'APPROVED' ? new Date() : null,
+        updatedAt: new Date(),
+      })
+      .where(eq(messageTemplates.id, templateId));
+
+    return {
+      success: true,
+      metaTemplateId,
+      status,
+    };
+  } catch (error) {
+    console.error('[Meta Templates] Erro ao submeter template:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Erro desconhecido',
+    };
+  }
+}
+
+export async function getTemplateStatus(
+  metaTemplateId: string,
+  wabaId: string,
+  accessToken: string
+): Promise<{ status: string; rejectedReason?: string } | null> {
+  try {
+    const url = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/${metaTemplateId}`;
+
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+
+    return {
+      status: data.status,
+      rejectedReason: data.rejected_reason,
+    };
+  } catch (error) {
+    console.error('[Meta Templates] Erro ao buscar status:', error);
+    return null;
+  }
+}
+
+export async function syncTemplateStatus(
+  templateId: string
+): Promise<{ success: boolean; status?: string; error?: string }> {
+  try {
+    const [template] = await db
+      .select()
+      .from(messageTemplates)
+      .where(eq(messageTemplates.id, templateId));
+
+    if (!template || !template.metaTemplateId) {
+      return {
+        success: false,
+        error: 'Template não encontrado ou não submetido à Meta',
+      };
+    }
+
+    const [connection] = await db
+      .select()
+      .from(connections)
+      .where(eq(connections.id, template.connectionId));
+
+    if (!connection) {
+      return {
+        success: false,
+        error: 'Conexão não encontrada',
+      };
+    }
+
+    const accessToken = decrypt(connection.accessToken);
+    if (!accessToken) {
+      return {
+        success: false,
+        error: 'Falha ao desencriptar token',
+      };
+    }
+
+    const statusData = await getTemplateStatus(
+      template.metaTemplateId,
+      template.wabaId,
+      accessToken
+    );
+
+    if (!statusData) {
+      return {
+        success: false,
+        error: 'Falha ao buscar status na Meta',
+      };
+    }
+
+    await db
+      .update(messageTemplates)
+      .set({
+        status: statusData.status,
+        rejectedReason: statusData.rejectedReason,
+        approvedAt: statusData.status === 'APPROVED' ? new Date() : null,
+        updatedAt: new Date(),
+      })
+      .where(eq(messageTemplates.id, templateId));
+
+    return {
+      success: true,
+      status: statusData.status,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Erro desconhecido',
+    };
+  }
+}
+```
+
+---
+
+# PARTE 3: TEMPLATE BUILDER COMPONENT
+
+**Arquivo:** `src/components/message-templates/template-builder.tsx`
+
+**NOTA:** Este componente está no arquivo `export-templates-v2/EXPORT_template-builder.tsx`
+
+Copie TODO o conteúdo desse arquivo (575 linhas).
+
+Ele contém:
+- Validação de emojis em HEADER (Unicode property escapes)
+- Limite de 60 caracteres no HEADER
+- Detecção de variáveis `{{1}}`, `{{2}}`
+- Validação de nome (apenas `a-z0-9_`)
+- Preview em tempo real
+
+---
+
+# PARTE 4: API ROUTE - CRUD
+
+**Arquivo:** `src/app/api/v1/message-templates/route.ts`
+
+Veja o código completo no arquivo `export-templates-v2/EXPORT_TEMPLATES_V2_COMPLETE.md` seção "4.1. CRUD Principal".
+
+Este arquivo implementa:
+- GET /api/v1/message-templates
+- POST /api/v1/message-templates
+- PUT /api/v1/message-templates
+- DELETE /api/v1/message-templates?id={id}
+
+---
+
+# PARTE 5: API ROUTE - SUBMIT
+
+**Arquivo:** `src/app/api/v1/message-templates/[id]/submit/route.ts`
+
+```typescript
+import { NextResponse, type NextRequest } from 'next/server';
+import { requireCompanySession } from '@/lib/auth-helpers';
+import { submitTemplateToMeta } from '@/lib/metaTemplatesService';
+import { db } from '@/lib/db';
+import { messageTemplates } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
+
+export async function POST(
+  _request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const companyId = await requireCompanySession();
+  if (!companyId) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+  }
+
+  try {
+    const templateId = params.id;
+
+    const [template] = await db
+      .select()
+      .from(messageTemplates)
+      .where(
+        and(
+          eq(messageTemplates.id, templateId),
+          eq(messageTemplates.companyId, companyId)
+        )
+      );
+
+    if (!template) {
+      return NextResponse.json(
+        { error: 'Template não encontrado' },
+        { status: 404 }
+      );
+    }
+
+    if (template.status !== 'DRAFT' && template.status !== 'REJECTED') {
+      return NextResponse.json(
+        {
+          error: `Template não pode ser submetido. Status atual: ${template.status}`,
+        },
+        { status: 400 }
+      );
+    }
+
+    const result = await submitTemplateToMeta(templateId);
+
+    if (!result.success) {
+      return NextResponse.json(
+        {
+          error: result.error,
+          details: result.errorDetails,
+        },
+        { status: 400 }
+      );
+    }
+
+    const [updatedTemplate] = await db
+      .select()
+      .from(messageTemplates)
+      .where(eq(messageTemplates.id, templateId));
+
+    return NextResponse.json({
+      success: true,
+      template: updatedTemplate,
+      metaTemplateId: result.metaTemplateId,
+      status: result.status,
+    });
+  } catch (error) {
+    console.error('[Submit Template API] Erro ao submeter template:', error);
+    return NextResponse.json(
+      { error: 'Erro ao submeter template' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+---
+
+# PARTE 6: API ROUTE - SYNC STATUS
+
+**Arquivo:** `src/app/api/v1/message-templates/[id]/sync-status/route.ts`
+
+```typescript
+import { NextResponse, type NextRequest } from 'next/server';
+import { requireCompanySession } from '@/lib/auth-helpers';
+import { syncTemplateStatus } from '@/lib/metaTemplatesService';
+import { db } from '@/lib/db';
+import { messageTemplates } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
+
+export async function POST(
+  _request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const companyId = await requireCompanySession();
+  if (!companyId) {
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+  }
+
+  try {
+    const templateId = params.id;
+
+    const [template] = await db
+      .select()
+      .from(messageTemplates)
+      .where(
+        and(
+          eq(messageTemplates.id, templateId),
+          eq(messageTemplates.companyId, companyId)
+        )
+      );
+
+    if (!template) {
+      return NextResponse.json(
+        { error: 'Template não encontrado' },
+        { status: 404 }
+      );
+    }
+
+    const result = await syncTemplateStatus(templateId);
+
+    if (!result.success) {
+      return NextResponse.json(
+        {
+          error: result.error,
+        },
+        { status: 400 }
+      );
+    }
+
+    const [updatedTemplate] = await db
+      .select()
+      .from(messageTemplates)
+      .where(eq(messageTemplates.id, templateId));
+
+    return NextResponse.json({
+      success: true,
+      template: updatedTemplate,
+      status: result.status,
+    });
+  } catch (error) {
+    console.error('[Sync Template Status API] Erro ao sincronizar status:', error);
+    return NextResponse.json(
+      { error: 'Erro ao sincronizar status' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+---
+
+# PARTE 7: PÁGINA PRINCIPAL
+
+**Arquivo:** `src/app/(main)/templates-v2/page.tsx`
+
+**NOTA:** Este arquivo está completo no arquivo `export-templates-v2/EXPORT_TEMPLATES_V2_COMPLETE.md` seção "1. Página Principal".
+
+Copie todo o código (605 linhas) desse arquivo.
+
+Ele implementa:
+- Listagem com filtros (conexão, status, busca)
+- Botões de ação: Submeter, Sincronizar, Deletar, Ver
+- View Desktop (Table) + Mobile (Cards)
+- Dialog para criar template
+- Dialog para ver detalhes
+
+---
+
+# FIM DO ARQUIVO
+
+**VOCÊ TEM AGORA TUDO QUE PRECISA!**
+
+Para usar:
+1. Copie TODO este arquivo
+2. Abra o Agent3 no projeto masteria-x-meeting-call
+3. Cole o conteúdo completo
+4. O Agent3 implementará tudo automaticamente
+
+**BOA SORTE! 🚀**

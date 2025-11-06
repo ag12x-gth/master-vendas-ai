@@ -391,6 +391,34 @@ import {
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
   });
 
+  export const messageTemplates = pgTable('message_templates', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    name: varchar('name', { length: 512 }).notNull(),
+    displayName: varchar('display_name', { length: 255 }),
+    metaTemplateId: varchar('meta_template_id', { length: 255 }),
+    wabaId: varchar('waba_id', { length: 255 }).notNull(),
+    category: varchar('category', { length: 50 }).notNull(),
+    language: varchar('language', { length: 10 }).notNull().default('pt_BR'),
+    parameterFormat: varchar('parameter_format', { length: 20 }).default('POSITIONAL'),
+    status: varchar('status', { length: 50 }).notNull().default('DRAFT'),
+    rejectedReason: text('rejected_reason'),
+    components: jsonb('components').notNull(),
+    messageSendTtlSeconds: integer('message_send_ttl_seconds'),
+    companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+    connectionId: text('connection_id').notNull().references(() => connections.id, { onDelete: 'cascade' }),
+    createdBy: text('created_by').references(() => users.id),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+    submittedAt: timestamp('submitted_at'),
+    approvedAt: timestamp('approved_at'),
+    sentCount: integer('sent_count').default(0),
+    lastUsedAt: timestamp('last_used_at'),
+    isActive: boolean('is_active').default(true),
+    allowCategoryChange: boolean('allow_category_change').default(true),
+  }, (table) => ({
+    uniqueNameWaba: unique('message_templates_name_waba_unique').on(table.name, table.wabaId),
+  }));
+
   export const smsGateways = pgTable('sms_gateways', {
     id: text('id').primaryKey().default(sql`gen_random_uuid()`),
     companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
