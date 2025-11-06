@@ -1,6 +1,6 @@
 // src/app/api/v1/ia/personas/[personaId]/sections/[sectionId]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getUserFromSession } from '@/lib/auth';
+import { getUserSession } from '@/app/actions';
 import { db } from '@/lib/db';
 import { aiPersonas, personaPromptSections } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
@@ -10,10 +10,11 @@ export async function PUT(
   { params }: { params: { personaId: string; sectionId: string } }
 ) {
   try {
-    const user = await getUserFromSession();
-    if (!user) {
+    const session = await getUserSession();
+    if (session.error || !session.user) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
+    const user = session.user;
 
     const { personaId, sectionId } = params;
 
@@ -78,10 +79,11 @@ export async function DELETE(
   { params }: { params: { personaId: string; sectionId: string } }
 ) {
   try {
-    const user = await getUserFromSession();
-    if (!user) {
+    const session = await getUserSession();
+    if (session.error || !session.user) {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
+    const user = session.user;
 
     const { personaId, sectionId } = params;
 

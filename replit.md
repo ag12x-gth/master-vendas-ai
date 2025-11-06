@@ -12,6 +12,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### November 6, 2025 - Deployment Fix: Module Not Found Error
+- **Issue**: Build failing with "Module not found: Can't resolve '@/lib/auth'"
+- **Root Cause**: API route importing from non-existent `@/lib/auth` module
+- **Solution**: Corrected imports to use `getUserSession` from `@/app/actions`
+- **Files Modified**: `src/app/api/v1/ia/personas/[personaId]/sections/[sectionId]/route.ts`
+- **Status**: Build validated and passing
+- **Documentation**: `DEPLOYMENT_FIX_MODULE_NOT_FOUND.md`
+
 ### November 5, 2025 - Bug Fix: Baileys Connection Health Check
 - **Issue**: Dashboard incorrectly showed "Falha ao descriptografar o token de acesso" for Baileys connections
 - **Root Cause**: Health check endpoint was attempting to decrypt `accessToken` for ALL connections, including Baileys (which use QR code auth and have NULL token)
