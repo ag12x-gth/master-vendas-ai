@@ -262,7 +262,10 @@ async function processIncomingMessage(
         let permanentMediaUrl = null;
         if (['image', 'video', 'document', 'audio'].includes(messageData.type)) {
             const mediaId = messageData[messageData.type].id;
-            const accessToken = decrypt(connection.accessToken);
+            if (!connection.accessToken) {
+                console.warn(`⚠️ [Meta Webhook] Access token ausente para conexão ${connection.config_name}. Mídia não será processada.`);
+            }
+            const accessToken = connection.accessToken ? decrypt(connection.accessToken) : null;
             if (mediaId && accessToken) {
                 const tempMediaUrl = await getMediaUrl(mediaId, accessToken);
                 if (tempMediaUrl) {
