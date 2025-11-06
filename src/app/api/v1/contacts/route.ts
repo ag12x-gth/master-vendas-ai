@@ -45,10 +45,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         // Cache key baseado em todos os parâmetros
         const cacheKey = `contacts:${companyId}:${page}:${limit}:${search || ''}:${sortBy}:${sortOrder}:${tagId || ''}:${listId || ''}:${listIds.join(',')}`;
         
-        // Buscar dados com cache (60 segundos)
+        // Buscar dados com cache (30 segundos - CacheTTL.SHORT)
         const data = await getCachedOrFetch(cacheKey, async () => {
             return await fetchContactsData({ companyId, page, limit, search, sortBy, sortOrder, tagId, listId, listIds });
-        }, CacheTTL.MEDIUM);
+        }, CacheTTL.SHORT);
 
         return NextResponse.json(data);
     } catch (error) {
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 }
 
-async function fetchContactsData(params: {
+async function fetchContactsData(options: {
     companyId: string;
     page: number;
     limit: number;
@@ -69,7 +69,7 @@ async function fetchContactsData(params: {
     listId: string | null;
     listIds: string[];
 }) {
-        const { companyId, page, limit, search, sortBy, sortOrder, tagId, listId, listIds } = params;
+        const { companyId, page, limit, search, sortBy, sortOrder, tagId, listId, listIds } = options;
 
         const offset = (page - 1) * limit;
 
@@ -114,83 +114,104 @@ async function fetchContactsData(params: {
         
         const finalWhereClauses = and(...whereClauses.filter((c): c is SQL => !!c));
 
+        // Query para contar total de contatos
         const countQuery = db.select({ value: count() }).from(contacts).where(finalWhereClauses);
         
-        const sortableColumns: { [key: string]: any } = {
-            name: contacts.name,
-            createdAt: contacts.createdAt,
+        // ✅ CORREÇÃO 7: JOIN com json_agg para evitar N+1 queries
+        // Agora fazemos 1 única query em vez de 3 queries separadas
+        const sortableColumns: { [key: string]: string } = {
+            name: 'name',
+            createdAt: 'created_at',
         };
-        const orderByColumn = sortableColumns[sortBy] || contacts.createdAt;
+        const orderByField = sortableColumns[sortBy] || 'created_at';
+        const orderDirection = sortOrder === 'asc' ? 'ASC' : 'DESC';
 
-        const dataQuery = db
-            .select()
-            .from(contacts)
-            .where(finalWhereClauses)
-            .orderBy(sortOrder === 'asc' ? asc(orderByColumn) : desc(orderByColumn))
-            .limit(limit)
-            .offset(offset);
+        // Construir filtros WHERE dinâmicos
+        let whereConditions = sql`c.company_id = ${companyId}`;
         
-        const [totalContactsResult, companyContacts] = await Promise.all([
+        if (search) {
+            const digitsOnlySearch = search.replace(/\D/g, '');
+            if (digitsOnlySearch) {
+                whereConditions = sql`${whereConditions} AND (c.name ILIKE ${`%${search}%`} OR c.email ILIKE ${`%${search}%`} OR c.phone ILIKE ${`%${digitsOnlySearch}%`})`;
+            } else {
+                whereConditions = sql`${whereConditions} AND (c.name ILIKE ${`%${search}%`} OR c.email ILIKE ${`%${search}%`})`;
+            }
+        }
+        
+        if (tagId && tagId !== 'all') {
+            whereConditions = sql`${whereConditions} AND c.id IN (SELECT contact_id FROM contacts_to_tags WHERE tag_id = ${tagId})`;
+        }
+        
+        if (listId && listId !== 'all') {
+            whereConditions = sql`${whereConditions} AND c.id IN (SELECT contact_id FROM contacts_to_contact_lists WHERE list_id = ${listId})`;
+        }
+        
+        if (listIds && listIds.length > 0) {
+            whereConditions = sql`${whereConditions} AND c.id IN (SELECT DISTINCT contact_id FROM contacts_to_contact_lists WHERE list_id = ANY(${listIds}))`;
+        }
+
+        // Query otimizada com LEFT JOIN + json_agg
+        // ⚠️ IMPORTANTE: Aliases para manter camelCase e compatibilidade da API
+        const dataQuery = sql`
+            SELECT 
+                c.id,
+                c.company_id AS "companyId",
+                c.name,
+                c.whatsapp_name AS "whatsappName",
+                c.phone,
+                c.email,
+                c.avatar_url AS "avatarUrl",
+                c.status,
+                c.notes,
+                c.profile_last_synced_at AS "profileLastSyncedAt",
+                c.address_street AS "addressStreet",
+                c.address_number AS "addressNumber",
+                c.address_complement AS "addressComplement",
+                c.address_district AS "addressDistrict",
+                c.address_city AS "addressCity",
+                c.address_state AS "addressState",
+                c.address_zip_code AS "addressZipCode",
+                c.external_id AS "externalId",
+                c.external_provider AS "externalProvider",
+                c.created_at AS "createdAt",
+                c.deleted_at AS "deletedAt",
+                COALESCE(
+                    json_agg(
+                        DISTINCT jsonb_build_object(
+                            'id', t.id, 
+                            'name', t.name, 
+                            'color', t.color
+                        )
+                    ) FILTER (WHERE t.id IS NOT NULL), 
+                    '[]'
+                ) as tags,
+                COALESCE(
+                    json_agg(
+                        DISTINCT jsonb_build_object(
+                            'id', cl.id, 
+                            'name', cl.name
+                        )
+                    ) FILTER (WHERE cl.id IS NOT NULL), 
+                    '[]'
+                ) as lists
+            FROM contacts c
+            LEFT JOIN contacts_to_tags ctt ON c.id = ctt.contact_id
+            LEFT JOIN tags t ON ctt.tag_id = t.id AND t.company_id = ${companyId}
+            LEFT JOIN contacts_to_contact_lists ctcl ON c.id = ctcl.contact_id
+            LEFT JOIN contact_lists cl ON ctcl.list_id = cl.id AND cl.company_id = ${companyId}
+            WHERE ${whereConditions}
+            GROUP BY c.id
+            ORDER BY ${sql.raw(`c.${orderByField}`)} ${sql.raw(orderDirection)}
+            LIMIT ${limit} OFFSET ${offset}
+        `;
+
+        const [totalContactsResult, rawContactsResult] = await Promise.all([
             countQuery,
-            dataQuery,
+            db.execute(dataQuery),
         ]);
         
         const totalContacts = totalContactsResult[0]?.value ?? 0;
-        
-        // ✅ OTIMIZAÇÃO: Resolver N+1 query problem
-        // Em vez de fazer 2 queries por contato, fazemos apenas 2 queries totais
-        const contactIds = companyContacts.map(c => c.id);
-        
-        // Buscar todas as tags de uma vez
-        const allTagsQuery = contactIds.length > 0 
-            ? db.select({
-                contactId: contactsToTags.contactId,
-                id: tags.id,
-                name: tags.name,
-                color: tags.color
-            })
-            .from(tags)
-            .innerJoin(contactsToTags, eq(tags.id, contactsToTags.tagId))
-            .where(inArray(contactsToTags.contactId, contactIds))
-            : Promise.resolve([]);
-        
-        // Buscar todas as listas de uma vez
-        const allListsQuery = contactIds.length > 0
-            ? db.select({
-                contactId: contactsToContactLists.contactId,
-                id: contactLists.id,
-                name: contactLists.name,
-            })
-            .from(contactLists)
-            .innerJoin(contactsToContactLists, eq(contactLists.id, contactsToContactLists.listId))
-            .where(inArray(contactsToContactLists.contactId, contactIds))
-            : Promise.resolve([]);
-        
-        const [allTags, allLists] = await Promise.all([allTagsQuery, allListsQuery]);
-        
-        // Agrupar tags e listas por contactId
-        const tagsByContact: Record<string, Array<{id: string, name: string, color: string}>> = {};
-        for (const tag of allTags) {
-            if (!tag.contactId || !tag.id || !tag.name) continue;
-            const existing = tagsByContact[tag.contactId] ?? [];
-            existing.push({ id: tag.id, name: tag.name, color: tag.color || '' });
-            tagsByContact[tag.contactId] = existing;
-        }
-        
-        const listsByContact: Record<string, Array<{id: string, name: string}>> = {};
-        for (const list of allLists) {
-            if (!list.contactId || !list.id || !list.name) continue;
-            const existing = listsByContact[list.contactId] ?? [];
-            existing.push({ id: list.id, name: list.name });
-            listsByContact[list.contactId] = existing;
-        }
-        
-        // Combinar os dados
-        const contactsWithRelations = companyContacts.map(contact => ({
-            ...contact,
-            tags: tagsByContact[contact.id] || [],
-            lists: listsByContact[contact.id] || [],
-        }));
+        const contactsWithRelations = (rawContactsResult as any).rows || [];
 
 
         return {
