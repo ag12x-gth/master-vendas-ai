@@ -78,10 +78,40 @@ const user = session.user;
 npm run build
 ```
 
-**Resultado**: ✅ **Sucesso**
+**Resultado**: ✅ **Sucesso Total**
 - Diretório `.next` criado
 - Sem erros de webpack
+- Sem erros de TypeScript
+- Sem erros de ESLint (apenas warnings permitidos)
 - Todas as rotas compiladas
+
+### Correções Adicionais Necessárias
+
+Após a correção inicial do import, o build revelou outros erros de type safety:
+
+1. **5 Erros de ESLint**: Corrigidos
+   - Aspas não escapadas em JSX
+   - `let` que deveria ser `const`
+   - Comentários ESLint para hooks do Baileys
+   - `var` em `declare global`
+
+2. **TypeScript Null Safety**: Corrigidos em 5 arquivos
+   - `src/app/actions.ts` (2 locais)
+   - `src/lib/facebookApiService.ts` (2 funções)
+   - `src/app/api/v1/connections/[connectionId]/configure-webhook/route.ts`
+   - `src/app/(main)/kanban/[funnelId]/page.tsx`
+
+**Padrão corrigido**:
+```typescript
+// ❌ ANTES
+const token = decrypt(connection.accessToken); // Erro se null
+
+// ✅ DEPOIS
+if (!connection.accessToken) {
+  throw new Error('Token não configurado');
+}
+const token = decrypt(connection.accessToken);
+```
 
 ### Arquivos Gerados
 ```
