@@ -36,6 +36,9 @@ export async function GET(request: NextRequest, { params }: { params: { connecti
              return NextResponse.json({ error: 'Configuração da empresa incompleta (slug do webhook ausente).' }, { status: 500 });
         }
 
+        if (!connection.appSecret) {
+            return NextResponse.json({ error: 'App Secret não configurado para esta conexão.' }, { status: 400 });
+        }
         const appSecret = decrypt(connection.appSecret);
         if (!appSecret) {
             return NextResponse.json({ error: 'App Secret não encontrado ou falha na desencriptação.' }, { status: 400 });

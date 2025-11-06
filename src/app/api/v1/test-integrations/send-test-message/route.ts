@@ -47,6 +47,12 @@ export async function POST(request: NextRequest) {
       }, { status: 404 });
     }
     
+    if (!connection.accessToken) {
+      return NextResponse.json({
+        success: false,
+        error: 'Token de acesso não configurado para esta conexão'
+      }, { status: 500 });
+    }
     const accessToken = decrypt(connection.accessToken);
     
     if (!accessToken) {
@@ -185,6 +191,12 @@ export async function GET() {
       }, { status: 404 });
     }
     
+    if (!connection.accessToken) {
+      return NextResponse.json({
+        success: false,
+        error: 'Token de acesso não configurado para esta conexão'
+      }, { status: 500 });
+    }
     const accessToken = decrypt(connection.accessToken);
     
     if (!accessToken) {

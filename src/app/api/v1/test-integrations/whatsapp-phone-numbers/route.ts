@@ -29,6 +29,16 @@ export async function GET(_request: NextRequest) {
     const results = [];
     
     for (const connection of connectionsFromDb) {
+      if (!connection.accessToken) {
+        results.push({
+          connection_id: connection.id,
+          config_name: connection.config_name,
+          error: 'Token de acesso não configurado',
+          status: 'error'
+        });
+        continue;
+      }
+      
       const accessToken = decrypt(connection.accessToken);
       
       if (!accessToken) {

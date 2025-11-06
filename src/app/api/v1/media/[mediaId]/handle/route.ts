@@ -46,6 +46,9 @@ export async function POST(request: NextRequest, { params }: { params: { mediaId
             return NextResponse.json({ success: true, handle: existingHandle.handle, message: 'Handle existente reutilizado.' });
         }
 
+        if (!connection.accessToken) {
+            throw new Error("Token de acesso não configurado para esta conexão.");
+        }
         const accessToken = decrypt(connection.accessToken);
         if (!accessToken) throw new Error("Falha ao desencriptar o token de acesso.");
         

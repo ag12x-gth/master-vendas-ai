@@ -1,0 +1,107 @@
+> nextn@2.4.1 build:prod
+> npm install --legacy-peer-deps && next build
+
+
+
+removed 1 package, and audited 1190 packages in 7s
+
+
+268 packages are looking for funding
+  run `npm fund` for details
+
+
+7 vulnerabilities (3 low, 3 moderate, 1 critical)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+
+  ▲ Next.js 14.2.33
+  - Environments: .env
+
+
+   Creating an optimized production build ...
+
+ ✓ Compiled successfully
+
+   Linting and checking validity of types ...
+
+
+./src/app/(main)/meetings/page.tsx
+1:10  Warning: 'Suspense' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/(main)/voice-calls/page.tsx
+24:10  Warning: 'loadingContacts' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/campaigns/route.ts
+50:28  Warning: 'page' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/conversations/[conversationId]/effective-persona/route.ts
+3:25  Warning: 'connections' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/vapi/history/route.ts
+4:21  Warning: 'contacts' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/vapi/metrics/route.ts
+3:21  Warning: 'vapiTranscripts' is defined but never used.  unused-imports/no-unused-imports
+4:30  Warning: 'eq' is defined but never used.  unused-imports/no-unused-imports
+
+./src/components/dashboard/page.tsx
+30:10  Warning: 'VapiMetricsCard' is defined but never used.  unused-imports/no-unused-imports
+
+./src/components/ia/persona-list.tsx
+22:68  Warning: 'Globe' is defined but never used.  unused-imports/no-unused-imports
+
+./src/components/kanban/stage-persona-config.tsx
+5:10  Warning: 'Button' is defined but never used.  unused-imports/no-unused-imports
+9:19  Warning: 'Save' is defined but never used.  unused-imports/no-unused-imports
+
+./src/components/meetings/MeetingRoomPanel.tsx
+13:5  Warning: 'TrendingDown' is defined but never used.  unused-imports/no-unused-imports
+57:12  Warning: 'socket' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/responsive/responsive-form.tsx
+7:10  Warning: 'Button' is defined but never used.  unused-imports/no-unused-imports
+
+./src/components/vapi-voice/CallStatusBadge.tsx
+4:28  Warning: 'PhoneMissed' is defined but never used.  unused-imports/no-unused-imports
+
+./src/components/whatsapp-baileys/qr-code-modal.tsx
+165:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/lib/automation-engine.ts
+31:23  Warning: 'kanbanBoards' is defined but never used.  unused-imports/no-unused-imports
+
+./src/services/baileys-auth-db.ts
+6:25  Warning: 'BufferJSON' is defined but never used.  unused-imports/no-unused-imports
+
+./src/services/hume-emotion.service.ts
+9:7  Warning: 'humeClient' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+25:29  Warning: 'base64VideoFrame' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+45:31  Warning: 'audioUrl' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+
+Failed to compile.
+
+./src/app/api/v1/connections/[connectionId]/webhook-status/route.ts:39:35
+Type error: Argument of type 'string | null' is not assignable to parameter of type 'string'.
+  Type 'null' is not assignable to type 'string'.
+
+  37 |         }
+  38 |
+> 39 |         const appSecret = decrypt(connection.appSecret);
+     |                                   ^
+  40 |         if (!appSecret) {
+  41 |             return NextResponse.json({ error: 'App Secret não encontrado ou falha na desencriptação.' }, { status: 400 });
+  42 |         }
+
+Next.js build worker exited with code: 1 and signal: null
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.6.2
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.2
+npm notice To update run: npm install -g npm@11.6.2
+npm notice
+

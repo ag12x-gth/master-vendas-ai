@@ -49,11 +49,15 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
             ))
             .limit(1);
 
-        const decryptedAppSecret = connection ? decrypt(connection.appSecret) : null;
+        if (!connection || !connection.appSecret) {
+            console.error(`App Secret não encontrado para a empresa com slug: ${slug}`);
+            return new NextResponse('App Secret for active Meta connection not configured', { status: 400 });
+        }
+        const decryptedAppSecret = decrypt(connection.appSecret);
 
         if (!decryptedAppSecret) {
-            console.error(`App Secret não encontrado ou falhou ao desencriptar para a empresa com slug: ${slug}`);
-            return new NextResponse('App Secret for active Meta connection not configured or decryption failed', { status: 400 });
+            console.error(`Falha ao descriptografar App Secret para a empresa com slug: ${slug}`);
+            return new NextResponse('App Secret decryption failed', { status: 400 });
         }
 
         const signature = request.headers.get('x-hub-signature-256');
@@ -312,7 +316,7 @@ async function processIncomingMessage(
 
             if (mediaTypes.includes(messageType)) {
                 const mediaId = messageData[messageType].id;
-                const accessToken = decrypt(connection.accessToken);
+                const accessToken = connection.accessToken ? decrypt(connection.accessToken) : null;
                 if (mediaId && accessToken) {
                     const tempMediaUrl = await getMediaUrl(mediaId, accessToken);
                     if (tempMediaUrl) {
