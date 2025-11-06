@@ -178,7 +178,7 @@ export function SessionsList() {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Deletar Sessão</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Tem certeza que deseja deletar a sessão "{session.name}"? Esta ação não
+                          Tem certeza que deseja deletar a sessão &quot;{session.name}&quot;? Esta ação não
                           pode ser desfeita.
                         </AlertDialogDescription>
                       </AlertDialogHeader>

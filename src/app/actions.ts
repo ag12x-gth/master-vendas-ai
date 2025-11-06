@@ -177,7 +177,9 @@ export async function checkConnectionStatus(connectionId: string): Promise<{ suc
       // Para conexões Meta API, tentar decriptar o token
       let accessToken: string | null = null;
       try {
-        accessToken = decrypt(conn.accessToken);
+        if (conn.accessToken) {
+          accessToken = decrypt(conn.accessToken);
+        }
       } catch (decryptError: any) {
         console.error(`[Connection Check] Failed to decrypt token for connection ${connectionId}:`, {
           error: decryptError.message,
@@ -312,6 +314,9 @@ async function runMetaApiTest(): Promise<TestResult> {
         }
 
         const { phoneNumberId, accessToken } = firstActiveConnection;
+        if (!accessToken) {
+            throw new Error('Conexão não possui token de acesso.');
+        }
         const decryptedToken = decrypt(accessToken);
         if (!decryptedToken) {
             throw new Error('Falha ao desencriptar o token de acesso da conexão ativa.');

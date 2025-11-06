@@ -72,6 +72,7 @@ class BaileysSessionManager {
       
       console.log(`[Baileys] Loading auth state from filesystem...`);
       const authPath = this.getAuthPath(connectionId);
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { state, saveCreds } = await Baileys.useMultiFileAuthState(authPath);
       console.log(`[Baileys] Auth state loaded from ${authPath}`);
 
@@ -545,6 +546,7 @@ class BaileysSessionManager {
 }
 
 declare global {
+  // eslint-disable-next-line no-var
   var baileysSessionManager: BaileysSessionManager | undefined;
 }
 

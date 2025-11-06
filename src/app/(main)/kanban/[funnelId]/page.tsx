@@ -117,7 +117,7 @@ export default function FunnelPage({ params }: { params: { funnelId: string } })
           <StagePersonaConfig 
             boardId={params.funnelId} 
             stages={funnel.stages}
-            funnelType={funnel.funnelType}
+            funnelType={funnel.funnelType ?? undefined}
           />
         </TabsContent>
       </Tabs>

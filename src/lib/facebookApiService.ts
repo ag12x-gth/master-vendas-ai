@@ -29,6 +29,9 @@ export async function sendWhatsappTemplateMessage({
         throw new Error(`Conexão com ID ${connectionId} não encontrada.`);
     }
 
+    if (!connection.accessToken) {
+        throw new Error(`Token de acesso não configurado para a conexão ${connection.config_name}`);
+    }
     const accessToken = decrypt(connection.accessToken);
     if (!accessToken) {
         throw new Error(`Falha ao desencriptar o token de acesso para a conexão ${connection.config_name}`);
@@ -84,6 +87,9 @@ export async function sendWhatsappTextMessage({ connectionId, to, text }: SendTe
         throw new Error(`Conexão com ID ${connectionId} não encontrada.`);
     }
 
+    if (!connection.accessToken) {
+        throw new Error(`Token de acesso não configurado para a conexão ${connection.config_name}`);
+    }
     const accessToken = decrypt(connection.accessToken);
     if (!accessToken) {
         throw new Error(`Falha ao desencriptar o token de acesso para a conexão ${connection.config_name}`);

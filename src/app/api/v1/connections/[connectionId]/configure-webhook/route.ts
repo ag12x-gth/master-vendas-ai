@@ -45,6 +45,9 @@ export async function POST(request: NextRequest, { params }: { params: { connect
 
         // 2. Desencriptar as credenciais
         const appId = connection.appId;
+        if (!connection.appSecret) {
+            return NextResponse.json({ error: 'App Secret não configurado para esta conexão.' }, { status: 400 });
+        }
         const appSecret = decrypt(connection.appSecret);
         
         if (!appId || !appSecret) {

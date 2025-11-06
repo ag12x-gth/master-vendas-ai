@@ -175,7 +175,7 @@ async function selectIntelligentPersona(
         if (activeLead) {
             await logAutomation('INFO', `Lead encontrado no funil "${activeLead.board.name}" (Tipo: ${activeLead.board.funnelType || 'GENERAL'}, Estágio: ${activeLead.stageId})`, logContextBase);
 
-            let stagePersonaConfig = await db.query.kanbanStagePersonas.findFirst({
+            const stagePersonaConfig = await db.query.kanbanStagePersonas.findFirst({
                 where: and(
                     eq(kanbanStagePersonas.boardId, activeLead.boardId),
                     eq(kanbanStagePersonas.stageId, activeLead.stageId)
