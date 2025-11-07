@@ -267,9 +267,15 @@ export function ContactTable() {
   const [view, setView] = useState<ViewType>('table');
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [showBulkCallDialog, setShowBulkCallDialog] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
+  const isMobileDetected = useIsMobile();
+  const isMobile = mounted ? isMobileDetected : false;
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);

@@ -110,8 +110,14 @@ export default function TemplatesV2Page() {
   const [showViewDialog, setShowViewDialog] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<MessageTemplate | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   const { toast } = useToast();
-  const isMobile = useIsMobile();
+  const isMobileDetected = useIsMobile();
+  const isMobile = mounted ? isMobileDetected : false;
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchTemplates = useCallback(async () => {
     setLoading(true);

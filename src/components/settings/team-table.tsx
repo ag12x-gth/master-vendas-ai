@@ -241,8 +241,14 @@ export function TeamTable(): JSX.Element {
   const [isRemoveAlertOpen, setRemoveAlertOpen] = useState(false);
   const [isResending, setIsResending] = useState<string | null>(null);
   const [isResetPasswordOpen, setResetPasswordOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { toast } = useToast();
-  const isMobile = useIsMobile();
+  const isMobileDetected = useIsMobile();
+  const isMobile = mounted ? isMobileDetected : false;
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const fetchUsers = useCallback(async (): Promise<void> => {
     setLoading(true);
