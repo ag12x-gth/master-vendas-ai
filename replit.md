@@ -146,3 +146,13 @@ Preferred communication style: Simple, everyday language.
 - **Configured domains**: mmg.whatsapp.net, pps.whatsapp.net, media.whatsapp.net
 - **Wildcard pattern**: **.whatsapp.net for future-proofing
 - **Result**: Complete image/sticker/audio/video support
+
+### Q&A Bug Validation (November 7, 2025)
+- **Validated 4 critical bugs** from forensic diagnostic report
+- **BUG-C001 (Webhook Save Button)**: False positive - button works correctly with form onSubmit, backend POST/PUT endpoints, Zod validation
+- **BUG-C002 (Event Dropdown)**: Functional limitation (only 1 event: contact.created) - not a technical bug
+- **BUG-C003 (Navigation)**: False positive - all 21 navigation items use Next.js Link with valid hrefs
+- **BUG-A003 (Semantic IDs)**: False positive - all form inputs have correct id/label associations
+- **False positive rate**: 75% (3 of 4 critical bugs)
+- **Conclusion**: System is production-ready, diagnostic appears to test older version
+- **Full report**: correcoes-q&a/RELATORIO_FASE1_ANALISE_BUGS.md
