@@ -62,11 +62,16 @@ const nextConfig = {
       'mmg.whatsapp.net',
       'pps.whatsapp.net',
       'media.whatsapp.net',
+      'flagsapi.com',
     ],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: '**.whatsapp.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'flagsapi.com',
       },
     ],
   },

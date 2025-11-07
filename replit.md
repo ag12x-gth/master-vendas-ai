@@ -145,10 +145,12 @@ Preferred communication style: Simple, everyday language.
 - **VAPI Voice**: Lazy loaded only in MeetingRoomPanel (1.2M)
 - **Result**: Main bundle optimized, heavy dependencies isolated
 
-### WhatsApp Media Domains
-- **Configured domains**: mmg.whatsapp.net, pps.whatsapp.net, media.whatsapp.net
+### Image Domains Configuration (November 2025)
+- **WhatsApp Media**: mmg.whatsapp.net, pps.whatsapp.net, media.whatsapp.net
 - **Wildcard pattern**: **.whatsapp.net for future-proofing
-- **Result**: Complete image/sticker/audio/video support
+- **Flags API** (November 7, 2025): flagsapi.com added to support country flag images in contact details
+- **Firebase Storage**: firebasestorage.googleapis.com
+- **Result**: Complete image/sticker/audio/video support + country flags in /atendimentos page
 
 ### Q&A Bug Validation (November 7, 2025)
 
