@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { io, Socket } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
+import { createAuthenticatedSocket } from '@/lib/socket-lazy';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -111,12 +112,7 @@ export function MeetingRoomPanel({ meetingId }: MeetingRoomPanelProps) {
 
                 const { token } = await response.json();
 
-                const socketInstance = io({
-                    path: '/api/socketio',
-                    auth: {
-                        token,
-                    },
-                });
+                const socketInstance = await createAuthenticatedSocket(token);
 
                 socketInstance.on('connect', () => {
                     console.log('Socket.IO conectado:', socketInstance.id);
