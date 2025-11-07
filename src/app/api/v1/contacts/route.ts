@@ -271,4 +271,3 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: errorMessage, details: (error as Error).stack }, { status: 500 });
   }
 }
-^g
