@@ -53,10 +53,16 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [lastKnownUpdate, setLastKnownUpdate] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
   
-  const isMobile = useIsMobile();
+  const isMobileDetected = useIsMobile();
+  const isMobile = mounted ? isMobileDetected : false;
   const router = useRouter();
   const { session } = useSession(); // Use session hook to get the logged-in user
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   const fetchConversations = useCallback(async () => {
     try {
