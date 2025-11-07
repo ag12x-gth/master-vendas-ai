@@ -16,7 +16,6 @@ ON automation_logs (
 
   -- Índice 3: contacts_to_tags (contact_id, tag_id)
   -- Otimiza JOINs de contatos com tags (já usado na CORREÇÃO 7)
-  CREATE INDEX IF NOT EXISTS idx_contacts_to_tags_contact_tag 
   ON contacts_to_tags (contact_id, tag_id);
 
   -- Índice 4: contacts_to_contact_lists (contact_id, list_id)
