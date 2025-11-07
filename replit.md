@@ -148,11 +148,20 @@ Preferred communication style: Simple, everyday language.
 - **Result**: Complete image/sticker/audio/video support
 
 ### Q&A Bug Validation (November 7, 2025)
+
+#### **FASE 1 - Critical Bugs Validation**
 - **Validated 4 critical bugs** from forensic diagnostic report
 - **BUG-C001 (Webhook Save Button)**: False positive - button works correctly with form onSubmit, backend POST/PUT endpoints, Zod validation
-- **BUG-C002 (Event Dropdown)**: Functional limitation (only 1 event: contact.created) - not a technical bug
+- **BUG-C002 (Event Dropdown)**: RESOLVED - expanded from 1 to 5 events (contact.created, lead.updated, sale.completed, email.sent, task.completed)
 - **BUG-C003 (Navigation)**: False positive - all 21 navigation items use Next.js Link with valid hrefs
 - **BUG-A003 (Semantic IDs)**: False positive - all form inputs have correct id/label associations
-- **False positive rate**: 75% (3 of 4 critical bugs)
-- **Conclusion**: System is production-ready, diagnostic appears to test older version
+- **False positive rate (FASE 1)**: 75% (3 of 4 critical bugs)
 - **Full report**: correcoes-q&a/RELATORIO_FASE1_ANALISE_BUGS.md
+
+#### **FASE 2 - Accessibility Infrastructure Analysis**
+- **BUG-A001 (Visual Feedback)**: Infrastructure EXISTS - 64 files import useToast/toast() (verified via grep)
+- **BUG-A002 (Form Validation)**: Infrastructure EXISTS - 49 API endpoints use Zod validation (verified via grep)
+- **Methodology**: Quantitative code analysis with reproducible bash commands
+- **Limitation**: Grep analysis confirms infrastructure presence but doesn't validate runtime behavior in all user flows
+- **Recommendation**: Runtime testing of critical user flows needed for complete validation
+- **Full report**: correcoes-q&a/RELATORIO_FASE2_ANALISE_ACESSIBILIDADE.md
