@@ -3,10 +3,11 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { conversations, messages, contacts, templates } from '@/lib/db/schema';
+import { conversations, messages, contacts, templates, connections } from '@/lib/db/schema';
 import { eq, and, desc, asc } from 'drizzle-orm';
 import { getCompanyIdFromSession, getUserIdFromSession } from '@/app/actions';
 import { sendWhatsappTemplateMessage, sendWhatsappTextMessage } from '@/lib/facebookApiService';
+import { sessionManager } from '@/services/baileys-session-manager';
 import { z } from 'zod';
 import { subHours } from 'date-fns';
 import type { MetaApiMessageResponse } from '@/lib/types';
@@ -105,7 +106,13 @@ export async function POST(request: NextRequest, { params }: { params: { convers
             return NextResponse.json({ error: 'A conversa não está associada a nenhuma conexão.' }, { status: 400 });
         }
 
-        let sentMessageResponse;
+        const [connection] = await db.select().from(connections).where(eq(connections.id, conversation.connectionId));
+        if (!connection) {
+            return NextResponse.json({ error: 'Conexão não encontrada.' }, { status: 404 });
+        }
+
+        let sentMessageResponse: any;
+        let providerMessageId: string | undefined;
         let templateName = 'Mensagem de Texto';
         
         if (parsedBody.data.type === 'text') {
@@ -113,12 +120,29 @@ export async function POST(request: NextRequest, { params }: { params: { convers
             if (!canSend) {
                 return NextResponse.json({ error: 'A janela de 24 horas para resposta livre expirou. Use um modelo.' }, { status: 403 });
             }
-            sentMessageResponse = await sendWhatsappTextMessage({
-                connectionId: conversation.connectionId,
-                to: contact.phone,
-                text: parsedBody.data.text
-            });
+            
+            if (connection.connectionType === 'baileys') {
+                providerMessageId = await sessionManager.sendMessage(conversation.connectionId, contact.phone, {
+                    text: parsedBody.data.text
+                });
+                if (!providerMessageId) {
+                    return NextResponse.json({ error: 'Falha ao enviar mensagem - sessão não conectada.' }, { status: 500 });
+                }
+            } else if (connection.connectionType === 'meta_api') {
+                sentMessageResponse = await sendWhatsappTextMessage({
+                    connectionId: conversation.connectionId,
+                    to: contact.phone,
+                    text: parsedBody.data.text
+                });
+                providerMessageId = (sentMessageResponse as unknown as MetaApiMessageResponse).messages?.[0]?.id;
+            } else {
+                return NextResponse.json({ error: 'Tipo de conexão não suportado.' }, { status: 400 });
+            }
         } else {
+            if (connection.connectionType === 'baileys') {
+                return NextResponse.json({ error: 'Envio de templates não suportado para conexões Baileys. Use mensagens de texto.' }, { status: 400 });
+            }
+            
             const [template] = await db.select().from(templates).where(eq(templates.id, parsedBody.data.templateId));
             if (!template) {
                 return NextResponse.json({ error: 'Modelo não encontrado.' }, { status: 404 });
@@ -132,11 +156,12 @@ export async function POST(request: NextRequest, { params }: { params: { convers
                 languageCode: template.language,
                 components,
             });
+            providerMessageId = (sentMessageResponse as unknown as MetaApiMessageResponse).messages?.[0]?.id;
         }
         
         const [savedMessage] = await db.insert(messages).values({
             conversationId: conversation.id,
-            providerMessageId: (sentMessageResponse as unknown as MetaApiMessageResponse).messages?.[0]?.id,
+            providerMessageId,
             senderType: 'AGENT',
             senderId: agentId,
             content: parsedBody.data.type === 'text' ? parsedBody.data.text : `Template: ${templateName}`,

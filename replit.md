@@ -152,6 +152,18 @@ Preferred communication style: Simple, everyday language.
 - **Firebase Storage**: firebasestorage.googleapis.com
 - **Result**: Complete image/sticker/audio/video support + country flags in /atendimentos page
 
+### WhatsApp Message Routing Fix (November 7, 2025)
+- **Problem**: Connection "Atendimento" (type: baileys) failed to send messages with error "Token de acesso não configurado"
+- **Root Cause**: `/api/v1/conversations/[conversationId]/messages` route always used Meta Cloud API (facebookApiService) regardless of connection type
+- **Solution**: Added intelligent routing in message send route:
+  - Detects connection type from database (`connectionType` field)
+  - If `baileys` → uses `sessionManager.sendMessage()` from Baileys
+  - If `meta_api` → uses `sendWhatsappTextMessage()` from facebookApiService
+- **File Modified**: `src/app/api/v1/conversations/[conversationId]/messages/route.ts`
+- **Imports Added**: `connections` schema, `sessionManager` from `@/services/baileys-session-manager`
+- **Template Limitation**: Baileys connections cannot send WhatsApp templates (Meta API feature only)
+- **Result**: Both Baileys (QR code) and Meta Cloud API connections now work correctly
+
 ### Q&A Bug Validation (November 7, 2025)
 
 #### **FASE 1 - Critical Bugs Validation**

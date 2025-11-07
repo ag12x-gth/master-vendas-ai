@@ -1,0 +1,60 @@
+0 in 78ms
+Erro ao enviar mensagem: Error: Token de acesso não configurado para a conexão Atendimento
+    at sendWhatsappTextMessage (webpack://nextn/src/lib/facebookApiService.ts?f1fe:91:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async POST (webpack://nextn/src/app/api/v1/conversations/[conversationId]/messages/route.ts?cf49:116:35)
+    at async <anonymous> (webpack://next/dist/esm/server/future/route-modules/app-route/module.js:195:37)
+    at async eT.execute (webpack://next/dist/esm/server/future/route-modules/app-route/module.js:124:26)
+    at async eT.handle (webpack://next/dist/esm/server/future/route-modules/app-route/module.js:270:30)
+    at async doRender (/home/runner/workspace/node_modules/next/src/server/base-server.ts:2251:30)
+    at async cacheEntry.responseCache.get.routeKind (/home/runner/workspace/node_modules/next/src/server/base-server.ts:2558:30)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/runner/workspace/node_modules/next/src/server/base-server.ts:2432:24)
+    at async DevServer.renderPageComponent (/home/runner/workspace/node_modules/next/src/server/base-server.ts:3016:16)
+    at async DevServer.renderToResponseImpl (/home/runner/workspace/node_modules/next/src/server/base-server.ts:3078:24)
+    at async DevServer.pipeImpl (/home/runner/workspace/node_modules/next/src/server/base-server.ts:1537:21)
+    at async DevServer.NextNodeServer.handleCatchallRenderRequest (/home/runner/workspace/node_modules/next/src/server/next-server.ts:1020:7)
+    at async DevServer.handleRequestImpl (/home/runner/workspace/node_modules/next/src/server/base-server.ts:1318:9)
+    at async <anonymous> (/home/runner/workspace/node_modules/next/src/server/dev/next-dev-server.ts:461:14)
+    at async Span.traceAsyncFn (/home/runner/workspace/node_modules/next/src/trace/trace.ts:141:14)
+    at async DevServer.handleRequest (/home/runner/workspace/node_modules/next/src/server/dev/next-dev-server.ts:459:20)
+    at async invokeRender (/home/runner/workspace/node_modules/next/src/server/lib/router-server.ts:277:11)
+    at async handleRequest (/home/runner/workspace/node_modules/next/src/server/lib/router-server.ts:527:16)
+    at async NextCustomServer.requestHandlerImpl (/home/runner/workspace/node_modules/next/src/server/lib/router-server.ts:573:7)
+    at async Server.<anonymous> (/home/runner/workspace/server.js:25:9)
+ POST /api/v1/conversations/3a7fd4b4-ff1d-492b-ab31-2c59a0441bbf/messages 500 in 236ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ GET /api/v1/conversations/status 200 in 87ms
+ GET /api/v1/conversations/status 200 in 78ms
+ GET /api/v1/conversations/status 200 in 78ms
+[Baileys] Message saved from 120363401195489540
+[Baileys AI] Skipping auto-response for group: 120363401195489540
+ GET /api/v1/conversations/status 200 in 76ms
+ GET /api/v1/conversations/status 200 in 104ms
+ GET /api/v1/conversations/status 200 in 95ms
+ GET /api/v1/conversations/status 200 in 74ms
+ GET /api/v1/conversations/status 200 in 88ms
+ GET /api/v1/conversations/status 200 in 103ms
+ GET /api/v1/conversations/status 200 in 73ms
+ GET /api/v1/conversations/status 200 in 82ms
+ GET /api/v1/conversations/status 200 in 79ms
+ GET /api/v1/conversations/status 200 in 77ms
+ GET /api/v1/conversations/status 200 in 78ms
+ GET /api/v1/conversations/status 200 in 85ms
+ GET /api/v1/conversations/status 200 in 80ms
+ GET /api/v1/conversations/status 200 in 91ms
+ GET /api/v1/conversations/status 200 in 84ms
+ GET /api/v1/conversations/status 200 in 74ms
+ GET /api/v1/conversations/status 200 in 80ms
+ GET /api/v1/conversations/status 200 in 87ms
+ GET /api/v1/conversations/status 200 in 84ms
+ GET /api/v1/conversations/status 200 in 79ms
+ GET /api/v1/conversations/status 200 in 85ms
+ GET /api/v1/conversations/status 200 in 84ms
+ GET /api/v1/conversations/status 200 in 75ms
+ GET /api/v1/conversations/status 200 in 109ms
+ GET /api/v1/conversations/status 200 in 79ms
