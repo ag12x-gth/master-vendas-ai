@@ -1,0 +1,137 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - link "Master IA" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e6] [cursor=pointer]
+        - generic [ref=e9] [cursor=pointer]: Master IA
+      - navigation [ref=e10]:
+        - link "Dashboard" [ref=e11] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e12] [cursor=pointer]
+          - generic [ref=e17] [cursor=pointer]: Dashboard
+        - link "Primeiros Passos" [ref=e18] [cursor=pointer]:
+          - /url: /ajuda
+          - img [ref=e19] [cursor=pointer]
+          - generic [ref=e26] [cursor=pointer]: Primeiros Passos
+        - link "Atendimentos" [ref=e27] [cursor=pointer]:
+          - /url: /atendimentos
+          - img [ref=e28] [cursor=pointer]
+          - generic [ref=e31] [cursor=pointer]: Atendimentos
+        - link "Automações" [ref=e32] [cursor=pointer]:
+          - /url: /automations
+          - img [ref=e33] [cursor=pointer]
+          - generic [ref=e37] [cursor=pointer]: Automações
+        - link "Pipeline Kanban" [ref=e38] [cursor=pointer]:
+          - /url: /kanban
+          - img [ref=e39] [cursor=pointer]
+          - generic [ref=e40] [cursor=pointer]: Pipeline Kanban
+        - generic [ref=e42] [cursor=pointer]:
+          - generic [ref=e43] [cursor=pointer]:
+            - img [ref=e44] [cursor=pointer]
+            - generic [ref=e49] [cursor=pointer]: Leads
+          - img [ref=e50] [cursor=pointer]
+        - generic [ref=e53] [cursor=pointer]:
+          - generic [ref=e54] [cursor=pointer]:
+            - img [ref=e55] [cursor=pointer]
+            - generic [ref=e57] [cursor=pointer]: WhatsApp
+          - img [ref=e58] [cursor=pointer]
+        - generic [ref=e61] [cursor=pointer]:
+          - generic [ref=e62] [cursor=pointer]:
+            - img [ref=e63] [cursor=pointer]
+            - generic [ref=e65] [cursor=pointer]: SMS
+          - img [ref=e66] [cursor=pointer]
+        - link "Galeria" [ref=e68] [cursor=pointer]:
+          - /url: /gallery
+          - img [ref=e69] [cursor=pointer]
+          - generic [ref=e71] [cursor=pointer]: Galeria
+        - link "Agentes de IA" [ref=e72] [cursor=pointer]:
+          - /url: /agentes-ia
+          - img [ref=e73] [cursor=pointer]
+          - generic [ref=e76] [cursor=pointer]: Agentes de IA
+        - link "Voice Calls" [ref=e77] [cursor=pointer]:
+          - /url: /voice-calls
+          - img [ref=e78] [cursor=pointer]
+          - generic [ref=e80] [cursor=pointer]: Voice Calls
+        - link "Reuniões" [ref=e81] [cursor=pointer]:
+          - /url: /meetings
+          - img [ref=e82] [cursor=pointer]
+          - generic [ref=e85] [cursor=pointer]: Reuniões
+        - link "Roteamento" [ref=e86] [cursor=pointer]:
+          - /url: /roteamento
+          - img [ref=e87] [cursor=pointer]
+          - generic [ref=e91] [cursor=pointer]: Roteamento
+      - navigation [ref=e92]:
+        - link "Configurações" [ref=e93] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e94] [cursor=pointer]
+          - generic [ref=e97] [cursor=pointer]: Configurações
+        - button "Recolher" [ref=e99] [cursor=pointer]:
+          - img [ref=e100] [cursor=pointer]
+          - generic [ref=e102] [cursor=pointer]: Recolher
+    - generic [ref=e103]:
+      - banner [ref=e104]:
+        - generic [ref=e105]:
+          - generic [ref=e106]:
+            - img [ref=e107]
+            - generic [ref=e109]: v2.4.1
+          - button "2 Notificações" [ref=e110] [cursor=pointer]:
+            - img [ref=e111] [cursor=pointer]
+            - generic [ref=e114] [cursor=pointer]: "2"
+            - generic [ref=e115] [cursor=pointer]: Notificações
+          - button "TE" [ref=e116] [cursor=pointer]:
+            - generic [ref=e118] [cursor=pointer]: TE
+      - main [ref=e119]:
+        - generic [ref=e120]:
+          - generic [ref=e121]:
+            - generic [ref=e122]:
+              - heading "Análise de Reunião" [level=1] [ref=e123]
+              - paragraph [ref=e124]: https://meet.google.com/hjj-mnbs-amp
+            - generic [ref=e125]: Agendada
+          - generic [ref=e127]:
+            - paragraph [ref=e128]: Esta reunião está agendada e ainda não foi iniciada.
+            - button "Entrar na Reunião" [ref=e129] [cursor=pointer]
+  - button [ref=e130] [cursor=pointer]:
+    - img [ref=e132] [cursor=pointer]
+  - generic:
+    - generic [ref=e134]:
+      - heading "Console Monitor" [level=3] [ref=e135]
+      - generic [ref=e136]:
+        - button [ref=e137] [cursor=pointer]:
+          - img [ref=e138] [cursor=pointer]
+        - button [ref=e141] [cursor=pointer]:
+          - img [ref=e142] [cursor=pointer]
+        - button [ref=e145] [cursor=pointer]:
+          - img [ref=e146] [cursor=pointer]
+    - generic [ref=e149]:
+      - generic [ref=e150]:
+        - button "all" [ref=e151] [cursor=pointer]
+        - button "log" [ref=e152] [cursor=pointer]
+        - button "error" [ref=e153] [cursor=pointer]
+        - button "warn" [ref=e154] [cursor=pointer]
+        - button "info" [ref=e155] [cursor=pointer]
+      - textbox "Search..." [ref=e157]
+    - generic [ref=e158]:
+      - generic:
+        - img
+        - generic [ref=e160]: 10:24:55 PM
+        - generic [ref=e162]: "[Console Monitor] Iniciado - Capturando todos os logs"
+      - generic:
+        - img
+        - generic [ref=e164]: 10:24:55 PM
+        - generic [ref=e166]: Firebase configuration not found. Firebase features will be disabled.
+      - generic:
+        - img
+        - generic [ref=e168]: 10:24:55 PM
+        - generic [ref=e170]: "[Console Monitor] Iniciado - Capturando todos os logs"
+      - generic:
+        - img
+        - generic [ref=e172]: 10:24:55 PM
+        - generic [ref=e174]: Firebase configuration not found. Firebase features will be disabled.
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e175]
+```
