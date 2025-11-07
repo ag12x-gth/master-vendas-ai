@@ -123,12 +123,14 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Corrections (November 2025)
 
-### Hydration Fixes
+### Hydration Fixes (November 2025)
 - **contact-table.tsx**: Added mounted flag pattern (lines 270-278) to prevent SSR/CSR mismatch
 - **team-table.tsx**: Added mounted flag pattern (lines 244-251) to prevent SSR/CSR mismatch
 - **templates-v2/page.tsx**: Added mounted flag pattern (lines 113-120) to prevent SSR/CSR mismatch
-- **theme-toggle.tsx** (November 7, 2025): Added mounted flag pattern (lines 15-23) to prevent SSR/CSR mismatch with next-themes
+- **theme-toggle.tsx** (November 7, 2025): Added mounted flag pattern (lines 15-23) - next-themes SSR/CSR mismatch
+- **version-badge.tsx** (November 7, 2025): Added mounted flag pattern (lines 9-17) - NEXT_PUBLIC_COMMIT_SHA environment variable differs between server/client
 - **Pattern**: `const [mounted, setMounted] = useState(false); useEffect(() => setMounted(true), []); if (!mounted) return null;`
+- **Cache Strategy**: Always run `rm -rf .next` after hydration fixes to clear Next.js build cache
 - **Result**: Zero hydration warnings in production (including /login page)
 
 ### Baileys Duplicate Message Fix
