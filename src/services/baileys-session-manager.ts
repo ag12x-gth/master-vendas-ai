@@ -314,7 +314,8 @@ class BaileysSessionManager {
         mediaUrl: msg.message?.imageMessage?.url,
         status: 'received',
         sentAt: new Date(msg.messageTimestamp! * 1000),
-      });
+      })
+      .onConflictDoNothing({ target: [messages.providerMessageId] });
 
       console.log(`[Baileys] Message saved from ${phoneNumber}`);
 

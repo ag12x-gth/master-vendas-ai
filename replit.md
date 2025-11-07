@@ -120,3 +120,29 @@ Preferred communication style: Simple, everyday language.
 
 **Socket.IO Client**
 - For real-time testing.
+
+## Recent Corrections (November 2025)
+
+### Hydration Fixes
+- **contact-table.tsx**: Added mounted flag pattern (lines 270-278) to prevent SSR/CSR mismatch
+- **team-table.tsx**: Added mounted flag pattern (lines 244-251) to prevent SSR/CSR mismatch
+- **templates-v2/page.tsx**: Added mounted flag pattern (lines 113-120) to prevent SSR/CSR mismatch
+- **Pattern**: `const [mounted, setMounted] = useState(false); const isMobile = mounted ? useIsMobile() : false;`
+- **Result**: Zero hydration warnings in production
+
+### Baileys Duplicate Message Fix
+- **baileys-session-manager.ts line 321**: Added `onConflictDoNothing({ target: [messages.providerMessageId] })`
+- **Problem**: Duplicate messages from WhatsApp reconnections caused DrizzleQueryError
+- **Solution**: Silently ignore duplicate messages with same provider_message_id
+- **Result**: Zero duplicate key constraint violations
+
+### Bundle Optimization Validated
+- **Recharts**: Already optimized with dynamic imports (4.2MB-4.3MB per chunk, lazy loaded)
+- **Firebase**: Code split into app (432K) + analytics (680K) chunks
+- **VAPI Voice**: Lazy loaded only in MeetingRoomPanel (1.2M)
+- **Result**: Main bundle optimized, heavy dependencies isolated
+
+### WhatsApp Media Domains
+- **Configured domains**: mmg.whatsapp.net, pps.whatsapp.net, media.whatsapp.net
+- **Wildcard pattern**: **.whatsapp.net for future-proofing
+- **Result**: Complete image/sticker/audio/video support
