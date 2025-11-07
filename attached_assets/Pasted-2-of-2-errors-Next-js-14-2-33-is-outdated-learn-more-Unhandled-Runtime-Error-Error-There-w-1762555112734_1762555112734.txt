@@ -1,0 +1,54 @@
+2 of 2 errors
+Next.js (14.2.33) is outdated (learn more)
+
+Unhandled Runtime Error
+Error: There was an error while hydrating this Suspense boundary. Switched to client rendering.
+See more info here: https://nextjs.org/docs/messages/react-hydration-error
+
+Did not expect server HTML to contain a <div> in <div>.
+
+
+...
+  <form>
+    <div>
+    ^^^^^
+      <div>
+      ^^^^^
+Call Stack
+React
+updateDehydratedSuspenseComponent
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (17594:1)
+updateSuspenseComponent
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (17193:1)
+beginWork$1
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (18509:1)
+beginWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (26927:1)
+performUnitOfWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25748:1)
+workLoopSync
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25464:1)
+renderRootSync
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25419:1)
+performSyncWorkOnRoot
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24887:1)
+flushSyncWorkAcrossRoots_impl
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (7758:1)
+flushSyncWorkOnAllRoots
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (7718:1)
+commitRootImpl
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (26369:1)
+commitRoot
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (26077:1)
+commitRootWhenReady
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24749:1)
+finishConcurrentRender
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24714:1)
+performConcurrentWorkOnRoot
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24559:1)
+workLoop
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (256:1)
+flushWork
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (225:1)
+MessagePort.performWorkUntilDeadline
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (534:1)
