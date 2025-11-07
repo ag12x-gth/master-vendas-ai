@@ -624,8 +624,10 @@ export const vapiTranscripts = pgTable('vapi_transcripts', {
 // RELAÇÕES (DRIZZLE ORM)
 // ===================================
 export const conversationsRelations = relations(conversations, ({ one }) => ({
-^f                references: [contacts.id],
-        }),
+    contact: one(contacts, {
+        fields: [conversations.contactId],
+        references: [contacts.id],
+    }),
     connection: one(connections, {
         fields: [conversations.connectionId],
         references: [connections.id]
