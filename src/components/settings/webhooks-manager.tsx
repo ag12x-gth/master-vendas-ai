@@ -58,6 +58,14 @@ import {
 } from '../ui/select';
 import type { Webhook } from '@/lib/types';
 
+const eventLabels: Record<string, string> = {
+  'contact.created': 'Quando um novo contato for criado',
+  'lead.updated': 'Quando um lead for atualizado',
+  'sale.completed': 'Quando uma venda for concluída',
+  'email.sent': 'Quando um email for enviado',
+  'task.completed': 'Quando uma tarefa for concluída',
+};
+
 const maskUrl = (url: string): string => {
   try {
     const urlObj = new URL(url);
@@ -217,7 +225,7 @@ export function WebhooksManager(): JSX.Element {
                   webhooks.map((webhook) => (
                     <TableRow key={webhook.id}>
                         <TableCell className="font-medium">{webhook.name}</TableCell>
-                        <TableCell>Quando um novo contato for criado</TableCell>
+                        <TableCell>{webhook.eventTriggers?.[0] ? (eventLabels[webhook.eventTriggers[0]] || webhook.eventTriggers[0]) : 'Evento não configurado'}</TableCell>
                         <TableCell className="font-mono text-xs">{maskUrl(webhook.url)}</TableCell>
                         <TableCell>
                         <Switch checked={webhook.isActive} onCheckedChange={(checked) => handleToggleActive(webhook.id, checked)} />
@@ -289,6 +297,10 @@ export function WebhooksManager(): JSX.Element {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="contact.created">Quando um novo contato for criado</SelectItem>
+                                <SelectItem value="lead.updated">Quando um lead for atualizado</SelectItem>
+                                <SelectItem value="sale.completed">Quando uma venda for concluída</SelectItem>
+                                <SelectItem value="email.sent">Quando um email for enviado</SelectItem>
+                                <SelectItem value="task.completed">Quando uma tarefa for concluída</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
