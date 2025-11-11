@@ -132,7 +132,7 @@ export default function TemplatesV2Page() {
       if (!response.ok) throw new Error('Falha ao carregar templates');
 
       const data = await response.json();
-      setTemplates(data.templates || []);
+      setTemplates(Array.isArray(data) ? data : []);
     } catch (error) {
       toast({
         variant: 'destructive',
