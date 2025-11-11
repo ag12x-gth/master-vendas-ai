@@ -439,7 +439,7 @@ import {
     sentAt: timestamp('sent_at'),
     completedAt: timestamp('completed_at'),
     connectionId: text('connection_id').references(() => connections.id),
-    templateId: text('template_id').references(() => templates.id, { onDelete: 'set null' }),
+    templateId: text('template_id').references(() => messageTemplates.id, { onDelete: 'set null' }),
     variableMappings: jsonb('variable_mappings'),
     mediaAssetId: text('media_asset_id').references(() => mediaAssets.id, { onDelete: 'set null' }),
     smsGatewayId: text('sms_gateway_id').references(() => smsGateways.id),

@@ -2,7 +2,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { campaigns, connections, smsGateways, smsDeliveryReports, templates as templateSchema, whatsappDeliveryReports } from '@/lib/db/schema';
+import { campaigns, connections, smsGateways, smsDeliveryReports, messageTemplates, whatsappDeliveryReports } from '@/lib/db/schema';
 import { eq, and, desc, sql, or, type SQL, count } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
@@ -98,12 +98,12 @@ async function fetchCampaignsData(params: {
                 message: campaigns.message,
                 connectionName: connections.config_name,
                 smsGatewayName: smsGateways.name,
-                templateName: templateSchema.name,
+                templateName: messageTemplates.name,
             })
             .from(campaigns)
             .leftJoin(connections, eq(campaigns.connectionId, connections.id))
             .leftJoin(smsGateways, eq(campaigns.smsGatewayId, smsGateways.id))
-            .leftJoin(templateSchema, eq(campaigns.templateId, templateSchema.id))
+            .leftJoin(messageTemplates, eq(campaigns.templateId, messageTemplates.id))
             .where(finalWhereClauses)
             .orderBy(desc(campaigns.createdAt));
 
