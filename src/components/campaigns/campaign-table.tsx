@@ -40,6 +40,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 
 type CampaignTableProps = {
     channel: 'WHATSAPP' | 'SMS';
+    baileysOnly?: boolean;
 }
 type ViewType = 'grid' | 'table';
 
@@ -213,7 +214,7 @@ const CampaignCard = memo(({ campaign, onUpdate, onDelete, allTemplates }: { cam
 
 CampaignCard.displayName = 'CampaignCard';
 
-export function CampaignTable({ channel }: CampaignTableProps) {
+export function CampaignTable({ channel, baileysOnly = false }: CampaignTableProps) {
   const { toast } = useToast();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [allTemplates, setAllTemplates] = useState<Template[]>([]);
@@ -264,7 +265,15 @@ export function CampaignTable({ channel }: CampaignTableProps) {
         const data = await response.json();
         
         if (Array.isArray(data.data)) {
-          setCampaigns(data.data);
+          let filteredData = data.data;
+          
+          if (baileysOnly) {
+            filteredData = data.data.filter((c: Campaign) => c.templateId === null);
+          } else if (channel === 'WHATSAPP') {
+            filteredData = data.data.filter((c: Campaign) => c.templateId !== null);
+          }
+          
+          setCampaigns(filteredData);
           setTotalPages(data.totalPages || 1);
         } else {
            console.error("Formato de dados inesperado da API:", data);
@@ -278,7 +287,7 @@ export function CampaignTable({ channel }: CampaignTableProps) {
     } finally {
         setLoading(false);
     }
-  }, [toast, channel, page, limit, debouncedDateRange, debouncedFilterType, debouncedSelectedId]);
+  }, [toast, channel, page, limit, debouncedDateRange, debouncedFilterType, debouncedSelectedId, baileysOnly]);
 
   useEffect(() => {
     fetchCampaigns();

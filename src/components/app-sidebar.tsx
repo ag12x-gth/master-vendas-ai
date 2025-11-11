@@ -137,7 +137,8 @@ const allNavItems = [
     roles: ['admin', 'superadmin'],
     isGroup: true,
     subItems: [
-      { href: '/campaigns', label: 'Campanhas', icon: Send, roles: ['admin', 'superadmin'] },
+      { href: '/campaigns', label: 'Campanhas Meta API', icon: Send, roles: ['admin', 'superadmin'] },
+      { href: '/campaigns-baileys', label: 'Campanhas Baileys', icon: Send, roles: ['admin', 'superadmin'] },
       { href: '/templates', label: 'Modelos', icon: MessageSquareText, roles: ['admin', 'superadmin'] },
       { href: '/templates-v2', label: 'Templates WhatsApp', icon: MessageSquareText, roles: ['admin', 'superadmin'] },
       { href: '/whatsapp-baileys', label: 'Mensagens Baileys', icon: MessageCircle, roles: ['admin', 'superadmin'] },
