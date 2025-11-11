@@ -3,8 +3,8 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { conversations, messages, contacts, templates, connections } from '@/lib/db/schema';
-import { eq, and, desc, asc } from 'drizzle-orm';
+import { conversations, messages, contacts, templates, connections, messageReactions } from '@/lib/db/schema';
+import { eq, and, desc, asc, inArray } from 'drizzle-orm';
 import { getCompanyIdFromSession, getUserIdFromSession } from '@/app/actions';
 import { sendWhatsappTemplateMessage, sendWhatsappTextMessage } from '@/lib/facebookApiService';
 import { sessionManager } from '@/services/baileys-session-manager';
@@ -51,8 +51,22 @@ export async function GET(_request: NextRequest, { params }: { params: { convers
             .from(messages)
             .where(eq(messages.conversationId, conversationId))
             .orderBy(asc(messages.sentAt));
+
+        const messageIds = conversationMessages.map(m => m.id);
+        const reactions = messageIds.length > 0
+            ? await db.select().from(messageReactions).where(inArray(messageReactions.messageId, messageIds))
+            : [];
+
+        const messagesWithReactions = conversationMessages.map(msg => ({
+            ...msg,
+            reactions: reactions.filter(r => r.messageId === msg.id).map(r => ({
+                emoji: r.emoji,
+                reactorPhone: r.reactorPhone,
+                reactorName: r.reactorName,
+            })),
+        }));
             
-        return NextResponse.json(conversationMessages);
+        return NextResponse.json(messagesWithReactions);
     } catch (error) {
         console.error('Erro ao buscar mensagens:', error);
         return NextResponse.json({ error: (error as Error).message }, { status: 500 });

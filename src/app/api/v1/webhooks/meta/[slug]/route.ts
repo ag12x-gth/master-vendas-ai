@@ -3,7 +3,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { companies, webhookLogs, connections, whatsappDeliveryReports, contacts, conversations, messages, campaigns } from '@/lib/db/schema';
+import { companies, webhookLogs, connections, whatsappDeliveryReports, contacts, conversations, messages, campaigns, messageReactions } from '@/lib/db/schema';
 import { eq, and, inArray } from 'drizzle-orm';
 import { getPhoneVariations, canonicalizeBrazilPhone, sanitizePhone } from '@/lib/utils';
 import crypto from 'crypto';
@@ -242,6 +242,41 @@ async function processIncomingMessage(
             const initialPhone = sanitizePhone(contactData.wa_id);
             if (!initialPhone) {
                 console.error(`Webhook: Número de telefone inválido: ${contactData.wa_id}`);
+                return;
+            }
+
+            if (messageData.type === 'reaction') {
+                const targetMessageId = messageData.reaction.message_id;
+                const emoji = messageData.reaction.emoji;
+
+                const [targetMessage] = await tx.select({ id: messages.id })
+                    .from(messages)
+                    .where(eq(messages.providerMessageId, targetMessageId))
+                    .limit(1);
+
+                if (targetMessage) {
+                    if (emoji === '') {
+                        await tx.delete(messageReactions)
+                            .where(and(
+                                eq(messageReactions.messageId, targetMessage.id),
+                                eq(messageReactions.reactorPhone, initialPhone)
+                            ));
+                        console.log(`[Webhook] Reação removida para mensagem ${targetMessage.id} por ${initialPhone}`);
+                    } else {
+                        await tx.insert(messageReactions)
+                            .values({
+                                messageId: targetMessage.id,
+                                reactorPhone: initialPhone,
+                                reactorName: contactData.profile.name,
+                                emoji,
+                            })
+                            .onConflictDoUpdate({
+                                target: [messageReactions.messageId, messageReactions.reactorPhone],
+                                set: { emoji, reactorName: contactData.profile.name },
+                            });
+                        console.log(`[Webhook] Reação ${emoji} salva para mensagem ${targetMessage.id} por ${initialPhone}`);
+                    }
+                }
                 return;
             }
 

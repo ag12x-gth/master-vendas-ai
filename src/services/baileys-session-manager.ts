@@ -1,7 +1,7 @@
 import { Boom } from '@hapi/boom';
 import { EventEmitter } from 'events';
 import { db } from '@/lib/db';
-import { connections, conversations, messages, contacts, aiPersonas } from '@/lib/db/schema';
+import { connections, conversations, messages, contacts, aiPersonas, messageReactions } from '@/lib/db/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import pino from 'pino';
 import path from 'path';
@@ -255,11 +255,120 @@ class BaileysSessionManager {
       const remoteJid = msg.key.remoteJid || '';
       const phoneNumber = remoteJid.split('@')[0];
       
-      const messageContent =
-        msg.message?.conversation ||
-        msg.message?.extendedTextMessage?.text ||
-        msg.message?.imageMessage?.caption ||
-        '';
+      let messageContent = '';
+      let contentType = 'TEXT';
+      let mediaUrl: string | null = null;
+
+      const Baileys = await import('@whiskeysockets/baileys');
+      const { uploadFileToS3 } = await import('@/lib/s3');
+      const { v4: uuidv4 } = await import('uuid');
+
+      if (msg.message?.conversation) {
+        messageContent = msg.message.conversation;
+        contentType = 'TEXT';
+      } else if (msg.message?.extendedTextMessage) {
+        messageContent = msg.message.extendedTextMessage.text || '';
+        contentType = 'TEXT';
+      } else if (msg.message?.imageMessage) {
+        messageContent = msg.message.imageMessage.caption || '📷 Imagem';
+        contentType = 'IMAGE';
+        
+        try {
+          const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
+          const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.jpg`;
+          mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, 'image/jpeg');
+          console.log(`[Baileys] Image uploaded to S3: ${mediaUrl}`);
+        } catch (error) {
+          console.error('[Baileys] Error downloading/uploading image:', error);
+        }
+      } else if (msg.message?.videoMessage) {
+        messageContent = msg.message.videoMessage.caption || '📹 Vídeo';
+        contentType = 'VIDEO';
+        
+        try {
+          const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
+          const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.mp4`;
+          mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, 'video/mp4');
+          console.log(`[Baileys] Video uploaded to S3: ${mediaUrl}`);
+        } catch (error) {
+          console.error('[Baileys] Error downloading/uploading video:', error);
+        }
+      } else if (msg.message?.audioMessage) {
+        messageContent = '🎵 Áudio';
+        contentType = 'AUDIO';
+        
+        try {
+          const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
+          const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.ogg`;
+          mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, 'audio/ogg');
+          console.log(`[Baileys] Audio uploaded to S3: ${mediaUrl}`);
+        } catch (error) {
+          console.error('[Baileys] Error downloading/uploading audio:', error);
+        }
+      } else if (msg.message?.documentMessage) {
+        const filename = msg.message.documentMessage.fileName || 'documento';
+        messageContent = msg.message.documentMessage.caption || `📄 ${filename}`;
+        contentType = 'DOCUMENT';
+        
+        try {
+          const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
+          const extension = filename.split('.').pop() || 'bin';
+          const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.${extension}`;
+          const mimeType = msg.message.documentMessage.mimetype || 'application/octet-stream';
+          mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, mimeType);
+          console.log(`[Baileys] Document uploaded to S3: ${mediaUrl}`);
+        } catch (error) {
+          console.error('[Baileys] Error downloading/uploading document:', error);
+        }
+      } else if (msg.message?.stickerMessage) {
+        messageContent = 'Sticker';
+        contentType = 'STICKER';
+        
+        try {
+          const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
+          const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.webp`;
+          mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, 'image/webp');
+          console.log(`[Baileys] Sticker uploaded to S3: ${mediaUrl}`);
+        } catch (error) {
+          console.error('[Baileys] Error downloading/uploading sticker:', error);
+        }
+      } else if (msg.message?.reactionMessage) {
+        const targetKey = msg.message.reactionMessage.key;
+        const emoji = msg.message.reactionMessage.text;
+
+        const targetMessageId = targetKey.id;
+        const [targetMessage] = await db.select({ id: messages.id })
+          .from(messages)
+          .where(eq(messages.providerMessageId, targetMessageId))
+          .limit(1);
+
+        if (targetMessage) {
+          if (!emoji || emoji === '') {
+            await db.delete(messageReactions)
+              .where(and(
+                eq(messageReactions.messageId, targetMessage.id),
+                eq(messageReactions.reactorPhone, phoneNumber)
+              ));
+            console.log(`[Baileys] Reação removida para mensagem ${targetMessage.id} por ${phoneNumber}`);
+          } else {
+            await db.insert(messageReactions)
+              .values({
+                messageId: targetMessage.id,
+                reactorPhone: phoneNumber,
+                reactorName: msg.pushName,
+                emoji,
+              })
+              .onConflictDoUpdate({
+                target: [messageReactions.messageId, messageReactions.reactorPhone],
+                set: { emoji, reactorName: msg.pushName },
+              });
+            console.log(`[Baileys] Reação ${emoji} salva para mensagem ${targetMessage.id} por ${phoneNumber}`);
+          }
+        }
+        return;
+      } else {
+        messageContent = 'Mensagem não suportada';
+      }
 
       const [contact] = await db
         .insert(contacts)
@@ -310,8 +419,8 @@ class BaileysSessionManager {
         providerMessageId: msg.key.id,
         senderType: 'USER',
         content: messageContent,
-        contentType: msg.message?.imageMessage ? 'IMAGE' : 'TEXT',
-        mediaUrl: msg.message?.imageMessage?.url,
+        contentType,
+        mediaUrl,
         status: 'received',
         sentAt: new Date(msg.messageTimestamp! * 1000),
       })

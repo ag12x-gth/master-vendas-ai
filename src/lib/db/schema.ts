@@ -318,6 +318,17 @@ import {
     sentAt: timestamp('sent_at').defaultNow().notNull(),
     readAt: timestamp('read_at'),
   });
+
+  export const messageReactions = pgTable('message_reactions', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    messageId: text('message_id').notNull().references(() => messages.id, { onDelete: 'cascade' }),
+    reactorPhone: text('reactor_phone').notNull(),
+    reactorName: text('reactor_name'),
+    emoji: text('emoji').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  }, (table) => ({
+    uniqueReaction: unique().on(table.messageId, table.reactorPhone),
+  }));
   
   // ==============================
   // KANBAN / CRM

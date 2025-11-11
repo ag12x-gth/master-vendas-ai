@@ -4,10 +4,20 @@
 
 import { cn } from "@/lib/utils";
 import type { Message } from "@/lib/types";
-import { Check, CheckCheck, Clock, AlertTriangle, FileText, ImageIcon, Mic, Video, User, Bot } from 'lucide-react';
+import { Check, CheckCheck, Clock, AlertTriangle, FileText, ImageIcon, Mic, Video, User, Bot, Smile, Heart } from 'lucide-react';
 import Image from "next/image";
 import { AudioPlayer } from "./audio-player";
 import { Avatar, AvatarFallback } from "../ui/avatar";
+
+type MessageReaction = {
+    emoji: string;
+    reactorPhone: string;
+    reactorName?: string | null;
+};
+
+type MessageWithReactions = Message & {
+    reactions?: MessageReaction[];
+};
 
 const StatusIcon = ({ status }: { status: Message['status'] }) => {
     if (!status) return null;
@@ -30,7 +40,7 @@ const MediaError = () => (
     </div>
 );
 
-const RepliedMessagePreview = ({ message, contactName }: { message: Message | undefined, contactName?: string | null }) => {
+const RepliedMessagePreview = ({ message, contactName }: { message: MessageWithReactions | undefined, contactName?: string | null }) => {
     if (!message) return null;
 
     const isUser = message.senderType === 'USER';
@@ -41,6 +51,7 @@ const RepliedMessagePreview = ({ message, contactName }: { message: Message | un
     else if (message.contentType === 'VIDEO') content = <div className="flex items-center gap-1.5"><Video className="h-4 w-4" /> Vídeo</div>;
     else if (message.contentType === 'DOCUMENT') content = <div className="flex items-center gap-1.5"><FileText className="h-4 w-4" /> {message.content}</div>;
     else if (message.contentType === 'AUDIO') content = <div className="flex items-center gap-1.5"><Mic className="h-4 w-4" /> Mensagem de voz</div>;
+    else if (message.contentType === 'STICKER') content = <div className="flex items-center gap-1.5"><Smile className="h-4 w-4" /> Sticker</div>;
     
     if (typeof content === 'string' && content.length > 70) {
       content = `${content.substring(0, 70)}...`;
@@ -76,7 +87,34 @@ const RepliedMessagePreview = ({ message, contactName }: { message: Message | un
     )
 }
 
-export function MessageBubble({ message, allMessages, contactName }: { message: Message, allMessages: Message[], contactName?: string | null }) {
+const ReactionsBadge = ({ reactions }: { reactions?: MessageReaction[] }) => {
+    if (!reactions || reactions.length === 0) return null;
+
+    const groupedReactions = reactions.reduce((acc, reaction) => {
+        if (!acc[reaction.emoji]) {
+            acc[reaction.emoji] = [];
+        }
+        acc[reaction.emoji]!.push(reaction);
+        return acc;
+    }, {} as Record<string, MessageReaction[]>);
+
+    return (
+        <div className="flex flex-wrap gap-1 mt-1">
+            {Object.entries(groupedReactions).map(([emoji, reactors]) => (
+                <div
+                    key={emoji}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-background/80 border text-xs"
+                    title={reactors.map(r => r.reactorName || r.reactorPhone).join(', ')}
+                >
+                    <span>{emoji}</span>
+                    {reactors.length > 1 && <span className="font-medium">{reactors.length}</span>}
+                </div>
+            ))}
+        </div>
+    );
+};
+
+export function MessageBubble({ message, allMessages, contactName }: { message: MessageWithReactions, allMessages: MessageWithReactions[], contactName?: string | null }) {
     const isUserMessage = message.senderType === 'USER';
     const isAiMessage = message.senderType === 'AI';
     const repliedMessage = message.repliedToMessageId ? allMessages.find(m => m.id === message.repliedToMessageId) : undefined;
@@ -113,6 +151,16 @@ export function MessageBubble({ message, allMessages, contactName }: { message: 
                         <span className="truncate">{message.content}</span>
                     </a>
                 ) : <MediaError />;
+            case 'STICKER':
+                return message.mediaUrl ? (
+                    <Image 
+                        src={message.mediaUrl} 
+                        alt="Sticker" 
+                        width={150} 
+                        height={150} 
+                        className="object-contain bg-transparent" 
+                    />
+                ) : <MediaError />;
             case 'TEXT':
             case 'BUTTON':
             case 'INTERACTIVE':
@@ -134,6 +182,7 @@ export function MessageBubble({ message, allMessages, contactName }: { message: 
                 <div className="w-full">
                   {renderContent()}
                 </div>
+                <ReactionsBadge reactions={message.reactions} />
                 <div className={cn(
                     "flex items-center gap-1.5 mt-1",
                     !isUserMessage ? 'justify-end' : 'justify-start'
