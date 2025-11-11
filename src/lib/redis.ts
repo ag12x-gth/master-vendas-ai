@@ -421,33 +421,51 @@ class EnhancedCache {
   }
 }
 
+// Global singleton key for Enhanced Cache
+declare global {
+  var __enhancedCacheInstance: EnhancedCache | undefined;
+  var __redisClient: any;
+}
+
 // Create Redis client or enhanced cache based on environment
 let redis: any;
 
 if (process.env.REDIS_URL) {
-  // Use real Redis if URL is provided
-  redis = new Redis(process.env.REDIS_URL);
-  redis.on('error', (err: any) => console.error('Redis Client Error', err));
-  redis.on('connect', () => console.log('✅ Connected to external Redis'));
+  // Use real Redis if URL is provided  
+  if (!global.__redisClient) {
+    redis = new Redis(process.env.REDIS_URL);
+    redis.on('error', (err: any) => console.error('Redis Client Error', err));
+    redis.on('connect', () => console.log('✅ Connected to external Redis'));
+    global.__redisClient = redis;
+  } else {
+    redis = global.__redisClient;
+  }
 } else {
-  // Use enhanced cache for production without external Redis
-  console.log('📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)');
-  redis = new EnhancedCache();
-  
-  // Graceful shutdown
-  process.on('SIGINT', () => {
-    if (redis instanceof EnhancedCache) {
-      redis.destroy();
-    }
-    process.exit(0);
-  });
-  
-  process.on('SIGTERM', () => {
-    if (redis instanceof EnhancedCache) {
-      redis.destroy();
-    }
-    process.exit(0);
-  });
+  // Use enhanced cache for production without external Redis (SINGLETON)
+  if (!global.__enhancedCacheInstance) {
+    console.log('📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)');
+    redis = new EnhancedCache();
+    global.__enhancedCacheInstance = redis;
+    
+    // Graceful shutdown
+    process.on('SIGINT', () => {
+      if (global.__enhancedCacheInstance) {
+        global.__enhancedCacheInstance.destroy();
+        global.__enhancedCacheInstance = undefined;
+      }
+      process.exit(0);
+    });
+    
+    process.on('SIGTERM', () => {
+      if (global.__enhancedCacheInstance) {
+        global.__enhancedCacheInstance.destroy();
+        global.__enhancedCacheInstance = undefined;
+      }
+      process.exit(0);
+    });
+  } else {
+    redis = global.__enhancedCacheInstance;
+  }
 }
 
 // Export cache metrics function for monitoring
