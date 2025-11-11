@@ -64,6 +64,7 @@ interface Connection {
   id: string;
   config_name: string;
   connectionType: string;
+  wabaId?: string;
 }
 
 interface MessageTemplate {
@@ -199,7 +200,7 @@ export default function TemplatesV2Page() {
         body: JSON.stringify({
           ...data,
           connectionId: selectedConnectionForCreate,
-          wabaId: connection.connectionType === 'meta_api' ? connection.config_name : 'baileys',
+          wabaId: connection.connectionType === 'meta_api' ? connection.wabaId : 'baileys',
         }),
       });
 
