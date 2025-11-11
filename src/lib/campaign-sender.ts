@@ -11,12 +11,18 @@ import {
     templates, 
     mediaAssets, 
     whatsappDeliveryReports,
-    connections
+    connections,
+    messageTemplates
 } from '@/lib/db/schema';
 import { eq, inArray } from 'drizzle-orm';
 import { decrypt } from './crypto';
 import { sendWhatsappTemplateMessage } from './facebookApiService';
 import type { MediaAsset as MediaAssetType, MetaApiMessageResponse, MetaHandle } from './types';
+
+// Helper para acessar o SessionManager global do Baileys
+function getBaileysSessionManager() {
+    return (globalThis as any).sessionManager;
+}
 
 // Helper para dividir um array em lotes
 function chunkArray<T>(array: T[], size: number): T[][] {
@@ -31,9 +37,244 @@ function chunkArray<T>(array: T[], size: number): T[][] {
 // Helper para criar uma pausa
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Helper para extrair texto do body de um template (message_templates usa components jsonb)
+function extractBodyText(template: any): string {
+    // Se tem campo body direto (templates legado), usa ele
+    if (template.body && typeof template.body === 'string') {
+        return template.body;
+    }
+    
+    // Se tem components (message_templates novo), extrai do BODY component
+    if (template.components && Array.isArray(template.components)) {
+        const bodyComponent = template.components.find((c: any) => c.type === 'BODY');
+        if (bodyComponent?.text) {
+            return bodyComponent.text;
+        }
+    }
+    
+    return '';
+}
+
+// Helper para extrair header type de um template
+function extractHeaderType(template: any): string | null {
+    // Se tem headerType direto (templates legado), usa ele
+    if (template.headerType) {
+        return template.headerType;
+    }
+    
+    // Se tem components (message_templates novo), extrai do HEADER component
+    if (template.components && Array.isArray(template.components)) {
+        const headerComponent = template.components.find((c: any) => c.type === 'HEADER');
+        if (headerComponent?.format) {
+            return headerComponent.format;
+        }
+    }
+    
+    return null;
+}
+
+// Helper para resolver template de ambas tabelas e normalizar estrutura
+interface ResolvedTemplate {
+    name: string;
+    language: string;
+    bodyText: string;
+    headerType: string | null;
+    hasMedia: boolean;
+}
+
+function resolveTemplate(template: any): ResolvedTemplate {
+    const bodyText = extractBodyText(template);
+    const headerType = extractHeaderType(template);
+    const hasMedia = headerType ? ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerType) : false;
+    
+    return {
+        name: template.name,
+        language: template.language,
+        bodyText,
+        headerType,
+        hasMedia,
+    };
+}
+
 // ==========================================
 // WHATSAPP CAMPAIGN SENDER
 // ==========================================
+
+// Interface para retorno do envio de mensagem
+interface CampaignMessageResult {
+    success: boolean;
+    contactId: string;
+    providerMessageId?: string | null;
+    error?: string;
+}
+
+// Sub-função: Enviar via Baileys
+async function sendViaBaileys(
+    connectionId: string,
+    contact: typeof contacts.$inferSelect,
+    resolvedTemplate: ResolvedTemplate,
+    variableMappings: Record<string, { type: 'dynamic' | 'fixed'; value: string }>
+): Promise<CampaignMessageResult> {
+    const sessionManager = getBaileysSessionManager();
+    
+    if (!sessionManager) {
+        return {
+            success: false,
+            contactId: contact.id,
+            error: 'SessionManager do Baileys não está disponível',
+        };
+    }
+    
+    // Substitui variáveis no body text
+    let messageText = resolvedTemplate.bodyText;
+    const bodyVariables = messageText.match(/\{\{(\d+)\}\}/g) || [];
+    
+    for (const placeholder of bodyVariables) {
+        const varKey = placeholder.replace(/\{|\}/g, '');
+        const mapping = variableMappings[varKey];
+        let text = `[variável ${varKey} não mapeada]`;
+        
+        if (mapping) {
+            if (mapping.type === 'fixed') {
+                text = mapping.value;
+            } else if (mapping.type === 'dynamic') {
+                const dynamicValue = contact[mapping.value as keyof typeof contact];
+                if (dynamicValue !== null && dynamicValue !== undefined) {
+                    text = String(dynamicValue);
+                } else {
+                    text = `[dado ausente]`;
+                }
+            }
+        }
+        
+        messageText = messageText.replace(placeholder, text);
+    }
+    
+    try {
+        const messageId = await sessionManager.sendMessage(
+            connectionId,
+            contact.phone,
+            { text: messageText }
+        );
+        
+        if (messageId) {
+            return {
+                success: true,
+                contactId: contact.id,
+                providerMessageId: messageId,
+            };
+        } else {
+            return {
+                success: false,
+                contactId: contact.id,
+                error: 'Baileys retornou null - possível sessão desconectada',
+            };
+        }
+    } catch (error) {
+        return {
+            success: false,
+            contactId: contact.id,
+            error: (error as Error).message,
+        };
+    }
+}
+
+// Sub-função: Enviar via Meta API (código atual refatorado)
+async function sendViaMetaApi(
+    connection: typeof connections.$inferSelect,
+    contact: typeof contacts.$inferSelect,
+    resolvedTemplate: ResolvedTemplate,
+    variableMappings: Record<string, { type: 'dynamic' | 'fixed'; value: string }>,
+    campaign: typeof campaigns.$inferSelect
+): Promise<CampaignMessageResult> {
+    try {
+        const bodyVariables = resolvedTemplate.bodyText.match(/\{\{(\d+)\}\}/g) || [];
+        
+        const bodyParams = bodyVariables.map(placeholder => {
+            const varKey = placeholder.replace(/\{|\}/g, '');
+            const mapping = variableMappings[varKey];
+            let text = `[variável ${varKey} não mapeada]`;
+            
+            if (mapping) {
+                if (mapping.type === 'fixed') {
+                    text = mapping.value;
+                } else if (mapping.type === 'dynamic') {
+                    const dynamicValue = contact[mapping.value as keyof typeof contact];
+                    if (dynamicValue !== null && dynamicValue !== undefined) {
+                        text = String(dynamicValue);
+                    } else {
+                        text = `[dado ausente]`;
+                    }
+                }
+            }
+            return { type: 'text', text };
+        });
+        
+        const components: Record<string, unknown>[] = [];
+        
+        if (resolvedTemplate.hasMedia && campaign.mediaAssetId) {
+            if (!connection.wabaId) throw new Error(`Conexão ${connection.config_name} não possui WABA ID configurado.`);
+            const { handle, asset } = await getMediaData(campaign.mediaAssetId, connection.id, connection.wabaId);
+            const headerType = resolvedTemplate.headerType!.toLowerCase() as 'image' | 'video' | 'document';
+            const mediaObject: { id: string; filename?: string } = { id: handle };
+            if (headerType === 'document' && asset.name) {
+                mediaObject.filename = asset.name;
+            }
+            components.push({ type: 'header', parameters: [{ type: headerType, [headerType]: mediaObject }] });
+        }
+        
+        if (bodyParams.length > 0) {
+            components.push({ type: 'body', parameters: bodyParams });
+        }
+        
+        const response = await sendWhatsappTemplateMessage({
+            connectionId: connection.id,
+            to: contact.phone,
+            templateName: resolvedTemplate.name,
+            languageCode: resolvedTemplate.language,
+            components,
+        });
+        
+        return {
+            success: true,
+            contactId: contact.id,
+            providerMessageId: (response as unknown as MetaApiMessageResponse).messages?.[0]?.id || null,
+        };
+        
+    } catch (error) {
+        return {
+            success: false,
+            contactId: contact.id,
+            error: (error as Error).message,
+        };
+    }
+}
+
+// Wrapper unificado: Detecta tipo de conexão e delega para sub-função apropriada
+async function sendCampaignMessage(
+    connection: typeof connections.$inferSelect,
+    contact: typeof contacts.$inferSelect,
+    resolvedTemplate: ResolvedTemplate,
+    variableMappings: Record<string, { type: 'dynamic' | 'fixed'; value: string }>,
+    campaign: typeof campaigns.$inferSelect
+): Promise<CampaignMessageResult> {
+    const isBaileys = connection.connectionType === 'baileys';
+    
+    // Bloqueio de campanhas com mídia para Baileys
+    if (isBaileys && resolvedTemplate.hasMedia && campaign.mediaAssetId) {
+        return {
+            success: false,
+            contactId: contact.id,
+            error: 'Campanhas com mídia não são suportadas em conexões Baileys. Use Meta Cloud API.',
+        };
+    }
+    
+    if (isBaileys) {
+        return sendViaBaileys(connection.id, contact, resolvedTemplate, variableMappings);
+    } else {
+        return sendViaMetaApi(connection, contact, resolvedTemplate, variableMappings, campaign);
+    }
+}
 
 async function getMediaData(assetId: string, connectionId: string, wabaId: string): Promise<{ handle: string; asset: MediaAssetType }> {
     const [asset] = await db.select().from(mediaAssets).where(eq(mediaAssets.id, assetId));
@@ -80,15 +321,25 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
             return;
         }
 
-        const [template] = await db.select().from(templates).where(eq(templates.id, campaign.templateId));
+        // Tenta buscar o template na tabela templates (legado) e message_templates (novo)
+        let template = (await db.select().from(templates).where(eq(templates.id, campaign.templateId)))[0];
+        if (!template) {
+            // Tenta buscar na tabela message_templates
+            template = (await db.select().from(messageTemplates).where(eq(messageTemplates.id, campaign.templateId)))[0] as any;
+        }
         if (!template) throw new Error(`Template ID ${campaign.templateId} não encontrado.`);
 
         const [connection] = await db.select().from(connections).where(eq(connections.id, campaign.connectionId));
         if (!connection) throw new Error(`Conexão ID ${campaign.connectionId} não encontrada.`);
-
-        const requiresMedia = ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(template.headerType || 'NONE');
-        if (requiresMedia && !campaign.mediaAssetId) {
-            throw new Error(`Campanha ${campaign.id} exige um anexo de mídia, mas nenhum foi fornecido.`);
+        
+        // Resolve template para estrutura normalizada
+        const resolvedTemplate = resolveTemplate(template);
+        
+        // Valida mídia para Meta API
+        if (!connection.connectionType || connection.connectionType === 'meta_api') {
+            if (resolvedTemplate.hasMedia && !campaign.mediaAssetId) {
+                throw new Error(`Campanha ${campaign.id} exige um anexo de mídia, mas nenhum foi fornecido.`);
+            }
         }
         
         const contactIdsSubquery = db
@@ -115,83 +366,44 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
         for (const [index, batch] of contactBatches.entries()) {
             console.log(`[Campanha WhatsApp ${campaign.id}] Processando lote ${index + 1}/${contactBatches.length} com ${batch.length} contatos.`);
 
-            const sendPromises = batch.map(async (contact) => {
-                try {
-                    const variableMappings = campaign.variableMappings as Record<string, { type: 'dynamic' | 'fixed', value: string }> || {};
-                    const bodyVariables = template.body.match(/\{\{(\d+)\}\}/g) || [];
-                    
-                    const bodyParams = bodyVariables.map(placeholder => {
-                        const varKey = placeholder.replace(/\{|\}/g, '');
-                        const mapping = variableMappings[varKey];
-                        let text = `[variável ${varKey} não mapeada]`;
+            const variableMappings = campaign.variableMappings as Record<string, { type: 'dynamic' | 'fixed', value: string }> || {};
 
-                        if (mapping) {
-                            if (mapping.type === 'fixed') {
-                                text = mapping.value;
-                            } else if (mapping.type === 'dynamic') {
-                                const dynamicValue = contact[mapping.value as keyof typeof contact];
-                                if (dynamicValue !== null && dynamicValue !== undefined) {
-                                    text = String(dynamicValue);
-                                } else {
-                                    text = `[dado ausente]`;
-                                }
-                            }
-                        }
-                        return { type: 'text', text };
-                    });
-
-                    const components: Record<string, unknown>[] = [];
-                    if (requiresMedia && campaign.mediaAssetId) {
-                        if (!connection.wabaId) throw new Error(`Conexão ${connection.config_name} não possui WABA ID configurado.`);
-                        const { handle, asset } = await getMediaData(campaign.mediaAssetId, connection.id, connection.wabaId);
-                        const headerType = template.headerType!.toLowerCase() as 'image' | 'video' | 'document';
-                        const mediaObject: { id: string; filename?: string } = { id: handle };
-                        if (headerType === 'document' && asset.name) {
-                            mediaObject.filename = asset.name;
-                        }
-                        components.push({ type: 'header', parameters: [{ type: headerType, [headerType]: mediaObject }] });
-                    }
-                    
-                    if (bodyParams.length > 0) {
-                        components.push({ type: 'body', parameters: bodyParams });
-                    }
-
-                    const response = await sendWhatsappTemplateMessage({
-                        connectionId: campaign.connectionId!,
-                        to: contact.phone,
-                        templateName: template.name,
-                        languageCode: template.language,
-                        components,
-                    });
-                    
-                    return { success: true, contactId: contact.id, response };
-
-                } catch (error) {
-                    console.error(`Falha ao enviar para o contato ${contact.id} na campanha ${campaign.id}:`, error);
-                    return { success: false, contactId: contact.id, error };
-                }
-            });
+            // Usa o wrapper unificado para enviar mensagens
+            const sendPromises = batch.map(contact => 
+                sendCampaignMessage(connection, contact, resolvedTemplate, variableMappings, campaign)
+            );
 
             const results = await Promise.allSettled(sendPromises);
 
+            // Mapeia resultados para delivery reports
             const deliveryReports = results.map(result => {
-                if (result.status === 'fulfilled' && result.value.success) {
-                    return {
-                        campaignId: campaign.id,
-                        contactId: result.value.contactId,
-                        connectionId: campaign.connectionId!,
-                        status: 'SENT',
-                        providerMessageId: (result.value.response as unknown as MetaApiMessageResponse).messages?.[0]?.id || null,
-                    };
+                if (result.status === 'fulfilled') {
+                    const value = result.value;
+                    if (value.success) {
+                        return {
+                            campaignId: campaign.id,
+                            contactId: value.contactId,
+                            connectionId: campaign.connectionId!,
+                            status: 'SENT',
+                            providerMessageId: value.providerMessageId || null,
+                        };
+                    } else {
+                        return {
+                            campaignId: campaign.id,
+                            contactId: value.contactId,
+                            connectionId: campaign.connectionId!,
+                            status: 'FAILED',
+                            failureReason: value.error || 'Erro desconhecido',
+                        };
+                    }
                 } else {
-                    const error = (result.status === 'rejected' ? result.reason : result.value.error) as Error;
-                    const contactId = (result.status === 'rejected' ? 'unknown' : result.value.contactId);
+                    // Promise rejeitada
                     return {
                         campaignId: campaign.id,
-                        contactId: contactId,
+                        contactId: 'unknown',
                         connectionId: campaign.connectionId!,
                         status: 'FAILED',
-                        failureReason: error.message,
+                        failureReason: (result.reason as Error)?.message || 'Erro desconhecido',
                     };
                 }
             }).filter(Boolean);
