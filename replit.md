@@ -23,6 +23,7 @@ Preferred communication style: Simple, everyday language.
 - **Webhook System**: Meta Webhooks with signature verification.
 - **Data Flow**: Incoming messages processed via webhooks, stored, and routed through automation; campaigns managed by a queue processor.
 - **Performance**: Custom caching, database optimization, and frontend optimizations.
+- **Hybrid Campaign Messaging** (Nov 11, 2025): Unified wrapper pattern (`sendCampaignMessage`) with provider-specific sub-functions supporting both Meta Cloud API and Baileys connections. Includes template normalization helper (`resolveTemplate`) for legacy and v2 templates, case-insensitive channel routing, and singleton SessionManager access pattern.
 
 ## External Dependencies
 ### Third-Party APIs
