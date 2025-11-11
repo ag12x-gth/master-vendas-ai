@@ -140,6 +140,7 @@ const allNavItems = [
       { href: '/campaigns', label: 'Campanhas', icon: Send, roles: ['admin', 'superadmin'] },
       { href: '/templates', label: 'Modelos', icon: MessageSquareText, roles: ['admin', 'superadmin'] },
       { href: '/templates-v2', label: 'Templates WhatsApp', icon: MessageSquareText, roles: ['admin', 'superadmin'] },
+      { href: '/whatsapp-baileys', label: 'Mensagens Baileys', icon: MessageCircle, roles: ['admin', 'superadmin'] },
       { href: '/connections', label: 'Conexões Meta API', icon: Plug, roles: ['admin', 'superadmin'] },
       { href: '/whatsapp-sessoes', label: 'Sessões Baileys', icon: BotMessageSquare, roles: ['admin', 'superadmin'] },
     ],

@@ -447,20 +447,44 @@ class BaileysSessionManager {
     to: string,
     content: any
   ): Promise<string | null> {
+    console.log(`[SessionManager] Attempting to send message via connection ${connectionId} to ${to}`);
+    
     const sessionData = this.sessions.get(connectionId);
     
-    if (!sessionData || sessionData.status !== 'connected') {
-      console.error(`[Baileys] Session ${connectionId} not connected`);
+    if (!sessionData) {
+      console.error(`[SessionManager] ❌ Session ${connectionId} not found in SessionManager`);
+      console.log(`[SessionManager] Available sessions: ${Array.from(this.sessions.keys()).join(', ') || 'none'}`);
+      return null;
+    }
+    
+    if (sessionData.status !== 'connected') {
+      console.error(`[SessionManager] ❌ Session ${connectionId} not connected. Current status: ${sessionData.status}`);
       return null;
     }
 
     try {
       const jid = to.includes('@') ? to : `${to}@s.whatsapp.net`;
+      console.log(`[SessionManager] Sending to JID: ${jid}`);
+      
       const sent = await sessionData.socket.sendMessage(jid, content);
-      console.log(`[Baileys] Message sent to ${to}:`, sent?.key?.id);
-      return sent?.key?.id || null;
+      const messageId = sent?.key?.id || null;
+      
+      if (messageId) {
+        console.log(`[SessionManager] ✅ Message sent successfully to ${to}: ${messageId}`);
+      } else {
+        console.warn(`[SessionManager] ⚠️  Message sent but no ID returned for ${to}`);
+      }
+      
+      return messageId;
     } catch (error) {
-      console.error('[Baileys] Error sending message:', error);
+      console.error(`[SessionManager] ❌ Error sending message to ${to}:`, error);
+      console.error(`[SessionManager] Error details:`, {
+        connectionId,
+        to,
+        contentType: typeof content,
+        sessionStatus: sessionData.status,
+        error: error instanceof Error ? error.message : String(error)
+      });
       return null;
     }
   }
@@ -487,7 +511,14 @@ class BaileysSessionManager {
   }
 
   getSession(connectionId: string): SessionData | undefined {
-    return this.sessions.get(connectionId);
+    const session = this.sessions.get(connectionId);
+    
+    if (!session) {
+      console.warn(`[SessionManager] ⚠️  Session not found for connectionId: ${connectionId}`);
+      console.log(`[SessionManager] Available sessions: ${Array.from(this.sessions.keys()).join(', ') || 'none'}`);
+    }
+    
+    return session;
   }
 
   getEventEmitter(connectionId: string): EventEmitter | undefined {
@@ -502,6 +533,40 @@ class BaileysSessionManager {
       status: data.status,
       phone: data.phone,
     }));
+  }
+
+  checkAvailability(connectionId: string, companyId?: string): {
+    available: boolean;
+    status: string;
+    details: string;
+  } {
+    const logContext = companyId ? `[Company: ${companyId.slice(0, 8)}]` : '';
+    console.log(`[SessionManager] ${logContext} Checking availability for connection ${connectionId}`);
+    
+    const session = this.sessions.get(connectionId);
+    
+    if (!session) {
+      console.warn(`[SessionManager] ${logContext} ❌ Connection ${connectionId} not found`);
+      console.log(`[SessionManager] ${logContext} Total active sessions: ${this.sessions.size}`);
+      console.log(`[SessionManager] ${logContext} Available sessions: ${Array.from(this.sessions.keys()).join(', ') || 'none'}`);
+      
+      return {
+        available: false,
+        status: 'not_found',
+        details: `Session ${connectionId} does not exist in SessionManager`
+      };
+    }
+    
+    const isConnected = session.status === 'connected';
+    const statusEmoji = isConnected ? '✅' : '⚠️';
+    
+    console.log(`[SessionManager] ${logContext} ${statusEmoji} Connection ${connectionId}: ${session.status}${session.phone ? ` (${session.phone})` : ''}`);
+    
+    return {
+      available: isConnected,
+      status: session.status,
+      details: `Session ${connectionId} status: ${session.status}, phone: ${session.phone || 'unknown'}`
+    };
   }
 
   async initializeSessions(): Promise<void> {
