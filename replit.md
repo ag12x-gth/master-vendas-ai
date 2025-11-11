@@ -53,20 +53,46 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Enhancements (Nov 11, 2025)
 
-### Baileys Messaging Improvements
-1. **Dedicated Baileys UI Page**
-   - Route: `/whatsapp-baileys`
-   - Features: Connection selector, phone number validation, message composition, character count
-   - Separation: Keeps Baileys simple text messaging separate from Meta API structured templates
-   - Added to WhatsApp submenu in sidebar navigation
+### Baileys Mass Campaign System (Nov 11, 2025)
+**Complete end-to-end implementation for direct message campaigns without templates**
 
-2. **Baileys API Endpoint**
+1. **UI Components**
+   - Route: `/campaigns-baileys` - Dedicated page for Baileys campaigns
+   - Component: `CreateBaileysCampaignDialog` - 4-step wizard (Info → Message → Audience → Review)
+   - Component: `BaileysCampaignTable` - Filters template-less campaigns (`templateId === null`)
+   - Features: Numeric variables ({{1}}, {{2}}), message preview, scheduling, connection validation
+   - Menu: Added "Campanhas Baileys" under WhatsApp section in sidebar
+   - Separation: Clean isolation from Meta API campaigns to prevent confusion
+
+2. **Backend API**
+   - Endpoint: `POST /api/v1/campaigns/baileys`
+   - Payload: `{ name, connectionId, messageText, variableMappings, contactListIds, schedule? }`
+   - Validations: Connection ownership + Baileys type enforcement, contact list ownership, non-empty lists
+   - Storage: Stores campaigns with `message` field populated, `templateId` as null
+   - Queue: Enqueues to `whatsapp_campaign_queue` (same as Meta API) for unified processing
+
+3. **Dual-Path Campaign Sender**
+   - File: `src/lib/campaign-sender.ts`
+   - Guard: `if (!templateId && !message) throw error` prevents invalid campaigns
+   - Path A (Template-based): Existing flow for Meta API + legacy Baileys with templates
+   - Path B (Direct message): Pseudo-template approach for Baileys template-less campaigns
+   - Pseudo-template: `{ name: 'direct_message', language: 'und', bodyText: campaign.message, hasMedia: false }`
+   - Runtime guard: Baileys campaigns cannot have `mediaAssetId` (enforced at API + sender levels)
+   - Variable substitution: Reuses existing logic in `sendViaBaileys()` - no code changes needed
+
+4. **Architecture Highlights**
+   - Zero changes to `sendViaBaileys()` or `sendViaMetaApi()` - only wrapper modified
+   - Backward compatible: Template-based campaigns (Meta API + Baileys) work unchanged
+   - Early connection detection: Fetches connection before template resolution for type-aware branching
+   - Delivery reports: Both paths create `whatsapp_delivery_reports` records identically
+
+### Previous Baileys Messaging Improvements
+1. **Individual Message Sending**
+   - Route: `/whatsapp-baileys` - Single message sending (not campaigns)
    - Endpoint: `POST /api/v1/whatsapp-baileys/send`
-   - Validation: Zod schema for connectionId, recipient, message
-   - Security: Company ownership verification, Baileys-only filtering, active connection checks
-   - Integration: Uses SessionManager `checkAvailability()` for real-time session status
+   - Use case: Quick one-off messages without campaign orchestration
 
-3. **Enhanced SessionManager Diagnostics**
+2. **Enhanced SessionManager Diagnostics**
    - New method: `checkAvailability(connectionId, companyId?)` returns availability status with details
    - Enhanced logging in `getSession()`: warns when session not found with available session list
    - Comprehensive logging in `sendMessage()`: attempt, validation, JID conversion, success/failure with full context
