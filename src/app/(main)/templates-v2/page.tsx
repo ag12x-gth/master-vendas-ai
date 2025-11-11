@@ -63,7 +63,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 interface Connection {
   id: string;
   config_name: string;
-  provider: string;
+  connectionType: string;
 }
 
 interface MessageTemplate {
@@ -150,7 +150,7 @@ export default function TemplatesV2Page() {
       if (!response.ok) throw new Error('Falha ao carregar conexões');
 
       const data = await response.json();
-      setConnections(data.connections || []);
+      setConnections(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Erro ao carregar conexões:', error);
     }
@@ -199,7 +199,7 @@ export default function TemplatesV2Page() {
         body: JSON.stringify({
           ...data,
           connectionId: selectedConnectionForCreate,
-          wabaId: connection.provider === 'meta' ? connection.config_name : 'baileys',
+          wabaId: connection.connectionType === 'meta_api' ? connection.config_name : 'baileys',
         }),
       });
 
@@ -556,7 +556,7 @@ export default function TemplatesV2Page() {
               <SelectContent>
                 {connections.map(conn => (
                   <SelectItem key={conn.id} value={conn.id}>
-                    {conn.config_name} ({conn.provider === 'meta' ? 'Meta API' : 'Baileys'})
+                    {conn.config_name} ({conn.connectionType === 'meta_api' ? 'Meta API' : 'Baileys'})
                   </SelectItem>
                 ))}
               </SelectContent>
