@@ -80,7 +80,7 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
     const { toast } = useToast();
 
     const baileysConnections = useMemo(() => {
-        return connections.filter(c => c.connectionType === 'baileys' && c.status === 'Conectado');
+        return connections.filter(c => c.connectionType === 'baileys' && c.isActive);
     }, [connections]);
 
     const extractVariables = useCallback((text: string): string[] => {
@@ -107,7 +107,7 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                     setAvailableLists(listsData.data || []);
                     
                     const firstBaileys = connData.find((c: Connection) => 
-                        c.connectionType === 'baileys' && c.status === 'Conectado'
+                        c.connectionType === 'baileys' && c.isActive
                     );
                     if (firstBaileys) {
                         setSelectedConnectionId(firstBaileys.id);
