@@ -307,33 +307,57 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
 
     try {
         if (!campaign.companyId) throw new Error(`Campanha ${campaign.id} não tem companyId.`);
-        if (!campaign.templateId) throw new Error(`Campanha ${campaign.id} não tem templateId.`);
         if (!campaign.connectionId) throw new Error(`Campanha ${campaign.id} não tem connectionId.`);
+        
+        // Validação dual-path: precisa de template OU mensagem direta
+        if (!campaign.templateId && !campaign.message) {
+            throw new Error(`Campanha ${campaign.id} deve ter templateId ou message definido.`);
+        }
+        
         if (!campaign.contactListIds || campaign.contactListIds.length === 0) {
             if (process.env.NODE_ENV !== 'production') console.debug(`Campanha ${campaign.id} concluída: sem listas de contatos.`);
             await db.update(campaigns).set({ status: 'COMPLETED', completedAt: new Date() }).where(eq(campaigns.id, campaign.id));
             return;
         }
 
-        // Tenta buscar o template na tabela templates (legado) e message_templates (novo)
-        let template = (await db.select().from(templates).where(eq(templates.id, campaign.templateId)))[0];
-        if (!template) {
-            // Tenta buscar na tabela message_templates
-            template = (await db.select().from(messageTemplates).where(eq(messageTemplates.id, campaign.templateId)))[0] as any;
-        }
-        if (!template) throw new Error(`Template ID ${campaign.templateId} não encontrado.`);
-
+        // Buscar conexão primeiro para detectar tipo
         const [connection] = await db.select().from(connections).where(eq(connections.id, campaign.connectionId));
         if (!connection) throw new Error(`Conexão ID ${campaign.connectionId} não encontrada.`);
         
-        // Resolve template para estrutura normalizada
-        const resolvedTemplate = resolveTemplate(template);
-        
-        // Valida mídia para Meta API
-        if (!connection.connectionType || connection.connectionType === 'meta_api') {
-            if (resolvedTemplate.hasMedia && !campaign.mediaAssetId) {
+        // Runtime guard: Baileys não pode ter mídia
+        const isBaileys = connection.connectionType === 'baileys';
+        if (isBaileys && campaign.mediaAssetId) {
+            throw new Error(`Campanha ${campaign.id} usa conexão Baileys mas possui mídia anexada. Remova a mídia ou use Meta Cloud API.`);
+        }
+
+        let resolvedTemplate: ResolvedTemplate;
+
+        // Path A: Campanha baseada em template (Meta API ou Baileys legado)
+        if (campaign.templateId) {
+            // Tenta buscar o template na tabela templates (legado) e message_templates (novo)
+            let template = (await db.select().from(templates).where(eq(templates.id, campaign.templateId)))[0];
+            if (!template) {
+                // Tenta buscar na tabela message_templates
+                template = (await db.select().from(messageTemplates).where(eq(messageTemplates.id, campaign.templateId)))[0] as any;
+            }
+            if (!template) throw new Error(`Template ID ${campaign.templateId} não encontrado.`);
+            
+            resolvedTemplate = resolveTemplate(template);
+            
+            // Valida mídia para Meta API
+            if (!isBaileys && resolvedTemplate.hasMedia && !campaign.mediaAssetId) {
                 throw new Error(`Campanha ${campaign.id} exige um anexo de mídia, mas nenhum foi fornecido.`);
             }
+        } 
+        // Path B: Campanha de mensagem direta (Baileys sem template)
+        else {
+            resolvedTemplate = {
+                name: 'direct_message',
+                language: 'und',
+                bodyText: campaign.message!,
+                headerType: null,
+                hasMedia: false,
+            };
         }
         
         const contactIdsSubquery = db
