@@ -304,8 +304,9 @@ export function TemplateGrid() {
         {filteredTemplates.map((template) => {
           const statusKey = template.status as keyof typeof statusConfig;
           const status = statusConfig[statusKey] || { variant: 'secondary', text: template.status };
-          const HeaderIcon = template.headerType
-            ? headerIconConfig[template.headerType as keyof typeof headerIconConfig]
+          const headerType = extractHeaderType(template);
+          const HeaderIcon = headerType !== 'NONE'
+            ? headerIconConfig[headerType as keyof typeof headerIconConfig]
             : null;
           return (
             <Card key={template.id} className="flex flex-col">
@@ -340,12 +341,12 @@ export function TemplateGrid() {
                    {HeaderIcon && (
                     <div className="flex items-center gap-2">
                       {HeaderIcon}
-                      <span className="text-xs font-semibold">{template.headerType}</span>
+                      <span className="text-xs font-semibold">{headerType}</span>
                     </div>
                   )}
                  </div>
-                <div className="text-sm text-muted-foreground p-3 bg-muted rounded-md h-28 overflow-y-auto">
-                    {highlightVariables(template.body)}
+                <div className="text-sm text-muted-foreground p-3 bg-muted rounded-md h-28 overflow-y-auto whitespace-pre-wrap">
+                    {highlightVariables(extractBodyText(template))}
                 </div>
               </CardContent>
               <CardFooter>
