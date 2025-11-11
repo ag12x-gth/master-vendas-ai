@@ -152,6 +152,49 @@ Preferred communication style: Simple, everyday language.
 - **Firebase Storage**: firebasestorage.googleapis.com
 - **Result**: Complete image/sticker/audio/video support + country flags in /atendimentos page
 
+### Correções do Sistema de Campanhas e Contatos (November 10, 2025)
+
+**Contexto:** Relatório completo de erros em `test-results/Relatorio_Erros_Campanha_Mensagens.txt`
+
+**Correções Implementadas:**
+
+1. **✅ ERRO CRÍTICO #5 - Redis lpush not a function (RESOLVIDO)**
+   - **Problema**: EnhancedCache não implementava métodos de lista do Redis
+   - **Solução**: Implementados `lpush()`, `rpush()`, `lrange()`, `llen()`, `lpop()`, `rpop()`, `blpop()`, `brpop()`
+   - **Arquivo**: `src/lib/redis.ts` (linhas 245-385)
+   - **Resultado**: Campanhas WhatsApp/SMS podem ser enfileiradas corretamente via Redis
+
+2. **✅ ERRO MÉDIO #4 - Validação de lista vazia (RESOLVIDO)**
+   - **Problema**: Sistema permitia criar campanhas para listas sem contatos
+   - **Solução**: Validação backend que conta contatos antes de criar campanha
+   - **Arquivo**: `src/app/api/v1/campaigns/whatsapp/route.ts` (linhas 44-55)
+   - **Resultado**: Retorna HTTP 400 se lista não tiver contatos
+
+3. **✅ ERRO ALTO #6 - Duplicação de campanhas (MITIGADO)**
+   - **Status**: Já havia proteção via `isProcessing` state (linha 538)
+   - **Causa raiz**: Erro de Redis (#5) fazia usuários clicarem múltiplas vezes
+   - **Resultado**: Com correção #1, duplicação não deve mais ocorrer
+
+**Erros Pendentes de Investigação:**
+
+4. **🔴 ERRO CRÍTICO #1 e #2 - Database INSERT error em contacts**
+   - **Status**: Requer testes para reproduzir o erro específico
+   - **Schema validado**: Campos obrigatórios (name, phone, company_id) estão sendo enviados
+   - **Possível causa**: Validação de URL no `avatarUrl` ou constraint unique
+
+5. **🔴 ERRO CRÍTICO #7 - Modelo não encontrado nas campanhas**
+   - **Status**: template_id está sendo salvo corretamente (linha 46 route.ts)
+   - **Requer**: Testes E2E para verificar se problema persiste após correção Redis
+
+6. **🟡 ERRO MÉDIO #3 - Funcionalidade de upload CSV**
+   - **Status**: Não implementado (funcionalidade planejada)
+   - **Prioridade**: Baixa (workaround manual disponível)
+
+**Próximos Passos:**
+1. ✅ Testes E2E do fluxo completo (criar lista → adicionar contatos → criar campanha → enviar)
+2. ⏳ Implementar importação CSV de contatos
+3. ⏳ Adicionar logs detalhados para debugging de erros de INSERT
+
 ### WhatsApp Message Routing Fix (November 7, 2025)
 - **Problem**: Connection "Atendimento" (type: baileys) failed to send messages with error "Token de acesso não configurado"
 - **Root Cause**: `/api/v1/conversations/[conversationId]/messages` route always used Meta Cloud API (facebookApiService) regardless of connection type

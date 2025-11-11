@@ -239,6 +239,152 @@ class EnhancedCache {
     return 'PONG';
   }
 
+  // Redis List methods for campaign queue management
+  async lpush(key: string, ...values: any[]): Promise<number> {
+    const item = this.data.get(key);
+    const list = item?.value ? [...item.value] : []; // Clone to avoid mutation
+    
+    if (item && !Array.isArray(item.value)) {
+      throw new Error(`Key ${key} is not a list`);
+    }
+    
+    // Redis LPUSH: elements are inserted one by one at head
+    // LPUSH mylist a b c results in [c, b, a, ...existing]
+    for (const value of values) {
+      list.unshift(value);
+    }
+    
+    this.data.set(key, { value: list, expireAt: item?.expireAt });
+    
+    return list.length;
+  }
+
+  async rpush(key: string, ...values: any[]): Promise<number> {
+    const item = this.data.get(key);
+    const list = item?.value ? [...item.value] : []; // Clone to avoid mutation
+    
+    if (item && !Array.isArray(item.value)) {
+      throw new Error(`Key ${key} is not a list`);
+    }
+    
+    // Push to the right (end) of the list
+    list.push(...values);
+    this.data.set(key, { value: list, expireAt: item?.expireAt });
+    
+    return list.length;
+  }
+
+  async lrange(key: string, start: number, stop: number): Promise<string[]> {
+    const item = this.data.get(key);
+    
+    if (!item) return [];
+    
+    const list = item.value;
+    
+    if (!Array.isArray(list)) {
+      return [];
+    }
+    
+    // Handle negative indices like Redis does
+    const len = list.length;
+    const actualStart = start < 0 ? Math.max(0, len + start) : start;
+    const actualStop = stop < 0 ? len + stop + 1 : stop + 1;
+    
+    return list.slice(actualStart, actualStop).map(v => String(v));
+  }
+
+  async llen(key: string): Promise<number> {
+    const item = this.data.get(key);
+    
+    if (!item) return 0;
+    
+    const list = item.value;
+    
+    if (!Array.isArray(list)) {
+      return 0;
+    }
+    
+    return list.length;
+  }
+
+  async lpop(key: string, count?: number): Promise<string | string[] | null> {
+    const item = this.data.get(key);
+    
+    if (!item) return null;
+    
+    const list = item.value;
+    
+    if (!Array.isArray(list) || list.length === 0) {
+      return null;
+    }
+    
+    if (count && count > 1) {
+      const popped = list.splice(0, Math.min(count, list.length));
+      this.data.set(key, { value: list, expireAt: item.expireAt });
+      return popped.map(v => String(v));
+    }
+    
+    const popped = list.shift();
+    this.data.set(key, { value: list, expireAt: item.expireAt });
+    
+    return popped ? String(popped) : null;
+  }
+
+  async rpop(key: string, count?: number): Promise<string | string[] | null> {
+    const item = this.data.get(key);
+    
+    if (!item) return null;
+    
+    const list = item.value;
+    
+    if (!Array.isArray(list) || list.length === 0) {
+      return null;
+    }
+    
+    if (count && count > 1) {
+      const popped = list.splice(-Math.min(count, list.length));
+      this.data.set(key, { value: list, expireAt: item.expireAt });
+      return popped.map(v => String(v));
+    }
+    
+    const popped = list.pop();
+    this.data.set(key, { value: list, expireAt: item.expireAt });
+    
+    return popped ? String(popped) : null;
+  }
+
+  async brpop(key: string | string[], timeout: number): Promise<[string, string] | null> {
+    // For simplified implementation, we'll just do a regular rpop
+    // In production, this would need proper blocking behavior
+    const keys = Array.isArray(key) ? key : [key];
+    
+    for (const k of keys) {
+      const result = await this.rpop(k);
+      if (result) {
+        const value = Array.isArray(result) ? result[0] || '' : result;
+        return [k, value];
+      }
+    }
+    
+    return null;
+  }
+
+  async blpop(key: string | string[], timeout: number): Promise<[string, string] | null> {
+    // For simplified implementation, we'll just do a regular lpop
+    // In production, this would need proper blocking behavior
+    const keys = Array.isArray(key) ? key : [key];
+    
+    for (const k of keys) {
+      const result = await this.lpop(k);
+      if (result) {
+        const value = Array.isArray(result) ? result[0] || '' : result;
+        return [k, value];
+      }
+    }
+    
+    return null;
+  }
+
   // Get cache metrics
   getMetrics() {
     const hitRate = this.metrics.hits + this.metrics.misses > 0

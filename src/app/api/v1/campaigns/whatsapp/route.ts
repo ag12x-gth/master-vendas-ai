@@ -2,10 +2,11 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { campaigns } from '@/lib/db/schema';
+import { campaigns, contactLists, contactsToContactLists } from '@/lib/db/schema';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { z } from 'zod';
 import redis from '@/lib/redis';
+import { inArray, eq, and, sql } from 'drizzle-orm';
 
 const WHATSAPP_CAMPAIGN_QUEUE = 'whatsapp_campaign_queue';
 
@@ -36,6 +37,43 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         const { contactListIds, schedule, ...campaignData } = parsed.data;
         const isScheduled = !!schedule;
+
+        // FASE 1: Validar ownership - verificar que TODAS as listas pertencem à empresa
+        const ownedLists = await db
+            .select({ id: contactLists.id })
+            .from(contactLists)
+            .where(and(
+                eq(contactLists.companyId, companyId),
+                inArray(contactLists.id, contactListIds)
+            ));
+        
+        if (ownedLists.length !== contactListIds.length) {
+            return NextResponse.json({ 
+                error: 'Lista(s) inválida(s)', 
+                description: 'Uma ou mais listas selecionadas não existem ou não pertencem à sua empresa.' 
+            }, { status: 403 });
+        }
+        
+        // FASE 2: Validar que TODAS as listas têm contatos (GROUP BY para evitar duplicatas)
+        const listsWithContacts = await db
+            .select({ 
+                listId: contactsToContactLists.listId,
+                contactCount: sql<number>`COUNT(DISTINCT ${contactsToContactLists.contactId})`.as('contact_count')
+            })
+            .from(contactsToContactLists)
+            .where(inArray(contactsToContactLists.listId, contactListIds))
+            .groupBy(contactsToContactLists.listId);
+        
+        // Verificar se TODAS as listas aparecem no resultado (se não, estão vazias)
+        const listIdsWithContacts = new Set(listsWithContacts.map(l => l.listId));
+        const emptyLists = contactListIds.filter(id => !listIdsWithContacts.has(id));
+        
+        if (emptyLists.length > 0) {
+            return NextResponse.json({ 
+                error: 'Lista(s) vazia(s)', 
+                description: `${emptyLists.length} lista(s) selecionada(s) não possui(em) contatos. Adicione contatos a todas as listas antes de criar a campanha.` 
+            }, { status: 400 });
+        }
 
         const [newCampaign] = await db.insert(campaigns).values({
             companyId: companyId,
