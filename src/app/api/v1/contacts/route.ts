@@ -11,18 +11,48 @@ import { getCachedOrFetch, CacheTTL, apiCache } from '@/lib/api-cache';
 export const dynamic = 'force-dynamic';
 
 const contactCreateSchema = z.object({
-  name: z.string().min(1, 'Nome é obrigatório'),
-  phone: z.string().min(10, 'Telefone inválido'),
-  email: z.string().email('Email inválido').optional().nullable(),
-  avatarUrl: z.string().url('URL de avatar inválida').optional().nullable(),
-  addressStreet: z.string().optional().nullable(),
-  addressNumber: z.string().optional().nullable(),
-  addressComplement: z.string().optional().nullable(),
-  addressDistrict: z.string().optional().nullable(),
-  addressCity: z.string().optional().nullable(),
-  addressState: z.string().optional().nullable(),
-  addressZipCode: z.string().optional().nullable(),
-  notes: z.string().optional().nullable(),
+  name: z.string().min(1, 'Nome é obrigatório').trim(),
+  phone: z.string().min(10, 'Telefone inválido').trim(),
+  email: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined) ? undefined : val,
+    z.string().email('Email inválido').optional()
+  ),
+  avatarUrl: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined) ? undefined : val,
+    z.string().url('URL de avatar inválida').optional()
+  ),
+  addressStreet: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined) ? undefined : val,
+    z.string().optional()
+  ),
+  addressNumber: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined) ? undefined : val,
+    z.string().optional()
+  ),
+  addressComplement: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined) ? undefined : val,
+    z.string().optional()
+  ),
+  addressDistrict: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined) ? undefined : val,
+    z.string().optional()
+  ),
+  addressCity: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined) ? undefined : val,
+    z.string().optional()
+  ),
+  addressState: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined) ? undefined : val,
+    z.string().optional()
+  ),
+  addressZipCode: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined) ? undefined : val,
+    z.string().optional()
+  ),
+  notes: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined) ? undefined : val,
+    z.string().optional()
+  ),
   listIds: z.array(z.string()).optional(),
   tagIds: z.array(z.string()).optional(),
 });
