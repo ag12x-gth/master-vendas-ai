@@ -21,9 +21,15 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
 
         const page = parseInt(searchParams.get('page') || '1', 10);
-        const limit = parseInt(searchParams.get('limit') || '10', 10);
+        const requestedLimit = parseInt(searchParams.get('limit') || '10', 10);
+        
+        if (requestedLimit < 0 || isNaN(requestedLimit)) {
+            return NextResponse.json({ error: 'Limit inválido' }, { status: 400 });
+        }
+
         const search = searchParams.get('search');
-        const offset = (page - 1) * limit;
+        const isPaginated = requestedLimit !== 0;
+        const safetyMaxLimit = 10000;
 
         const whereClauses: (SQL | undefined)[] = [eq(contactLists.companyId, companyId)];
 
@@ -38,7 +44,7 @@ export async function GET(request: NextRequest) {
 
         const finalWhereClauses = and(...whereClauses.filter((c): c is SQL => !!c));
 
-        const companyListsQuery = db
+        const baseQuery = db
             .select({
                 id: contactLists.id,
                 name: contactLists.name,
@@ -50,9 +56,11 @@ export async function GET(request: NextRequest) {
             .leftJoin(contactsToContactLists, eq(contactLists.id, contactsToContactLists.listId))
             .where(finalWhereClauses)
             .groupBy(contactLists.id)
-            .orderBy(desc(contactLists.createdAt))
-            .limit(limit)
-            .offset(offset);
+            .orderBy(desc(contactLists.createdAt));
+
+        const companyListsQuery = isPaginated
+            ? baseQuery.limit(requestedLimit).offset((page - 1) * requestedLimit)
+            : baseQuery.limit(safetyMaxLimit);
 
         const totalResult = await db
             .select({ count: count() })
@@ -61,10 +69,11 @@ export async function GET(request: NextRequest) {
 
         const companyLists = await companyListsQuery;
         const totalCount = totalResult[0]?.count ?? 0;
+        const totalPages = isPaginated ? Math.ceil(totalCount / requestedLimit) : 1;
 
         return NextResponse.json({
             data: companyLists,
-            totalPages: Math.ceil(totalCount / limit),
+            totalPages,
         });
     } catch (error) {
         console.error('Erro ao buscar listas de contatos:', error);

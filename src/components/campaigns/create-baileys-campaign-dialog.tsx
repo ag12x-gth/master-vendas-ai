@@ -98,8 +98,12 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                 try {
                     const [connRes, listsRes] = await Promise.all([
                         fetch('/api/v1/connections'),
-                        fetch('/api/v1/lists')
+                        fetch('/api/v1/lists?limit=0')
                     ]);
+                    if (!connRes.ok || !listsRes.ok) {
+                        throw new Error('Falha ao carregar dados necessários');
+                    }
+                    
                     const connData = await connRes.json();
                     const listsData = await listsRes.json();
                     

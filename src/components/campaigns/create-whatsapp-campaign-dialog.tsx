@@ -144,9 +144,18 @@ export function CreateWhatsappCampaignDialog({
 
     useEffect(() => {
         if(isOpen) {
-            fetch('/api/v1/lists').then(res => res.json()).then(data => setAvailableLists(data.data || []));
+            fetch('/api/v1/lists?limit=0')
+                .then(res => {
+                    if (!res.ok) throw new Error('Falha ao carregar listas de contatos');
+                    return res.json();
+                })
+                .then(data => setAvailableLists(data.data || []))
+                .catch(error => {
+                    toast({ variant: 'destructive', title: 'Erro', description: error.message });
+                    setAvailableLists([]);
+                });
         }
-    }, [isOpen]);
+    }, [isOpen, toast]);
     
     useEffect(() => {
         if(connections.length > 0 && !selectedConnectionId) {

@@ -66,7 +66,7 @@ export function CreateSmsCampaignDialog({ children, onSaveSuccess }: CreateSmsCa
         try {
           const [gwRes, listsRes] = await Promise.all([
             fetch('/api/v1/sms-gateways'),
-            fetch('/api/v1/lists'),
+            fetch('/api/v1/lists?limit=0'),
           ]);
           if (!gwRes.ok || !listsRes.ok) throw new Error('Falha ao carregar dados necessários.');
           
@@ -74,7 +74,7 @@ export function CreateSmsCampaignDialog({ children, onSaveSuccess }: CreateSmsCa
           const listsData = await listsRes.json();
 
           setSmsGateways(gwData);
-          setContactLists(listsData);
+          setContactLists(listsData.data || []);
 
           if (gwData.length > 0) {
             setSelectedGatewayId(gwData[0].id);
