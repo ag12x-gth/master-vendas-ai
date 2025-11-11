@@ -57,9 +57,10 @@ export async function GET(_request: NextRequest) {
     console.log(`[CRON] Encontradas ${pendingCampaigns.length} campanhas para processar.`);
 
     const campaignPromises = pendingCampaigns.map(campaign => {
-        if (campaign.channel === 'WHATSAPP') {
+        const channelUpper = campaign.channel?.toUpperCase();
+        if (channelUpper === 'WHATSAPP') {
             return sendWhatsappCampaign(campaign);
-        } else if (campaign.channel === 'SMS') {
+        } else if (channelUpper === 'SMS') {
             return sendSmsCampaign(campaign);
         }
         return Promise.resolve(); // Ignora canais desconhecidos

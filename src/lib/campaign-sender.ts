@@ -18,11 +18,7 @@ import { eq, inArray } from 'drizzle-orm';
 import { decrypt } from './crypto';
 import { sendWhatsappTemplateMessage } from './facebookApiService';
 import type { MediaAsset as MediaAssetType, MetaApiMessageResponse, MetaHandle } from './types';
-
-// Helper para acessar o SessionManager global do Baileys
-function getBaileysSessionManager() {
-    return (globalThis as any).sessionManager;
-}
+import { sessionManager as baileysSessionManager } from '@/services/baileys-session-manager';
 
 // Helper para dividir um array em lotes
 function chunkArray<T>(array: T[], size: number): T[][] {
@@ -115,9 +111,7 @@ async function sendViaBaileys(
     resolvedTemplate: ResolvedTemplate,
     variableMappings: Record<string, { type: 'dynamic' | 'fixed'; value: string }>
 ): Promise<CampaignMessageResult> {
-    const sessionManager = getBaileysSessionManager();
-    
-    if (!sessionManager) {
+    if (!baileysSessionManager) {
         return {
             success: false,
             contactId: contact.id,
@@ -151,7 +145,7 @@ async function sendViaBaileys(
     }
     
     try {
-        const messageId = await sessionManager.sendMessage(
+        const messageId = await baileysSessionManager.sendMessage(
             connectionId,
             contact.phone,
             { text: messageText }
