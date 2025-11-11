@@ -463,7 +463,9 @@ class BaileysSessionManager {
     }
 
     try {
-      const jid = to.includes('@') ? to : `${to}@s.whatsapp.net`;
+      // Remove o símbolo '+' se presente, pois o WhatsApp não aceita no JID
+      const cleanNumber = to.replace(/^\+/, '');
+      const jid = cleanNumber.includes('@') ? cleanNumber : `${cleanNumber}@s.whatsapp.net`;
       console.log(`[SessionManager] Sending to JID: ${jid}`);
       
       const sent = await sessionData.socket.sendMessage(jid, content);
