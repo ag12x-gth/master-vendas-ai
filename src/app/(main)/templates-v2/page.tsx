@@ -111,6 +111,7 @@ export default function TemplatesV2Page() {
   const [selectedTemplate, setSelectedTemplate] = useState<MessageTemplate | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [selectedConnectionForCreate, setSelectedConnectionForCreate] = useState<string>('');
   const { toast } = useToast();
   const isMobileDetected = useIsMobile();
   const isMobile = mounted ? isMobileDetected : false;
@@ -172,7 +173,7 @@ export default function TemplatesV2Page() {
     language: string;
     components: any[];
   }) => {
-    if (connectionFilter === 'all' || !connectionFilter) {
+    if (!selectedConnectionForCreate) {
       toast({
         variant: 'destructive',
         title: 'Selecione uma conexão',
@@ -181,7 +182,7 @@ export default function TemplatesV2Page() {
       return;
     }
 
-    const connection = connections.find(c => c.id === connectionFilter);
+    const connection = connections.find(c => c.id === selectedConnectionForCreate);
     if (!connection) {
       toast({
         variant: 'destructive',
@@ -197,7 +198,7 @@ export default function TemplatesV2Page() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          connectionId: connectionFilter,
+          connectionId: selectedConnectionForCreate,
           wabaId: connection.provider === 'meta' ? connection.config_name : 'baileys',
         }),
       });
@@ -213,6 +214,7 @@ export default function TemplatesV2Page() {
       });
 
       setShowCreateDialog(false);
+      setSelectedConnectionForCreate('');
       fetchTemplates();
     } catch (error) {
       toast({
@@ -527,7 +529,10 @@ export default function TemplatesV2Page() {
       )}
 
       {/* Dialog: Criar Template */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+      <Dialog open={showCreateDialog} onOpenChange={(open) => {
+        setShowCreateDialog(open);
+        if (!open) setSelectedConnectionForCreate('');
+      }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Criar Novo Template WhatsApp</DialogTitle>
@@ -535,9 +540,40 @@ export default function TemplatesV2Page() {
               Crie um template de mensagem que será aprovado pela Meta antes de poder ser usado
             </DialogDescription>
           </DialogHeader>
+          
+          {/* Seleção de Conexão */}
+          <div className="space-y-2 pb-4 border-b">
+            <label className="text-sm font-medium">
+              Conexão WhatsApp <span className="text-red-500">*</span>
+            </label>
+            <Select 
+              value={selectedConnectionForCreate} 
+              onValueChange={setSelectedConnectionForCreate}
+            >
+              <SelectTrigger className={!selectedConnectionForCreate ? 'border-red-300' : ''}>
+                <SelectValue placeholder="Selecione uma conexão para criar o template" />
+              </SelectTrigger>
+              <SelectContent>
+                {connections.map(conn => (
+                  <SelectItem key={conn.id} value={conn.id}>
+                    {conn.config_name} ({conn.provider === 'meta' ? 'Meta API' : 'Baileys'})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {!selectedConnectionForCreate && (
+              <p className="text-sm text-red-500">
+                Você precisa selecionar uma conexão para criar o template
+              </p>
+            )}
+          </div>
+
           <TemplateBuilder
             onSave={handleCreateTemplate}
-            onCancel={() => setShowCreateDialog(false)}
+            onCancel={() => {
+              setShowCreateDialog(false);
+              setSelectedConnectionForCreate('');
+            }}
           />
         </DialogContent>
       </Dialog>
