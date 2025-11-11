@@ -13,7 +13,20 @@ export async function GET(request: NextRequest) {
         const companyId = await getCompanyIdFromSession();
         
         const { searchParams } = new URL(request.url);
-        const limit = parseInt(searchParams.get('limit') || '50', 10);
+        const limitParam = searchParams.get('limit');
+        
+        const SAFETY_CAP = 10000;
+        let limit: number;
+        
+        if (limitParam === null) {
+            limit = 50;
+        } else if (limitParam === '0') {
+            limit = SAFETY_CAP;
+        } else {
+            const parsedLimit = parseInt(limitParam, 10);
+            limit = isNaN(parsedLimit) || parsedLimit < 0 ? 50 : Math.min(parsedLimit, SAFETY_CAP);
+        }
+        
         const offset = parseInt(searchParams.get('offset') || '0', 10);
         
         const cacheKey = `conversations:${companyId}:${limit}:${offset}`;
