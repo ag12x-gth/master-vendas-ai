@@ -107,6 +107,26 @@ app.prepare().then(() => {
       } catch (error) {
         console.error('❌ Baileys session initialization error:', error.message);
       }
+      
+      // Campaign Queue Processor - Executa a cada 1 minuto
+      const processCampaignQueue = async () => {
+        try {
+          const response = await fetch(`http://localhost:${port}/api/v1/campaigns/trigger`);
+          const data = await response.json();
+          if (data.processed > 0) {
+            console.log(`[Campaign Processor] ${data.processed} campanhas processadas às ${data.now}`);
+          }
+        } catch (error) {
+          console.error('[Campaign Processor] Erro:', error.message);
+        }
+      };
+      
+      // Inicia o processador após 10 segundos (aguarda servidor estabilizar)
+      setTimeout(() => {
+        console.log('[Campaign Processor] Scheduler iniciado - processando a cada 60 segundos');
+        processCampaignQueue(); // Executa imediatamente
+        setInterval(processCampaignQueue, 60000); // Depois a cada 1 minuto
+      }, 10000);
     }
   });
 });
