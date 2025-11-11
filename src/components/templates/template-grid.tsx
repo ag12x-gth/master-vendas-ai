@@ -165,6 +165,18 @@ export function TemplateGrid() {
     return matchesSearch && matchesConnection;
   });
   
+  const extractBodyText = (template: Template): string => {
+    if (!template.components || !Array.isArray(template.components)) return '';
+    const bodyComponent = template.components.find((c: any) => c.type === 'BODY');
+    return bodyComponent?.text || '';
+  };
+
+  const extractHeaderType = (template: Template): string => {
+    if (!template.components || !Array.isArray(template.components)) return 'NONE';
+    const headerComponent = template.components.find((c: any) => c.type === 'HEADER');
+    return headerComponent?.format || 'NONE';
+  };
+
   const highlightVariables = (body: string) => {
     if (!body) return '';
     return body.split(/(\{\{.*?\}\})/).map((part, index) =>
@@ -250,12 +262,12 @@ export function TemplateGrid() {
                 </div>
                 <div className="space-y-1">
                   <h4 className="font-semibold">Corpo do Modelo</h4>
-                  <p className="text-muted-foreground p-3 bg-muted rounded-md">{highlightVariables(selectedTemplate.body)}</p>
+                  <p className="text-muted-foreground p-3 bg-muted rounded-md whitespace-pre-wrap">{highlightVariables(extractBodyText(selectedTemplate))}</p>
                 </div>
-                {selectedTemplate.headerType && selectedTemplate.headerType !== 'NONE' && (
+                {extractHeaderType(selectedTemplate) !== 'NONE' && (
                   <div className="space-y-1">
                     <h4 className="font-semibold">Tipo de Cabeçalho</h4>
-                    <p className="text-muted-foreground capitalize">{selectedTemplate.headerType.toLowerCase()}</p>
+                    <p className="text-muted-foreground capitalize">{extractHeaderType(selectedTemplate).toLowerCase()}</p>
                   </div>
                 )}
              </div>
