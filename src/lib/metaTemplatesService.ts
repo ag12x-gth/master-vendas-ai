@@ -142,6 +142,8 @@ export async function submitTemplateToMeta(
     };
 
     console.log('[META SERVICE] 📤 Enviando para Meta API...');
+    console.log('[META SERVICE] 📋 URL:', url);
+    console.log('[META SERVICE] 📋 Payload:', JSON.stringify(payload, null, 2));
 
     const response = await fetch(url, {
       method: 'POST',
@@ -155,6 +157,10 @@ export async function submitTemplateToMeta(
     const responseData = await response.json();
 
     if (!response.ok) {
+      console.log('[META SERVICE] ❌ Erro da Meta API:');
+      console.log('[META SERVICE] Status:', response.status, response.statusText);
+      console.log('[META SERVICE] Response:', JSON.stringify(responseData, null, 2));
+
       await db
         .update(messageTemplates)
         .set({
