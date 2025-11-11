@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
       connection: row.connection,
     }));
 
-    return NextResponse.json({ templates });
+    return NextResponse.json(templates);
   } catch (error) {
     console.error('[Message Templates API] Erro ao listar templates:', error);
     return NextResponse.json(

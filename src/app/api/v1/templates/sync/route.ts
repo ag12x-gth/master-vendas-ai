@@ -2,7 +2,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { connections, templates } from '@/lib/db/schema';
+import { connections, messageTemplates } from '@/lib/db/schema';
 import { eq, and, notInArray } from 'drizzle-orm';
 import { decrypt } from '@/lib/crypto';
 import { getCompanyIdFromSession } from '@/app/actions';
@@ -84,45 +84,44 @@ export async function POST(_request: NextRequest) {
 
                 // --- Lógica de Deleção ---
                 const deletionConditions = [
-                    eq(templates.wabaId, conn.wabaId),
+                    eq(messageTemplates.wabaId, conn.wabaId),
+                    eq(messageTemplates.connectionId, conn.id),
                 ];
                 if (metaTemplateIds.length > 0) {
-                  deletionConditions.push(notInArray(templates.metaId, metaTemplateIds));
+                  deletionConditions.push(notInArray(messageTemplates.metaTemplateId, metaTemplateIds));
                 }
 
-                const deleted = await db.delete(templates)
+                const deleted = await db.delete(messageTemplates)
                     .where(and(...deletionConditions))
-                    .returning({ id: templates.id });
+                    .returning({ id: messageTemplates.id });
                     
                 totalDeleted += deleted.length;
                 
                 // --- Lógica de UPSERT ---
                 if (metaTemplates.length > 0) {
                   for (const metaTpl of metaTemplates) {
-                      const bodyComponent = metaTpl.components.find(c => c.type === 'BODY');
-                      const headerComponent = metaTpl.components.find(c => c.type === 'HEADER');
-
                       const templateData = {
                           companyId: companyId,
+                          connectionId: conn.id,
                           wabaId: conn.wabaId,
                           name: metaTpl.name,
+                          displayName: metaTpl.name,
                           language: metaTpl.language,
                           category: metaTpl.category,
                           status: metaTpl.status,
-                          body: bodyComponent?.text || '',
-                          headerType: headerComponent?.format || 'NONE',
-                          metaId: metaTpl.id,
+                          metaTemplateId: metaTpl.id,
+                          components: metaTpl.components as any,
                           updatedAt: new Date(),
                       };
 
-                      await db.insert(templates)
+                      await db.insert(messageTemplates)
                           .values(templateData)
                           .onConflictDoUpdate({
-                              target: templates.metaId,
+                              target: [messageTemplates.name, messageTemplates.wabaId],
                               set: { 
                                   ...templateData,
-                                  id: undefined, // não atualiza o nosso ID primário
-                                  createdAt: undefined, // não atualiza a data de criação
+                                  id: undefined,
+                                  createdAt: undefined,
                               },
                           });
                       
