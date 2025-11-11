@@ -53,6 +53,34 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Enhancements (Nov 11, 2025)
 
+### Critical Stability Fixes (Nov 11, 2025 - Evening)
+**Memory leak and pagination issues resolved for production stability**
+
+1. **EnhancedCache Memory Leak Fix**
+   - **Problem**: Singleton pattern was broken - `global.conn` collision with database pooling caused 19 cache instances in 10 minutes, each with cleanup/autosave timers that were never cleared, leading to heap exhaustion crash
+   - **Solution**: Implemented true singleton using unique global keys (`global.__enhancedCacheInstance` for cache, `global.__redisClient` for Redis), ensuring only one instance per process lifetime
+   - **Impact**: Eliminates JavaScript heap out of memory crashes that occurred after ~10 minutes of runtime
+   - **Monitoring**: Logs now show single "✅ Enhanced Cache initialized" message; BaileysSessionManager already had correct singleton pattern
+
+2. **Conversations List Pagination Fix**
+   - **Problem**: `/atendimentos` only showed last 50 conversations (default limit), hiding historic conversations from previous days
+   - **Solution**: Implemented smart `limit=0` support with 10k safety cap in `/api/v1/conversations`:
+     - No `limit` parameter: defaults to 50 (preserves backward compatibility)
+     - `limit=0`: returns up to 10,000 conversations (safety cap)
+     - Invalid/negative `limit`: fallback to 50
+     - Explicit positive `limit`: clamped to 10k maximum
+   - **Frontend**: `inbox-view.tsx` now passes `?limit=0` to fetch complete conversation history
+   - **Impact**: Users can now view all historic conversations in `/atendimentos`, not just recent ones
+   - **Safeguards**: 10k cap prevents unbounded queries and memory issues; aligns with `/api/v1/lists` pattern
+
+3. **Replit Object Storage Integration**
+   - **Status**: Already configured and operational
+   - **Infrastructure**: 
+     - `PRIVATE_OBJECT_DIR=/replit-objstore-5c7db24d-3f1a-48f3-a419-34323e1b5779/.private`
+     - `PUBLIC_OBJECT_SEARCH_PATHS=/replit-objstore-5c7db24d-3f1a-48f3-a419-34323e1b5779/public`
+   - **Implementation**: Dual storage adapter in `src/lib/s3.ts` automatically detects Replit environment and uses `ObjectStorageService` from `server/objectStorage.ts`
+   - **Note**: Previous Google Cloud Storage 401 errors were environmental; system now uses Replit Object Storage seamlessly
+
 ### Baileys Mass Campaign System (Nov 11, 2025)
 **Complete end-to-end implementation for direct message campaigns without templates**
 
