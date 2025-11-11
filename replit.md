@@ -73,4 +73,47 @@ Preferred communication style: Simple, everyday language.
    - Visual indicators: ✅ (success), ❌ (error), ⚠️ (warning) for quick log parsing
 
 ### Technical Debt & Future Improvements
-- **Test Coverage**: Current routing tests (`tests/campaign-routing.test.ts`) need refactoring to import and exercise real campaign routing logic instead of testing trivial string operations. Should include integration tests with mocked database and SessionManager to validate Meta API vs Baileys routing paths.
+
+#### Integration Test Gap (Priority: Medium)
+**Status**: Current tests (20/20 passing) validate routing patterns but don't call `sendWhatsappCampaign`
+
+**Missing Coverage:**
+- End-to-end test calling `sendWhatsappCampaign` with full fixtures
+- Mock harness for database (Drizzle), SessionManager, and Meta API
+- Validation that media blocking actually prevents Baileys+media campaigns
+- Template resolution integration with both legacy and v2 schemas
+
+**Proposed Solution:**
+```typescript
+// Future test structure
+describe('sendWhatsappCampaign - Integration', () => {
+  beforeEach(() => {
+    // Seed minimal campaign with Drizzle mock adapter
+    // Stub db.select/update/insert responses
+    // Mock sessionManager with test doubles
+    // Mock sendWhatsappTemplateMessage
+  });
+  
+  it('should route Baileys campaign to SessionManager', async () => {
+    const campaign = createBaileysTestCampaign();
+    await sendWhatsappCampaign(campaign);
+    expect(sessionManager.sendMessage).toHaveBeenCalled();
+    expect(sendWhatsappTemplateMessage).not.toHaveBeenCalled();
+  });
+  
+  it('should block Baileys campaign with media', async () => {
+    const campaign = createBaileysMediaCampaign();
+    await expect(sendWhatsappCampaign(campaign)).rejects.toThrow('mídia não são suportadas');
+  });
+});
+```
+
+**Acceptance Criteria:**
+- Tests call actual `sendWhatsappCampaign` function
+- Mocks cover database queries, SessionManager, Meta API
+- Tests fail if routing logic regresses
+- Coverage includes media blocking, template resolution, delivery reports
+
+**Risk**: Low (production traffic validates both paths daily)
+
+**Next Steps**: Schedule for next test improvement cycle after Baileys campaign UI is complete.
