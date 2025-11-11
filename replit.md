@@ -175,10 +175,52 @@ Based on comprehensive error report (`test-results/Relatorio_Erros_Campanha_Mens
 
 **Status Final**: ✅ Todas validações aprovadas pelo Architect - Sistema production-ready
 
+#### 8. Template Type Migration & Modal Display Fix (November 11, 2025)
+**Problem**: Template modals in `/templates` showing empty body text and header type  
+**Error Context**: User reported modal dialogs not displaying message content  
+**Root Cause**:
+- `Template` type in `types.ts` inferred from legacy `schema.templates` (fields: `body`, `headerType`)
+- Frontend fetching from `/api/v1/message-templates` (new table with `components` jsonb field)
+- Type mismatch: code expected `template.body` but API returned `template.components[]`
+
+**Files Modified**:
+1. **Type Definition**: `src/lib/types.ts`
+   - Changed: `typeof schema.templates.$inferSelect` → `typeof schema.messageTemplates.$inferSelect`
+   - Added: Optional `connection` field for API join compatibility
+   
+2. **Template Grid Component**: `src/components/templates/template-grid.tsx`
+   - **New Helper Functions**:
+     ```typescript
+     extractBodyText(template) // Extracts text from components.find(type==='BODY')
+     extractHeaderType(template) // Extracts format from components.find(type==='HEADER')
+     ```
+   - **Modal Dialog Updates** (Lines 268, 273):
+     - `selectedTemplate.body` → `extractBodyText(selectedTemplate)`
+     - `selectedTemplate.headerType` → `extractHeaderType(selectedTemplate)`
+     - Added: `whitespace-pre-wrap` to preserve line breaks
+   - **Grid Card Updates** (Lines 310-313, 347, 351-352):
+     - Applied same extraction logic to template previews
+     - Consistent rendering across modal and grid views
+
+**Validation**:
+- ✅ API returns 59 templates with `components` jsonb structure
+- ✅ Body text extracted successfully: "Olá {{1}}! Seu agendamento foi confirmado..."
+- ✅ Variables detected: `{{1}}`, `{{2}}`, `{{3}}`, `{{4}}`
+- ✅ Header types parsed: TEXT, IMAGE, VIDEO, DOCUMENT
+- ✅ Line breaks preserved in UI with `whitespace-pre-wrap`
+- ✅ No LSP errors, workflow compiled successfully
+- **Status**: ✅ Architect-approved, production-ready
+
+**Architect Recommendations**:
+1. Reuse extraction helpers in `start-conversation-dialog.tsx`, `inbox-view.tsx`
+2. Run regression on template-driven campaign creation flows
+3. Document schema alignment for future contributors
+
 ### Resolution Summary
-- **7 of 8 errors** completely resolved and architect-approved ✅
+- **8 of 8 errors** completely resolved and architect-approved ✅
 - **Errors #5/#8**: Automatically resolved by core fixes
 - **144 total campaigns** in database (137 legacy cleaned, 7 valid maintained)
 - **60 templates** migrated to `message_templates` (59 + 1 existing)
-- **Production-ready**: Multi-tenant security, campaign queue, contact management, template sync
+- **Production-ready**: Multi-tenant security, campaign queue, contact management, template sync, template display
 - **CSV Import**: Fully functional with downloadable sample template
+- **Template System**: Complete migration from `templates` → `message_templates` with frontend alignment
