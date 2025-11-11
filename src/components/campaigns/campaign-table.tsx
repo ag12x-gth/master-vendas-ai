@@ -290,7 +290,7 @@ export function CampaignTable({ channel }: CampaignTableProps) {
             const [connRes, smsRes, tplRes] = await Promise.all([
                 fetch('/api/v1/connections'),
                 fetch('/api/v1/sms-gateways'),
-                fetch('/api/v1/templates'),
+                fetch('/api/v1/message-templates'),
             ]);
             if (!connRes.ok || !smsRes.ok || !tplRes.ok) throw new Error('Falha ao carregar filtros.');
             const connData = await connRes.json();

@@ -101,7 +101,7 @@ export function TemplateGrid() {
     try {
         const [connRes, tplRes] = await Promise.all([
             fetch('/api/v1/connections'),
-            fetch('/api/v1/templates')
+            fetch('/api/v1/message-templates')
         ]);
 
         if (!connRes.ok || !tplRes.ok) {
@@ -112,7 +112,7 @@ export function TemplateGrid() {
         const tplData = await tplRes.json();
         
         setConnections(connData);
-        setTemplates(tplData);
+        setTemplates(tplData.templates || tplData);
 
         if (!activeConnectionId) {
             const firstActive = connData.find((c: Connection) => c.isActive);

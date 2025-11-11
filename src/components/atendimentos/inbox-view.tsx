@@ -112,7 +112,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
     const fetchInitialData = async () => {
         const [initialConversations] = await Promise.all([
             fetchConversations(),
-            fetch('/api/v1/templates').then(res => res.json()).then(setTemplates).catch(() => toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar os modelos.' }))
+            fetch('/api/v1/message-templates').then(res => res.json()).then(data => setTemplates(data.templates || data)).catch(() => toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar os modelos.' }))
         ]);
         
         fetch('/api/v1/conversations/status').then(res => res.json()).then(data => setLastKnownUpdate(data.lastUpdated));

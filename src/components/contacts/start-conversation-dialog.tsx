@@ -88,7 +88,7 @@ export function StartConversationDialog({ contact }: { contact: Contact | null }
                 try {
                     const [connRes, tplRes] = await Promise.all([
                         fetch('/api/v1/connections'),
-                        fetch('/api/v1/templates'),
+                        fetch('/api/v1/message-templates'),
                     ]);
                     if (!connRes.ok || !tplRes.ok) throw new Error('Falha ao carregar dados.');
                     
@@ -97,7 +97,7 @@ export function StartConversationDialog({ contact }: { contact: Contact | null }
                     setConnections(activeConnections);
                     
                     const tplData = await tplRes.json();
-                    setTemplates(tplData);
+                    setTemplates(tplData.templates || tplData);
 
                     if (activeConnections.length > 0) {
                         setSelectedConnectionId(activeConnections[0].id);
