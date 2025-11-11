@@ -98,9 +98,11 @@ const UploadStep = ({ onFileAccepted }: { onFileAccepted: (file: File) => void }
                 </Button>
                 <Input id="csv-upload" type="file" className="hidden" accept=".csv" onChange={(e): void => handleFileChange(e.target.files)} />
             </div>
-            <Button type="button" variant="link" className="w-full" size="sm">
-                <FileDown className="mr-2 h-4 w-4" />
-                Baixar ficheiro de exemplo
+            <Button type="button" variant="link" className="w-full" size="sm" asChild>
+                <a href="/exemplo-importacao-contatos.csv" download="exemplo-importacao-contatos.csv">
+                    <FileDown className="mr-2 h-4 w-4" />
+                    Baixar ficheiro de exemplo
+                </a>
             </Button>
         </div>
     )
