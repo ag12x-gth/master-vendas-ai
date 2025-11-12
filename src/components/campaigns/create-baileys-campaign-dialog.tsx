@@ -283,7 +283,7 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                 return;
             }
             if (!selectedConnectionId) {
-                toast({ variant: 'destructive', title: 'Conexão Obrigatória', description: 'Selecione uma conexão Baileys.' });
+                toast({ variant: 'destructive', title: 'Conexão Obrigatória', description: 'Selecione uma conexão WhatsApp Normal.' });
                 return;
             }
         }
@@ -321,7 +321,7 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                         <Alert>
                             <Info className="h-4 w-4" />
                             <AlertDescription>
-                                <strong>Campanhas Baileys:</strong> Apenas mensagens de texto simples. Para mídia, use Campanhas Meta API.
+                                <strong>Campanhas WhatsApp Normal:</strong> Apenas mensagens de texto simples. Para mídia, use Campanhas Whatsapp Business.
                             </AlertDescription>
                         </Alert>
                         <div className="space-y-2">
@@ -335,11 +335,11 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="connection-select">Conexão Baileys</Label>
+                            <Label htmlFor="connection-select">Conexão WhatsApp Normal</Label>
                             {baileysConnections.length === 0 ? (
                                 <Alert variant="destructive">
                                     <AlertDescription>
-                                        Nenhuma conexão Baileys ativa encontrada. Configure uma conexão em Sessões Baileys.
+                                        Nenhuma conexão WhatsApp Normal ativa encontrada. Configure uma conexão em Sessões WhatsApp Normal.
                                     </AlertDescription>
                                 </Alert>
                             ) : (

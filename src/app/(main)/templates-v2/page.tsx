@@ -557,7 +557,7 @@ export default function TemplatesV2Page() {
               <SelectContent>
                 {connections.map(conn => (
                   <SelectItem key={conn.id} value={conn.id}>
-                    {conn.config_name} ({conn.connectionType === 'meta_api' ? 'Meta API' : 'Baileys'})
+                    {conn.config_name} ({conn.connectionType === 'meta_api' ? 'Whatsapp Business' : 'Whatsapp Normal'})
                   </SelectItem>
                 ))}
               </SelectContent>

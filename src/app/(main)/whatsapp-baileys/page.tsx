@@ -47,11 +47,11 @@ export default function WhatsAppBaileysPage() {
         setSelectedConnectionId(baileysConnections[0].id);
       }
     } catch (error) {
-      console.error('Erro ao carregar conexões Baileys:', error);
+      console.error('Erro ao carregar conexões WhatsApp Normal:', error);
       toast({
         variant: 'destructive',
         title: 'Erro',
-        description: 'Não foi possível carregar as conexões Baileys',
+        description: 'Não foi possível carregar as conexões WhatsApp Normal',
       });
     } finally {
       setFetchingConnections(false);
@@ -67,7 +67,7 @@ export default function WhatsAppBaileysPage() {
       toast({
         variant: 'destructive',
         title: 'Selecione uma conexão',
-        description: 'Escolha uma conexão Baileys ativa antes de enviar',
+        description: 'Escolha uma conexão WhatsApp Normal ativa antes de enviar',
       });
       return;
     }
@@ -133,9 +133,9 @@ export default function WhatsAppBaileysPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Mensagens WhatsApp (Baileys)</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Mensagens WhatsApp Normal</h1>
         <p className="text-muted-foreground mt-2">
-          Envie mensagens de texto simples via conexões Baileys (QR Code)
+          Envie mensagens de texto simples via WhatsApp Normal (QR Code)
         </p>
       </div>
 
@@ -148,9 +148,9 @@ export default function WhatsAppBaileysPage() {
       ) : connections.length === 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>Nenhuma conexão Baileys ativa</CardTitle>
+            <CardTitle>Nenhuma conexão WhatsApp Normal ativa</CardTitle>
             <CardDescription>
-              Você precisa criar e conectar uma conexão Baileys antes de enviar mensagens.
+              Você precisa criar e conectar uma conexão WhatsApp Normal antes de enviar mensagens.
               Acesse &quot;Conexões&quot; no menu para criar uma nova conexão via QR Code.
             </CardDescription>
           </CardHeader>
@@ -164,12 +164,12 @@ export default function WhatsAppBaileysPage() {
                 Enviar Mensagem
               </CardTitle>
               <CardDescription>
-                Envie mensagens de texto diretamente para contatos via WhatsApp Baileys
+                Envie mensagens de texto diretamente para contatos via WhatsApp Normal
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="connection">Conexão Baileys</Label>
+                <Label htmlFor="connection">Conexão WhatsApp Normal</Label>
                 <Select value={selectedConnectionId} onValueChange={setSelectedConnectionId}>
                   <SelectTrigger id="connection">
                     <SelectValue placeholder="Selecione uma conexão" />
@@ -255,7 +255,7 @@ export default function WhatsAppBaileysPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Sobre Mensagens Baileys</CardTitle>
+              <CardTitle>Sobre Mensagens WhatsApp Normal</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-muted-foreground">
               <p>
@@ -266,7 +266,7 @@ export default function WhatsAppBaileysPage() {
                 cabeçalhos
               </p>
               <p className="text-xs mt-4">
-                Para templates estruturados e recursos avançados, use conexões Meta API Cloud na página
+                Para templates estruturados e recursos avançados, use conexões Whatsapp Business na página
                 &quot;Templates&quot;.
               </p>
             </CardContent>

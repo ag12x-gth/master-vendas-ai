@@ -113,11 +113,11 @@ export function ConversationList({
                         <TabsTrigger value="all">Todas</TabsTrigger>
                         <TabsTrigger value="meta_api">
                             <MessageSquare className="h-4 w-4 mr-1.5" />
-                            Meta
+                            Business
                         </TabsTrigger>
                         <TabsTrigger value="baileys">
                             <Smartphone className="h-4 w-4 mr-1.5" />
-                            Baileys
+                            Normal
                         </TabsTrigger>
                     </TabsList>
                 </Tabs>

@@ -200,7 +200,7 @@ export function ConnectionsManager() {
             if (!res.ok) throw new Error('Falha ao carregar as conexões.');
             const data: ConnectionType[] = await res.json();
             
-            // Filtrar apenas conexões Meta API (excluir Baileys)
+            // Filtrar apenas conexões Whatsapp Business (excluir Whatsapp Normal)
             const metaApiConnections = data.filter(c => c.connectionType === 'meta_api' || !c.connectionType);
             
             const initialConnections: Connection[] = metaApiConnections.map(c => ({ 

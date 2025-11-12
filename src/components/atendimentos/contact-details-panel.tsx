@@ -275,7 +275,7 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
                                             <p className="font-medium text-sm">{conv.connectionName || 'Sem nome'}</p>
                                             <div className="flex items-center gap-2 mt-1">
                                                 <Badge variant="outline" className="text-xs">
-                                                    {conv.connectionType === 'meta_api' ? 'Meta API' : 'Baileys'}
+                                                    {conv.connectionType === 'meta_api' ? 'Whatsapp Business' : 'Whatsapp Normal'}
                                                 </Badge>
                                                 <Badge variant={conv.status === 'NEW' ? 'default' : 'secondary'} className="text-xs">
                                                     {conv.status}

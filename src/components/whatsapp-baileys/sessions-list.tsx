@@ -94,7 +94,7 @@ export function SessionsList() {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">Sessões WhatsApp (Baileys)</h2>
+          <h2 className="text-2xl font-bold">Sessões WhatsApp Normal</h2>
           <p className="text-sm text-muted-foreground">
             Gerencie suas sessões WhatsApp conectadas via multi-dispositivo
           </p>
