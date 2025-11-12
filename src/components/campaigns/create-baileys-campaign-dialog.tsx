@@ -577,10 +577,10 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                                     <ArrowLeft className="h-4 w-4" />
                                 </Button>
                             )}
-                            <span>{currentStepConfig?.title || 'Nova Campanha Baileys'}</span>
+                            <span>{currentStepConfig?.title || 'Nova Campanha WhatsApp Normal'}</span>
                         </DialogTitle>
                         <DialogDescription>
-                            Crie uma campanha de mensagens de texto via WhatsApp Baileys.
+                            Crie uma campanha de mensagens de texto via WhatsApp Normal.
                         </DialogDescription>
                     </DialogHeader>
                     
