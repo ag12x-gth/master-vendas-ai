@@ -651,9 +651,9 @@ function detectMeetingScheduled(conversationText: string, latestResponse: string
         }
     }
 
-    // THRESHOLD: 70 pontos = reunião marcada com alta confiança
+    // THRESHOLD: 60 pontos = reunião marcada com boa confiança (ajustado para maior sensibilidade)
     const confidence = Math.min(100, Math.max(0, score));
-    const isMeetingScheduled = confidence >= 70;
+    const isMeetingScheduled = confidence >= 60;
 
     return {
         isMeetingScheduled,
