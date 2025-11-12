@@ -212,19 +212,25 @@ const NavItemGroup = ({ item, isExpanded }: { item: any, isExpanded: boolean }) 
 
     return (
         <Collapsible defaultOpen={isChildActive}>
-            <CollapsibleTrigger asChild>
-                 <div className={cn(
-                        'flex h-9 cursor-pointer items-center justify-between rounded-lg text-muted-foreground transition-colors hover:text-foreground',
-                         isExpanded ? 'w-full px-3' : 'w-9 justify-center',
-                         isChildActive && 'text-foreground'
-                    )}>
-                    <div className="flex items-center gap-4 min-w-0 flex-1">
-                        <item.icon className="h-5 w-5 flex-shrink-0" />
-                        {isExpanded && <span className="font-medium truncate">{item.label}</span>}
-                    </div>
-                    {isExpanded && <ChevronDown className="h-4 w-4 flex-shrink-0 transition-transform [&[data-state=open]]:rotate-180" />}
-                </div>
-            </CollapsibleTrigger>
+            <Tooltip delayDuration={500}>
+                <TooltipTrigger asChild>
+                    <CollapsibleTrigger asChild>
+                         <div className={cn(
+                                'flex h-9 cursor-pointer items-center justify-between rounded-lg text-muted-foreground transition-colors hover:text-foreground',
+                                 isExpanded ? 'w-full px-3' : 'w-9 justify-center',
+                                 isChildActive && 'text-foreground'
+                            )}>
+                            <div className="flex items-center gap-4 min-w-0 flex-1">
+                                <item.icon className="h-5 w-5 flex-shrink-0" />
+                                {isExpanded && <span className="font-medium truncate">{item.label}</span>}
+                                {!isExpanded && <span className="sr-only">{item.label}</span>}
+                            </div>
+                            {isExpanded && <ChevronDown className="h-4 w-4 flex-shrink-0 transition-transform [&[data-state=open]]:rotate-180" />}
+                        </div>
+                    </CollapsibleTrigger>
+                </TooltipTrigger>
+                <TooltipContent side="right">{item.label}</TooltipContent>
+            </Tooltip>
             <CollapsibleContent className="overflow-hidden transition-all data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
                  <div className={cn("flex flex-col gap-1 py-1", isExpanded ? "pl-6 border-l ml-5" : "items-center")}>
                      {item.subItems.map((subItem: any) => (
