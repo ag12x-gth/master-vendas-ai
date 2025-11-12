@@ -3,8 +3,9 @@
 
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Search, Plus, Filter } from 'lucide-react';
+import { Search, Plus, Filter, Settings } from 'lucide-react';
 import type { KanbanFunnel } from '@/lib/types';
+import Link from 'next/link';
 
 interface FunnelToolbarProps {
   funnel: KanbanFunnel;
@@ -43,6 +44,14 @@ export function FunnelToolbar({ funnel, onAddCard, onSearch, onFilter }: FunnelT
             <Filter className="h-4 w-4 sm:mr-2" />
             <span className="hidden sm:inline">Filtros</span>
           </Button>
+          
+          {/* Edit funnel button */}
+          <Link href={`/kanban/${funnel.id}/edit`}>
+            <Button variant="outline" size="sm" className="flex-shrink-0">
+              <Settings className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Editar Kanban</span>
+            </Button>
+          </Link>
           
           {/* Add button - icon only on mobile */}
           <Button size="sm" onClick={onAddCard} className="flex-shrink-0">

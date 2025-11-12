@@ -1,0 +1,355 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft, Plus, Trash2, Loader2, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+import { v4 as uuidv4 } from 'uuid';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+
+type StageType = 'NEUTRAL' | 'WIN' | 'LOSS';
+type SemanticType = 'meeting_scheduled' | 'payment_received' | 'proposal_sent' | '';
+
+interface Stage {
+  id: string;
+  title: string;
+  type: StageType;
+  semanticType?: SemanticType;
+}
+
+interface FunnelType {
+  value: 'LEAD_CAPTURE' | 'SALES' | 'CUSTOMER_SUCCESS' | 'RETENTION';
+  label: string;
+  description: string;
+}
+
+const FUNNEL_TYPES: FunnelType[] = [
+  { value: 'LEAD_CAPTURE', label: 'Captação de Leads', description: 'Para capturar e qualificar novos leads' },
+  { value: 'SALES', label: 'Vendas', description: 'Para gerenciar o processo de vendas' },
+  { value: 'CUSTOMER_SUCCESS', label: 'Customer Success', description: 'Para acompanhar clientes ativos' },
+  { value: 'RETENTION', label: 'Retenção', description: 'Para evitar cancelamentos e reter clientes' },
+];
+
+const SEMANTIC_TYPES = [
+  { value: '', label: 'Nenhum (Padrão)' },
+  { value: 'meeting_scheduled', label: '📅 Reunião Marcada' },
+  { value: 'proposal_sent', label: '📄 Proposta Enviada' },
+  { value: 'payment_received', label: '💰 Pagamento Recebido' },
+];
+
+export default function EditFunnelPage({ params }: { params: { funnelId: string } }) {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [funnelName, setFunnelName] = useState('');
+  const [funnelType, setFunnelType] = useState<string>('');
+  const [objective, setObjective] = useState('');
+  const [stages, setStages] = useState<Stage[]>([]);
+
+  // Carregar dados do funil
+  useEffect(() => {
+    const fetchFunnel = async () => {
+      try {
+        const response = await fetch(`/api/v1/kanbans/${params.funnelId}`);
+        if (!response.ok) throw new Error('Falha ao carregar funil');
+        
+        const data = await response.json();
+        setFunnelName(data.name);
+        setFunnelType(data.funnelType || '');
+        setObjective(data.objective || '');
+        setStages(data.stages.map((s: Stage) => ({
+          ...s,
+          semanticType: s.semanticType || ''
+        })));
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Erro',
+          description: (error as Error).message
+        });
+        router.push('/kanban');
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    fetchFunnel();
+  }, [params.funnelId, router, toast]);
+
+  const addStage = () => {
+    setStages([...stages, { id: uuidv4(), title: '', type: 'NEUTRAL', semanticType: '' }]);
+  };
+
+  const removeStage = (id: string) => {
+    if (stages.length <= 1) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'É necessário pelo menos um estágio no funil'
+      });
+      return;
+    }
+    setStages(stages.filter(s => s.id !== id));
+  };
+
+  const updateStage = (id: string, field: keyof Stage, value: string) => {
+    setStages(stages.map(s => s.id === id ? { ...s, [field]: value === '' ? undefined : value } : s));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!funnelName.trim()) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Nome do funil é obrigatório'
+      });
+      return;
+    }
+
+    if (stages.some(s => !s.title.trim())) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Todos os estágios precisam ter um título'
+      });
+      return;
+    }
+
+    // Validar semanticType único
+    const semanticTypes = stages
+      .map(s => s.semanticType)
+      .filter(st => st && st !== '');
+    
+    const duplicates = semanticTypes.filter((item, index) => semanticTypes.indexOf(item) !== index);
+    if (duplicates.length > 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Cada tipo semântico pode ser usado apenas uma vez no funil'
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/v1/kanbans/${params.funnelId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: funnelName,
+          funnelType: funnelType || null,
+          objective: objective || null,
+          stages: stages.map(s => ({
+            ...s,
+            semanticType: s.semanticType === '' ? undefined : s.semanticType
+          }))
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Falha ao atualizar funil');
+      }
+
+      toast({
+        title: 'Sucesso!',
+        description: 'Funil atualizado com sucesso'
+      });
+
+      router.push(`/kanban/${params.funnelId}`);
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: (error as Error).message
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (initialLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="container max-w-4xl py-8">
+      <div className="mb-6">
+        <Link href={`/kanban/${params.funnelId}`}>
+          <Button variant="ghost" size="sm">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar para o Funil
+          </Button>
+        </Link>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Editar Funil Kanban</CardTitle>
+          <CardDescription>
+            Configure os estágios e automações do seu funil
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="name">Nome do Funil *</Label>
+              <Input
+                id="name"
+                placeholder="Ex: Pipeline de Vendas"
+                value={funnelName}
+                onChange={(e) => setFunnelName(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="funnelType">Tipo de Funil (opcional)</Label>
+              <Select value={funnelType} onValueChange={setFunnelType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o tipo de funil..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {FUNNEL_TYPES.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {funnelType && (
+                <p className="text-sm text-muted-foreground">
+                  {FUNNEL_TYPES.find(t => t.value === funnelType)?.description}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="objective">Objetivo (opcional)</Label>
+              <Input
+                id="objective"
+                placeholder="Ex: Aumentar conversão em 20%"
+                value={objective}
+                onChange={(e) => setObjective(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label>Estágios do Funil *</Label>
+                <Button type="button" variant="outline" size="sm" onClick={addStage}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Adicionar Estágio
+                </Button>
+              </div>
+
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Tipos Semânticos:</strong> Configure automações inteligentes marcando etapas especiais.
+                  Por exemplo, marque uma etapa como "Reunião Marcada" para que leads sejam movidos automaticamente
+                  quando a IA detectar agendamento de reunião na conversa.
+                </AlertDescription>
+              </Alert>
+
+              <div className="space-y-3">
+                {stages.map((stage, index) => (
+                  <div key={stage.id} className="space-y-2 p-4 border rounded-lg bg-muted/30">
+                    <div className="flex gap-2 items-start">
+                      <div className="flex-1">
+                        <Label className="text-xs text-muted-foreground">Título do Estágio</Label>
+                        <Input
+                          placeholder={`Estágio ${index + 1}`}
+                          value={stage.title}
+                          onChange={(e) => updateStage(stage.id, 'title', e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="w-[140px]">
+                        <Label className="text-xs text-muted-foreground">Tipo</Label>
+                        <Select
+                          value={stage.type}
+                          onValueChange={(value: StageType) => updateStage(stage.id, 'type', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="NEUTRAL">Neutro</SelectItem>
+                            <SelectItem value="WIN">Vitória</SelectItem>
+                            <SelectItem value="LOSS">Perda</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="pt-5">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeStage(stage.id)}
+                          disabled={stages.length <= 1}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Tipo Semântico (Automação)</Label>
+                      <Select
+                        value={stage.semanticType || ''}
+                        onValueChange={(value: SemanticType) => updateStage(stage.id, 'semanticType', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Nenhum" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {SEMANTIC_TYPES.map((st) => (
+                            <SelectItem key={st.value} value={st.value}>
+                              {st.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-3 justify-end pt-4 border-t">
+              <Link href={`/kanban/${params.funnelId}`}>
+                <Button type="button" variant="outline">
+                  Cancelar
+                </Button>
+              </Link>
+              <Button type="submit" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  'Salvar Alterações'
+                )}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

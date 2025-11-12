@@ -137,13 +137,13 @@ const allNavItems = [
     roles: ['admin', 'superadmin'],
     isGroup: true,
     subItems: [
-      { href: '/campaigns', label: 'Campanhas Meta API', icon: Send, roles: ['admin', 'superadmin'] },
-      { href: '/campaigns-baileys', label: 'Campanhas Baileys', icon: Send, roles: ['admin', 'superadmin'] },
+      { href: '/campaigns', label: 'Campanhas Whatsapp Business', icon: Send, roles: ['admin', 'superadmin'] },
+      { href: '/campaigns-baileys', label: 'Campanhas Whatsapp Normal', icon: Send, roles: ['admin', 'superadmin'] },
       { href: '/templates', label: 'Modelos', icon: MessageSquareText, roles: ['admin', 'superadmin'] },
       { href: '/templates-v2', label: 'Templates WhatsApp', icon: MessageSquareText, roles: ['admin', 'superadmin'] },
-      { href: '/whatsapp-baileys', label: 'Mensagens Baileys', icon: MessageCircle, roles: ['admin', 'superadmin'] },
-      { href: '/connections', label: 'Conexões Meta API', icon: Plug, roles: ['admin', 'superadmin'] },
-      { href: '/whatsapp-sessoes', label: 'Sessões Baileys', icon: BotMessageSquare, roles: ['admin', 'superadmin'] },
+      { href: '/whatsapp-baileys', label: 'Mensagens Whatsapp Normal', icon: MessageCircle, roles: ['admin', 'superadmin'] },
+      { href: '/connections', label: 'Conexões Whatsapp Business', icon: Plug, roles: ['admin', 'superadmin'] },
+      { href: '/whatsapp-sessoes', label: 'Sessões Whatsapp Normal', icon: BotMessageSquare, roles: ['admin', 'superadmin'] },
     ],
   },
    {
@@ -261,12 +261,12 @@ export function AppSidebar() {
         "flex-col border-r bg-background transition-all duration-300",
         isMobile 
           ? cn(
-              "fixed inset-y-0 left-0 z-50 w-64 md:hidden",
+              "fixed inset-y-0 left-0 z-50 w-72 md:hidden",
               isMobileOpen ? "translate-x-0" : "-translate-x-full"
             )
           : cn(
               "hidden sm:flex",
-              isExpanded ? "w-52" : "w-14"
+              isExpanded ? "w-60" : "w-16"
             )
       )}>
         <div className={cn("flex h-14 items-center border-b", isExpanded ? "px-4" : "justify-center")}>
