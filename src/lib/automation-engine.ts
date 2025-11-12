@@ -586,6 +586,137 @@ function detectQualificationSignals(conversationText: string, latestResponse: st
     };
 }
 
+// 📅 SISTEMA DE DETECÇÃO DE REUNIÃO MARCADA
+interface MeetingDetectionResult {
+    isMeetingScheduled: boolean;
+    confidence: number;
+    evidence: string[];
+}
+
+function detectMeetingScheduled(conversationText: string, latestResponse: string): MeetingDetectionResult {
+    const text = (conversationText + '\n' + latestResponse).toLowerCase();
+    let score = 0;
+    const evidence: string[] = [];
+
+    // SINAIS MUITO FORTES de agendamento (40 pontos cada)
+    const veryStrongSignals = [
+        { pattern: /\b(reuni[aã]o marcada|agendado|confirmado|horário confirmado)\b/, desc: 'Confirmação explícita de agendamento' },
+        { pattern: /\b(te espero|nos vemos|até.{0,15}(segunda|ter[cç]a|quarta|quinta|sexta|s[áa]bado|domingo))\b/, desc: 'Confirmação de encontro futuro' },
+        { pattern: /\b(confirmo.{0,15}participa[çc][aã]o|confirmado para|vou participar)\b/, desc: 'Participação confirmada' },
+    ];
+
+    for (const signal of veryStrongSignals) {
+        if (signal.pattern.test(text)) {
+            score += 40;
+            evidence.push(signal.desc);
+        }
+    }
+
+    // SINAIS FORTES de agendamento (30 pontos cada)
+    const strongSignals = [
+        { pattern: /\b(envi[ae].{0,15}(2|dois|tr[eê]s|3).{0,15}hor[áa]rios?|que horas?.*prefer[eê]|hor[áa]rio.*melhor)\b/, desc: 'Solicitação de horários disponíveis' },
+        { pattern: /\b(vamos marcar|pode ser|aceito|marca.{0,15}(reuni[aã]o|call|liga[çc][aã]o))\b/, desc: 'Aceitação de agendamento' },
+        { pattern: /\b(segunda|ter[cç]a|quarta|quinta|sexta|s[áa]bado|domingo).{0,20}(\d{1,2}h|\d{1,2}:\d{2})\b/, desc: 'Dia e hora específicos mencionados' },
+        { pattern: /\b(\d{1,2}h|\d{1,2}:\d{2}).{0,30}(segunda|ter[cç]a|quarta|quinta|sexta|s[áa]bado|domingo)\b/, desc: 'Hora e dia específicos mencionados' },
+    ];
+
+    for (const signal of strongSignals) {
+        if (signal.pattern.test(text)) {
+            score += 30;
+            evidence.push(signal.desc);
+        }
+    }
+
+    // SINAIS MÉDIOS de contexto de reunião (20 pontos cada)
+    const mediumSignals = [
+        { pattern: /\b(reuni[aã]o|meeting|call|chamada|liga[çc][aã]o|videochamada|videoconfer[eê]ncia)\b/, desc: 'Menção a reunião/call' },
+        { pattern: /\b(agendar|marcar|encontro|bate.?papo presencial|conversar pessoalmente)\b/, desc: 'Intenção de agendar' },
+        { pattern: /\b(calend[áa]rio|agenda|disponibilidade|dispon[íi]vel)\b/, desc: 'Contexto de calendário/agenda' },
+        { pattern: /\b(entre.{0,10}(08h?|8h?|09h?|9h?).{0,10}(19h?|18h?))\b/, desc: 'Faixa de horário mencionada' },
+    ];
+
+    for (const signal of mediumSignals) {
+        if (signal.pattern.test(text)) {
+            score += 20;
+            evidence.push(signal.desc);
+        }
+    }
+
+    // THRESHOLD: 70 pontos = reunião marcada com alta confiança
+    const confidence = Math.min(100, Math.max(0, score));
+    const isMeetingScheduled = confidence >= 70;
+
+    return {
+        isMeetingScheduled,
+        confidence,
+        evidence
+    };
+}
+
+// 🎯 HELPER: Mover lead para stage com semanticType específico
+async function moveLeadToSemanticStage(
+    context: AutomationTriggerContext,
+    targetSemanticType: KanbanStage['semanticType'],
+    evidence: string[]
+): Promise<boolean> {
+    const { contact, companyId, conversation } = context;
+    const logContextBase: LogContext = { companyId, conversationId: conversation.id };
+
+    if (!targetSemanticType) {
+        await logAutomation('WARN', 'moveLeadToSemanticStage chamado sem semanticType', logContextBase);
+        return false;
+    }
+
+    try {
+        // Buscar lead ativo
+        const activeLead = await db.query.kanbanLeads.findFirst({
+            where: eq(kanbanLeads.contactId, contact.id),
+            with: { board: true },
+            orderBy: (kanbanLeads, { desc }) => [desc(kanbanLeads.createdAt)],
+        });
+
+        if (!activeLead) {
+            await logAutomation('INFO', `Lead não encontrado no Kanban. Ação de mover para stage semântico ignorada.`, logContextBase);
+            return false;
+        }
+
+        // Buscar stage com o semanticType desejado
+        const stages = activeLead.board.stages as KanbanStage[];
+        const targetStage = stages.find(s => s.semanticType === targetSemanticType);
+
+        if (!targetStage) {
+            await logAutomation('WARN', `⚠️ Stage com semanticType="${targetSemanticType}" não encontrado no funil "${activeLead.board.name}". Configure uma etapa com este tipo para ativar a automação.`, logContextBase);
+            return false;
+        }
+
+        // Validar se não é stage final (WIN/LOSS)
+        if (targetStage.type === 'WIN' || targetStage.type === 'LOSS') {
+            await logAutomation('WARN', `Stage "${targetStage.title}" é final (${targetStage.type}). Movimentação via automação bloqueada por segurança.`, logContextBase);
+            return false;
+        }
+
+        // Verificar se já está nesse stage
+        if (activeLead.stageId === targetStage.id) {
+            await logAutomation('INFO', `Lead já está no stage "${targetStage.title}". Nenhuma movimentação necessária.`, logContextBase);
+            return false;
+        }
+
+        // Mover lead para o stage
+        await db.update(kanbanLeads)
+            .set({ stageId: targetStage.id })
+            .where(eq(kanbanLeads.id, activeLead.id));
+
+        const evidenceText = evidence.length > 0 ? evidence.join(', ') : 'Detecção automática';
+        await logAutomation('INFO', `📅 REUNIÃO DETECTADA: Lead "${contact.name}" movido para "${targetStage.title}" | Evidências: ${evidenceText}`, logContextBase);
+
+        return true;
+
+    } catch (error) {
+        await logAutomation('ERROR', `Erro ao mover lead para stage semântico: ${(error as Error).message}`, logContextBase);
+        return false;
+    }
+}
+
 export async function processIncomingMessageTrigger(conversationId: string, messageId: string): Promise<void> {
     console.log(`[Automation Engine] Gatilho recebido para a conversa ${conversationId} e mensagem ${messageId}`);
     
