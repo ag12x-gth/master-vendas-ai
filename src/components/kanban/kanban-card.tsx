@@ -164,7 +164,13 @@ export function KanbanCard({ card, index, stages, onUpdate, onDelete, onOpenWhat
         )}
       </Draggable>
 
-      <ViewLeadDialog open={viewOpen} onOpenChange={setViewOpen} card={card} />
+      <ViewLeadDialog 
+        open={viewOpen} 
+        onOpenChange={setViewOpen} 
+        card={card} 
+        onEdit={() => setEditOpen(true)}
+        onDelete={() => setDeleteOpen(true)}
+      />
       <EditLeadDialog open={editOpen} onOpenChange={setEditOpen} card={card} onSave={onUpdate} />
       <DeleteLeadDialog open={deleteOpen} onOpenChange={setDeleteOpen} card={card} onConfirm={onDelete} />
     </>

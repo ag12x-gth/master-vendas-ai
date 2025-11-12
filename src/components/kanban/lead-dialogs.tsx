@@ -1,16 +1,38 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../ui/alert-dialog';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
+import { ScrollArea } from '../ui/scroll-area';
+import { Separator } from '../ui/separator';
 import type { KanbanCard } from '@/lib/types';
 import { Badge } from '../ui/badge';
-import { Phone, Mail, Calendar, DollarSign } from 'lucide-react';
+import { Phone, Mail, Calendar, DollarSign, MessageCircle, Edit2, Trash2, Clock } from 'lucide-react';
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+
+const editLeadSchema = z.object({
+  title: z.string().min(1, 'Título é obrigatório').max(100, 'Título muito longo'),
+  value: z.preprocess(
+    (val) => {
+      if (val === null || val === undefined || val === '' || (typeof val === 'number' && isNaN(val))) {
+        return undefined;
+      }
+      return Number(val);
+    },
+    z.number().min(0, 'Valor deve ser positivo').optional()
+  ),
+  notes: z.string().max(1000, 'Anotações muito longas').optional(),
+});
+
+type EditLeadFormData = z.infer<typeof editLeadSchema>;
 
 interface EditLeadDialogProps {
   open: boolean;
@@ -21,17 +43,35 @@ interface EditLeadDialogProps {
 
 export function EditLeadDialog({ open, onOpenChange, card, onSave }: EditLeadDialogProps) {
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    title: card.title || '',
-    value: Number(card.value) || 0,
-    notes: card.notes || '',
+  
+  const form = useForm<EditLeadFormData>({
+    resolver: zodResolver(editLeadSchema),
+    defaultValues: {
+      title: card.title || '',
+      value: (card.value !== null && card.value !== undefined) ? Number(card.value) : undefined,
+      notes: card.notes || '',
+    },
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        title: card.title || '',
+        value: (card.value !== null && card.value !== undefined) ? Number(card.value) : undefined,
+        notes: card.notes || '',
+      });
+    }
+  }, [open, card, form]);
+
+  const handleSubmit = async (data: EditLeadFormData) => {
     setLoading(true);
     try {
-      await onSave(card.id, formData);
+      const submitData = {
+        title: data.title,
+        value: data.value ?? undefined,
+        notes: data.notes || undefined,
+      };
+      await onSave(card.id, submitData);
       onOpenChange(false);
     } catch (error) {
       console.error('Erro ao salvar lead:', error);
@@ -49,16 +89,18 @@ export function EditLeadDialog({ open, onOpenChange, card, onSave }: EditLeadDia
             Atualize as informações do lead {card.contact?.name || 'sem nome'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="title">Título</Label>
+              <Label htmlFor="title">Título *</Label>
               <Input
                 id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                {...form.register('title')}
                 placeholder="Ex: Interesse em consultoria"
               />
+              {form.formState.errors.title && (
+                <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="value">Valor (R$)</Label>
@@ -67,20 +109,24 @@ export function EditLeadDialog({ open, onOpenChange, card, onSave }: EditLeadDia
                 type="number"
                 min="0"
                 step="0.01"
-                value={formData.value}
-                onChange={(e) => setFormData({ ...formData, value: parseFloat(e.target.value) || 0 })}
+                {...form.register('value', { valueAsNumber: true })}
                 placeholder="0.00"
               />
+              {form.formState.errors.value && (
+                <p className="text-sm text-destructive">{form.formState.errors.value.message}</p>
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="notes">Anotações</Label>
               <Textarea
                 id="notes"
                 rows={4}
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                {...form.register('notes')}
                 placeholder="Anotações sobre o lead..."
               />
+              {form.formState.errors.notes && (
+                <p className="text-sm text-destructive">{form.formState.errors.notes.message}</p>
+              )}
             </div>
           </div>
           <DialogFooter>
@@ -144,87 +190,188 @@ interface ViewLeadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   card: KanbanCard;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-export function ViewLeadDialog({ open, onOpenChange, card }: ViewLeadDialogProps) {
+export function ViewLeadDialog({ open, onOpenChange, card, onEdit, onDelete }: ViewLeadDialogProps) {
+  const handleWhatsApp = () => {
+    if (card.contact?.phone) {
+      const cleanPhone = card.contact.phone.replace(/\D/g, '');
+      window.open(`https://wa.me/${cleanPhone}`, '_blank');
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh]">
         <DialogHeader>
           <DialogTitle>Detalhes do Lead</DialogTitle>
+          <DialogDescription>
+            Visualize todas as informações e histórico do lead
+          </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold mb-2">Informações do Contato</h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium min-w-[100px]">Nome:</span>
-                  <span>{card.contact?.name || 'Não informado'}</span>
-                </div>
-                {card.contact?.phone && (
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span>{card.contact.phone}</span>
-                  </div>
-                )}
-                {card.contact?.email && (
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span>{card.contact.email}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {card.contact?.tags && card.contact.tags.length > 0 && (
+        
+        <ScrollArea className="max-h-[calc(90vh-200px)] pr-4">
+          <div className="grid gap-6 py-4">
+            <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-semibold mb-2">Tags</h3>
-                <div className="flex flex-wrap gap-2">
-                  {card.contact.tags.map((tag: any) => (
-                    <Badge key={tag.id} variant="outline" style={{ backgroundColor: tag.color }}>
-                      {tag.name}
-                    </Badge>
-                  ))}
+                <h3 className="text-sm font-semibold mb-3">Informações do Contato</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium min-w-[100px]">Nome:</span>
+                    <span className="text-muted-foreground">{card.contact?.name || 'Não informado'}</span>
+                  </div>
+                  {card.contact?.phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">{card.contact.phone}</span>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="ml-auto h-7 text-xs"
+                        onClick={handleWhatsApp}
+                      >
+                        <MessageCircle className="h-3 w-3 mr-1" />
+                        Abrir WhatsApp
+                      </Button>
+                    </div>
+                  )}
+                  {card.contact?.email && (
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">{card.contact.email}</span>
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
 
-            <div>
-              <h3 className="text-sm font-semibold mb-2">Informações do Lead</h3>
-              <div className="space-y-2 text-sm">
-                {card.title && (
+              {card.contact?.tags && card.contact.tags.length > 0 && (
+                <>
+                  <Separator />
                   <div>
-                    <span className="font-medium">Título:</span> {card.title}
+                    <h3 className="text-sm font-semibold mb-3">Tags</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {card.contact.tags.map((tag: any) => (
+                        <Badge key={tag.id} variant="outline" style={{ backgroundColor: tag.color }}>
+                          {tag.name}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
-                )}
-                {card.value && (
+                </>
+              )}
+
+              <Separator />
+              
+              <div>
+                <h3 className="text-sm font-semibold mb-3">Informações do Lead</h3>
+                <div className="space-y-3 text-sm">
+                  {card.title && (
+                    <div>
+                      <span className="font-medium">Título:</span> 
+                      <span className="text-muted-foreground ml-2">{card.title}</span>
+                    </div>
+                  )}
+                  {(card.value !== null && card.value !== undefined) && (
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">Valor:</span> 
+                      <span className="text-muted-foreground">
+                        R$ {Number(card.value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">Valor:</span> 
-                    <span>R$ {Number(card.value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">Criado em:</span>
+                    <span className="text-muted-foreground">
+                      {card.createdAt ? format(new Date(card.createdAt), "dd 'de' MMMM 'de' yyyy 'às' HH:mm", { locale: ptBR }) : 'N/A'}
+                    </span>
                   </div>
-                )}
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">Criado em:</span>
-                  <span>{card.createdAt ? format(new Date(card.createdAt), 'dd/MM/yyyy HH:mm') : 'N/A'}</span>
+                </div>
+              </div>
+
+              {card.notes && (
+                <>
+                  <Separator />
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3">Anotações</h3>
+                    <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md whitespace-pre-wrap">
+                      {card.notes}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <Separator />
+              
+              <div>
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Linha do Tempo
+                </h3>
+                <div className="space-y-3">
+                  <div className="flex gap-3">
+                    <div className="relative flex flex-col items-center">
+                      <div className="h-2 w-2 rounded-full bg-primary" />
+                      <div className="h-full w-0.5 bg-border mt-1" />
+                    </div>
+                    <div className="flex-1 pb-4">
+                      <p className="text-sm font-medium">Lead criado</p>
+                      <p className="text-xs text-muted-foreground">
+                        {card.createdAt ? format(new Date(card.createdAt), "dd/MM/yyyy 'às' HH:mm") : 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                  {card.updatedAt && card.updatedAt !== card.createdAt && (
+                    <div className="flex gap-3">
+                      <div className="relative flex flex-col items-center">
+                        <div className="h-2 w-2 rounded-full bg-muted-foreground" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">Última atualização</p>
+                        <p className="text-xs text-muted-foreground">
+                          {format(new Date(card.updatedAt), "dd/MM/yyyy 'às' HH:mm")}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-
-            {card.notes && (
-              <div>
-                <h3 className="text-sm font-semibold mb-2">Anotações</h3>
-                <div className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md">
-                  {card.notes}
-                </div>
-              </div>
-            )}
           </div>
-        </div>
-        <DialogFooter>
-          <Button onClick={() => onOpenChange(false)}>Fechar</Button>
+        </ScrollArea>
+        
+        <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)} className="sm:flex-1">
+            Fechar
+          </Button>
+          {onDelete && (
+            <Button 
+              variant="destructive" 
+              onClick={() => {
+                onOpenChange(false);
+                onDelete();
+              }}
+              className="sm:flex-1"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Excluir
+            </Button>
+          )}
+          {onEdit && (
+            <Button 
+              onClick={() => {
+                onOpenChange(false);
+                onEdit();
+              }}
+              className="sm:flex-1"
+            >
+              <Edit2 className="h-4 w-4 mr-2" />
+              Editar
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>
