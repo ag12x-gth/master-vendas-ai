@@ -8,10 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Plus, Trash2, Loader2, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Loader2, AlertCircle, GripVertical } from 'lucide-react';
 import Link from 'next/link';
 import { v4 as uuidv4 } from 'uuid';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 type StageType = 'NEUTRAL' | 'WIN' | 'LOSS';
 type SemanticType = 'meeting_scheduled' | 'payment_received' | 'proposal_sent';
@@ -104,6 +105,16 @@ export default function EditFunnelPage({ params }: { params: { funnelId: string 
     // Converter 'NONE' para undefined para semanticType
     const actualValue = (field === 'semanticType' && value === 'NONE') ? undefined : value;
     setStages(stages.map(s => s.id === id ? { ...s, [field]: actualValue } : s));
+  };
+
+  const onDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+    
+    const items = Array.from(stages);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+    
+    setStages(items);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -268,69 +279,96 @@ export default function EditFunnelPage({ params }: { params: { funnelId: string 
                 </AlertDescription>
               </Alert>
 
-              <div className="space-y-3">
-                {stages.map((stage, index) => (
-                  <div key={stage.id} className="space-y-2 p-4 border rounded-lg bg-muted/30">
-                    <div className="flex gap-2 items-start">
-                      <div className="flex-1">
-                        <Label className="text-xs text-muted-foreground">Título do Estágio</Label>
-                        <Input
-                          placeholder={`Estágio ${index + 1}`}
-                          value={stage.title}
-                          onChange={(e) => updateStage(stage.id, 'title', e.target.value)}
-                          required
-                        />
-                      </div>
-                      <div className="w-[140px]">
-                        <Label className="text-xs text-muted-foreground">Tipo</Label>
-                        <Select
-                          value={stage.type}
-                          onValueChange={(value: StageType) => updateStage(stage.id, 'type', value)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="NEUTRAL">Neutro</SelectItem>
-                            <SelectItem value="WIN">Vitória</SelectItem>
-                            <SelectItem value="LOSS">Perda</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="pt-5">
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeStage(stage.id)}
-                          disabled={stages.length <= 1}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
+              <DragDropContext onDragEnd={onDragEnd}>
+                <Droppable droppableId="stages">
+                  {(provided) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className="space-y-3"
+                    >
+                      {stages.map((stage, index) => (
+                        <Draggable key={stage.id} draggableId={stage.id} index={index}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              style={provided.draggableProps.style}
+                              className={`space-y-2 p-4 border rounded-lg transition-colors ${
+                                snapshot.isDragging 
+                                  ? 'bg-primary/10 border-primary shadow-lg' 
+                                  : 'bg-muted/30'
+                              }`}
+                            >
+                              <div className="flex gap-2 items-start">
+                                <div {...provided.dragHandleProps} className="pt-5 cursor-grab active:cursor-grabbing">
+                                  <GripVertical className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <div className="flex-1">
+                                  <Label className="text-xs text-muted-foreground">Título do Estágio</Label>
+                                  <Input
+                                    placeholder={`Estágio ${index + 1}`}
+                                    value={stage.title}
+                                    onChange={(e) => updateStage(stage.id, 'title', e.target.value)}
+                                    required
+                                  />
+                                </div>
+                                <div className="w-[140px]">
+                                  <Label className="text-xs text-muted-foreground">Tipo</Label>
+                                  <Select
+                                    value={stage.type}
+                                    onValueChange={(value: StageType) => updateStage(stage.id, 'type', value)}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="NEUTRAL">Neutro</SelectItem>
+                                      <SelectItem value="WIN">Vitória</SelectItem>
+                                      <SelectItem value="LOSS">Perda</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="pt-5">
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => removeStage(stage.id)}
+                                    disabled={stages.length <= 1}
+                                  >
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </div>
+                              </div>
+                              
+                              <div>
+                                <Label className="text-xs text-muted-foreground">Tipo Semântico (Automação)</Label>
+                                <Select
+                                  value={stage.semanticType || 'NONE'}
+                                  onValueChange={(value: SemanticType | 'NONE') => updateStage(stage.id, 'semanticType', value)}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {SEMANTIC_TYPES.map((st) => (
+                                      <SelectItem key={st.value} value={st.value}>
+                                        {st.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
                     </div>
-                    
-                    <div>
-                      <Label className="text-xs text-muted-foreground">Tipo Semântico (Automação)</Label>
-                      <Select
-                        value={stage.semanticType || 'NONE'}
-                        onValueChange={(value: SemanticType | 'NONE') => updateStage(stage.id, 'semanticType', value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {SEMANTIC_TYPES.map((st) => (
-                            <SelectItem key={st.value} value={st.value}>
-                              {st.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
             </div>
 
             <div className="flex gap-3 justify-end pt-4 border-t">
