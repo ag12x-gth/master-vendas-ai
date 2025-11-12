@@ -2,8 +2,9 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { conversations } from '@/lib/db/schema';
-import { eq, max } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,16 +12,33 @@ export const dynamic = 'force-dynamic';
 // Retorna o timestamp da última mensagem de uma empresa para verificação de atualizações.
 export async function GET() {
     try {
+        const startTime = Date.now();
         const companyId = await getCompanyIdFromSession();
         
-        const [result] = await db
-            .select({
-                lastUpdated: max(conversations.lastMessageAt)
-            })
-            .from(conversations)
-            .where(eq(conversations.companyId, companyId));
+        const cacheKey = `conversations:status:${companyId}`;
+        const result = await getCachedOrFetch(cacheKey, async () => {
+            const queryStart = Date.now();
+            
+            // OTIMIZAÇÃO: Usar ORDER BY + LIMIT 1 ao invés de MAX (muito mais rápido com índices)
+            const [latest] = await db
+                .select({
+                    lastUpdated: conversations.lastMessageAt
+                })
+                .from(conversations)
+                .where(eq(conversations.companyId, companyId))
+                .orderBy(desc(conversations.lastMessageAt))
+                .limit(1);
+            
+            const queryTime = Date.now() - queryStart;
+            console.log(`[Conversations Status] ⚡ Query executed in ${queryTime}ms`);
+            
+            return { lastUpdated: latest?.lastUpdated || null };
+        }, CacheTTL.VERY_SHORT);
+        
+        const totalTime = Date.now() - startTime;
+        console.log(`[Conversations Status] ⚡ Total response time: ${totalTime}ms (cached: ${totalTime < 10})`);
 
-        return NextResponse.json({ lastUpdated: result?.lastUpdated || null });
+        return NextResponse.json(result);
 
     } catch (error) {
         // Não loga erros de sessão como erros críticos no servidor

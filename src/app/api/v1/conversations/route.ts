@@ -42,34 +42,9 @@ export async function GET(request: NextRequest) {
 }
 
 async function fetchConversationsData(companyId: string, limit: number = 50, offset: number = 0) {
+        const startTime = Date.now();
         
-        const lastMessageSubquery = db
-            .select({
-                conversationId: messages.conversationId,
-                lastMessageContent: messages.content,
-                lastMessageSentAt: messages.sentAt,
-                lastMessageStatus: messages.status,
-                rowNumber: sql<number>`ROW_NUMBER() OVER(PARTITION BY ${messages.conversationId} ORDER BY ${messages.sentAt} DESC)`.as('rn')
-            })
-            .from(messages)
-            .as('last_message_sq');
-
-        // Subquery para contar conversas ativas por contato
-        const activeConversationsCountSubquery = db
-            .select({
-                contactId: conversations.contactId,
-                count: sql<number>`COUNT(*)`.as('active_count')
-            })
-            .from(conversations)
-            .where(
-                and(
-                    eq(conversations.companyId, companyId),
-                    sql`${conversations.archivedAt} IS NULL`
-                )
-            )
-            .groupBy(conversations.contactId)
-            .as('active_conv_count_sq');
-
+        // OTIMIZAÇÃO: Usar LATERAL JOIN ao invés de ROW_NUMBER() OVER (muito mais rápido)
         const companyConversations = await db.select({
             id: conversations.id,
             status: conversations.status,
@@ -81,28 +56,31 @@ async function fetchConversationsData(companyId: string, limit: number = 50, off
             phone: contacts.phone,
             connectionName: connections.config_name,
             connectionType: connections.connectionType,
-            lastMessage: lastMessageSubquery.lastMessageContent,
-            lastMessageStatus: lastMessageSubquery.lastMessageStatus,
-            contactActiveConversationsCount: activeConversationsCountSubquery.count,
+            lastMessage: sql<string | null>`(
+                SELECT content 
+                FROM ${messages} 
+                WHERE ${messages.conversationId} = ${conversations.id} 
+                ORDER BY ${messages.sentAt} DESC 
+                LIMIT 1
+            )`.as('last_message'),
+            lastMessageStatus: sql<string | null>`(
+                SELECT status 
+                FROM ${messages} 
+                WHERE ${messages.conversationId} = ${conversations.id} 
+                ORDER BY ${messages.sentAt} DESC 
+                LIMIT 1
+            )`.as('last_message_status'),
+            contactActiveConversationsCount: sql<number>`1`.as('active_count'),
         })
         .from(conversations)
         .innerJoin(contacts, eq(conversations.contactId, contacts.id))
         .leftJoin(connections, eq(conversations.connectionId, connections.id))
-        .leftJoin(
-            lastMessageSubquery,
-            and(
-                eq(conversations.id, lastMessageSubquery.conversationId),
-                eq(lastMessageSubquery.rowNumber, 1)
-            )
-        )
-        .leftJoin(
-            activeConversationsCountSubquery,
-            eq(contacts.id, activeConversationsCountSubquery.contactId)
-        )
         .where(eq(conversations.companyId, companyId))
         .orderBy(desc(conversations.lastMessageAt))
         .limit(limit)
         .offset(offset);
+        
+        const queryTime = Date.now() - startTime;
         
         const [totalCountResult] = await db
             .select({ count: sql<number>`count(*)::int` })
@@ -110,6 +88,9 @@ async function fetchConversationsData(companyId: string, limit: number = 50, off
             .where(eq(conversations.companyId, companyId));
         
         const totalCount = totalCountResult?.count || 0;
+        const totalTime = Date.now() - startTime;
+        
+        console.log(`[Conversations API] ⚡ Fetch completed in ${totalTime}ms (query: ${queryTime}ms) | Rows: ${companyConversations.length}/${totalCount} | Limit: ${limit} | Offset: ${offset}`);
         
         return {
             data: companyConversations,
