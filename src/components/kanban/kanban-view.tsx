@@ -14,20 +14,24 @@ interface KanbanViewProps {
   onUpdateCards: () => void;
   onUpdateLead: (leadId: string, data: { stageId?: string; title?: string; value?: number | null; notes?: string }) => Promise<void>;
   onDeleteLead: (leadId: string) => Promise<void>;
+  onAddCard?: () => void;
+  onFilter?: () => void;
+  onSearch?: (query: string) => void;
 }
 
-export function KanbanView({ funnel, cards, onMoveCard, onUpdateLead, onDeleteLead }: KanbanViewProps): JSX.Element {
+export function KanbanView({ funnel, cards, onMoveCard, onUpdateLead, onDeleteLead, onAddCard, onFilter, onSearch }: KanbanViewProps): JSX.Element {
   if (!funnel || !funnel.stages) {
     return <div>Funil não encontrado ou sem etapas.</div>;
   }
-
-  const getCardsForStage = (stageId: string): KanbanCardType[] => {
-    return cards.filter(card => card.stageId === stageId);
-  };
   
   return (
     <div className="flex h-full flex-col">
-      <FunnelToolbar funnel={funnel} />
+      <FunnelToolbar 
+        funnel={funnel} 
+        onAddCard={onAddCard}
+        onFilter={onFilter}
+        onSearch={onSearch}
+      />
       <div className="flex-1 min-h-0">
         <ScrollArea className="h-full w-full">
           <div className="p-2 sm:p-4">
@@ -39,7 +43,7 @@ export function KanbanView({ funnel, cards, onMoveCard, onUpdateLead, onDeleteLe
                     key={stage.id}
                     stage={stage}
                     stages={funnel.stages}
-                    cards={getCardsForStage(stage.id)}
+                    cards={cards}
                     index={index}
                     onUpdateLead={onUpdateLead}
                     onDeleteLead={onDeleteLead}

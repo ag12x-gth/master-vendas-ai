@@ -129,6 +129,17 @@ export default function FunnelPage({ params }: { params: { funnelId: string } })
     }
   };
 
+  const handleAddCard = () => {
+    toast({ title: "Em breve", description: "Funcionalidade de adicionar lead em desenvolvimento." });
+  };
+
+  const handleFilter = () => {
+    toast({ title: "Em breve", description: "Funcionalidade de filtros em desenvolvimento." });
+  };
+
+  const handleSearch = (query: string) => {
+    console.log('Buscar:', query);
+  };
 
   if (loading) {
     return <div className="flex h-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
@@ -166,6 +177,9 @@ export default function FunnelPage({ params }: { params: { funnelId: string } })
             onUpdateCards={fetchFunnelData}
             onUpdateLead={handleUpdateLead}
             onDeleteLead={handleDeleteLead}
+            onAddCard={handleAddCard}
+            onFilter={handleFilter}
+            onSearch={handleSearch}
           />
         </TabsContent>
 
