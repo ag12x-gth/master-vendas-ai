@@ -15,7 +15,7 @@ interface KanbanCardProps {
   card: KanbanCardType;
   index: number;
   stages: KanbanStage[];
-  onUpdate: (leadId: string, data: { stageId?: string; title?: string; value?: number; notes?: string }) => Promise<void>;
+  onUpdate: (leadId: string, data: { stageId?: string; title?: string; value?: number | null; notes?: string }) => Promise<void>;
   onDelete: (leadId: string) => Promise<void>;
   onOpenWhatsApp?: (phone: string) => void;
 }
@@ -130,7 +130,7 @@ export function KanbanCard({ card, index, stages, onUpdate, onDelete, onOpenWhat
               </CardHeader>
               
               <CardContent className="pt-0">
-                {card.value && (
+                {(card.value !== null && card.value !== undefined) && (
                   <div className="mb-2">
                     <Badge variant="secondary" className="text-xs">
                       R$ {Number(card.value).toLocaleString('pt-BR')}

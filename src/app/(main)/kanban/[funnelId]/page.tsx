@@ -75,7 +75,7 @@ export default function FunnelPage({ params }: { params: { funnelId: string } })
     }
   };
 
-  const handleUpdateLead = async (leadId: string, data: { stageId?: string; title?: string; value?: number; notes?: string }) => {
+  const handleUpdateLead = async (leadId: string, data: { stageId?: string; title?: string; value?: number | null; notes?: string }) => {
     const oldCards = [...cards];
     
     // Optimistic update - only update value if it's explicitly provided
@@ -83,7 +83,7 @@ export default function FunnelPage({ params }: { params: { funnelId: string } })
       card.id === leadId ? { 
         ...card, 
         ...data, 
-        ...(data.value !== undefined ? { value: data.value.toString() } : {})
+        ...(data.value !== undefined ? { value: data.value === null ? null : data.value.toString() } : {})
       } : card
     ));
 

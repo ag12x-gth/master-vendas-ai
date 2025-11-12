@@ -11,7 +11,7 @@ interface KanbanColumnProps {
   stages: KanbanStage[];
   cards: KanbanCardType[];
   index: number;
-  onUpdateLead: (leadId: string, data: { stageId?: string; title?: string; value?: number; notes?: string }) => Promise<void>;
+  onUpdateLead: (leadId: string, data: { stageId?: string; title?: string; value?: number | null; notes?: string }) => Promise<void>;
   onDeleteLead: (leadId: string) => Promise<void>;
 }
 

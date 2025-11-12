@@ -9,7 +9,7 @@ import { getCompanyIdFromSession } from '@/app/actions';
 
 const leadUpdateSchema = z.object({
   stageId: z.string().optional(),
-  value: z.number().optional(),
+  value: z.number().nullable().optional(),
   title: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -46,12 +46,12 @@ export async function PUT(request: NextRequest, { params }: { params: { leadId: 
             return NextResponse.json({ error: 'Dados inválidos.', details: parsedData.error.flatten() }, { status: 400 });
         }
         
-        const updateData: { stageId?: string; value?: string; title?: string; notes?: string } = {};
+        const updateData: { stageId?: string; value?: string | null; title?: string; notes?: string } = {};
         if (parsedData.data.stageId) {
             updateData.stageId = parsedData.data.stageId;
         }
         if (parsedData.data.value !== undefined) {
-            updateData.value = parsedData.data.value.toString();
+            updateData.value = parsedData.data.value === null ? null : parsedData.data.value.toString();
         }
         if (parsedData.data.title !== undefined) {
             updateData.title = parsedData.data.title;

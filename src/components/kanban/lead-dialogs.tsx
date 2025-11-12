@@ -38,7 +38,7 @@ interface EditLeadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   card: KanbanCard;
-  onSave: (leadId: string, data: { title?: string; value?: number; notes?: string }) => Promise<void>;
+  onSave: (leadId: string, data: { title?: string; value?: number | null; notes?: string }) => Promise<void>;
 }
 
 export function EditLeadDialog({ open, onOpenChange, card, onSave }: EditLeadDialogProps) {
@@ -68,7 +68,7 @@ export function EditLeadDialog({ open, onOpenChange, card, onSave }: EditLeadDia
     try {
       const submitData = {
         title: data.title,
-        value: data.value ?? undefined,
+        value: data.value === undefined ? null : data.value,
         notes: data.notes || undefined,
       };
       await onSave(card.id, submitData);
