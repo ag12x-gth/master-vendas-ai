@@ -276,12 +276,18 @@ async function processIncomingMessage(
                         const extension = contentType.split('/')[1] || 'bin';
                         const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.${extension}`;
                         permanentMediaUrl = await uploadFileToS3(s3Key, mediaBuffer, contentType);
-                        console.log(`📎 [Meta Webhook] Mídia salva: ${s3Key}`);
+                        console.log(`📎 [Meta Webhook] Mídia salva: ${s3Key} (URL permanente criada)`);
                     } catch (s3Error) {
                         console.error(`❌ [Meta Webhook] Falha ao salvar mídia no S3:`, s3Error);
+                        console.warn(`⚠️ [Meta Webhook] Mídia será salva com mediaUrl=null (URLs temporárias do WhatsApp não são persistidas)`);
                     }
                 }
             }
+        }
+        
+        if (permanentMediaUrl && permanentMediaUrl.includes('mmg.whatsapp.net')) {
+            console.error(`🚨 [Meta Webhook] ERRO CRÍTICO: Tentativa de salvar URL temporária do WhatsApp detectada! URL rejeitada.`);
+            permanentMediaUrl = null;
         }
         
         const [newMessage] = await tx.insert(messages).values({

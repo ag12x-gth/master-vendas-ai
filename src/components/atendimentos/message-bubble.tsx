@@ -34,9 +34,10 @@ const StatusIcon = ({ status }: { status: Message['status'] }) => {
 }
 
 const MediaError = () => (
-    <div className="flex flex-col items-center justify-center gap-2 p-4 bg-red-500/10 text-destructive rounded-md">
-        <AlertTriangle className="h-6 w-6" />
-        <p className="text-xs text-center">Não foi possível carregar a mídia.</p>
+    <div className="flex flex-col items-center justify-center gap-2 p-4 bg-muted rounded-md border border-dashed">
+        <AlertTriangle className="h-6 w-6 text-muted-foreground" />
+        <p className="text-xs text-center text-muted-foreground">Mídia indisponível</p>
+        <p className="text-[10px] text-center text-muted-foreground/60">Arquivo deletado ou expirado</p>
     </div>
 );
 
