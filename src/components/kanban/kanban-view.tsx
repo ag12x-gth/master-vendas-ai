@@ -12,9 +12,11 @@ interface KanbanViewProps {
   cards: KanbanCardType[];
   onMoveCard: (result: DropResult) => void;
   onUpdateCards: () => void;
+  onUpdateLead: (leadId: string, data: { stageId?: string; title?: string; value?: number; notes?: string }) => Promise<void>;
+  onDeleteLead: (leadId: string) => Promise<void>;
 }
 
-export function KanbanView({ funnel, cards, onMoveCard }: KanbanViewProps): JSX.Element {
+export function KanbanView({ funnel, cards, onMoveCard, onUpdateLead, onDeleteLead }: KanbanViewProps): JSX.Element {
   if (!funnel || !funnel.stages) {
     return <div>Funil não encontrado ou sem etapas.</div>;
   }
@@ -41,8 +43,11 @@ export function KanbanView({ funnel, cards, onMoveCard }: KanbanViewProps): JSX.
                       >
                         <KanbanColumn
                           stage={stage}
+                          stages={funnel.stages}
                           cards={getCardsForStage(stage.id)}
                           index={index}
+                          onUpdateLead={onUpdateLead}
+                          onDeleteLead={onDeleteLead}
                         />
                         {provided.placeholder}
                       </div>

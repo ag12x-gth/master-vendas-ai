@@ -75,6 +75,60 @@ export default function FunnelPage({ params }: { params: { funnelId: string } })
     }
   };
 
+  const handleUpdateLead = async (leadId: string, data: { stageId?: string; title?: string; value?: number; notes?: string }) => {
+    const oldCards = [...cards];
+    
+    // Optimistic update - only update value if it's explicitly provided
+    setCards(cards.map(card => 
+      card.id === leadId ? { 
+        ...card, 
+        ...data, 
+        ...(data.value !== undefined ? { value: data.value.toString() } : {})
+      } : card
+    ));
+
+    try {
+      const response = await fetch(`/api/v1/leads/${leadId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        throw new Error("Falha ao atualizar o lead.");
+      }
+
+      toast({ title: "Sucesso", description: "Lead atualizado com sucesso!" });
+    } catch (error) {
+      setCards(oldCards);
+      toast({ variant: "destructive", title: "Erro", description: (error as Error).message });
+      throw error;
+    }
+  };
+
+  const handleDeleteLead = async (leadId: string) => {
+    const oldCards = [...cards];
+    
+    // Optimistic delete
+    setCards(cards.filter(card => card.id !== leadId));
+
+    try {
+      const response = await fetch(`/api/v1/leads/${leadId}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) {
+        throw new Error("Falha ao excluir o lead.");
+      }
+
+      toast({ title: "Sucesso", description: "Lead excluído com sucesso!" });
+    } catch (error) {
+      setCards(oldCards);
+      toast({ variant: "destructive", title: "Erro", description: (error as Error).message });
+      throw error;
+    }
+  };
+
 
   if (loading) {
     return <div className="flex h-full items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>;
@@ -109,7 +163,9 @@ export default function FunnelPage({ params }: { params: { funnelId: string } })
             funnel={funnel} 
             cards={cards} 
             onMoveCard={handleMoveCard} 
-            onUpdateCards={fetchFunnelData} 
+            onUpdateCards={fetchFunnelData}
+            onUpdateLead={handleUpdateLead}
+            onDeleteLead={handleDeleteLead}
           />
         </TabsContent>
 
