@@ -19,6 +19,7 @@ import type {
   Contact,
   User,
   Message,
+  KanbanStage,
 } from './types';
 import { sendWhatsappTextMessage } from './facebookApiService';
 import OpenAI from 'openai';
@@ -478,12 +479,18 @@ async function detectAndProgressLead(
         
         if (qualificationSignals.shouldProgress) {
             const nextStage = stages[currentStageIndex + 1];
+            const currentStage = stages[currentStageIndex];
+            
+            if (!nextStage || !currentStage) {
+                await logAutomation('WARN', 'Não foi possível avançar o lead: estágio atual ou próximo inválido', logContextBase);
+                return;
+            }
             
             await db.update(kanbanLeads)
                 .set({ stageId: nextStage.id })
                 .where(eq(kanbanLeads.id, activeLead.id));
             
-            await logAutomation('INFO', `🎯 QUALIFICAÇÃO AUTOMÁTICA: Lead "${contact.name}" avançou de "${stages[currentStageIndex].title}" para "${nextStage.title}" | Confiança: ${qualificationSignals.confidence}% | Motivo: ${qualificationSignals.reason}`, logContextBase);
+            await logAutomation('INFO', `🎯 QUALIFICAÇÃO AUTOMÁTICA: Lead "${contact.name}" avançou de "${currentStage.title}" para "${nextStage.title}" | Confiança: ${qualificationSignals.confidence}% | Motivo: ${qualificationSignals.reason}`, logContextBase);
         }
         
     } catch (error) {
