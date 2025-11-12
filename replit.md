@@ -51,7 +51,49 @@ Preferred communication style: Simple, everyday language.
 - **Socket.IO Client**: For real-time testing.
 - **Vitest**: Unit and integration testing framework.
 
-## Recent Enhancements (Nov 11, 2025)
+## Recent Enhancements
+
+### Automatic Lead Progression System (Nov 12, 2025)
+**AI-powered funnel stage migration eliminates manual lead tracking**
+
+1. **New Automation Action: `move_to_stage`**
+   - Schema Update: Added `'move_to_stage'` to `AutomationAction` type union
+   - Implementation: New case in `executeAction()` that updates `kanbanLeads.stageId`
+   - Flow: Finds active lead by contactId, updates stage to target stageId from action.value
+   - Validation: Logs warning if contact has no active Kanban lead
+
+2. **Intelligent Qualification Detection**
+   - Function: `detectQualificationSignals()` - Pattern-based conversation analysis
+   - Algorithm: Weighted scoring system (strong +30pts, medium +20pts, weak +10pts, negative penalties)
+   - Strong Signals: "quero contratar", "qual o preço", "pode enviar proposta"
+   - Medium Signals: "interessado", "preciso", "quando começa", "prazo"
+   - Weak Signals: "obrigado", "entendi", "ok"
+   - Negative Signals: "não tenho interesse" (-50pts), "muito caro" (-30pts), "depois" (-15pts)
+   - Threshold: 60+ confidence score triggers automatic progression
+
+3. **Automatic Stage Progression**
+   - Function: `detectAndProgressLead()` - Executes after every AI response
+   - Trigger: Automatically called in `callExternalAIAgent()` after successful AI reply
+   - Logic: Analyzes conversation history + latest AI response → calculates confidence → progresses if ≥60%
+   - Logging: Emoji-rich logs with confidence %, reason, and stage transition details
+   - Safety: Only progresses if lead exists, stage is valid, and not already at final stage
+
+4. **Critical Database Fix: Lead Visibility Issue**
+   - Problem: 909 leads had numeric stageIds ("0", "1", "3") but funnel expected UUIDs
+   - Root Cause: Kanban component filters using `card.stageId === stage.id` with UUID comparison
+   - Solution: Migrated all leads to correct UUID stages via SQL:
+     - stageId "0" (901 leads) → "91d2f742-584f-4780-a389-7373c97231f4" (Lead)
+     - stageId "1" (6 leads) → "f51399f3-5030-4338-b90d-98cd13eb9150" (Qualificado)
+     - stageId "3" (2 leads) → "8c9adb23-120b-4bfc-84fc-db54df89983c" (Proposta Enviada)
+   - Result: All 909 leads now visible in Kanban columns with correct stage association
+
+5. **System Integration**
+   - No changes to existing automation rules structure
+   - Backward compatible: All existing actions (send_message, add_tag, add_to_list, assign_user) work unchanged
+   - Real-time progression: Happens immediately after AI response, no polling needed
+   - Conversation context: Uses last 10 messages for qualification analysis
+
+### Previous Enhancements (Nov 11, 2025)
 
 ### Critical Stability Fixes (Nov 11, 2025 - Evening)
 **Memory leak and pagination issues resolved for production stability**
