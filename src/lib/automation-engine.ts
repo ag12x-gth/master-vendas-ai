@@ -146,13 +146,28 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
                 if (!action.value) return;
                 const activeLead = await db.query.kanbanLeads.findFirst({
                     where: eq(kanbanLeads.contactId, contact.id),
+                    with: { board: true },
                     orderBy: (kanbanLeads, { desc }) => [desc(kanbanLeads.createdAt)],
                 });
                 if (activeLead) {
+                    const targetStageId = action.value;
+                    const stages = (activeLead.board.stages || []) as { id: string; title: string; type: 'NEUTRAL' | 'WIN' | 'LOSS' }[];
+                    const targetStage = stages.find(s => s.id === targetStageId);
+                    
+                    if (!targetStage) {
+                        await logAutomation('WARN', `Estágio inválido "${targetStageId}" não encontrado no funil. Ação 'move_to_stage' ignorada.`, logContext);
+                        return;
+                    }
+                    
+                    if (targetStage.type === 'WIN' || targetStage.type === 'LOSS') {
+                        await logAutomation('WARN', `Estágio final "${targetStage.title}" (${targetStage.type}). Movimentação via automação bloqueada por segurança.`, logContext);
+                        return;
+                    }
+                    
                     await db.update(kanbanLeads)
-                        .set({ stageId: action.value })
+                        .set({ stageId: targetStageId })
                         .where(eq(kanbanLeads.id, activeLead.id));
-                    await logAutomation('INFO', `Lead movido para o estágio: ${action.value}`, logContext);
+                    await logAutomation('INFO', `Lead movido para o estágio: ${targetStage.title} (${targetStageId})`, logContext);
                 } else {
                     await logAutomation('WARN', `Contato não possui lead ativo no Kanban. Ação 'move_to_stage' ignorada.`, logContext);
                 }
