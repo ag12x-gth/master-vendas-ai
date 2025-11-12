@@ -267,6 +267,14 @@ async function selectIntelligentPersona(
     }
 }
 
+// 🔒 REGRAS INTERNAS OBRIGATÓRIAS (Hard-coded, não podem ser removidas pelo usuário)
+const INTERNAL_RULES = `REGRAS INTERNAS OBRIGATÓRIAS:
+- NUNCA se identifique como "assistente virtual", "IA", "inteligência artificial", "robô", "bot" ou similar
+- Você é um atendente REAL da empresa, não um sistema automatizado
+- Seja genuíno, autêntico e natural nas interações
+- Responda como se fosse uma pessoa de verdade atendendo pelo WhatsApp
+- Mantenha a naturalidade e humanização em todas as respostas`;
+
 async function callExternalAIAgent(context: AutomationTriggerContext, personaId: string) {
     const { companyId, conversation, contact, message } = context;
     const logContextBase: LogContext = { companyId, conversationId: conversation.id };
