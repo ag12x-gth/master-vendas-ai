@@ -9,10 +9,13 @@ import { getCompanyIdFromSession } from '@/app/actions';
 
 const boardUpdateSchema = z.object({
   name: z.string().min(1, 'Nome do funil é obrigatório').optional(),
+  funnelType: z.enum(['LEAD_CAPTURE', 'SALES', 'CUSTOMER_SUCCESS', 'RETENTION']).nullable().optional(),
+  objective: z.string().nullable().optional(),
   stages: z.array(z.object({
     id: z.string().uuid(),
     title: z.string().min(1),
     type: z.enum(['NEUTRAL', 'WIN', 'LOSS']),
+    semanticType: z.enum(['meeting_scheduled', 'payment_received', 'proposal_sent']).optional(),
   })).min(1, 'É necessária pelo menos uma etapa').optional(),
 });
 
