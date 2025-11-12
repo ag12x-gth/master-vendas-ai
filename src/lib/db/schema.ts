@@ -24,6 +24,7 @@ import {
     id: string;
     title: string;
     type: 'NEUTRAL' | 'WIN' | 'LOSS';
+    semanticType?: 'meeting_scheduled' | 'payment_received' | 'proposal_sent';
   };
   
   export type MetaHandle = {
