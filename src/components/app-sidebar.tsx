@@ -185,22 +185,23 @@ const NavItemLink = ({ item, isExpanded }: { item: any, isExpanded: boolean }) =
     const linkHref = item.query ? `${item.href}?${new URLSearchParams(item.query).toString()}` : item.href;
 
     return (
-        <Tooltip delayDuration={isExpanded ? 1000 : 0}>
+        <Tooltip delayDuration={500}>
             <TooltipTrigger asChild>
                 <Link
                   href={linkHref}
                   className={cn(
-                    'flex h-9 items-center justify-start rounded-lg text-muted-foreground transition-colors hover:text-foreground',
+                    'flex h-9 items-center rounded-lg text-muted-foreground transition-colors hover:text-foreground',
                      isExpanded ? 'w-full px-3' : 'w-9 justify-center',
-                     isActive ? 'bg-accent text-accent-foreground' : ''
+                     isActive ? 'bg-accent text-accent-foreground' : '',
+                     'min-w-0'
                   )}
                 >
-                  <item.icon className="h-5 w-5" />
-                  {isExpanded && <span className="ml-4">{item.label}</span>}
+                  <item.icon className="h-5 w-5 flex-shrink-0" />
+                  {isExpanded && <span className="ml-4 truncate flex-1 min-w-0 text-left">{item.label}</span>}
                   {!isExpanded && <span className="sr-only">{item.label}</span>}
                 </Link>
             </TooltipTrigger>
-            {!isExpanded && <TooltipContent side="right">{item.label}</TooltipContent>}
+            <TooltipContent side="right">{item.label}</TooltipContent>
         </Tooltip>
     );
 };
@@ -217,11 +218,11 @@ const NavItemGroup = ({ item, isExpanded }: { item: any, isExpanded: boolean }) 
                          isExpanded ? 'w-full px-3' : 'w-9 justify-center',
                          isChildActive && 'text-foreground'
                     )}>
-                    <div className="flex items-center gap-4">
-                        <item.icon className="h-5 w-5" />
-                        {isExpanded && <span className="font-medium">{item.label}</span>}
+                    <div className="flex items-center gap-4 min-w-0 flex-1">
+                        <item.icon className="h-5 w-5 flex-shrink-0" />
+                        {isExpanded && <span className="font-medium truncate">{item.label}</span>}
                     </div>
-                    {isExpanded && <ChevronDown className="h-4 w-4 transition-transform [&[data-state=open]]:rotate-180" />}
+                    {isExpanded && <ChevronDown className="h-4 w-4 flex-shrink-0 transition-transform [&[data-state=open]]:rotate-180" />}
                 </div>
             </CollapsibleTrigger>
             <CollapsibleContent className="overflow-hidden transition-all data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
