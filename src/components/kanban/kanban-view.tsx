@@ -5,7 +5,7 @@ import { FunnelToolbar } from './funnel-toolbar';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { KanbanColumn } from './kanban-column';
 import type { KanbanFunnel, KanbanCard as KanbanCardType, KanbanStage } from '@/lib/types';
-import { DragDropContext, Droppable, type DropResult } from '@hello-pangea/dnd';
+import { DragDropContext, type DropResult } from '@hello-pangea/dnd';
 
 interface KanbanViewProps {
   funnel: KanbanFunnel;
@@ -35,25 +35,15 @@ export function KanbanView({ funnel, cards, onMoveCard, onUpdateLead, onDeleteLe
               {/* Mobile: vertical stack, Desktop: horizontal scroll */}
               <div className="flex flex-col md:flex-row md:w-max gap-3 md:gap-4">
                 {funnel.stages.map((stage: KanbanStage, index: number) => (
-                  <Droppable key={stage.id} droppableId={stage.id}>
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className="w-full md:w-80"
-                      >
-                        <KanbanColumn
-                          stage={stage}
-                          stages={funnel.stages}
-                          cards={getCardsForStage(stage.id)}
-                          index={index}
-                          onUpdateLead={onUpdateLead}
-                          onDeleteLead={onDeleteLead}
-                        />
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
+                  <KanbanColumn
+                    key={stage.id}
+                    stage={stage}
+                    stages={funnel.stages}
+                    cards={getCardsForStage(stage.id)}
+                    index={index}
+                    onUpdateLead={onUpdateLead}
+                    onDeleteLead={onDeleteLead}
+                  />
                 ))}
               </div>
             </DragDropContext>
