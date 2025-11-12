@@ -1,7 +1,7 @@
 # Master IA Oficial
 
 ## Overview
-Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control panel with AI automation capabilities. It provides a centralized platform for managing multi-channel campaigns, customer service conversations, contact management (CRM), and AI-driven chatbots using Meta's WhatsApp Business API and Baileys. The project aims to be an all-in-one solution for automated, intelligent communication, offering an intuitive dashboard for businesses.
+Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control panel with AI automation capabilities. It provides a centralized platform for managing multi-channel campaigns, customer service conversations, contact management (CRM), and AI-driven chatbots using Meta's WhatsApp Business API and Baileys. The project aims to be an all-in-one solution for automated, intelligent communication, offering an intuitive dashboard for businesses. The platform includes an AI-powered lead progression system and a complete Kanban lead management system.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
@@ -23,9 +23,14 @@ Preferred communication style: Simple, everyday language.
 - **Webhook System**: Meta Webhooks with signature verification.
 - **Data Flow**: Incoming messages processed via webhooks, stored, and routed through automation; campaigns managed by a queue processor.
 - **Performance**: Custom caching, database optimization, and frontend optimizations.
-- **Hybrid Campaign Messaging** (Nov 11, 2025): Unified wrapper pattern (`sendCampaignMessage`) with provider-specific sub-functions supporting both Meta Cloud API and Baileys connections. Includes template normalization helper (`resolveTemplate`) for legacy and v2 templates, case-insensitive channel routing, and singleton SessionManager access pattern.
-- **Baileys Dedicated UI** (Nov 11, 2025): Separate page `/whatsapp-baileys` for Baileys-only messaging with simple text messages, avoiding conflicts with Meta API structured templates in `/templates-v2`. API endpoint `/api/v1/whatsapp-baileys/send` handles Baileys-specific message sending with ownership validation and SessionManager availability checks.
-- **Enhanced Diagnostics** (Nov 11, 2025): SessionManager instrumented with `checkAvailability()` method and comprehensive logging throughout message lifecycle (attempt, validation, success/failure with contextual metadata including companyId, connectionId, status, visual emojis).
+- **Hybrid Campaign Messaging**: Unified wrapper pattern (`sendCampaignMessage`) with provider-specific sub-functions supporting both Meta Cloud API and Baileys connections, including template normalization.
+- **Baileys Dedicated UI**: Separate page (`/whatsapp-baileys`) for Baileys-only messaging, with a dedicated API endpoint (`/api/v1/whatsapp-baileys/send`).
+- **Enhanced Diagnostics**: SessionManager with `checkAvailability()` method and comprehensive logging throughout message lifecycle.
+- **Automatic Lead Progression System**: AI-powered funnel stage migration using a new `move_to_stage` automation action, intelligent qualification detection with weighted scoring, and automatic stage progression after AI responses.
+- **Kanban Lead Management System**: Production-ready interactive Kanban with full CRUD operations, drag-and-drop functionality, and mobile-first responsive design, including interactive lead dialogs, KanbanCard components, and robust API endpoints with state management and security.
+- **Singleton Pattern Enforcement**: True singleton implementation for `EnhancedCache` and Redis client to prevent memory leaks.
+- **Conversations List Pagination Fix**: Smart `limit=0` support with a 10k safety cap for the `/api/v1/conversations` endpoint.
+- **Baileys Mass Campaign System**: End-to-end implementation for direct message campaigns without templates, including dedicated UI components, backend API endpoints, and a dual-path campaign sender for template-based and direct messages.
 
 ## External Dependencies
 ### Third-Party APIs
@@ -44,172 +49,4 @@ Preferred communication style: Simple, everyday language.
 ### Infrastructure
 - **PostgreSQL**: Neon (hosted database).
 - **Firebase**: (Optional) App Hosting and Secret Manager.
-- **Replit**: Development environment.
-
-### Monitoring and Testing
-- **Playwright**: End-to-end testing.
-- **Socket.IO Client**: For real-time testing.
-- **Vitest**: Unit and integration testing framework.
-
-## Recent Enhancements
-
-### Automatic Lead Progression System (Nov 12, 2025)
-**AI-powered funnel stage migration eliminates manual lead tracking**
-
-1. **New Automation Action: `move_to_stage`**
-   - Schema Update: Added `'move_to_stage'` to `AutomationAction` type union
-   - Implementation: New case in `executeAction()` that updates `kanbanLeads.stageId`
-   - Flow: Finds active lead by contactId, updates stage to target stageId from action.value
-   - Validation: Logs warning if contact has no active Kanban lead
-
-2. **Intelligent Qualification Detection**
-   - Function: `detectQualificationSignals()` - Pattern-based conversation analysis
-   - Algorithm: Weighted scoring system (strong +30pts, medium +20pts, weak +10pts, negative penalties)
-   - Strong Signals: "quero contratar", "qual o preço", "pode enviar proposta"
-   - Medium Signals: "interessado", "preciso", "quando começa", "prazo"
-   - Weak Signals: "obrigado", "entendi", "ok"
-   - Negative Signals: "não tenho interesse" (-50pts), "muito caro" (-30pts), "depois" (-15pts)
-   - Threshold: 60+ confidence score triggers automatic progression
-
-3. **Automatic Stage Progression**
-   - Function: `detectAndProgressLead()` - Executes after every AI response
-   - Trigger: Automatically called in `callExternalAIAgent()` after successful AI reply
-   - Logic: Analyzes conversation history + latest AI response → calculates confidence → progresses if ≥60%
-   - Logging: Emoji-rich logs with confidence %, reason, and stage transition details
-   - Safety: Only progresses if lead exists, stage is valid, and not already at final stage
-
-4. **Critical Database Fix: Lead Visibility Issue**
-   - Problem: 909 leads had numeric stageIds ("0", "1", "3") but funnel expected UUIDs
-   - Root Cause: Kanban component filters using `card.stageId === stage.id` with UUID comparison
-   - Solution: Migrated all leads to correct UUID stages via SQL:
-     - stageId "0" (901 leads) → "91d2f742-584f-4780-a389-7373c97231f4" (Lead)
-     - stageId "1" (6 leads) → "f51399f3-5030-4338-b90d-98cd13eb9150" (Qualificado)
-     - stageId "3" (2 leads) → "8c9adb23-120b-4bfc-84fc-db54df89983c" (Proposta Enviada)
-   - Result: All 909 leads now visible in Kanban columns with correct stage association
-
-5. **System Integration**
-   - No changes to existing automation rules structure
-   - Backward compatible: All existing actions (send_message, add_tag, add_to_list, assign_user) work unchanged
-   - Real-time progression: Happens immediately after AI response, no polling needed
-   - Conversation context: Uses last 10 messages for qualification analysis
-
-### Previous Enhancements (Nov 11, 2025)
-
-### Critical Stability Fixes (Nov 11, 2025 - Evening)
-**Memory leak and pagination issues resolved for production stability**
-
-1. **EnhancedCache Memory Leak Fix**
-   - **Problem**: Singleton pattern was broken - `global.conn` collision with database pooling caused 19 cache instances in 10 minutes, each with cleanup/autosave timers that were never cleared, leading to heap exhaustion crash
-   - **Solution**: Implemented true singleton using unique global keys (`global.__enhancedCacheInstance` for cache, `global.__redisClient` for Redis), ensuring only one instance per process lifetime
-   - **Impact**: Eliminates JavaScript heap out of memory crashes that occurred after ~10 minutes of runtime
-   - **Monitoring**: Logs now show single "✅ Enhanced Cache initialized" message; BaileysSessionManager already had correct singleton pattern
-
-2. **Conversations List Pagination Fix**
-   - **Problem**: `/atendimentos` only showed last 50 conversations (default limit), hiding historic conversations from previous days
-   - **Solution**: Implemented smart `limit=0` support with 10k safety cap in `/api/v1/conversations`:
-     - No `limit` parameter: defaults to 50 (preserves backward compatibility)
-     - `limit=0`: returns up to 10,000 conversations (safety cap)
-     - Invalid/negative `limit`: fallback to 50
-     - Explicit positive `limit`: clamped to 10k maximum
-   - **Frontend**: `inbox-view.tsx` now passes `?limit=0` to fetch complete conversation history
-   - **Impact**: Users can now view all historic conversations in `/atendimentos`, not just recent ones
-   - **Safeguards**: 10k cap prevents unbounded queries and memory issues; aligns with `/api/v1/lists` pattern
-
-3. **Replit Object Storage Integration**
-   - **Status**: Already configured and operational
-   - **Infrastructure**: 
-     - `PRIVATE_OBJECT_DIR=/replit-objstore-5c7db24d-3f1a-48f3-a419-34323e1b5779/.private`
-     - `PUBLIC_OBJECT_SEARCH_PATHS=/replit-objstore-5c7db24d-3f1a-48f3-a419-34323e1b5779/public`
-   - **Implementation**: Dual storage adapter in `src/lib/s3.ts` automatically detects Replit environment and uses `ObjectStorageService` from `server/objectStorage.ts`
-   - **Note**: Previous Google Cloud Storage 401 errors were environmental; system now uses Replit Object Storage seamlessly
-
-### Baileys Mass Campaign System (Nov 11, 2025)
-**Complete end-to-end implementation for direct message campaigns without templates**
-
-1. **UI Components**
-   - Route: `/campaigns-baileys` - Dedicated page for Baileys campaigns
-   - Component: `CreateBaileysCampaignDialog` - 4-step wizard (Info → Message → Audience → Review)
-   - Component: `BaileysCampaignTable` - Filters template-less campaigns (`templateId === null`)
-   - Features: Numeric variables ({{1}}, {{2}}), message preview, scheduling, connection validation
-   - Menu: Added "Campanhas Baileys" under WhatsApp section in sidebar
-   - Separation: Clean isolation from Meta API campaigns to prevent confusion
-
-2. **Backend API**
-   - Endpoint: `POST /api/v1/campaigns/baileys`
-   - Payload: `{ name, connectionId, messageText, variableMappings, contactListIds, schedule? }`
-   - Validations: Connection ownership + Baileys type enforcement, contact list ownership, non-empty lists
-   - Storage: Stores campaigns with `message` field populated, `templateId` as null
-   - Queue: Enqueues to `whatsapp_campaign_queue` (same as Meta API) for unified processing
-
-3. **Dual-Path Campaign Sender**
-   - File: `src/lib/campaign-sender.ts`
-   - Guard: `if (!templateId && !message) throw error` prevents invalid campaigns
-   - Path A (Template-based): Existing flow for Meta API + legacy Baileys with templates
-   - Path B (Direct message): Pseudo-template approach for Baileys template-less campaigns
-   - Pseudo-template: `{ name: 'direct_message', language: 'und', bodyText: campaign.message, hasMedia: false }`
-   - Runtime guard: Baileys campaigns cannot have `mediaAssetId` (enforced at API + sender levels)
-   - Variable substitution: Reuses existing logic in `sendViaBaileys()` - no code changes needed
-
-4. **Architecture Highlights**
-   - Zero changes to `sendViaBaileys()` or `sendViaMetaApi()` - only wrapper modified
-   - Backward compatible: Template-based campaigns (Meta API + Baileys) work unchanged
-   - Early connection detection: Fetches connection before template resolution for type-aware branching
-   - Delivery reports: Both paths create `whatsapp_delivery_reports` records identically
-
-### Previous Baileys Messaging Improvements
-1. **Individual Message Sending**
-   - Route: `/whatsapp-baileys` - Single message sending (not campaigns)
-   - Endpoint: `POST /api/v1/whatsapp-baileys/send`
-   - Use case: Quick one-off messages without campaign orchestration
-
-2. **Enhanced SessionManager Diagnostics**
-   - New method: `checkAvailability(connectionId, companyId?)` returns availability status with details
-   - Enhanced logging in `getSession()`: warns when session not found with available session list
-   - Comprehensive logging in `sendMessage()`: attempt, validation, JID conversion, success/failure with full context
-   - Visual indicators: ✅ (success), ❌ (error), ⚠️ (warning) for quick log parsing
-
-### Technical Debt & Future Improvements
-
-#### Integration Test Gap (Priority: Medium)
-**Status**: Current tests (20/20 passing) validate routing patterns but don't call `sendWhatsappCampaign`
-
-**Missing Coverage:**
-- End-to-end test calling `sendWhatsappCampaign` with full fixtures
-- Mock harness for database (Drizzle), SessionManager, and Meta API
-- Validation that media blocking actually prevents Baileys+media campaigns
-- Template resolution integration with both legacy and v2 schemas
-
-**Proposed Solution:**
-```typescript
-// Future test structure
-describe('sendWhatsappCampaign - Integration', () => {
-  beforeEach(() => {
-    // Seed minimal campaign with Drizzle mock adapter
-    // Stub db.select/update/insert responses
-    // Mock sessionManager with test doubles
-    // Mock sendWhatsappTemplateMessage
-  });
-  
-  it('should route Baileys campaign to SessionManager', async () => {
-    const campaign = createBaileysTestCampaign();
-    await sendWhatsappCampaign(campaign);
-    expect(sessionManager.sendMessage).toHaveBeenCalled();
-    expect(sendWhatsappTemplateMessage).not.toHaveBeenCalled();
-  });
-  
-  it('should block Baileys campaign with media', async () => {
-    const campaign = createBaileysMediaCampaign();
-    await expect(sendWhatsappCampaign(campaign)).rejects.toThrow('mídia não são suportadas');
-  });
-});
-```
-
-**Acceptance Criteria:**
-- Tests call actual `sendWhatsappCampaign` function
-- Mocks cover database queries, SessionManager, Meta API
-- Tests fail if routing logic regresses
-- Coverage includes media blocking, template resolution, delivery reports
-
-**Risk**: Low (production traffic validates both paths daily)
-
-**Next Steps**: Schedule for next test improvement cycle after Baileys campaign UI is complete.
+- **Replit**: Development environment, Object Storage.
