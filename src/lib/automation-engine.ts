@@ -337,17 +337,19 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
             if (promptSections.length > 0) {
                 // Se existem seções e RAG está ativo, usar prompts modulares
                 const contextInfo = `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contact.name || 'Cliente'}\n- Telefone: ${contact.phone}`;
-                systemPrompt = assembleDynamicPrompt(promptSections, contextInfo);
+                systemPrompt = INTERNAL_RULES + '\n\n' + assembleDynamicPrompt(promptSections, contextInfo);
                 await logAutomation('INFO', `Sistema RAG ativo: ${promptSections.length} seções carregadas (${estimateTokenCount(systemPrompt)} tokens estimados)`, logContextBase);
             } else {
                 // RAG ativo mas sem seções - avisar e usar fallback
-                systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um assistente virtual inteligente de atendimento ao cliente via WhatsApp.`;
+                systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um atendente especializado da empresa no WhatsApp.`;
+                systemPrompt = INTERNAL_RULES + '\n\n' + systemPrompt;
                 systemPrompt += `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contact.name || 'Cliente'}\n- Telefone: ${contact.phone}`;
                 await logAutomation('WARN', `RAG ativo mas sem seções encontradas. Usando systemPrompt tradicional (${estimateTokenCount(systemPrompt)} tokens estimados)`, logContextBase);
             }
         } else {
             // RAG desativado: usar systemPrompt tradicional da tabela ai_personas
-            systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um assistente virtual inteligente de atendimento ao cliente via WhatsApp.`;
+            systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um atendente especializado da empresa no WhatsApp.`;
+            systemPrompt = INTERNAL_RULES + '\n\n' + systemPrompt;
             systemPrompt += `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contact.name || 'Cliente'}\n- Telefone: ${contact.phone}`;
             await logAutomation('INFO', `RAG desativado: usando systemPrompt tradicional (${estimateTokenCount(systemPrompt)} tokens estimados)`, logContextBase);
         }
