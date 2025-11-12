@@ -2,7 +2,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { conversations, contacts, messages, connections } from '@/lib/db/schema';
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { eq, and, desc, sql, or, isNull } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
@@ -76,7 +76,13 @@ async function fetchConversationsData(companyId: string, limit: number = 50, off
         .from(conversations)
         .innerJoin(contacts, eq(conversations.contactId, contacts.id))
         .leftJoin(connections, eq(conversations.connectionId, connections.id))
-        .where(eq(conversations.companyId, companyId))
+        .where(and(
+            eq(conversations.companyId, companyId),
+            or(
+                eq(contacts.isGroup, false),
+                isNull(contacts.isGroup)
+            )
+        ))
         .orderBy(desc(conversations.lastMessageAt))
         .limit(limit)
         .offset(offset);
@@ -86,7 +92,14 @@ async function fetchConversationsData(companyId: string, limit: number = 50, off
         const [totalCountResult] = await db
             .select({ count: sql<number>`count(*)::int` })
             .from(conversations)
-            .where(eq(conversations.companyId, companyId));
+            .innerJoin(contacts, eq(conversations.contactId, contacts.id))
+            .where(and(
+                eq(conversations.companyId, companyId),
+                or(
+                    eq(contacts.isGroup, false),
+                    isNull(contacts.isGroup)
+                )
+            ));
         
         const totalCount = totalCountResult?.count || 0;
         const totalTime = Date.now() - startTime;
