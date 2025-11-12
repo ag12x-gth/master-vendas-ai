@@ -17,6 +17,69 @@ interface SessionData {
   retryCount: number;
 }
 
+interface ChatClassification {
+  type: 'individual' | 'group' | 'broadcast' | 'newsletter' | 'community' | 'status' | 'unknown';
+  reason: string;
+  shouldBlockAI: boolean;
+}
+
+function classifyChat(remoteJid: string, msg: any): ChatClassification {
+  if (!remoteJid) {
+    return { type: 'unknown', reason: 'No remoteJid provided', shouldBlockAI: true };
+  }
+
+  const jidLower = remoteJid.toLowerCase();
+  
+  if (jidLower.includes('@g.us')) {
+    return { type: 'group', reason: 'JID suffix @g.us (WhatsApp group)', shouldBlockAI: true };
+  }
+  
+  if (jidLower.includes('@newsletter')) {
+    return { type: 'newsletter', reason: 'JID suffix @newsletter (WhatsApp channel)', shouldBlockAI: true };
+  }
+  
+  if (jidLower.includes('@broadcast')) {
+    return { type: 'broadcast', reason: 'JID suffix @broadcast (broadcast list)', shouldBlockAI: true };
+  }
+  
+  if (jidLower.includes('@status')) {
+    return { type: 'status', reason: 'JID suffix @status (status update)', shouldBlockAI: true };
+  }
+  
+  if (jidLower.includes('@community')) {
+    return { type: 'community', reason: 'JID suffix @community (WhatsApp community)', shouldBlockAI: true };
+  }
+  
+  if (msg?.key?.participant || msg?.participant) {
+    return { type: 'group', reason: 'Message has participant field (group message)', shouldBlockAI: true };
+  }
+  
+  const phoneNumber = remoteJid.split('@')[0];
+  const digitsOnly = phoneNumber.replace(/\D/g, '');
+  
+  if (digitsOnly.length > 15) {
+    return { 
+      type: 'unknown', 
+      reason: `Number too long (${digitsOnly.length} digits, >15 indicates group/community)`, 
+      shouldBlockAI: true 
+    };
+  }
+  
+  if (jidLower.includes('@s.whatsapp.net') && digitsOnly.length >= 10 && digitsOnly.length <= 15) {
+    return { 
+      type: 'individual', 
+      reason: 'Valid individual chat (10-15 digits, @s.whatsapp.net)', 
+      shouldBlockAI: false 
+    };
+  }
+  
+  return { 
+    type: 'unknown', 
+    reason: 'Could not classify chat type', 
+    shouldBlockAI: true 
+  };
+}
+
 class BaileysSessionManager {
   private sessions = new Map<string, SessionData>();
   private readonly MAX_RETRY_ATTEMPTS = 3;
@@ -428,11 +491,13 @@ class BaileysSessionManager {
 
       console.log(`[Baileys] Message saved from ${phoneNumber}`);
 
-      // Verificar se é um grupo (grupos têm @g.us no remoteJid)
-      const isGroup = remoteJid.includes('@g.us');
+      // Classificar tipo de chat usando função robusta
+      const chatClassification = classifyChat(remoteJid, msg);
       
-      // Auto-resposta AI se habilitada E não for grupo
-      if (conversation.aiActive && messageContent.trim() && !isGroup) {
+      console.log(`[Baileys Chat Classifier] Type: ${chatClassification.type} | Reason: ${chatClassification.reason} | Block AI: ${chatClassification.shouldBlockAI}`);
+      
+      // Auto-resposta AI apenas para chats individuais
+      if (conversation.aiActive && messageContent.trim() && !chatClassification.shouldBlockAI) {
         await this.handleAIAutoResponse(
           connectionId,
           conversation.id,
@@ -440,8 +505,8 @@ class BaileysSessionManager {
           messageContent,
           contact.name || contact.whatsappName || phoneNumber
         );
-      } else if (isGroup && conversation.aiActive) {
-        console.log(`[Baileys AI] Skipping auto-response for group: ${phoneNumber}`);
+      } else if (chatClassification.shouldBlockAI && conversation.aiActive) {
+        console.log(`[Baileys AI] 🚫 Blocked auto-response | Type: ${chatClassification.type} | Contact: ${phoneNumber} | Reason: ${chatClassification.reason}`);
       }
     } catch (error) {
       console.error('[Baileys] Error handling incoming message:', error);
