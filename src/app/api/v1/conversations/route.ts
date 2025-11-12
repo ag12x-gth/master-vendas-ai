@@ -54,6 +54,7 @@ async function fetchConversationsData(companyId: string, limit: number = 50, off
             contactName: contacts.name,
             contactAvatar: contacts.avatarUrl,
             phone: contacts.phone,
+            isGroup: contacts.isGroup,
             connectionName: connections.config_name,
             connectionType: connections.connectionType,
             lastMessage: sql<string | null>`(

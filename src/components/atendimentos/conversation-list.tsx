@@ -46,6 +46,12 @@ const ConversationListItem = ({ conversation, isSelected, onSelect }: { conversa
                     <div className="flex justify-between items-baseline gap-2">
                         <div className="flex items-center gap-1.5 flex-1 min-w-0">
                             <p className="font-semibold truncate">{conversation.contactName}</p>
+                            {conversation.isGroup && (
+                                <Badge variant="secondary" className="shrink-0 text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 flex items-center gap-1">
+                                    <Users className="h-3 w-3" />
+                                    GRUPO
+                                </Badge>
+                            )}
                             {conversation.contactActiveConversationsCount && conversation.contactActiveConversationsCount > 1 && (
                                 <Badge variant="secondary" className="shrink-0 text-xs bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300 flex items-center gap-1">
                                     <Users className="h-3 w-3" />

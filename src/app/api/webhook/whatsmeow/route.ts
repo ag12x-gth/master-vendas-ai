@@ -104,11 +104,16 @@ export async function POST(request: NextRequest) {
     if (existingContact) {
       contactId = existingContact.id;
     } else {
+      // Detect if this is a group/community using JID-first logic
+      const { detectGroup } = await import('@/lib/utils/phone');
+      const isGroup = detectGroup({ remoteJid: payload.from, phone: phoneNumber });
+
       // Create new contact
       const newContacts = await db.insert(contacts).values({
         companyId: companyId,
         name: payload.data.pushName || phoneNumber,
         phone: phoneNumber,
+        isGroup,
         externalProvider: 'whatsmeow'
       }).returning();
       

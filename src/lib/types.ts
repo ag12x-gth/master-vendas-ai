@@ -63,6 +63,7 @@ export type Conversation = typeof schema.conversations.$inferSelect & {
     contactName: string;
     contactAvatar: string | null;
     phone: string;
+    isGroup?: boolean | null;
     lastMessage: string | null;
     lastMessageStatus: Message['status'];
     unreadCount?: number;

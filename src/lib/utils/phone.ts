@@ -88,11 +88,17 @@ export function detectGroup(options: { remoteJid?: string; phone: string }): boo
   if (jidLower.includes('@community')) return true;
   
   // 2. Pattern-based detection for WhatsApp groups (fallback)
-  // WhatsApp groups: 120363 + 12 digits = 18 total digits
+  // Modern WhatsApp groups: 120363 + 12 digits = 18 total digits
   const digitsOnly = phone.replace(/\D/g, '');
   
-  // Match WhatsApp group pattern: starts with 120363 and has exactly 18 digits
+  // Match modern WhatsApp group pattern: starts with 120363 and has exactly 18 digits
   if (/^120363\d{12}$/.test(digitsOnly)) {
+    return true;
+  }
+  
+  // Legacy WhatsApp group format: phoneNumber-timestamp (e.g., 5511996444573-1449097597)
+  // Groups in this format have a hyphen separating the creator's number from timestamp
+  if (/-\d+$/.test(phone) && !phone.includes('@')) {
     return true;
   }
   
