@@ -608,10 +608,13 @@ function detectMeetingScheduled(conversationText: string, latestResponse: string
     let score = 0;
     const evidence: string[] = [];
 
+    // Padrão de dia da semana compartilhado (aceita "feira" opcional com espaço ou hífen)
+    const weekdayPattern = '(?:segunda|ter[cç]a(?:[\\s-]?feira)?|quarta(?:[\\s-]?feira)?|quinta(?:[\\s-]?feira)?|sexta(?:[\\s-]?feira)?|s[áa]bado|domingo)';
+    
     // SINAIS MUITO FORTES de agendamento (40 pontos cada)
     const veryStrongSignals = [
         { pattern: /\b(reuni[aã]o marcada|agendado|confirmado|horário confirmado)\b/, desc: 'Confirmação explícita de agendamento' },
-        { pattern: /\b(te espero|nos vemos|até.{0,15}(segunda|ter[cç]a|quarta|quinta|sexta|s[áa]bado|domingo))\b/, desc: 'Confirmação de encontro futuro' },
+        { pattern: new RegExp(`\\b(te espero|nos vemos|até.{0,15}${weekdayPattern})\\b`, 'i'), desc: 'Confirmação de encontro futuro' },
         { pattern: /\b(confirmo.{0,15}participa[çc][aã]o|confirmado para|vou participar)\b/, desc: 'Participação confirmada' },
     ];
 
@@ -626,8 +629,8 @@ function detectMeetingScheduled(conversationText: string, latestResponse: string
     const strongSignals = [
         { pattern: /\b(envi[ae].{0,15}(2|dois|tr[eê]s|3).{0,15}hor[áa]rios?|que horas?.*prefer[eê]|hor[áa]rio.*melhor)\b/, desc: 'Solicitação de horários disponíveis' },
         { pattern: /\b(vamos marcar|pode ser|aceito|marca.{0,15}(reuni[aã]o|call|liga[çc][aã]o))\b/, desc: 'Aceitação de agendamento' },
-        { pattern: /\b(segunda|ter[cç]a|quarta|quinta|sexta|s[áa]bado|domingo).{0,20}(\d{1,2}h|\d{1,2}:\d{2})\b/, desc: 'Dia e hora específicos mencionados' },
-        { pattern: /\b(\d{1,2}h|\d{1,2}:\d{2}).{0,30}(segunda|ter[cç]a|quarta|quinta|sexta|s[áa]bado|domingo)\b/, desc: 'Hora e dia específicos mencionados' },
+        { pattern: new RegExp(`\\b${weekdayPattern}.{0,20}(\\d{1,2}h|\\d{1,2}:\\d{2})\\b`, 'i'), desc: 'Dia e hora específicos mencionados' },
+        { pattern: new RegExp(`\\b(\\d{1,2}h|\\d{1,2}:\\d{2}).{0,30}${weekdayPattern}\\b`, 'i'), desc: 'Hora e dia específicos mencionados' },
     ];
 
     for (const signal of strongSignals) {
@@ -640,7 +643,7 @@ function detectMeetingScheduled(conversationText: string, latestResponse: string
     // SINAIS MÉDIOS de contexto de reunião (20 pontos cada)
     const mediumSignals = [
         { pattern: /\b(reuni[aã]o|meeting|meet|call|chamada|liga[çc][aã]o|videochamada|videoconfer[eê]ncia|video.?call|zoom|google.?meet|teams|conversa.?online)\b/, desc: 'Menção a reunião/call' },
-        { pattern: /\b(agendar|marcar|encontro|bate.?papo presencial|conversar pessoalmente|marcar.?um.?hor[áa]rio)\b/, desc: 'Intenção de agendar' },
+        { pattern: /\b(agendar|marcar|encontro|confirm(?:ar|o|a|ando)|confirmado|bate.?papo presencial|conversar pessoalmente|marcar.?um.?hor[áa]rio)\b/, desc: 'Intenção de agendar' },
         { pattern: /\b(calend[áa]rio|agenda|disponibilidade|dispon[íi]vel)\b/, desc: 'Contexto de calendário/agenda' },
         { pattern: /\b(entre.{0,10}(08h?|8h?|09h?|9h?).{0,10}(19h?|18h?))\b/, desc: 'Faixa de horário mencionada' },
     ];
@@ -681,19 +684,26 @@ function detectMeetingScheduled(conversationText: string, latestResponse: string
         return cleaned;
     };
     
-    // Padrão 1: Dia da semana + horário (ex: "terça às 14h", "quinta 15h30", "sexta 14:30")
-    const dayFirstPattern = /\b(segunda|ter[cç]a|quarta|quinta|sexta|s[áa]bado|domingo)[\s,]*(?:[aà]s?)?\s*(\d{1,2}(?:hs|h\d{0,2}|:\d{2}(?:hs?)?)(?:min)?)\b/i;
+    // Padrão de dia da semana para extração (aceita "feira" opcional com espaço ou hífen)
+    const weekdayExtractPattern = '(segunda|ter[cç]a(?:[\\s-]?feira)?|quarta(?:[\\s-]?feira)?|quinta(?:[\\s-]?feira)?|sexta(?:[\\s-]?feira)?|s[áa]bado|domingo)';
+    
+    // Padrão 1: Dia da semana + horário (ex: "terça às 14h", "quinta 15h30", "quinta-feira às 14h30")
+    const dayFirstPattern = new RegExp(`\\b${weekdayExtractPattern}[\\s,]*(?:[aà]s?)?\\s*(\\d{1,2}(?:h(?:\\d{1,2})?|: ?\\d{2})(?:hs?|min)?)\\b`, 'i');
     let match = text.match(dayFirstPattern);
     
     if (match && match[1] && match[2] && (match[2].includes('h') || match[2].includes(':'))) {
-        scheduledTime = `${match[1]} às ${normalizeTime(match[2])}`;
+        // Normalizar nome do dia (remover " feira" ou "-feira" se presente)
+        const dayName = match[1].replace(/[\s-]?feira/i, '').trim();
+        scheduledTime = `${dayName} às ${normalizeTime(match[2])}`;
     } else {
         // Padrão 2: Horário + dia da semana (ex: "às 14h na terça", "14:30 quinta")
-        const timeFirstPattern = /\b(?:[aà]s?)?\s*(\d{1,2}(?:hs|h\d{0,2}|:\d{2}(?:hs?)?)(?:min)?)[\s,]*(?:na|no|em)?\s*(segunda|ter[cç]a|quarta|quinta|sexta|s[áa]bado|domingo)\b/i;
+        const timeFirstPattern = new RegExp(`\\b(?:[aà]s?)?\\s*(\\d{1,2}(?:h(?:\\d{1,2})?|: ?\\d{2})(?:hs?|min)?)[\\s,]*(?:na|no|em)?\\s*${weekdayExtractPattern}\\b`, 'i');
         match = text.match(timeFirstPattern);
         
         if (match && match[1] && match[2] && (match[1].includes('h') || match[1].includes(':'))) {
-            scheduledTime = `${match[2]} às ${normalizeTime(match[1])}`;
+            // Normalizar nome do dia (remover " feira" ou "-feira" se presente)
+            const dayName = match[2].replace(/[\s-]?feira/i, '').trim();
+            scheduledTime = `${dayName} às ${normalizeTime(match[1])}`;
         } else {
             // Padrão 3: Só horário (MUST have 'h' or ':') - ex: "às 14h", "15hs", "14:30"
             // Aceita: 14h, 14hs, 14h30, 14:30, 14:30h, 14:30hs
