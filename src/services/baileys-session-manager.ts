@@ -337,36 +337,54 @@ class BaileysSessionManager {
         contentType = 'IMAGE';
         
         try {
-          const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
-          const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.jpg`;
-          mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, 'image/jpeg');
-          console.log(`[Baileys] Image uploaded to S3: ${mediaUrl}`);
-        } catch (error) {
-          console.error('[Baileys] Error downloading/uploading image:', error);
+          if (!msg.message.imageMessage.mediaKey || msg.message.imageMessage.mediaKey.length === 0) {
+            console.log('[Baileys] Skipping image without media key (deleted/forwarded media)');
+            messageContent = '📷 Imagem (indisponível)';
+          } else {
+            const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
+            const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.jpg`;
+            mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, 'image/jpeg');
+            console.log(`[Baileys] Image uploaded successfully: ${mediaUrl}`);
+          }
+        } catch (error: any) {
+          console.error('[Baileys] Error downloading/uploading image:', error?.message || error);
+          messageContent = '📷 Imagem (erro ao carregar)';
         }
       } else if (msg.message?.videoMessage) {
         messageContent = msg.message.videoMessage.caption || '📹 Vídeo';
         contentType = 'VIDEO';
         
         try {
-          const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
-          const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.mp4`;
-          mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, 'video/mp4');
-          console.log(`[Baileys] Video uploaded to S3: ${mediaUrl}`);
-        } catch (error) {
-          console.error('[Baileys] Error downloading/uploading video:', error);
+          if (!msg.message.videoMessage.mediaKey || msg.message.videoMessage.mediaKey.length === 0) {
+            console.log('[Baileys] Skipping video without media key (deleted/forwarded media)');
+            messageContent = '📹 Vídeo (indisponível)';
+          } else {
+            const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
+            const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.mp4`;
+            mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, 'video/mp4');
+            console.log(`[Baileys] Video uploaded successfully: ${mediaUrl}`);
+          }
+        } catch (error: any) {
+          console.error('[Baileys] Error downloading/uploading video:', error?.message || error);
+          messageContent = '📹 Vídeo (erro ao carregar)';
         }
       } else if (msg.message?.audioMessage) {
         messageContent = '🎵 Áudio';
         contentType = 'AUDIO';
         
         try {
-          const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
-          const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.ogg`;
-          mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, 'audio/ogg');
-          console.log(`[Baileys] Audio uploaded to S3: ${mediaUrl}`);
-        } catch (error) {
-          console.error('[Baileys] Error downloading/uploading audio:', error);
+          if (!msg.message.audioMessage.mediaKey || msg.message.audioMessage.mediaKey.length === 0) {
+            console.log('[Baileys] Skipping audio without media key (deleted/forwarded media)');
+            messageContent = '🎵 Áudio (indisponível)';
+          } else {
+            const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
+            const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.ogg`;
+            mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, 'audio/ogg');
+            console.log(`[Baileys] Audio uploaded successfully: ${mediaUrl}`);
+          }
+        } catch (error: any) {
+          console.error('[Baileys] Error downloading/uploading audio:', error?.message || error);
+          messageContent = '🎵 Áudio (erro ao carregar)';
         }
       } else if (msg.message?.documentMessage) {
         const filename = msg.message.documentMessage.fileName || 'documento';
@@ -374,26 +392,38 @@ class BaileysSessionManager {
         contentType = 'DOCUMENT';
         
         try {
-          const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
-          const extension = filename.split('.').pop() || 'bin';
-          const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.${extension}`;
-          const mimeType = msg.message.documentMessage.mimetype || 'application/octet-stream';
-          mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, mimeType);
-          console.log(`[Baileys] Document uploaded to S3: ${mediaUrl}`);
-        } catch (error) {
-          console.error('[Baileys] Error downloading/uploading document:', error);
+          if (!msg.message.documentMessage.mediaKey || msg.message.documentMessage.mediaKey.length === 0) {
+            console.log('[Baileys] Skipping document without media key (deleted/forwarded media)');
+            messageContent = `📄 ${filename} (indisponível)`;
+          } else {
+            const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
+            const extension = filename.split('.').pop() || 'bin';
+            const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.${extension}`;
+            const mimeType = msg.message.documentMessage.mimetype || 'application/octet-stream';
+            mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, mimeType);
+            console.log(`[Baileys] Document uploaded successfully: ${mediaUrl}`);
+          }
+        } catch (error: any) {
+          console.error('[Baileys] Error downloading/uploading document:', error?.message || error);
+          messageContent = `📄 ${filename} (erro ao carregar)`;
         }
       } else if (msg.message?.stickerMessage) {
-        messageContent = 'Sticker';
+        messageContent = '🎨 Sticker';
         contentType = 'STICKER';
         
         try {
-          const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
-          const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.webp`;
-          mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, 'image/webp');
-          console.log(`[Baileys] Sticker uploaded to S3: ${mediaUrl}`);
-        } catch (error) {
-          console.error('[Baileys] Error downloading/uploading sticker:', error);
+          if (!msg.message.stickerMessage.mediaKey || msg.message.stickerMessage.mediaKey.length === 0) {
+            console.log('[Baileys] Skipping sticker without media key (deleted/forwarded media)');
+            messageContent = '🎨 Sticker (indisponível)';
+          } else {
+            const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
+            const s3Key = `zapmaster/${companyId}/media_recebida/${uuidv4()}.webp`;
+            mediaUrl = await uploadFileToS3(s3Key, buffer as Buffer, 'image/webp');
+            console.log(`[Baileys] Sticker uploaded successfully: ${mediaUrl}`);
+          }
+        } catch (error: any) {
+          console.error('[Baileys] Error downloading/uploading sticker:', error?.message || error);
+          messageContent = '🎨 Sticker (erro ao carregar)';
         }
       } else if (msg.message?.reactionMessage) {
         const targetKey = msg.message.reactionMessage.key;
