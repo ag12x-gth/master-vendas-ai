@@ -30,16 +30,17 @@ export function KanbanView({ funnel, cards, onMoveCard, onUpdateLead, onDeleteLe
       <FunnelToolbar funnel={funnel} />
       <div className="flex-1 min-h-0">
         <ScrollArea className="h-full w-full">
-          <div className="p-4">
+          <div className="p-2 sm:p-4">
             <DragDropContext onDragEnd={onMoveCard}>
-              <div className="flex w-max gap-4">
+              {/* Mobile: vertical stack, Desktop: horizontal scroll */}
+              <div className="flex flex-col md:flex-row md:w-max gap-3 md:gap-4">
                 {funnel.stages.map((stage: KanbanStage, index: number) => (
                   <Droppable key={stage.id} droppableId={stage.id}>
                     {(provided) => (
                       <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
-                        className="w-72"
+                        className="w-full md:w-80"
                       >
                         <KanbanColumn
                           stage={stage}
@@ -57,7 +58,7 @@ export function KanbanView({ funnel, cards, onMoveCard, onUpdateLead, onDeleteLe
               </div>
             </DragDropContext>
           </div>
-          <ScrollBar orientation="horizontal" />
+          <ScrollBar orientation="horizontal" className="hidden md:flex" />
         </ScrollArea>
       </div>
     </div>

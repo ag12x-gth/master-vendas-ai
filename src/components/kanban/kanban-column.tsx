@@ -31,10 +31,10 @@ export function KanbanColumn({ stage, stages, cards, onUpdateLead, onDeleteLead 
   };
 
   return (
-    <div className={`flex flex-col min-w-80 max-w-80 border rounded-lg ${getStageColor(stage.type)}`}>
-      <div className="p-4 border-b">
+    <div className={`flex flex-col w-full md:min-w-80 md:max-w-80 border rounded-lg ${getStageColor(stage.type)}`}>
+      <div className="p-3 sm:p-4 border-b">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-sm">{stage.title}</h3>
+          <h3 className="font-semibold text-sm sm:text-base">{stage.title}</h3>
           <Badge variant="outline" className="text-xs">
             {stageCards.length}
           </Badge>
@@ -51,7 +51,7 @@ export function KanbanColumn({ stage, stages, cards, onUpdateLead, onDeleteLead 
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`flex-1 p-4 min-h-32 transition-colors ${
+            className={`flex-1 p-3 sm:p-4 min-h-32 transition-colors ${
               snapshot.isDraggingOver ? 'bg-muted/50' : ''
             }`}
           >
