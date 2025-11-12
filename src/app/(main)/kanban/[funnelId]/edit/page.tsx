@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type StageType = 'NEUTRAL' | 'WIN' | 'LOSS';
-type SemanticType = 'meeting_scheduled' | 'payment_received' | 'proposal_sent' | '';
+type SemanticType = 'meeting_scheduled' | 'payment_received' | 'proposal_sent';
 
 interface Stage {
   id: string;
@@ -37,7 +37,7 @@ const FUNNEL_TYPES: FunnelType[] = [
 ];
 
 const SEMANTIC_TYPES = [
-  { value: '', label: 'Nenhum (Padrão)' },
+  { value: 'NONE', label: 'Nenhum (Padrão)' },
   { value: 'meeting_scheduled', label: '📅 Reunião Marcada' },
   { value: 'proposal_sent', label: '📄 Proposta Enviada' },
   { value: 'payment_received', label: '💰 Pagamento Recebido' },
@@ -64,9 +64,10 @@ export default function EditFunnelPage({ params }: { params: { funnelId: string 
         setFunnelName(data.name);
         setFunnelType(data.funnelType || '');
         setObjective(data.objective || '');
+        // Normalizar semanticType null/undefined para o state
         setStages(data.stages.map((s: Stage) => ({
           ...s,
-          semanticType: s.semanticType || ''
+          semanticType: s.semanticType || undefined
         })));
       } catch (error) {
         toast({
@@ -84,7 +85,7 @@ export default function EditFunnelPage({ params }: { params: { funnelId: string 
   }, [params.funnelId, router, toast]);
 
   const addStage = () => {
-    setStages([...stages, { id: uuidv4(), title: '', type: 'NEUTRAL', semanticType: '' }]);
+    setStages([...stages, { id: uuidv4(), title: '', type: 'NEUTRAL' }]);
   };
 
   const removeStage = (id: string) => {
@@ -100,7 +101,9 @@ export default function EditFunnelPage({ params }: { params: { funnelId: string 
   };
 
   const updateStage = (id: string, field: keyof Stage, value: string) => {
-    setStages(stages.map(s => s.id === id ? { ...s, [field]: value === '' ? undefined : value } : s));
+    // Converter 'NONE' para undefined para semanticType
+    const actualValue = (field === 'semanticType' && value === 'NONE') ? undefined : value;
+    setStages(stages.map(s => s.id === id ? { ...s, [field]: actualValue } : s));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -124,10 +127,10 @@ export default function EditFunnelPage({ params }: { params: { funnelId: string 
       return;
     }
 
-    // Validar semanticType único
+    // Validar semanticType único (excluir 'NONE' e valores vazios)
     const semanticTypes = stages
       .map(s => s.semanticType)
-      .filter(st => st && st !== '');
+      .filter(st => st && st !== 'NONE');
     
     const duplicates = semanticTypes.filter((item, index) => semanticTypes.indexOf(item) !== index);
     if (duplicates.length > 0) {
@@ -150,7 +153,7 @@ export default function EditFunnelPage({ params }: { params: { funnelId: string 
           objective: objective || null,
           stages: stages.map(s => ({
             ...s,
-            semanticType: s.semanticType === '' ? undefined : s.semanticType
+            semanticType: s.semanticType || undefined
           }))
         })
       });
@@ -310,11 +313,11 @@ export default function EditFunnelPage({ params }: { params: { funnelId: string 
                     <div>
                       <Label className="text-xs text-muted-foreground">Tipo Semântico (Automação)</Label>
                       <Select
-                        value={stage.semanticType || ''}
-                        onValueChange={(value: SemanticType) => updateStage(stage.id, 'semanticType', value)}
+                        value={stage.semanticType || 'NONE'}
+                        onValueChange={(value: SemanticType | 'NONE') => updateStage(stage.id, 'semanticType', value)}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Nenhum" />
+                          <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
                           {SEMANTIC_TYPES.map((st) => (
