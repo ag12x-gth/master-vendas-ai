@@ -441,6 +441,15 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
         // Detectar se o lead deve avançar para o próximo estágio com base na conversa
         await detectAndProgressLead(context, recentMessages, aiResponse);
         
+        // 📅 SISTEMA DE DETECÇÃO DE REUNIÃO MARCADA
+        // Detectar se uma reunião foi agendada e mover para stage específico
+        const conversationText = recentMessages.map(m => m.content).join('\n');
+        const meetingDetection = detectMeetingScheduled(conversationText, aiResponse);
+        
+        if (meetingDetection.isMeetingScheduled) {
+            await moveLeadToSemanticStage(context, 'meeting_scheduled', meetingDetection.evidence);
+        }
+        
         return true;
         
     } catch (error) {
