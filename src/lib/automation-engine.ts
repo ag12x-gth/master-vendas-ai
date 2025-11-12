@@ -447,7 +447,7 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
         const meetingDetection = detectMeetingScheduled(conversationText, aiResponse);
         
         if (meetingDetection.isMeetingScheduled) {
-            await moveLeadToSemanticStage(context, 'meeting_scheduled', meetingDetection.evidence);
+            await moveLeadToSemanticStage(context, 'meeting_scheduled', meetingDetection.evidence, meetingDetection.scheduledTime);
         }
         
         return true;
@@ -600,6 +600,7 @@ interface MeetingDetectionResult {
     isMeetingScheduled: boolean;
     confidence: number;
     evidence: string[];
+    scheduledTime?: string;
 }
 
 function detectMeetingScheduled(conversationText: string, latestResponse: string): MeetingDetectionResult {
@@ -638,8 +639,8 @@ function detectMeetingScheduled(conversationText: string, latestResponse: string
 
     // SINAIS MÉDIOS de contexto de reunião (20 pontos cada)
     const mediumSignals = [
-        { pattern: /\b(reuni[aã]o|meeting|call|chamada|liga[çc][aã]o|videochamada|videoconfer[eê]ncia)\b/, desc: 'Menção a reunião/call' },
-        { pattern: /\b(agendar|marcar|encontro|bate.?papo presencial|conversar pessoalmente)\b/, desc: 'Intenção de agendar' },
+        { pattern: /\b(reuni[aã]o|meeting|meet|call|chamada|liga[çc][aã]o|videochamada|videoconfer[eê]ncia|video.?call|zoom|google.?meet|teams|conversa.?online)\b/, desc: 'Menção a reunião/call' },
+        { pattern: /\b(agendar|marcar|encontro|bate.?papo presencial|conversar pessoalmente|marcar.?um.?hor[áa]rio)\b/, desc: 'Intenção de agendar' },
         { pattern: /\b(calend[áa]rio|agenda|disponibilidade|dispon[íi]vel)\b/, desc: 'Contexto de calendário/agenda' },
         { pattern: /\b(entre.{0,10}(08h?|8h?|09h?|9h?).{0,10}(19h?|18h?))\b/, desc: 'Faixa de horário mencionada' },
     ];
@@ -655,10 +656,62 @@ function detectMeetingScheduled(conversationText: string, latestResponse: string
     const confidence = Math.min(100, Math.max(0, score));
     const isMeetingScheduled = confidence >= 60;
 
+    // Extrair horário mencionado (múltiplos formatos suportados)
+    // TODOS os padrões EXIGEM marcador de hora ('h' ou ':') para evitar false positives
+    let scheduledTime = '';
+    
+    // Função auxiliar para normalizar horário
+    const normalizeTime = (timeStr: string): string => {
+        let cleaned = timeStr.toLowerCase().trim();
+        
+        // Converte "hs" → "h" (plural para singular)
+        cleaned = cleaned.replace(/hs\b/g, 'h');
+        
+        // Remove "min" ao final
+        cleaned = cleaned.replace(/min$/g, '').trim();
+        
+        // Formato: 14h30 ou 14h00 -> 14:30 ou 14h
+        cleaned = cleaned.replace(/(\d{1,2})h(\d{1,2})/, (_, h, m) => {
+            return m === '00' || m === '0' ? `${h}h` : `${h}:${m.padStart(2, '0')}`;
+        });
+        
+        // Remove 'h' final duplicado se houver dois pontos (14:30h -> 14:30)
+        cleaned = cleaned.replace(/:(\d{2})h$/,  ':$1');
+        
+        return cleaned;
+    };
+    
+    // Padrão 1: Dia da semana + horário (ex: "terça às 14h", "quinta 15h30", "sexta 14:30")
+    const dayFirstPattern = /\b(segunda|ter[cç]a|quarta|quinta|sexta|s[áa]bado|domingo)[\s,]*(?:[aà]s?)?\s*(\d{1,2}(?:hs|h\d{0,2}|:\d{2}(?:hs?)?)(?:min)?)\b/i;
+    let match = text.match(dayFirstPattern);
+    
+    if (match && match[1] && match[2] && (match[2].includes('h') || match[2].includes(':'))) {
+        scheduledTime = `${match[1]} às ${normalizeTime(match[2])}`;
+    } else {
+        // Padrão 2: Horário + dia da semana (ex: "às 14h na terça", "14:30 quinta")
+        const timeFirstPattern = /\b(?:[aà]s?)?\s*(\d{1,2}(?:hs|h\d{0,2}|:\d{2}(?:hs?)?)(?:min)?)[\s,]*(?:na|no|em)?\s*(segunda|ter[cç]a|quarta|quinta|sexta|s[áa]bado|domingo)\b/i;
+        match = text.match(timeFirstPattern);
+        
+        if (match && match[1] && match[2] && (match[1].includes('h') || match[1].includes(':'))) {
+            scheduledTime = `${match[2]} às ${normalizeTime(match[1])}`;
+        } else {
+            // Padrão 3: Só horário (MUST have 'h' or ':') - ex: "às 14h", "15hs", "14:30"
+            // Aceita: 14h, 14hs, 14h30, 14:30, 14:30h, 14:30hs
+            // Rejeita: 3, 14, 30 (números sem marcador)
+            const timeOnlyPattern = /\b(?:[aà]s?)?\s*(\d{1,2}(?:hs|h\d{0,2}|:\d{2}(?:hs?)?)(?:min)?)\b/i;
+            match = text.match(timeOnlyPattern);
+            
+            if (match && match[1] && (match[1].includes('h') || match[1].includes(':'))) {
+                scheduledTime = normalizeTime(match[1]);
+            }
+        }
+    }
+
     return {
         isMeetingScheduled,
         confidence,
-        evidence
+        evidence,
+        scheduledTime
     };
 }
 
@@ -666,7 +719,8 @@ function detectMeetingScheduled(conversationText: string, latestResponse: string
 async function moveLeadToSemanticStage(
     context: AutomationTriggerContext,
     targetSemanticType: KanbanStage['semanticType'],
-    evidence: string[]
+    evidence: string[],
+    scheduledTime?: string
 ): Promise<boolean> {
     const { contact, companyId, conversation } = context;
     const logContextBase: LogContext = { companyId, conversationId: conversation.id };
@@ -710,13 +764,22 @@ async function moveLeadToSemanticStage(
             return false;
         }
 
+        // Preparar atualização do lead com horário se disponível
+        const updateData: any = { stageId: targetStage.id };
+        if (scheduledTime && targetSemanticType === 'meeting_scheduled') {
+            const currentNotes = activeLead.notes || '';
+            const newNote = `📅 Reunião agendada: ${scheduledTime}`;
+            updateData.notes = currentNotes ? `${newNote}\n\n${currentNotes}` : newNote;
+        }
+
         // Mover lead para o stage
         await db.update(kanbanLeads)
-            .set({ stageId: targetStage.id })
+            .set(updateData)
             .where(eq(kanbanLeads.id, activeLead.id));
 
         const evidenceText = evidence.length > 0 ? evidence.join(', ') : 'Detecção automática';
-        await logAutomation('INFO', `📅 REUNIÃO DETECTADA: Lead "${contact.name}" movido para "${targetStage.title}" | Evidências: ${evidenceText}`, logContextBase);
+        const timeInfo = scheduledTime ? ` para ${scheduledTime}` : '';
+        await logAutomation('INFO', `📅 REUNIÃO DETECTADA: Lead "${contact.name}" movido para "${targetStage.title}"${timeInfo} | Evidências: ${evidenceText}`, logContextBase);
 
         return true;
 

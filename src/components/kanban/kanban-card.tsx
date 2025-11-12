@@ -138,22 +138,30 @@ export function KanbanCard({ card, index, stages, onUpdate, onDelete, onOpenWhat
                   </div>
                 )}
                 
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex flex-col gap-1 text-xs text-muted-foreground">
                   {card.contact?.phone && (
-                    <div className="flex items-center gap-1">
-                      <Phone className="h-3 w-3" />
+                    <div className="flex items-center gap-1 min-w-0">
+                      <Phone className="h-3 w-3 flex-shrink-0" />
                       <span className="truncate">{card.contact.phone}</span>
                     </div>
                   )}
                   {card.contact?.email && (
-                    <div className="flex items-center gap-1">
-                      <Mail className="h-3 w-3" />
+                    <div className="flex items-center gap-1 min-w-0">
+                      <Mail className="h-3 w-3 flex-shrink-0" />
                       <span className="truncate">{card.contact.email}</span>
                     </div>
                   )}
                 </div>
                 
-                {card.notes && (
+                {card.notes && card.notes.includes('📅 Reunião agendada:') && (
+                  <div className="mt-2">
+                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                      {card.notes.split('\n')[0]}
+                    </Badge>
+                  </div>
+                )}
+                
+                {card.notes && !card.notes.includes('📅 Reunião agendada:') && (
                   <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
                     {card.notes}
                   </p>
