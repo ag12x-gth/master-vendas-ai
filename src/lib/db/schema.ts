@@ -43,7 +43,7 @@ import {
 
   export type AutomationAction = {
     id?: string;
-    type: 'send_message' | 'add_tag' | 'add_to_list' | 'assign_user';
+    type: 'send_message' | 'add_tag' | 'add_to_list' | 'assign_user' | 'move_to_stage';
     value: string;
   }
   

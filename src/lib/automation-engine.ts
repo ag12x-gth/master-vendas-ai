@@ -142,6 +142,21 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
                  if (!action.value) return;
                 await db.update(conversations).set({ assignedTo: action.value as User['id'] }).where(eq(conversations.id, conversation.id));
                 break;
+            case 'move_to_stage':
+                if (!action.value) return;
+                const activeLead = await db.query.kanbanLeads.findFirst({
+                    where: eq(kanbanLeads.contactId, contact.id),
+                    orderBy: (kanbanLeads, { desc }) => [desc(kanbanLeads.createdAt)],
+                });
+                if (activeLead) {
+                    await db.update(kanbanLeads)
+                        .set({ stageId: action.value })
+                        .where(eq(kanbanLeads.id, activeLead.id));
+                    await logAutomation('INFO', `Lead movido para o estágio: ${action.value}`, logContext);
+                } else {
+                    await logAutomation('WARN', `Contato não possui lead ativo no Kanban. Ação 'move_to_stage' ignorada.`, logContext);
+                }
+                break;
         }
         await logAutomation('INFO', `Ação executada com sucesso: ${action.type}`, logContext);
     } catch (error) {
@@ -395,6 +410,11 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
         }
 
         await logAutomation('INFO', `IA respondeu com sucesso usando ChatGPT (OpenAI).`, logContextBase);
+        
+        // ✅ SISTEMA DE QUALIFICAÇÃO AUTOMÁTICA
+        // Detectar se o lead deve avançar para o próximo estágio com base na conversa
+        await detectAndProgressLead(context, recentMessages, aiResponse);
+        
         return true;
         
     } catch (error) {
@@ -402,6 +422,136 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
         await logAutomation('ERROR', `Falha ao comunicar com a IA: ${sanitizedMessage}`, logContextBase);
         return false;
     }
+}
+
+async function detectAndProgressLead(
+    context: AutomationTriggerContext,
+    conversationHistory: Message[],
+    latestAIResponse: string
+): Promise<void> {
+    const { contact, companyId, conversation } = context;
+    const logContextBase: LogContext = { companyId, conversationId: conversation.id };
+
+    try {
+        // Buscar lead ativo
+        const activeLead = await db.query.kanbanLeads.findFirst({
+            where: eq(kanbanLeads.contactId, contact.id),
+            with: {
+                board: true
+            },
+            orderBy: (kanbanLeads, { desc }) => [desc(kanbanLeads.createdAt)],
+        });
+
+        if (!activeLead) {
+            return; // Sem lead ativo, não há o que qualificar
+        }
+
+        // Buscar configuração dos estágios do funil
+        const stages = activeLead.board.stages as KanbanStage[];
+        const currentStageIndex = stages.findIndex(s => s.id === activeLead.stageId);
+        
+        if (currentStageIndex === -1 || currentStageIndex >= stages.length - 1) {
+            return; // Estágio inválido ou já está no último estágio
+        }
+
+        // Analisar conversa para detectar sinais de qualificação
+        const conversationText = conversationHistory
+            .map(m => m.content)
+            .join('\n');
+
+        const qualificationSignals = detectQualificationSignals(conversationText, latestAIResponse);
+        
+        if (qualificationSignals.shouldProgress) {
+            const nextStage = stages[currentStageIndex + 1];
+            
+            await db.update(kanbanLeads)
+                .set({ stageId: nextStage.id })
+                .where(eq(kanbanLeads.id, activeLead.id));
+            
+            await logAutomation('INFO', `🎯 QUALIFICAÇÃO AUTOMÁTICA: Lead "${contact.name}" avançou de "${stages[currentStageIndex].title}" para "${nextStage.title}" | Confiança: ${qualificationSignals.confidence}% | Motivo: ${qualificationSignals.reason}`, logContextBase);
+        }
+        
+    } catch (error) {
+        await logAutomation('ERROR', `Erro ao tentar qualificar lead automaticamente: ${(error as Error).message}`, logContextBase);
+    }
+}
+
+interface QualificationSignals {
+    shouldProgress: boolean;
+    confidence: number;
+    reason: string;
+}
+
+function detectQualificationSignals(conversationText: string, latestResponse: string): QualificationSignals {
+    const text = (conversationText + '\n' + latestResponse).toLowerCase();
+    let score = 0;
+    const reasons: string[] = [];
+
+    // SINAIS POSITIVOS FORTES (peso 30 pontos cada)
+    const strongPositiveSignals = [
+        { pattern: /\b(quero contratar|fechar|aceito|vamos fechar|pode enviar proposta)\b/, reason: 'Demonstrou intenção clara de contratar' },
+        { pattern: /\b(qual.{0,20}pre[çc]o|quanto custa|valor do investimento)\b/, reason: 'Perguntou sobre preço/investimento' },
+        { pattern: /\b(pode me enviar|envia.{0,15}proposta|manda.{0,15}or[çc]amento)\b/, reason: 'Solicitou proposta formal' },
+    ];
+
+    for (const signal of strongPositiveSignals) {
+        if (signal.pattern.test(text)) {
+            score += 30;
+            reasons.push(signal.reason);
+        }
+    }
+
+    // SINAIS MÉDIOS (peso 20 pontos cada)
+    const mediumSignals = [
+        { pattern: /\b(interessado|interesse|gostei|adorei|perfeito)\b/, reason: 'Demonstrou interesse' },
+        { pattern: /\b(preciso|necessito|busco|procuro)\b/, reason: 'Expressou necessidade' },
+        { pattern: /\b(quando.{0,15}come[çc]|prazo|cronograma)\b/, reason: 'Perguntou sobre prazos' },
+        { pattern: /\b(sim|exato|isso mesmo|correto)\b.*\b(entendi|compreendi)\b/, reason: 'Confirmou entendimento positivo' },
+    ];
+
+    for (const signal of mediumSignals) {
+        if (signal.pattern.test(text)) {
+            score += 20;
+            reasons.push(signal.reason);
+        }
+    }
+
+    // SINAIS FRACOS (peso 10 pontos cada)
+    const weakSignals = [
+        { pattern: /\b(obrigad[oa]|valeu|ajudou|esclareceu)\b/, reason: 'Agradeceu pela informação' },
+        { pattern: /\b(entendi|compreendi|ok|certo)\b/, reason: 'Confirmou compreensão' },
+    ];
+
+    for (const signal of weakSignals) {
+        if (signal.pattern.test(text)) {
+            score += 10;
+            reasons.push(signal.reason);
+        }
+    }
+
+    // SINAIS NEGATIVOS (reduz pontos)
+    const negativeSignals = [
+        { pattern: /\b(n[aã]o.{0,15}interesse|desisto|cancelar|n[aã]o quero)\b/, penalty: -50 },
+        { pattern: /\b(muito caro|n[aã]o tenho.{0,15}dinheiro|or[çc]amento.{0,15}baixo)\b/, penalty: -30 },
+        { pattern: /\b(depois|mais tarde|outro momento)\b/, penalty: -15 },
+    ];
+
+    for (const signal of negativeSignals) {
+        if (signal.pattern.test(text)) {
+            score += signal.penalty;
+        }
+    }
+
+    // THRESHOLD: 60 pontos = progresso automático
+    const confidence = Math.min(100, Math.max(0, score));
+    const shouldProgress = confidence >= 60;
+    const reason = reasons.length > 0 ? reasons.join(', ') : 'Sem sinais claros de qualificação';
+
+    return {
+        shouldProgress,
+        confidence,
+        reason
+    };
 }
 
 export async function processIncomingMessageTrigger(conversationId: string, messageId: string): Promise<void> {
