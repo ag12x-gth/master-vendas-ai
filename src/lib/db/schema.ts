@@ -182,6 +182,7 @@ import {
     email: varchar('email', { length: 255 }),
     avatarUrl: text('avatar_url'),
     status: text('status').default('ACTIVE').notNull(),
+    isGroup: boolean('is_group').default(false).notNull(),
     notes: text('notes'),
     profileLastSyncedAt: timestamp('profile_last_synced_at'),
     addressStreet: text('address_street'),

@@ -49,3 +49,54 @@ export function normalizePhone(phone: string): string | null {
 export function isGroupChat(jid: string): boolean {
   return jid.includes('@g.us');
 }
+
+/**
+ * Detect if a phone number is a WhatsApp group based on length
+ * Groups typically have 18 digits and start with 120363
+ * @param phone - Phone number or JID
+ * @returns True if it's likely a group
+ * @deprecated Use detectGroup() instead for more accurate detection
+ */
+export function isGroupByPhone(phone: string): boolean {
+  if (phone.includes('@g.us')) return true;
+  
+  const digitsOnly = phone.replace(/\D/g, '');
+  
+  if (digitsOnly.length > 15) {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Detect if a contact is a WhatsApp group/community using JID-first logic
+ * Priority: JID suffixes > number pattern matching
+ * @param options - Detection parameters
+ * @returns True if it's a group, broadcast, newsletter, or community
+ */
+export function detectGroup(options: { remoteJid?: string; phone: string }): boolean {
+  const { remoteJid, phone } = options;
+  
+  // 1. JID-based detection (most reliable)
+  const jidToCheck = remoteJid || phone;
+  const jidLower = jidToCheck.toLowerCase();
+  
+  if (jidLower.includes('@g.us')) return true;
+  if (jidLower.includes('@broadcast')) return true;
+  if (jidLower.includes('@newsletter')) return true;
+  if (jidLower.includes('@community')) return true;
+  
+  // 2. Pattern-based detection for WhatsApp groups (fallback)
+  // WhatsApp groups: 120363 + 12 digits = 18 total digits
+  const digitsOnly = phone.replace(/\D/g, '');
+  
+  // Match WhatsApp group pattern: starts with 120363 and has exactly 18 digits
+  if (/^120363\d{12}$/.test(digitsOnly)) {
+    return true;
+  }
+  
+  // 3. Avoid false positives: numbers >15 digits that don't match known patterns
+  // are likely malformed MSISDNs, not groups
+  return false;
+}

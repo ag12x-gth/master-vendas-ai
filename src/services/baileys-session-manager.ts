@@ -463,6 +463,10 @@ class BaileysSessionManager {
         messageContent = 'Mensagem não suportada';
       }
 
+      // Detect if this is a group/community using JID-first logic
+      const { detectGroup } = await import('@/lib/utils/phone');
+      const isGroup = detectGroup({ remoteJid, phone: phoneNumber });
+
       const [contact] = await db
         .insert(contacts)
         .values({
@@ -470,11 +474,13 @@ class BaileysSessionManager {
           name: msg.pushName || phoneNumber,
           phone: phoneNumber,
           whatsappName: msg.pushName,
+          isGroup,
         })
         .onConflictDoUpdate({
           target: [contacts.phone, contacts.companyId],
           set: {
             whatsappName: msg.pushName || sql`${contacts.whatsappName}`,
+            isGroup,
           },
         })
         .returning();
