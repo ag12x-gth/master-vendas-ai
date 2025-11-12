@@ -33,7 +33,7 @@ export async function GET() {
             console.log(`[Conversations Status] ⚡ Query executed in ${queryTime}ms`);
             
             return { lastUpdated: latest?.lastUpdated || null };
-        }, CacheTTL.VERY_SHORT);
+        }, CacheTTL.REAL_TIME);
         
         const totalTime = Date.now() - startTime;
         console.log(`[Conversations Status] ⚡ Total response time: ${totalTime}ms (cached: ${totalTime < 10})`);
