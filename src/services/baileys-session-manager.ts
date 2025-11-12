@@ -54,7 +54,7 @@ function classifyChat(remoteJid: string, msg: any): ChatClassification {
     return { type: 'group', reason: 'Message has participant field (group message)', shouldBlockAI: true };
   }
   
-  const phoneNumber = remoteJid.split('@')[0];
+  const phoneNumber = remoteJid.split('@')[0] || '';
   const digitsOnly = phoneNumber.replace(/\D/g, '');
   
   if (digitsOnly.length > 15) {
