@@ -1,11 +1,13 @@
 // src/components/kanban/funnel-toolbar.tsx
 'use client';
 
+import { useState } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Search, Plus, Filter, Settings } from 'lucide-react';
+import { Search, Plus, Filter, Settings, Scan } from 'lucide-react';
 import type { KanbanFunnel } from '@/lib/types';
 import Link from 'next/link';
+import { AnalyzeMeetingsDialog } from './analyze-meetings-dialog';
 
 interface FunnelToolbarProps {
   funnel: KanbanFunnel;
@@ -15,7 +17,11 @@ interface FunnelToolbarProps {
 }
 
 export function FunnelToolbar({ funnel, onAddCard, onSearch, onFilter }: FunnelToolbarProps): JSX.Element {
+  const [analyzeOpen, setAnalyzeOpen] = useState(false);
+
   return (
+    <>
+      <AnalyzeMeetingsDialog open={analyzeOpen} onOpenChange={setAnalyzeOpen} funnelId={funnel.id} />
     <div className="border-b bg-background">
       {/* Mobile: Stack vertically, Desktop: horizontal */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 gap-3">
@@ -43,6 +49,12 @@ export function FunnelToolbar({ funnel, onAddCard, onSearch, onFilter }: FunnelT
           <Button variant="outline" size="sm" onClick={onFilter} className="flex-shrink-0">
             <Filter className="h-4 w-4 sm:mr-2" />
             <span className="hidden sm:inline">Filtros</span>
+          </Button>
+          
+          {/* Analyze meetings button */}
+          <Button variant="outline" size="sm" onClick={() => setAnalyzeOpen(true)} className="flex-shrink-0">
+            <Scan className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Analisar Agendamentos</span>
           </Button>
           
           {/* Edit funnel button */}
@@ -73,5 +85,6 @@ export function FunnelToolbar({ funnel, onAddCard, onSearch, onFilter }: FunnelT
         </div>
       </div>
     </div>
+    </>
   );
 }
