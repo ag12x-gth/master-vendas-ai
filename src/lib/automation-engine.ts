@@ -687,32 +687,45 @@ function detectMeetingScheduled(conversationText: string, latestResponse: string
     // Padrão de dia da semana para extração (aceita "feira" opcional com espaço ou hífen)
     const weekdayExtractPattern = '(segunda|ter[cç]a(?:[\\s-]?feira)?|quarta(?:[\\s-]?feira)?|quinta(?:[\\s-]?feira)?|sexta(?:[\\s-]?feira)?|s[áa]bado|domingo)';
     
-    // Padrão 1: Dia da semana + horário (ex: "terça às 14h", "quinta 15h30", "quinta-feira às 14h30")
-    const dayFirstPattern = new RegExp(`\\b${weekdayExtractPattern}[\\s,]*(?:[aà]s?)?\\s*(\\d{1,2}(?:h(?:\\d{1,2})?|: ?\\d{2})(?:hs?|min)?)\\b`, 'i');
-    let match = text.match(dayFirstPattern);
+    // IMPORTANTE: Usar matchAll para pegar TODAS as ocorrências e escolher a ÚLTIMA (mais recente)
+    // Isso garante que confirmações novas sobrescrevam menções antigas no histórico
     
-    if (match && match[1] && match[2] && (match[2].includes('h') || match[2].includes(':'))) {
-        // Normalizar nome do dia (remover " feira" ou "-feira" se presente)
-        const dayName = match[1].replace(/[\s-]?feira/i, '').trim();
-        scheduledTime = `${dayName} às ${normalizeTime(match[2])}`;
+    // Padrão 1: Dia da semana + horário (ex: "terça às 14h", "quinta 15h30", "quinta-feira às 14h30")
+    const dayFirstPattern = new RegExp(`\\b${weekdayExtractPattern}[\\s,]*(?:[aà]s?)?\\s*(\\d{1,2}(?:h(?:\\d{1,2})?|: ?\\d{2})(?:hs?|min)?)\\b`, 'gi');
+    const dayFirstMatches = Array.from(text.matchAll(dayFirstPattern));
+    
+    if (dayFirstMatches.length > 0) {
+        // Pegar o ÚLTIMO match (mais recente na conversa)
+        const lastMatch = dayFirstMatches[dayFirstMatches.length - 1];
+        if (lastMatch && lastMatch[1] && lastMatch[2] && (lastMatch[2].includes('h') || lastMatch[2].includes(':'))) {
+            const dayName = lastMatch[1].replace(/[\s-]?feira/i, '').trim();
+            scheduledTime = `${dayName} às ${normalizeTime(lastMatch[2])}`;
+        }
     } else {
         // Padrão 2: Horário + dia da semana (ex: "às 14h na terça", "14:30 quinta")
-        const timeFirstPattern = new RegExp(`\\b(?:[aà]s?)?\\s*(\\d{1,2}(?:h(?:\\d{1,2})?|: ?\\d{2})(?:hs?|min)?)[\\s,]*(?:na|no|em)?\\s*${weekdayExtractPattern}\\b`, 'i');
-        match = text.match(timeFirstPattern);
+        const timeFirstPattern = new RegExp(`\\b(?:[aà]s?)?\\s*(\\d{1,2}(?:h(?:\\d{1,2})?|: ?\\d{2})(?:hs?|min)?)[\\s,]*(?:na|no|em)?\\s*${weekdayExtractPattern}\\b`, 'gi');
+        const timeFirstMatches = Array.from(text.matchAll(timeFirstPattern));
         
-        if (match && match[1] && match[2] && (match[1].includes('h') || match[1].includes(':'))) {
-            // Normalizar nome do dia (remover " feira" ou "-feira" se presente)
-            const dayName = match[2].replace(/[\s-]?feira/i, '').trim();
-            scheduledTime = `${dayName} às ${normalizeTime(match[1])}`;
+        if (timeFirstMatches.length > 0) {
+            // Pegar o ÚLTIMO match (mais recente na conversa)
+            const lastMatch = timeFirstMatches[timeFirstMatches.length - 1];
+            if (lastMatch && lastMatch[1] && lastMatch[2] && (lastMatch[1].includes('h') || lastMatch[1].includes(':'))) {
+                const dayName = lastMatch[2].replace(/[\s-]?feira/i, '').trim();
+                scheduledTime = `${dayName} às ${normalizeTime(lastMatch[1])}`;
+            }
         } else {
             // Padrão 3: Só horário (MUST have 'h' or ':') - ex: "às 14h", "15hs", "14:30"
             // Aceita: 14h, 14hs, 14h30, 14:30, 14:30h, 14:30hs
             // Rejeita: 3, 14, 30 (números sem marcador)
-            const timeOnlyPattern = /\b(?:[aà]s?)?\s*(\d{1,2}(?:hs|h\d{0,2}|:\d{2}(?:hs?)?)(?:min)?)\b/i;
-            match = text.match(timeOnlyPattern);
+            const timeOnlyPattern = /\b(?:[aà]s?)?\s*(\d{1,2}(?:hs|h\d{0,2}|:\d{2}(?:hs?)?)(?:min)?)\b/gi;
+            const timeOnlyMatches = Array.from(text.matchAll(timeOnlyPattern));
             
-            if (match && match[1] && (match[1].includes('h') || match[1].includes(':'))) {
-                scheduledTime = normalizeTime(match[1]);
+            if (timeOnlyMatches.length > 0) {
+                // Pegar o ÚLTIMO match (mais recente na conversa)
+                const lastMatch = timeOnlyMatches[timeOnlyMatches.length - 1];
+                if (lastMatch && lastMatch[1] && (lastMatch[1].includes('h') || lastMatch[1].includes(':'))) {
+                    scheduledTime = normalizeTime(lastMatch[1]);
+                }
             }
         }
     }
