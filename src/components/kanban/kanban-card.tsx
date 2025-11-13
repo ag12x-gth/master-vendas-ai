@@ -42,6 +42,13 @@ export function KanbanCard({ card, index, stages, onUpdate, onDelete, onOpenWhat
   };
 
   const hasMeetingTime = card.notes?.includes('📅 Reunião agendada:');
+  
+  const currentStage = stages.find(s => s.id === card.stageId);
+  const stageTitle = currentStage?.title?.toLowerCase() ?? '';
+  const isCallStage = stageTitle.includes('call') || 
+                      stageTitle.includes('agendad') ||
+                      stageTitle.includes('reunião') ||
+                      stageTitle.includes('ligação');
 
   return (
     <>
@@ -95,10 +102,12 @@ export function KanbanCard({ card, index, stages, onUpdate, onDelete, onOpenWhat
                         Editar Lead
                       </DropdownMenuItem>
                       
-                      <DropdownMenuItem onClick={() => setMeetingTimeOpen(true)}>
-                        <Clock className="mr-2 h-4 w-4" />
-                        {hasMeetingTime ? 'Editar Horário' : 'Adicionar Horário'}
-                      </DropdownMenuItem>
+                      {isCallStage && (
+                        <DropdownMenuItem onClick={() => setMeetingTimeOpen(true)}>
+                          <Clock className="mr-2 h-4 w-4" />
+                          {hasMeetingTime ? 'Editar Horário' : 'Adicionar Horário'}
+                        </DropdownMenuItem>
+                      )}
                       
                       {card.contact?.phone && (
                         <DropdownMenuItem onClick={handleOpenWhatsApp}>
