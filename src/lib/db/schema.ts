@@ -35,6 +35,25 @@ import {
 
   export const userRoleEnum = pgEnum('user_role', ['admin', 'atendente', 'superadmin']);
 
+export const notificationTypeEnum = pgEnum('notification_type', [
+  'daily_report',
+  'weekly_report',
+  'biweekly_report',
+  'monthly_report',
+  'biannual_report',
+  'new_meeting',
+  'new_sale',
+  'campaign_sent',
+]);
+
+export const notificationStatusEnum = pgEnum('notification_status', [
+  'pending',
+  'sent',
+  'failed',
+  'skipped',
+  'retried',
+]);
+
   export type AutomationCondition = {
     id?: string;
     type: 'contact_tag' | 'message_content' | 'contact_list' | 'conversation_status';
@@ -354,7 +373,10 @@ import {
     title: text('title'),
     notes: text('notes'),
     value: decimal('value', { precision: 10, scale: 2 }).default('0').notNull(),
+    currentStage: jsonb('current_stage').$type<KanbanStage>(),
+    lastStageChangeAt: timestamp('last_stage_change_at'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
     externalId: text('external_id'),
     externalProvider: text('external_provider'),
   }, (table) => ({
@@ -762,6 +784,69 @@ export const meetingInsightsRelations = relations(meetingInsights, ({ one }) => 
     }),
 }));
 
+// ==============================
+// NOTIFICATION AGENTS & LOGS
+// ==============================
+
+export const notificationAgents = pgTable('notification_agents', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+    connectionId: text('connection_id').notNull().references(() => connections.id, { onDelete: 'cascade' }),
+    name: varchar('name', { length: 255 }).notNull(),
+    description: text('description'),
+    enabledNotifications: jsonb('enabled_notifications').$type<{
+        dailyReport: boolean;
+        weeklyReport: boolean;
+        biweeklyReport: boolean;
+        monthlyReport: boolean;
+        biannualReport: boolean;
+        newMeeting: boolean;
+        newSale: boolean;
+        campaignSent: boolean;
+    }>().notNull().default(sql`'{"dailyReport":false,"weeklyReport":false,"biweeklyReport":false,"monthlyReport":false,"biannualReport":false,"newMeeting":false,"newSale":false,"campaignSent":false}'::jsonb`),
+    scheduleTime: varchar('schedule_time', { length: 5 }).default('09:00'),
+    timezone: varchar('timezone', { length: 50 }).default('America/Sao_Paulo'),
+    lastSentAt: jsonb('last_sent_at').$type<Record<string, string>>(),
+    rateLimitWindow: integer('rate_limit_window').default(60),
+    rateLimitCount: integer('rate_limit_count').default(10),
+    isActive: boolean('is_active').default(true).notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+}, (table) => ({
+    uniqueCompanyName: unique('notification_agents_company_name_unique').on(table.companyId, table.name),
+    companyActiveIdx: sql`CREATE INDEX IF NOT EXISTS notification_agents_company_active_idx ON ${table} (company_id, is_active) WHERE is_active = true`,
+}));
+
+export const notificationAgentGroups = pgTable('notification_agent_groups', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    agentId: text('agent_id').notNull().references(() => notificationAgents.id, { onDelete: 'cascade' }),
+    groupJid: varchar('group_jid', { length: 255 }).notNull(),
+    groupName: varchar('group_name', { length: 255 }),
+    isActive: boolean('is_active').default(true).notNull(),
+    lastSyncedAt: timestamp('last_synced_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+    uniqueAgentGroup: unique('notification_agent_groups_unique').on(table.agentId, table.groupJid),
+}));
+
+export const notificationLogs = pgTable('notification_logs', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    agentId: text('agent_id').notNull().references(() => notificationAgents.id, { onDelete: 'cascade' }),
+    type: notificationTypeEnum('type').notNull(),
+    groupJid: varchar('group_jid', { length: 255 }).notNull(),
+    message: text('message').notNull(),
+    status: notificationStatusEnum('status').notNull().default('pending'),
+    metadata: jsonb('metadata'),
+    retryCount: integer('retry_count').default(0).notNull(),
+    errorCode: varchar('error_code', { length: 50 }),
+    failureReason: text('failure_reason'),
+    traceId: text('trace_id').default(sql`gen_random_uuid()`),
+    sentAt: timestamp('sent_at').defaultNow().notNull(),
+}, (table) => ({
+    agentStatusIdx: sql`CREATE INDEX IF NOT EXISTS notification_logs_agent_status_idx ON ${table} (agent_id, status, sent_at DESC)`,
+    typeIdx: sql`CREATE INDEX IF NOT EXISTS notification_logs_type_idx ON ${table} (type, sent_at DESC)`,
+}));
+
 export const aiPersonasRelations = relations(aiPersonas, ({ many }) => ({
     promptSections: many(personaPromptSections),
 }));
@@ -805,5 +890,32 @@ export const kanbanStagePersonasRelations = relations(kanbanStagePersonas, ({ on
     passivePersona: one(aiPersonas, {
         fields: [kanbanStagePersonas.passivePersonaId],
         references: [aiPersonas.id],
+    }),
+}));
+
+export const notificationAgentsRelations = relations(notificationAgents, ({ one, many }) => ({
+    company: one(companies, {
+        fields: [notificationAgents.companyId],
+        references: [companies.id],
+    }),
+    connection: one(connections, {
+        fields: [notificationAgents.connectionId],
+        references: [connections.id],
+    }),
+    groups: many(notificationAgentGroups),
+    logs: many(notificationLogs),
+}));
+
+export const notificationAgentGroupsRelations = relations(notificationAgentGroups, ({ one }) => ({
+    agent: one(notificationAgents, {
+        fields: [notificationAgentGroups.agentId],
+        references: [notificationAgents.id],
+    }),
+}));
+
+export const notificationLogsRelations = relations(notificationLogs, ({ one }) => ({
+    agent: one(notificationAgents, {
+        fields: [notificationLogs.agentId],
+        references: [notificationAgents.id],
     }),
 }));

@@ -271,7 +271,11 @@ async function runMeetingBackfill(
             }
             
             await db.update(kanbanLeads)
-              .set({ notes: updatedNotes.trim() })
+              .set({ 
+                notes: updatedNotes.trim(),
+                currentStage: targetStage,
+                lastStageChangeAt: new Date(),
+              })
               .where(eq(kanbanLeads.id, activeLead.id));
             
             details.push({
@@ -308,6 +312,8 @@ async function runMeetingBackfill(
             .set({ 
               stageId: targetStage.id,
               notes: updatedNotes.trim(),
+              currentStage: targetStage,
+              lastStageChangeAt: new Date(),
             })
             .where(eq(kanbanLeads.id, activeLead.id));
 
