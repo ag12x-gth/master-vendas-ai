@@ -15,6 +15,13 @@ import { sendWhatsappTextMessage } from '@/lib/facebookApiService';
 export async function POST(request: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();
+    
+    if (!companyId) {
+      return NextResponse.json(
+        { error: 'Não autenticado' },
+        { status: 401 }
+      );
+    }
     const body = await request.json();
     const { periodType = 'daily' } = body;
 

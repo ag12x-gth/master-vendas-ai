@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { notificationAgents, notificationAgentGroups, connections } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql, desc, like, or } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 
 // GET - Listar todos os agentes de notificação
@@ -12,8 +12,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
     }
 
+    const searchParams = request.nextUrl.searchParams;
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '0');
+    const search = searchParams.get('search') || '';
+    const offset = limit > 0 ? (page - 1) * limit : 0;
+
+    const whereConditions = [eq(notificationAgents.companyId, companyId)];
+    
+    if (search) {
+      whereConditions.push(
+        or(
+          like(notificationAgents.name, `%${search}%`),
+          like(notificationAgents.description, `%${search}%`)
+        )!
+      );
+    }
+
     const agents = await db.query.notificationAgents.findMany({
-      where: eq(notificationAgents.companyId, companyId),
+      where: and(...whereConditions),
       with: {
         connection: {
           columns: {
@@ -25,10 +42,23 @@ export async function GET(request: NextRequest) {
         },
         groups: true,
       },
-      orderBy: (agents, { desc }) => [desc(agents.createdAt)],
+      ...(limit > 0 ? { limit, offset } : {}),
+      orderBy: [desc(notificationAgents.createdAt)],
     });
 
-    return NextResponse.json(agents);
+    const totalResult = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(notificationAgents)
+      .where(and(...whereConditions));
+
+    const total = totalResult[0]?.count || 0;
+
+    return NextResponse.json({
+      data: agents,
+      total,
+      page,
+      limit,
+    });
   } catch (error) {
     console.error('[NotificationAgents] GET error:', error);
     return NextResponse.json(

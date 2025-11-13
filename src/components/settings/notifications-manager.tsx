@@ -45,6 +45,7 @@ import {
   Search,
   Bell,
   BellOff,
+  X,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -63,14 +64,39 @@ import {
   SelectValue,
 } from '../ui/select';
 
+interface EnabledNotifications {
+  dailyReport: boolean;
+  weeklyReport: boolean;
+  biweeklyReport: boolean;
+  monthlyReport: boolean;
+  biannualReport: boolean;
+  newMeeting: boolean;
+  newSale: boolean;
+  campaignSent: boolean;
+}
+
 interface NotificationAgent {
   id: string;
   name: string;
   connectionId: string;
-  phoneNumber: string;
-  eventTypes: string[];
+  description: string | null;
+  enabledNotifications: EnabledNotifications;
+  scheduleTime: string;
+  timezone: string;
   isActive: boolean;
   createdAt: string;
+  groups: Array<{
+    id: string;
+    agentId: string;
+    groupJid: string;
+    isActive: boolean;
+  }>;
+  connection: {
+    id: string;
+    config_name: string;
+    connectionType: string;
+    status: string;
+  };
 }
 
 interface WhatsAppConnection {
@@ -78,12 +104,18 @@ interface WhatsAppConnection {
   config_name: string;
   phoneNumberId: string;
   status?: string;
+  connectionType?: string;
 }
 
-const EVENT_TYPE_LABELS = {
-  new_meeting: 'Novo Agendamento',
-  campaign_sent: 'Campanha Enviada',
-  new_sale: 'Nova Venda',
+const NOTIFICATION_LABELS = {
+  dailyReport: 'Relatório Diário',
+  weeklyReport: 'Relatório Semanal',
+  biweeklyReport: 'Relatório Quinzenal',
+  monthlyReport: 'Relatório Mensal',
+  biannualReport: 'Relatório Semestral',
+  newMeeting: 'Novo Agendamento',
+  newSale: 'Nova Venda',
+  campaignSent: 'Campanha Enviada',
 };
 
 export function NotificationsManager() {
@@ -97,9 +129,22 @@ export function NotificationsManager() {
 
   const [search, setSearch] = useState('');
   const [agentName, setAgentName] = useState('');
+  const [description, setDescription] = useState('');
   const [connectionId, setConnectionId] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [eventTypes, setEventTypes] = useState<string[]>([]);
+  const [groupJids, setGroupJids] = useState<string[]>([]);
+  const [newGroupJid, setNewGroupJid] = useState('');
+  const [enabledNotifications, setEnabledNotifications] = useState<EnabledNotifications>({
+    dailyReport: false,
+    weeklyReport: false,
+    biweeklyReport: false,
+    monthlyReport: false,
+    biannualReport: false,
+    newMeeting: false,
+    newSale: false,
+    campaignSent: false,
+  });
+  const [scheduleTime, setScheduleTime] = useState('09:00');
+  const [timezone, setTimezone] = useState('America/Sao_Paulo');
   const [isActive, setIsActive] = useState(true);
 
   const fetchConnections = useCallback(async () => {
@@ -164,9 +209,22 @@ export function NotificationsManager() {
   const handleOpenModal = (agent: NotificationAgent | null) => {
     setEditingAgent(agent);
     setAgentName(agent?.name || '');
+    setDescription(agent?.description || '');
     setConnectionId(agent?.connectionId || '');
-    setPhoneNumber(agent?.phoneNumber || '');
-    setEventTypes(agent?.eventTypes || []);
+    setGroupJids(agent?.groups?.map(g => g.groupJid) || []);
+    setNewGroupJid('');
+    setEnabledNotifications(agent?.enabledNotifications || {
+      dailyReport: false,
+      weeklyReport: false,
+      biweeklyReport: false,
+      monthlyReport: false,
+      biannualReport: false,
+      newMeeting: false,
+      newSale: false,
+      campaignSent: false,
+    });
+    setScheduleTime(agent?.scheduleTime || '09:00');
+    setTimezone(agent?.timezone || 'America/Sao_Paulo');
     setIsActive(agent?.isActive ?? true);
     setIsModalOpen(true);
   };
@@ -192,20 +250,21 @@ export function NotificationsManager() {
       return;
     }
 
-    if (!phoneNumber.trim()) {
+    if (groupJids.length === 0) {
       toast({
         variant: 'destructive',
         title: 'Erro de Validação',
-        description: 'O número de telefone não pode estar vazio.',
+        description: 'Adicione pelo menos um grupo WhatsApp.',
       });
       return;
     }
 
-    if (eventTypes.length === 0) {
+    const hasAtLeastOneNotification = Object.values(enabledNotifications).some(value => value === true);
+    if (!hasAtLeastOneNotification) {
       toast({
         variant: 'destructive',
         title: 'Erro de Validação',
-        description: 'Selecione pelo menos um tipo de evento.',
+        description: 'Selecione pelo menos um tipo de notificação.',
       });
       return;
     }
@@ -213,8 +272,11 @@ export function NotificationsManager() {
     const agentData = {
       name: agentName,
       connectionId,
-      phoneNumber,
-      eventTypes,
+      description: description || undefined,
+      groupJids,
+      enabledNotifications,
+      scheduleTime,
+      timezone,
       isActive,
     };
 
@@ -277,12 +339,39 @@ export function NotificationsManager() {
     }
   };
 
-  const toggleEventType = (eventType: string) => {
-    setEventTypes((prev) =>
-      prev.includes(eventType)
-        ? prev.filter((e) => e !== eventType)
-        : [...prev, eventType]
-    );
+  const toggleNotification = (key: keyof EnabledNotifications) => {
+    setEnabledNotifications((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
+  const addGroupJid = () => {
+    const trimmedJid = newGroupJid.trim();
+    if (!trimmedJid) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'O JID do grupo não pode estar vazio.',
+      });
+      return;
+    }
+
+    if (groupJids.includes(trimmedJid)) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Este grupo já foi adicionado.',
+      });
+      return;
+    }
+
+    setGroupJids((prev) => [...prev, trimmedJid]);
+    setNewGroupJid('');
+  };
+
+  const removeGroupJid = (jid: string) => {
+    setGroupJids((prev) => prev.filter((g) => g !== jid));
   };
 
   return (
@@ -309,8 +398,9 @@ export function NotificationsManager() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nome</TableHead>
-                  <TableHead>Telefone</TableHead>
-                  <TableHead>Eventos</TableHead>
+                  <TableHead>Conexão</TableHead>
+                  <TableHead>Grupos</TableHead>
+                  <TableHead>Notificações</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
@@ -318,67 +408,73 @@ export function NotificationsManager() {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
+                    <TableCell colSpan={6} className="h-24 text-center">
                       <Loader2 className="mx-auto h-6 w-6 animate-spin" />
                     </TableCell>
                   </TableRow>
                 ) : agents.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
+                    <TableCell colSpan={6} className="h-24 text-center">
                       Nenhum agente encontrado.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  agents.map((agent) => (
-                    <TableRow key={agent.id}>
-                      <TableCell className="font-medium">{agent.name}</TableCell>
-                      <TableCell className="font-mono text-xs">{agent.phoneNumber}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {agent.eventTypes.map((event) => (
-                            <Badge key={event} variant="secondary">
-                              {EVENT_TYPE_LABELS[event as keyof typeof EVENT_TYPE_LABELS] || event}
+                  agents.map((agent) => {
+                    const enabledCount = Object.values(agent.enabledNotifications || {}).filter(Boolean).length;
+                    return (
+                      <TableRow key={agent.id}>
+                        <TableCell className="font-medium">{agent.name}</TableCell>
+                        <TableCell className="text-sm">
+                          {agent.connection?.config_name || 'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {agent.groups?.length || 0} {agent.groups?.length === 1 ? 'grupo' : 'grupos'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline">
+                            {enabledCount} {enabledCount === 1 ? 'notificação' : 'notificações'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {agent.isActive ? (
+                            <Badge variant="default" className="gap-1">
+                              <Bell className="h-3 w-3" />
+                              Ativo
                             </Badge>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {agent.isActive ? (
-                          <Badge variant="default" className="gap-1">
-                            <Bell className="h-3 w-3" />
-                            Ativo
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary" className="gap-1">
-                            <BellOff className="h-3 w-3" />
-                            Inativo
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem onSelect={() => handleOpenModal(agent)}>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              className="text-destructive"
-                              onSelect={() => setDeleteAgent(agent)}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              Excluir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                          ) : (
+                            <Badge variant="secondary" className="gap-1">
+                              <BellOff className="h-3 w-3" />
+                              Inativo
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem onSelect={() => handleOpenModal(agent)}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-destructive"
+                                onSelect={() => setDeleteAgent(agent)}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>
@@ -395,7 +491,7 @@ export function NotificationsManager() {
           </DialogHeader>
           <form onSubmit={handleSaveAgent} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="agent-name">Nome do Agente</Label>
+              <Label htmlFor="agent-name">Nome do Agente *</Label>
               <Input
                 id="agent-name"
                 placeholder="Ex: Equipe Comercial"
@@ -406,53 +502,143 @@ export function NotificationsManager() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="connection">Conexão WhatsApp</Label>
+              <Label htmlFor="description">Descrição (Opcional)</Label>
+              <Input
+                id="description"
+                placeholder="Descreva o propósito deste agente"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="connection">Conexão WhatsApp (Baileys) *</Label>
               <Select value={connectionId} onValueChange={setConnectionId} required>
                 <SelectTrigger id="connection">
                   <SelectValue placeholder="Selecione uma conexão" />
                 </SelectTrigger>
                 <SelectContent>
-                  {connections.map((conn) => (
-                    <SelectItem key={conn.id} value={conn.id}>
-                      {conn.config_name} ({conn.phoneNumberId})
-                    </SelectItem>
-                  ))}
+                  {connections
+                    .filter((conn) => conn.connectionType === 'baileys')
+                    .map((conn) => (
+                      <SelectItem key={conn.id} value={conn.id}>
+                        {conn.config_name}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone-number">Número de Telefone (Destino)</Label>
-              <Input
-                id="phone-number"
-                placeholder="5511999999999"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                required
-              />
               <p className="text-sm text-muted-foreground">
-                Número que receberá as notificações (formato internacional sem +)
+                Apenas conexões Baileys são suportadas
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label>Tipos de Eventos</Label>
-              <div className="space-y-2">
-                {Object.entries(EVENT_TYPE_LABELS).map(([key, label]) => (
+              <Label>Grupos WhatsApp *</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="JID do grupo (ex: 123456789-1234567890@g.us)"
+                  value={newGroupJid}
+                  onChange={(e) => setNewGroupJid(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addGroupJid();
+                    }
+                  }}
+                />
+                <Button type="button" onClick={addGroupJid} size="icon">
+                  <PlusCircle className="h-4 w-4" />
+                </Button>
+              </div>
+              {groupJids.length > 0 && (
+                <div className="space-y-2 mt-2">
+                  {groupJids.map((jid) => (
+                    <div
+                      key={jid}
+                      className="flex items-center justify-between p-2 bg-muted rounded-md"
+                    >
+                      <span className="text-sm font-mono truncate flex-1">{jid}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 ml-2"
+                        onClick={() => removeGroupJid(jid)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-sm text-muted-foreground">
+                Adicione os JIDs dos grupos que receberão as notificações
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <Label>Tipos de Notificações *</Label>
+              <div className="space-y-2 border rounded-md p-3">
+                <p className="text-xs font-medium text-muted-foreground mb-2">Relatórios</p>
+                {(['dailyReport', 'weeklyReport', 'biweeklyReport', 'monthlyReport', 'biannualReport'] as const).map((key) => (
                   <div key={key} className="flex items-center space-x-2">
                     <Checkbox
-                      id={`event-${key}`}
-                      checked={eventTypes.includes(key)}
-                      onCheckedChange={() => toggleEventType(key)}
+                      id={`notification-${key}`}
+                      checked={enabledNotifications[key]}
+                      onCheckedChange={() => toggleNotification(key)}
                     />
                     <label
-                      htmlFor={`event-${key}`}
+                      htmlFor={`notification-${key}`}
                       className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                     >
-                      {label}
+                      {NOTIFICATION_LABELS[key]}
                     </label>
                   </div>
                 ))}
+                <div className="border-t pt-2 mt-2">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Eventos</p>
+                  {(['newMeeting', 'newSale', 'campaignSent'] as const).map((key) => (
+                    <div key={key} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`notification-${key}`}
+                        checked={enabledNotifications[key]}
+                        onCheckedChange={() => toggleNotification(key)}
+                      />
+                      <label
+                        htmlFor={`notification-${key}`}
+                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        {NOTIFICATION_LABELS[key]}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="schedule-time">Horário de Envio</Label>
+                <Input
+                  id="schedule-time"
+                  type="time"
+                  value={scheduleTime}
+                  onChange={(e) => setScheduleTime(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="timezone">Fuso Horário</Label>
+                <Select value={timezone} onValueChange={setTimezone}>
+                  <SelectTrigger id="timezone">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="America/Sao_Paulo">São Paulo (UTC-3)</SelectItem>
+                    <SelectItem value="America/New_York">Nova York (UTC-5)</SelectItem>
+                    <SelectItem value="Europe/London">Londres (UTC+0)</SelectItem>
+                    <SelectItem value="Asia/Tokyo">Tóquio (UTC+9)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
