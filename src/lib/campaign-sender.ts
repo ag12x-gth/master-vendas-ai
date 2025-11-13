@@ -19,6 +19,7 @@ import { decrypt } from './crypto';
 import { sendWhatsappTemplateMessage } from './facebookApiService';
 import type { MediaAsset as MediaAssetType, MetaApiMessageResponse, MetaHandle } from './types';
 import { sessionManager as baileysSessionManager } from '@/services/baileys-session-manager';
+import { NotificationService } from '@/lib/notifications/notification-service';
 
 // Helper para dividir um array em lotes
 function chunkArray<T>(array: T[], size: number): T[][] {
@@ -437,6 +438,28 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
         }
         
         await db.update(campaigns).set({ status: 'COMPLETED', sentAt: new Date(), completedAt: new Date() }).where(eq(campaigns.id, campaign.id));
+
+        const allDeliveryReports = await db
+          .select()
+          .from(whatsappDeliveryReports)
+          .where(eq(whatsappDeliveryReports.campaignId, campaign.id));
+
+        const deliveredCount = allDeliveryReports.filter(r => r.status === 'SENT').length;
+        const totalSent = campaignContacts.length;
+        const deliveryRate = totalSent > 0 ? (deliveredCount / totalSent * 100) : 0;
+
+        NotificationService.safeNotify(
+          NotificationService.notifyCampaignSent,
+          'CampaignSender',
+          campaign.companyId!,
+          {
+            name: campaign.name || 'Campanha sem nome',
+            channel: 'whatsapp',
+            sent: totalSent,
+            delivered: deliveredCount,
+            rate: deliveryRate,
+          }
+        );
 
     } catch(error) {
         console.error(`Falha crítica ao enviar campanha de WhatsApp ${campaign.id}:`, error);

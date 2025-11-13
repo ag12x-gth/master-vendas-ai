@@ -393,6 +393,22 @@ Data: ${today}
     };
     return map[period] || 'Relatório';
   }
+
+  /**
+   * Wrapper seguro para chamadas de notificação (fire-and-forget pattern)
+   * Garante que erros em notificações não quebram o fluxo principal
+   */
+  public static async safeNotify<T extends (...args: any[]) => Promise<void>>(
+    fn: T,
+    context: string,
+    ...args: Parameters<T>
+  ): Promise<void> {
+    try {
+      await fn(...args);
+    } catch (error) {
+      console.error(`[NotificationService][${context}] Error sending notification:`, error);
+    }
+  }
 }
 
 // Type helper para enabledNotifications

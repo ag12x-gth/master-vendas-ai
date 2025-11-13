@@ -6,6 +6,7 @@ import { kanbanLeads, kanbanBoards } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { getCompanyIdFromSession } from '@/app/actions';
+import { moveLeadToStage } from '@/lib/kanban/move-lead-to-stage';
 
 const leadUpdateSchema = z.object({
   stageId: z.string().optional(),
@@ -46,10 +47,23 @@ export async function PUT(request: NextRequest, { params }: { params: { leadId: 
             return NextResponse.json({ error: 'Dados inválidos.', details: parsedData.error.flatten() }, { status: 400 });
         }
         
-        const updateData: { stageId?: string; value?: string | null; title?: string; notes?: string } = {};
+        let finalLead;
+
         if (parsedData.data.stageId) {
-            updateData.stageId = parsedData.data.stageId;
+            const moveResult = await moveLeadToStage({
+                leadId,
+                newStageId: parsedData.data.stageId,
+                companyId,
+            });
+
+            if (!moveResult.success) {
+                return NextResponse.json({ error: moveResult.error }, { status: 400 });
+            }
+
+            finalLead = moveResult.lead;
         }
+
+        const updateData: { value?: string | null; title?: string; notes?: string } = {};
         if (parsedData.data.value !== undefined) {
             updateData.value = parsedData.data.value === null ? null : parsedData.data.value.toString();
         }
@@ -60,21 +74,24 @@ export async function PUT(request: NextRequest, { params }: { params: { leadId: 
             updateData.notes = parsedData.data.notes;
         }
 
-        if (Object.keys(updateData).length === 0) {
-            return NextResponse.json({ error: 'Nenhum campo para atualizar foi fornecido.' }, { status: 400 });
+        if (Object.keys(updateData).length > 0) {
+            const [updatedLead] = await db.update(kanbanLeads)
+                .set(updateData)
+                .where(eq(kanbanLeads.id, leadId))
+                .returning();
+
+            finalLead = updatedLead;
         }
 
-        const [updatedLead] = await db.update(kanbanLeads)
-            .set(updateData)
-            .where(eq(kanbanLeads.id, leadId))
-            .returning();
-            
-        if (!updatedLead) {
-            // This case should be rare given the checks above, but good for safety
-            return NextResponse.json({ error: 'Lead não encontrado ao tentar atualizar.' }, { status: 404 });
+        if (!finalLead) {
+            const [currentLead] = await db.select()
+                .from(kanbanLeads)
+                .where(eq(kanbanLeads.id, leadId))
+                .limit(1);
+            finalLead = currentLead;
         }
 
-        return NextResponse.json(updatedLead);
+        return NextResponse.json(finalLead);
     } catch (error) {
         console.error('Erro ao atualizar lead:', error);
         const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor.';

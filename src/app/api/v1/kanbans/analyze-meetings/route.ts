@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { conversations, messages, contacts, kanbanLeads, kanbanBoards } from '@/lib/db/schema';
 import type { KanbanStage } from '@/lib/types';
 import { getCompanyIdFromSession } from '@/app/actions';
+import { NotificationService } from '@/lib/notifications/notification-service';
 
 interface AnalyzeRequest {
   boardId?: string;
@@ -324,6 +325,17 @@ async function runMeetingBackfill(
             moved: true,
             reason: `Movido para "${targetStage.title}"`,
           });
+
+          NotificationService.safeNotify(
+            NotificationService.notifyNewMeeting,
+            'AnalyzeMeetings',
+            companyId,
+            {
+              name: contact.name,
+              stageTitle: targetStage.title,
+            },
+            detection.scheduledTime
+          );
         }
         } catch (error) {
           stats.errors++;
