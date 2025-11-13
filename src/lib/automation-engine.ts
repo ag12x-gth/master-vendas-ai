@@ -725,6 +725,42 @@ function detectMeetingScheduled(conversationText: string, latestResponse: string
     };
 }
 
+// 🎯 HELPER: Garantir que o horário da reunião esteja nas notas do lead (idempotente)
+async function ensureMeetingNote(leadId: string, scheduledTime: string): Promise<boolean> {
+    try {
+        const lead = await db.query.kanbanLeads.findFirst({
+            where: eq(kanbanLeads.id, leadId)
+        });
+
+        if (!lead) return false;
+
+        const normalizedNote = `📅 Reunião agendada: ${scheduledTime}`;
+        const currentNotes = lead.notes || '';
+
+        // Verificar se já existe uma nota de reunião para evitar duplicatas
+        const hasExistingMeetingNote = /📅 Reunião agendada:/i.test(currentNotes);
+
+        if (hasExistingMeetingNote) {
+            // Se já existe uma nota de reunião, substituir pela nova
+            const updatedNotes = currentNotes.replace(/📅 Reunião agendada:.*?(\n|$)/i, `${normalizedNote}\n`);
+            await db.update(kanbanLeads)
+                .set({ notes: updatedNotes.trim() })
+                .where(eq(kanbanLeads.id, leadId));
+        } else {
+            // Adicionar nova nota no início, preservando conteúdo anterior
+            const updatedNotes = currentNotes ? `${normalizedNote}\n\n${currentNotes}` : normalizedNote;
+            await db.update(kanbanLeads)
+                .set({ notes: updatedNotes })
+                .where(eq(kanbanLeads.id, leadId));
+        }
+
+        return true;
+    } catch (error) {
+        console.error(`[ensureMeetingNote] Erro ao atualizar notas: ${(error as Error).message}`);
+        return false;
+    }
+}
+
 // 🎯 HELPER: Mover lead para stage com semanticType específico
 async function moveLeadToSemanticStage(
     context: AutomationTriggerContext,
@@ -770,6 +806,14 @@ async function moveLeadToSemanticStage(
 
         // Verificar se já está nesse stage
         if (activeLead.stageId === targetStage.id) {
+            // Lead já está no stage correto, mas atualizar notas se houver horário
+            if (scheduledTime && targetSemanticType === 'meeting_scheduled') {
+                const noteUpdated = await ensureMeetingNote(activeLead.id, scheduledTime);
+                if (noteUpdated) {
+                    await logAutomation('INFO', `📅 REUNIÃO DETECTADA: Lead "${contact.name}" já está em "${targetStage.title}". Horário atualizado: ${scheduledTime}`, logContextBase);
+                    return true;
+                }
+            }
             await logAutomation('INFO', `Lead já está no stage "${targetStage.title}". Nenhuma movimentação necessária.`, logContextBase);
             return false;
         }
