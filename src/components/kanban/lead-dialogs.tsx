@@ -377,3 +377,103 @@ export function ViewLeadDialog({ open, onOpenChange, card, onEdit, onDelete }: V
     </Dialog>
   );
 }
+
+interface AddMeetingTimeDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  card: KanbanCard;
+  onSave: (leadId: string, data: { notes?: string }) => Promise<void>;
+}
+
+export function AddMeetingTimeDialog({ open, onOpenChange, card, onSave }: AddMeetingTimeDialogProps) {
+  const [loading, setLoading] = useState(false);
+  const [meetingTime, setMeetingTime] = useState('');
+  
+  const existingMeetingTime = card.notes?.match(/📅 Reunião agendada:\s*(.+)/)?.[1] || '';
+  
+  useEffect(() => {
+    if (open) {
+      setMeetingTime(existingMeetingTime);
+    }
+  }, [open, existingMeetingTime]);
+
+  const handleSave = async () => {
+    if (!meetingTime.trim()) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const currentNotes = card.notes || '';
+      const normalizedNote = `📅 Reunião agendada: ${meetingTime.trim()}`;
+      
+      let updatedNotes: string;
+      if (/📅 Reunião agendada:/i.test(currentNotes)) {
+        updatedNotes = currentNotes.replace(/📅 Reunião agendada:.*?(\n|$)/i, `${normalizedNote}\n`);
+      } else {
+        updatedNotes = currentNotes ? `${normalizedNote}\n\n${currentNotes}` : normalizedNote;
+      }
+      
+      await onSave(card.id, { notes: updatedNotes.trim() });
+      onOpenChange(false);
+      setMeetingTime('');
+    } catch (error) {
+      console.error('Erro ao salvar horário da reunião:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[400px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Clock className="h-5 w-5" />
+            {existingMeetingTime ? 'Editar Horário da Reunião' : 'Adicionar Horário da Reunião'}
+          </DialogTitle>
+          <DialogDescription>
+            Digite o horário da call/reunião agendada com {card.contact?.name || 'este lead'}
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="meetingTime">Horário da Reunião</Label>
+            <Input
+              id="meetingTime"
+              value={meetingTime}
+              onChange={(e) => setMeetingTime(e.target.value)}
+              placeholder="Ex: segunda 15h, terça às 14h30, 14h"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && meetingTime.trim()) {
+                  handleSave();
+                }
+              }}
+            />
+            <p className="text-xs text-muted-foreground">
+              Exemplos: "segunda 15h", "terça às 14h30", "14h", "quinta-feira 16h"
+            </p>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            disabled={loading}
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleSave}
+            disabled={!meetingTime.trim() || loading}
+          >
+            {loading ? 'Salvando...' : 'Salvar'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
