@@ -5,11 +5,11 @@ import { Draggable } from '@hello-pangea/dnd';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { MoreHorizontal, Phone, Mail, Eye, Edit2, Trash2, MessageCircle, MoveRight } from 'lucide-react';
+import { MoreHorizontal, Phone, Mail, Eye, Edit2, Trash2, MessageCircle, MoveRight, Clock } from 'lucide-react';
 import { Button } from '../ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from '../ui/dropdown-menu';
 import type { KanbanCard as KanbanCardType, KanbanStage } from '@/lib/types';
-import { EditLeadDialog, DeleteLeadDialog, ViewLeadDialog } from './lead-dialogs';
+import { EditLeadDialog, DeleteLeadDialog, ViewLeadDialog, AddMeetingTimeDialog } from './lead-dialogs';
 
 interface KanbanCardProps {
   card: KanbanCardType;
@@ -24,6 +24,7 @@ export function KanbanCard({ card, index, stages, onUpdate, onDelete, onOpenWhat
   const [viewOpen, setViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [meetingTimeOpen, setMeetingTimeOpen] = useState(false);
 
   const handleMoveStage = async (stageId: string) => {
     await onUpdate(card.id, { stageId });
@@ -39,6 +40,8 @@ export function KanbanCard({ card, index, stages, onUpdate, onDelete, onOpenWhat
       }
     }
   };
+
+  const hasMeetingTime = card.notes?.includes('📅 Reunião agendada:');
 
   return (
     <>
@@ -90,6 +93,11 @@ export function KanbanCard({ card, index, stages, onUpdate, onDelete, onOpenWhat
                       <DropdownMenuItem onClick={() => setEditOpen(true)}>
                         <Edit2 className="mr-2 h-4 w-4" />
                         Editar Lead
+                      </DropdownMenuItem>
+                      
+                      <DropdownMenuItem onClick={() => setMeetingTimeOpen(true)}>
+                        <Clock className="mr-2 h-4 w-4" />
+                        {hasMeetingTime ? 'Editar Horário' : 'Adicionar Horário'}
                       </DropdownMenuItem>
                       
                       {card.contact?.phone && (
@@ -180,6 +188,7 @@ export function KanbanCard({ card, index, stages, onUpdate, onDelete, onOpenWhat
         onDelete={() => setDeleteOpen(true)}
       />
       <EditLeadDialog open={editOpen} onOpenChange={setEditOpen} card={card} onSave={onUpdate} />
+      <AddMeetingTimeDialog open={meetingTimeOpen} onOpenChange={setMeetingTimeOpen} card={card} onSave={onUpdate} />
       <DeleteLeadDialog open={deleteOpen} onOpenChange={setDeleteOpen} card={card} onConfirm={onDelete} />
     </>
   );
