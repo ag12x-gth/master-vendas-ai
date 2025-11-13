@@ -87,39 +87,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Criar agente
-    const [newAgent] = await db.insert(notificationAgents).values({
-      companyId,
-      connectionId,
-      name,
-      description: description || null,
-      enabledNotifications: enabledNotifications || {
-        dailyReport: false,
-        weeklyReport: false,
-        biweeklyReport: false,
-        monthlyReport: false,
-        biannualReport: false,
-        newMeeting: false,
-        newSale: false,
-        campaignSent: false,
-      },
-      scheduleTime: scheduleTime || '09:00',
-      timezone: timezone || 'America/Sao_Paulo',
-      isActive: true,
-    }).returning();
+    let newAgent;
 
-    // Criar grupos associados
-    if (newAgent && groupJids && groupJids.length > 0) {
-      await db.insert(notificationAgentGroups).values(
-        groupJids.map((jid: string) => ({
-          agentId: newAgent.id,
-          groupJid: jid,
-          isActive: true,
-        }))
-      );
-    }
+    await db.transaction(async (tx) => {
+      const [agent] = await tx.insert(notificationAgents).values({
+        companyId,
+        connectionId,
+        name,
+        description: description || null,
+        enabledNotifications: enabledNotifications || {
+          dailyReport: false,
+          weeklyReport: false,
+          biweeklyReport: false,
+          monthlyReport: false,
+          biannualReport: false,
+          newMeeting: false,
+          newSale: false,
+          campaignSent: false,
+        },
+        scheduleTime: scheduleTime || '09:00',
+        timezone: timezone || 'America/Sao_Paulo',
+        isActive: true,
+      }).returning();
 
-    // Retornar agente com grupos
+      newAgent = agent;
+
+      if (agent && groupJids && groupJids.length > 0) {
+        await tx.insert(notificationAgentGroups).values(
+          groupJids.map((jid: string) => ({
+            agentId: agent.id,
+            groupJid: jid,
+            isActive: true,
+          }))
+        );
+      }
+    });
+
     if (!newAgent) {
       return NextResponse.json(
         { error: 'Erro ao criar agente' },

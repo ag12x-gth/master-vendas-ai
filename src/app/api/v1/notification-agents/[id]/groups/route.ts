@@ -1,0 +1,74 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { notificationAgents } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
+import { getCompanyIdFromSession } from '@/app/actions';
+import { baileysSessionManager } from '@/services/baileys-session-manager';
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const companyId = await getCompanyIdFromSession();
+    if (!companyId) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
+    const agentId = params.id;
+
+    const agent = await db.query.notificationAgents.findFirst({
+      where: eq(notificationAgents.id, agentId),
+      with: {
+        connection: true,
+        groups: true,
+      },
+    });
+
+    if (!agent) {
+      return NextResponse.json({ error: 'Agente não encontrado' }, { status: 404 });
+    }
+
+    if (agent.companyId !== companyId) {
+      return NextResponse.json({ error: 'Acesso negado' }, { status: 403 });
+    }
+
+    const connectionId = agent.connectionId;
+    const sessionData = baileysSessionManager['sessions'].get(connectionId);
+
+    if (!sessionData || sessionData.status !== 'connected') {
+      return NextResponse.json(
+        { 
+          error: 'Sessão WhatsApp não conectada',
+          code: 'SESSION_OFFLINE',
+          details: { status: sessionData?.status || 'not_found' }
+        },
+        { status: 503 }
+      );
+    }
+
+    const socket = sessionData.socket;
+    const allGroups = await socket.groupFetchAllParticipating();
+
+    const linkedGroupJids = new Set(agent.groups.map(g => g.groupJid));
+
+    const groups = Object.values(allGroups).map(group => ({
+      id: group.id,
+      subject: group.subject,
+      participantCount: group.participants?.length || 0,
+      isLinked: linkedGroupJids.has(group.id),
+    }));
+
+    return NextResponse.json({ groups });
+  } catch (error) {
+    console.error('[NotificationAgents][Groups] GET error:', error);
+    return NextResponse.json(
+      { 
+        error: 'Erro ao buscar grupos WhatsApp',
+        code: 'FETCH_GROUPS_ERROR',
+        details: error instanceof Error ? error.message : 'Erro desconhecido'
+      },
+      { status: 500 }
+    );
+  }
+}
