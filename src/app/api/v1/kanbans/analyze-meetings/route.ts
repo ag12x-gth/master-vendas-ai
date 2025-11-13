@@ -29,7 +29,8 @@ interface AnalyzeResult {
 async function detectMeetingInConversation(
   conversationMessages: Array<{ content: string; isUser: boolean }>
 ): Promise<{ detected: boolean; scheduledTime?: string; confidence: number }> {
-  const conversationText = conversationMessages
+  const userOnlyText = conversationMessages
+    .filter(m => m.isUser)
     .map(m => m.content)
     .join('\n')
     .toLowerCase();
@@ -62,21 +63,21 @@ async function detectMeetingInConversation(
   ];
 
   for (const signal of strongSignals) {
-    if (signal.pattern.test(conversationText)) {
+    if (signal.pattern.test(userOnlyText)) {
       confidence += signal.weight;
       evidence.push(signal.name);
     }
   }
 
   for (const signal of mediumSignals) {
-    if (signal.pattern.test(conversationText)) {
+    if (signal.pattern.test(userOnlyText)) {
       confidence += signal.weight;
       evidence.push(signal.name);
     }
   }
 
   for (const signal of weakSignals) {
-    if (signal.pattern.test(conversationText)) {
+    if (signal.pattern.test(userOnlyText)) {
       confidence += signal.weight;
       evidence.push(signal.name);
     }
@@ -107,7 +108,7 @@ async function detectMeetingInConversation(
   const allMatches: Array<{ text: string; type: string }> = [];
 
   for (const { regex, type } of timePatterns) {
-    const matches = Array.from(conversationText.matchAll(regex));
+    const matches = Array.from(userOnlyText.matchAll(regex));
     for (const match of matches) {
       if (match[1] && match[2]) {
         if (type === 'time_with_minutes') {
