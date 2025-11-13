@@ -39,15 +39,26 @@ async function detectMeetingInConversation(
   let scheduledTime: string | undefined;
 
   const strongSignals = [
-    { pattern: /\b(agendar|marcar|combinar|confirmar).{0,30}(reuni[ãa]o|call|encontro|atendimento|liga[çc][ãa]o)\b/, weight: 30, name: 'Verbo de agendamento + substantivo' },
-    { pattern: /\b(reuni[ãa]o|call|encontro|atendimento).{0,30}(agendad[oa]|marcad[oa]|confirmad[oa])\b/, weight: 30, name: 'Substantivo + participio passado' },
-    { pattern: /\b(vamos fazer|pode ser|que tal|como fica).{0,30}(reuni[ãa]o|call|encontro)\b/, weight: 25, name: 'Sugestão de reunião' },
+    { pattern: /\b(agendar|marcar|combinar|confirmar).{0,40}(reuni[ãa]o|call|encontro|atendimento|liga[çc][ãa]o|workshop|sala|vaga)\b/i, weight: 30, name: 'Verbo de agendamento' },
+    { pattern: /\b(reuni[ãa]o|call|encontro|atendimento|workshop|sala).{0,40}(agendad[oa]|marcad[oa]|confirmad[oa]|registrad[oa])\b/i, weight: 30, name: 'Confirmação' },
+    { pattern: /\b(vamos fazer|pode ser|que tal|como fica|garantir sua vaga|confirmo seu acesso|vamos juntos)\b/i, weight: 25, name: 'Sugestão' },
+    { pattern: /\b(fechado|perfeito|show|[óo]timo|combinado|confirmando).{0,25}(\d{1,2}[h:]?\d{0,2})/i, weight: 35, name: 'Fechamento + horário' },
+    { pattern: /\best[áa] (confirmad[oa]|registrad[oa]|[óo]tim[oa]|perfeito)\b/i, weight: 25, name: 'Confirmação IA' },
   ];
 
   const mediumSignals = [
-    { pattern: /\b(segunda|ter[çc]a|quarta|quinta|sexta|s[áa]bado|domingo).{0,30}\d{1,2}h\d{0,2}\b/, weight: 20, name: 'Dia da semana + horário' },
-    { pattern: /\b(amanh[ãa]|hoje|depois).{0,30}\d{1,2}h\d{0,2}\b/, weight: 15, name: 'Referência temporal + horário' },
-    { pattern: /\b(confirmo|confirmado|confirmada|confirmar)\b/, weight: 15, name: 'Variações de confirmar' },
+    { pattern: /\b(segunda|ter[çc]a|quarta|quinta|sexta|s[áa]bado|domingo).{0,40}\d{1,2}[h:]?\d{0,2}/i, weight: 20, name: 'Dia + horário' },
+    { pattern: /\b(amanh[ãa]|hoje|depois de amanh[ãa]).{0,40}\d{1,2}[h:]?\d{0,2}/i, weight: 20, name: 'Temporal + horário' },
+    { pattern: /\b([aà]s?)\s+\d{1,2}[h:]?\d{0,2}/i, weight: 18, name: 'Às + horário' },
+    { pattern: /\b(backup|alternativa|outra op[çc][ãa]o|mais um hor[áa]rio).{0,30}\d{1,2}[h:]?\d{0,2}/i, weight: 15, name: 'Horário backup' },
+    { pattern: /\bentre\s+\d{1,2}h\s*[-e]\s*\d{1,2}h/i, weight: 12, name: 'Range de horário' },
+  ];
+
+  const weakSignals = [
+    { pattern: /^\s*\d{1,2}([h:]?\d{2})?h?\s*$/im, weight: 35, name: 'Horário isolado' },
+    { pattern: /^\s*\d{1,2}\s*$/im, weight: 30, name: 'Número isolado' },
+    { pattern: /\b(confirmo|confirmado|confirmada|confirmar|confirmando)\b/i, weight: 15, name: 'Confirmar' },
+    { pattern: /\b(workshop|sala secreta|sala|treinamento|curso)\b/i, weight: 10, name: 'Tipo de evento' },
   ];
 
   for (const signal of strongSignals) {
@@ -64,20 +75,72 @@ async function detectMeetingInConversation(
     }
   }
 
-  const weekdayExtractPattern = '(segunda|ter[cç]a(?:[\\s-]?feira)?|quarta(?:[\\s-]?feira)?|quinta(?:[\\s-]?feira)?|sexta(?:[\\s-]?feira)?|s[áa]bado|domingo)';
-  
-  const dayFirstPattern = new RegExp(`\\b${weekdayExtractPattern}[\\s,]*(?:[aà]s?)?\\s*(\\d{1,2}(?:h(?:\\d{1,2})?|: ?\\d{2})(?:hs?|min)?)\\b`, 'gi');
-  const dayFirstMatches = Array.from(conversationText.matchAll(dayFirstPattern));
-  
-  if (dayFirstMatches.length > 0) {
-    const lastMatch = dayFirstMatches[dayFirstMatches.length - 1];
-    if (lastMatch && lastMatch[1] && lastMatch[2]) {
-      const dayName = lastMatch[1].replace(/[\s-]?feira/i, '').trim();
-      scheduledTime = `${dayName} às ${lastMatch[2].replace(/hs?$/, 'h').trim()}`;
+  for (const signal of weakSignals) {
+    if (signal.pattern.test(conversationText)) {
+      confidence += signal.weight;
+      evidence.push(signal.name);
     }
   }
 
-  const detected = confidence >= 60;
+  const userMessages = conversationMessages.filter(m => m.isUser);
+  const lastUserMessage = userMessages.length > 0 ? userMessages[userMessages.length - 1] : null;
+
+  if (lastUserMessage) {
+    const lastUserContent = lastUserMessage.content.trim();
+    const isIsolatedTime = /^\s*\d{1,2}([h:]?\d{2})?h?\s*$/i.test(lastUserContent);
+    
+    if (isIsolatedTime) {
+      confidence += 20;
+      evidence.push('Última mensagem do lead é horário isolado');
+    }
+  }
+
+  const timePatterns = [
+    { regex: /\b(segunda|ter[çc]a|quarta|quinta|sexta|s[áa]bado|domingo)[\s,-]*(?:feira)?[\s,]*(?:[aà]s?)?\s*(\d{1,2}(?:[h:]?\d{0,2}))/gi, type: 'day+time' },
+    { regex: /\b(amanh[ãa]|hoje|depois de amanh[ãa])[\s,]*(?:[aà]s?)?\s*(\d{1,2}(?:[h:]?\d{0,2}))/gi, type: 'temporal+time' },
+    { regex: /(?:fechado|confirmando|registrad[oa]|confirmad[oa])[\s:]*(\d{1,2}[h:]?\d{0,2})/gi, type: 'keyword+time' },
+    { regex: /(?:[aà]s?)\s+(\d{1,2}[h:]?\d{0,2})/gi, type: 'as+time' },
+    { regex: /\b(\d{1,2})[h:](\d{2})/gi, type: 'time_with_minutes' },
+    { regex: /^\s*(\d{1,2})h?\s*$/gim, type: 'time_isolated' },
+  ];
+
+  const allMatches: Array<{ text: string; type: string }> = [];
+
+  for (const { regex, type } of timePatterns) {
+    const matches = Array.from(conversationText.matchAll(regex));
+    for (const match of matches) {
+      if (match[1] && match[2]) {
+        if (type === 'time_with_minutes') {
+          const hours = match[1];
+          const minutes = match[2];
+          allMatches.push({ text: `${hours}:${minutes}`, type });
+        } else {
+          const day = match[1];
+          const time = match[2];
+          allMatches.push({ text: `${day} ${time}`, type });
+        }
+      } else if (match[1]) {
+        allMatches.push({ text: match[1], type });
+      }
+    }
+  }
+
+  if (allMatches.length > 0) {
+    const lastMatch = allMatches[allMatches.length - 1];
+    if (lastMatch) {
+      let time = lastMatch.text.trim();
+      
+      if (/^\d{1,2}$/.test(time)) {
+        scheduledTime = `${time}h`;
+      } else if (/^\d{1,2}:\d{2}$/.test(time)) {
+        scheduledTime = `${time}h`;
+      } else {
+        scheduledTime = time.replace(/h?s?$/i, 'h').trim();
+      }
+    }
+  }
+
+  const detected = confidence >= 50;
   return { detected, scheduledTime, confidence };
 }
 
@@ -130,24 +193,29 @@ async function runMeetingBackfill(
         try {
           stats.conversationsAnalyzed++;
 
-        const conversationMessages = await db
+        const rawMessages = await db
           .select({
             content: messages.content,
-            isUser: messages.isUser,
-            createdAt: messages.createdAt,
+            senderType: messages.senderType,
+            createdAt: messages.sentAt,
           })
           .from(messages)
           .where(eq(messages.conversationId, conv.id))
-          .orderBy(desc(messages.createdAt))
+          .orderBy(desc(messages.sentAt))
           .limit(20);
 
-        if (conversationMessages.length === 0) continue;
+        if (rawMessages.length === 0) continue;
 
         const contact = await db.query.contacts.findFirst({
           where: eq(contacts.id, conv.contactId),
         });
 
         if (!contact) continue;
+
+        const conversationMessages = rawMessages.map(msg => ({
+          content: msg.content,
+          isUser: msg.senderType === 'USER',
+        }));
 
         const messagesForAnalysis = conversationMessages.reverse();
         const detection = await detectMeetingInConversation(messagesForAnalysis);
