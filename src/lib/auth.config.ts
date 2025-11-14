@@ -48,10 +48,11 @@ declare module 'next-auth/jwt' {
 }
 
 export const authConfig: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
       authorization: {
         params: {
           prompt: 'consent',
@@ -61,8 +62,8 @@ export const authConfig: NextAuthOptions = {
       },
     }),
     FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID!,
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+      clientId: process.env.FACEBOOK_CLIENT_ID || '',
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET || '',
     }),
     CredentialsProvider({
       name: 'Credentials',
@@ -224,6 +225,25 @@ export const authConfig: NextAuthOptions = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
+      if (url.startsWith(baseUrl) && url.includes('callbackUrl')) {
+        const urlParams = new URLSearchParams(url.split('?')[1]);
+        const callbackUrl = urlParams.get('callbackUrl');
+        if (callbackUrl) {
+          return `${baseUrl}/api/auth/oauth-callback?redirect=${encodeURIComponent(callbackUrl)}`;
+        }
+      }
+      
+      if (url.startsWith('/')) {
+        return `${baseUrl}/api/auth/oauth-callback?redirect=${encodeURIComponent(url)}`;
+      }
+      
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+      
+      return `${baseUrl}/api/auth/oauth-callback`;
+    },
   },
   pages: {
     signIn: '/login',
@@ -233,5 +253,4 @@ export const authConfig: NextAuthOptions = {
     strategy: 'jwt',
     maxAge: 24 * 60 * 60,
   },
-  secret: process.env.NEXTAUTH_SECRET,
 };
