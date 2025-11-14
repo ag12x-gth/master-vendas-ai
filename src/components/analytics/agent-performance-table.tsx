@@ -11,9 +11,10 @@ import {
 } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '../ui/badge';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Skeleton } from '../ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import type { DateRange } from 'react-day-picker';
 
 type AgentPerformanceData = {
@@ -31,6 +32,7 @@ export function AgentPerformanceTable({ dateRange }: AgentPerformanceTableProps)
     const [performanceData, setPerformanceData] = useState<AgentPerformanceData[]>([]);
     const [loading, setLoading] = useState(true);
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
     useEffect(() => {
       const fetchData = async (): Promise<void> => {
@@ -49,14 +51,14 @@ export function AgentPerformanceTable({ dateRange }: AgentPerformanceTableProps)
           setPerformanceData(data.agentPerformance || []);
         } catch (error) {
           if (process.env.NODE_ENV !== 'production') console.debug(error);
-          toast({ variant: 'destructive', title: 'Erro no Ranking', description: (error as Error).message});
+          notify.error('Erro no Ranking', (error as Error).message);
           setPerformanceData([]);
         } finally {
           setLoading(false);
         }
       };
       void fetchData();
-    }, [dateRange, toast]);
+    }, [dateRange, notify]);
 
 
     if (loading) {

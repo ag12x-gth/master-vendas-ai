@@ -7,9 +7,10 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from '@/components/ui/chart';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Skeleton } from '../ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import type { Campaign } from '@/lib/types';
 
 
@@ -28,6 +29,7 @@ export function CampaignPerformanceChart(): JSX.Element {
   const [chartData, setChartData] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
@@ -50,13 +52,13 @@ export function CampaignPerformanceChart(): JSX.Element {
 
         setChartData(formattedData);
       } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
       } finally {
         setLoading(false);
       }
     };
     void fetchData();
-  }, [toast]);
+  }, [notify]);
 
 
   if (loading) {

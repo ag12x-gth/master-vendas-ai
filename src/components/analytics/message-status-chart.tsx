@@ -11,7 +11,8 @@ import {
   ChartLegendContent,
 } from '@/components/ui/chart';
 import { useToast } from '@/hooks/use-toast';
-import { useEffect, useState } from 'react';
+import { createToastNotifier } from '@/lib/toast-helper';
+import { useEffect, useState, useMemo } from 'react';
 import { Skeleton } from '../ui/skeleton';
 import type { Campaign } from '@/lib/types';
 
@@ -35,6 +36,7 @@ export function MessageStatusChart(): JSX.Element {
   const [chartData, setChartData] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
    useEffect(() => {
     const fetchData = async (): Promise<void> => {
@@ -43,9 +45,9 @@ export function MessageStatusChart(): JSX.Element {
         const response = await fetch('/api/v1/campaigns');
         if (!response.ok) throw new Error('Falha ao buscar dados das campanhas.');
         
-        // CORREÇÃO: A API retorna um objeto de paginação. Os dados estão em 'data.data'.
+        // CORREÇÃO: A API retorna um objeto de paginação. Os dados estão em 'result.data'.
         const result = await response.json();
-        const data: Campaign[] = result.data || [];
+        const data: Campaign[] = result.data?.data ?? result.data ?? [];
         
         const totalDelivered = data.reduce((acc, c) => acc + (c.delivered || 0), 0);
         const totalRead = data.reduce((acc, c) => acc + (c.read || 0), 0);
@@ -60,13 +62,13 @@ export function MessageStatusChart(): JSX.Element {
         setChartData(formattedData);
 
       } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
       } finally {
         setLoading(false);
       }
     };
     void fetchData();
-  }, [toast]);
+  }, [notify]);
 
 
   if (loading) {

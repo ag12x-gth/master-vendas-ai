@@ -246,9 +246,14 @@ export function AppSidebar() {
   const { isExpanded, setExpanded, isMobileOpen, setMobileOpen } = useSidebar();
   const { session, loading } = useSession();
   const { isMobile } = useResponsive();
+  const [hasHydrated, setHasHydrated] = useState(false);
   const userRole = session?.userData?.role;
   const navItems = allNavItems.filter(item => userRole && item.roles.includes(userRole));
   const pathname = usePathname();
+
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
 
   useEffect(() => {
     if (isMobile) {
@@ -258,24 +263,27 @@ export function AppSidebar() {
 
   return (
     <>
-      {isMobile && isMobileOpen && (
+      {hasHydrated && isMobile && isMobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
-      <aside className={cn(
-        "flex-col border-r bg-background transition-all duration-300",
-        isMobile 
-          ? cn(
-              "fixed inset-y-0 left-0 z-50 w-72 md:hidden",
-              isMobileOpen ? "translate-x-0" : "-translate-x-full"
-            )
-          : cn(
-              "hidden sm:flex",
-              isExpanded ? "w-60" : "w-16"
-            )
-      )}>
+      <aside 
+        className={cn(
+          "flex-col border-r bg-background transition-all duration-300",
+          hasHydrated && isMobile 
+            ? cn(
+                "fixed inset-y-0 left-0 z-50 w-72 md:hidden",
+                isMobileOpen ? "translate-x-0" : "-translate-x-full"
+              )
+            : cn(
+                "hidden sm:flex",
+                hasHydrated && !isMobile && !isExpanded ? "w-16" : "w-60"
+              )
+        )}
+        suppressHydrationWarning
+      >
         <div className={cn("flex h-14 items-center border-b", isExpanded ? "px-4" : "justify-center")}>
              <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
                 <BotMessageSquare className="h-6 w-6 text-primary" />

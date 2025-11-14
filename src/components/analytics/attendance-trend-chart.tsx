@@ -9,9 +9,10 @@ import {
   ChartLegend,
   ChartLegendContent,
 } from '@/components/ui/chart';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Skeleton } from '../ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import type { DateRange } from 'react-day-picker';
 
 
@@ -34,6 +35,7 @@ export function AttendanceTrendChart({ dateRange }: AttendanceTrendChartProps): 
   const [chartData, setChartData] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   useEffect(() => {
     const fetchData = async (): Promise<void> => {
@@ -52,13 +54,13 @@ export function AttendanceTrendChart({ dateRange }: AttendanceTrendChartProps): 
         const data = await res.json();
         setChartData(data);
       } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro no Gráfico', description: (error as Error).message });
+        notify.error('Erro no Gráfico', (error as Error).message);
       } finally {
         setLoading(false);
       }
     };
     void fetchData();
-  }, [dateRange, toast]);
+  }, [dateRange, notify]);
 
   if (loading) {
     return <Skeleton className="h-64 w-full" />

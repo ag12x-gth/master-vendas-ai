@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -22,6 +22,9 @@ import { ptBR } from 'date-fns/locale';
 import Link from 'next/link';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 
 interface AIMetricsData {
   summary: {
@@ -46,26 +49,41 @@ interface AIMetricsData {
 export function AIPerformanceSection() {
   const [data, setData] = useState<AIMetricsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
+
+  const fetchMetrics = async () => {
+    const controller = new AbortController();
+    
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetch('/api/v1/ia/metrics', { 
+        signal: controller.signal 
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Falha ao carregar métricas de IA.');
+      }
+      
+      const result = await response.json();
+      setData(result);
+    } catch (err) {
+      if (err instanceof Error && err.name !== 'AbortError') {
+        const errorMessage = err.message || 'Erro ao buscar métricas de IA.';
+        setError(errorMessage);
+        console.error('Erro ao buscar métricas de IA:', err);
+      }
+    } finally {
+      setLoading(false);
+    }
+    
+    return () => controller.abort();
+  };
 
   useEffect(() => {
-    const fetchMetrics = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/v1/ia/metrics');
-        
-        if (!response.ok) {
-          throw new Error('Falha ao carregar métricas de IA.');
-        }
-        
-        const result = await response.json();
-        setData(result);
-      } catch (err) {
-        console.error('Erro ao buscar métricas de IA:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchMetrics();
   }, []);
 
@@ -74,6 +92,24 @@ export function AIPerformanceSection() {
       <Card>
         <CardContent className="flex justify-center items-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12 space-y-4">
+          <AlertCircle className="h-12 w-12 text-destructive" />
+          <div className="text-center space-y-2">
+            <h3 className="font-semibold text-lg">Erro ao Carregar Métricas de IA</h3>
+            <p className="text-sm text-muted-foreground max-w-md">{error}</p>
+          </div>
+          <Button onClick={() => fetchMetrics()} variant="outline" size="sm">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Tentar Novamente
+          </Button>
         </CardContent>
       </Card>
     );

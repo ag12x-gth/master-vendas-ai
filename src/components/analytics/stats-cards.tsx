@@ -8,9 +8,10 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { DollarSign, Users, Send, MessageCircleWarning } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Skeleton } from '../ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import type { DateRange } from 'react-day-picker';
 
 interface KpiData {
@@ -59,6 +60,7 @@ export function StatsCards({ dateRange }: StatsCardsProps) {
     const [data, setData] = useState<KpiData | null>(null);
     const [loading, setLoading] = useState(true);
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -77,14 +79,14 @@ export function StatsCards({ dateRange }: StatsCardsProps) {
                 setData(kpiData);
             } catch (error) {
                 console.error(error);
-                toast({ variant: 'destructive', title: 'Erro nos KPIs', description: (error as Error).message });
+                notify.error('Erro nos KPIs', (error as Error).message);
                 setData(null);
             } finally {
                 setLoading(false);
             }
         };
         fetchData();
-    }, [dateRange, toast]);
+    }, [dateRange, notify]);
 
     const stats = [
         {
