@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Button } from './button';
 import {
   ChevronsLeft,
@@ -26,6 +26,7 @@ export function PaginationControls({
   className,
 }: PaginationControlsProps) {
   const totalPages = Math.ceil(totalItems / pageSize);
+  const liveRegionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -39,12 +40,26 @@ export function PaginationControls({
       } else if (e.key === 'ArrowRight' && currentPage < totalPages) {
         e.preventDefault();
         onPageChange(currentPage + 1);
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        onPageChange(1);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        onPageChange(totalPages);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentPage, totalPages, onPageChange]);
+
+  useEffect(() => {
+    if (liveRegionRef.current) {
+      const startItem = (currentPage - 1) * pageSize + 1;
+      const endItem = Math.min(currentPage * pageSize, totalItems);
+      liveRegionRef.current.textContent = `Página ${currentPage} de ${totalPages}. Mostrando ${startItem} a ${endItem} de ${totalItems} itens.`;
+    }
+  }, [currentPage, totalPages, pageSize, totalItems]);
 
   if (totalPages <= 1) {
     return null;
@@ -88,14 +103,22 @@ export function PaginationControls({
   const pageNumbers = getPageNumbers();
 
   return (
-    <div
-      className={cn(
-        'flex items-center justify-center gap-1 sm:gap-2',
-        className
-      )}
-      role="navigation"
-      aria-label="Pagination"
-    >
+    <>
+      <div
+        ref={liveRegionRef}
+        className="sr-only"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      />
+      <div
+        className={cn(
+          'flex items-center justify-center gap-1 sm:gap-2',
+          className
+        )}
+        role="navigation"
+        aria-label="Paginação"
+      >
       <Button
         variant="outline"
         size="icon"
@@ -171,6 +194,7 @@ export function PaginationControls({
       >
         <ChevronsRight className="h-4 w-4" />
       </Button>
-    </div>
+      </div>
+    </>
   );
 }

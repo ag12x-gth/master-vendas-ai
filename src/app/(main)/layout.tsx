@@ -9,12 +9,11 @@ import type { ReactNode } from 'react';
 import { getUserSession } from '@/app/actions';
 import { redirect } from 'next/navigation';
 import { AnalyticsProvider } from '@/contexts/analytics-context';
-import { ConsoleMonitor } from '@/components/dev/console-monitor';
 import { VapiCallProvider } from '@/contexts/VapiCallContext';
-import { InstallBanner } from '@/components/pwa/install-banner';
+import dynamic from 'next/dynamic';
 
-export const dynamic = 'force-dynamic'
-export const fetchCache = 'force-no-store';
+const ConsoleMonitor = dynamic(() => import('@/components/dev/console-monitor').then(m => ({ default: m.ConsoleMonitor })), { ssr: false });
+const InstallBanner = dynamic(() => import('@/components/pwa/install-banner').then(m => ({ default: m.InstallBanner })), { ssr: false });
 
 export default async function MainLayout({
   children,

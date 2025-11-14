@@ -13,6 +13,7 @@ import { randomBytes, createHash } from 'crypto';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { z } from 'zod';
+import { cache } from 'react';
 
 // ==========================================
 // SESSION / AUTH UTILS
@@ -25,7 +26,7 @@ if (!JWT_SECRET_KEY) {
 const secretKey = new TextEncoder().encode(JWT_SECRET_KEY);
 
 
-export async function getUserSession(): Promise<{ user: UserWithCompany | null, error?: string, errorCode?: string }> {
+const getUserSessionUncached = async (): Promise<{ user: UserWithCompany | null, error?: string, errorCode?: string }> => {
     const cookieStore = cookies();
     const sessionToken = cookieStore.get('__session')?.value || cookieStore.get('session_token')?.value;
     
@@ -34,7 +35,6 @@ export async function getUserSession(): Promise<{ user: UserWithCompany | null, 
     }
     
     try {
-        // Verificar se o token está bem formado
         if (!sessionToken.includes('.') || sessionToken.split('.').length !== 3) {
             return { user: null, error: 'Formato de token inválido.', errorCode: 'token_invalido' };
         }
@@ -64,7 +64,6 @@ export async function getUserSession(): Promise<{ user: UserWithCompany | null, 
         
         const { user: userWithPassword, company } = results[0];
         
-        // Verificar se o companyId do token corresponde ao do usuário no banco
         if (tokenCompanyId && userWithPassword.companyId !== tokenCompanyId) {
             return { user: null, error: 'Inconsistência de empresa na sessão.', errorCode: 'token_invalido' };
         }
@@ -90,7 +89,9 @@ export async function getUserSession(): Promise<{ user: UserWithCompany | null, 
         
         return { user: null, error: `${errorMessage}: ${error.message}`, errorCode };
     }
-}
+};
+
+export const getUserSession = cache(getUserSessionUncached);
 
 
 export async function getCompanyIdFromSession(): Promise<string> {
