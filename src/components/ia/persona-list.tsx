@@ -21,7 +21,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreVertical, Edit, Copy, Trash2, Loader2, Bot, FileText, Globe } from 'lucide-react';
 import Link from 'next/link';
+import { useMemo } from 'react';
 import type { Persona } from '@/lib/types';
+import { createToastNotifier } from '@/lib/toast-helper';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,6 +43,7 @@ export function PersonaList() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [personaToDelete, setPersonaToDelete] = useState<Persona | null>(null);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const fetchPersonas = async () => {
     setLoading(true);
@@ -50,7 +53,7 @@ export function PersonaList() {
       const data = await response.json();
       setPersonas(data);
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+      notify.error('Erro', (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -75,11 +78,11 @@ export function PersonaList() {
       });
       if (!response.ok) throw new Error('Falha ao excluir agente.');
       
-      toast({ title: 'Agente Excluído!', description: `O agente "${personaToDelete.name}" foi removido.` });
+      notify.success('Agente Excluído!', `O agente "${personaToDelete.name}" foi removido.`);
       setPersonas(personas.filter(p => p.id !== personaToDelete.id));
 
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+      notify.error('Erro', (error as Error).message);
     } finally {
       setIsDeleteDialogOpen(false);
       setPersonaToDelete(null);

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
     Card,
     CardContent,
@@ -30,6 +30,7 @@ import {
   } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { MoreHorizontal, PlusCircle, Trash2, Edit, Loader2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../ui/dropdown-menu';
 import type { AiCredential } from '@/lib/types';
@@ -48,6 +49,7 @@ export function AiSettingsManager() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCredential, setEditingCredential] = useState<AiCredential | null>(null);
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
     const fetchCredentials = useCallback(async () => {
         setLoading(true);
@@ -57,11 +59,11 @@ export function AiSettingsManager() {
             const data = await res.json();
             setCredentials(data);
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+            notify.error('Erro', (error as Error).message);
         } finally {
             setLoading(false);
         }
-    }, [toast]);
+    }, [notify]);
     
     useEffect(() => {
         fetchCredentials();
@@ -81,10 +83,10 @@ export function AiSettingsManager() {
                  const errorData = await response.json();
                 throw new Error(errorData.error || 'Falha ao excluir a credencial.');
             }
-            toast({ title: 'Credencial Excluída!' });
+            notify.success('Credencial Excluída!');
             fetchCredentials();
         } catch(error) {
-            toast({ variant: 'destructive', title: 'Erro ao Excluir', description: (error as Error).message });
+            notify.error('Erro ao Excluir', (error as Error).message);
         }
     }
 

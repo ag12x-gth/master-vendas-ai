@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Loader2, Save, UserCircle, Users } from 'lucide-react';
 import type { KanbanStage } from '@/lib/types';
 
@@ -34,6 +35,7 @@ interface StagePersonaConfigProps {
 
 export function StagePersonaConfig({ boardId, stages, funnelType }: StagePersonaConfigProps) {
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [configs, setConfigs] = useState<StagePersonaConfig[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,11 +63,7 @@ export function StagePersonaConfig({ boardId, stages, funnelType }: StagePersona
         setConfigs(data);
       }
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro',
-        description: 'Falha ao carregar dados de configuração'
-      });
+      notify.error('Erro', 'Falha ao carregar dados de configuração');
     } finally {
       setLoading(false);
     }
@@ -94,19 +92,12 @@ export function StagePersonaConfig({ boardId, stages, funnelType }: StagePersona
 
       if (!response.ok) throw new Error('Falha ao salvar');
 
-      toast({
-        title: 'Sucesso',
-        description: 'Configuração salva com sucesso'
-      });
+      notify.success('Sucesso', 'Configuração salva com sucesso');
 
       await loadData();
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro',
-        description: 'Falha ao salvar configuração'
-      });
-    } finally {
+      notify.error('Erro', 'Falha ao salvar configuração');
+    } finally{
       setSaving(null);
     }
   };

@@ -24,8 +24,9 @@ import { Switch } from '@/components/ui/switch';
 import { Save, Bot, Loader2, Share2, List, AlertTriangle, Info } from 'lucide-react';
 import type { Persona as Agent } from '@/lib/types';
 import { Slider } from '../ui/slider';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 interface McpTool {
@@ -45,6 +46,7 @@ export function BehaviorSettings({
   onSaveSuccess: (updatedAgent: Agent) => void;
 }) {
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const [isSaving, setIsSaving] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -121,7 +123,7 @@ export function BehaviorSettings({
             parsedHeaders = JSON.parse(formData.mcpServerHeaders);
         }
     } catch(error) {
-        toast({ variant: 'destructive', title: 'Erro no JSON de Headers', description: 'O formato dos cabeçalhos é inválido.'});
+        notify.error('Erro no JSON de Headers', 'O formato dos cabeçalhos é inválido.');
         setIsSaving(false);
         return;
     }
@@ -146,17 +148,10 @@ export function BehaviorSettings({
       if (!response.ok) {
         throw new Error(result.error || 'Falha ao salvar o agente.');
       }
-      toast({
-        title: 'Agente Salvo!',
-        description: `O agente "${result.name}" foi salvo com sucesso.`,
-      });
+      notify.success('Agente Salvo!', `O agente "${result.name}" foi salvo com sucesso.`);
       onSaveSuccess(result);
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao Salvar',
-        description: (error as Error).message,
-      });
+      notify.error('Erro ao Salvar', (error as Error).message);
     } finally {
       setIsSaving(false);
     }
