@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   RefreshCw,
@@ -50,6 +50,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { CreateWhatsappCampaignDialog } from '../campaigns/create-whatsapp-campaign-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -95,6 +96,7 @@ export function TemplateGrid() {
   const [isCampaignModalOpen, setCampaignModalOpen] = useState(false);
   const [templateForCampaign, setTemplateForCampaign] = useState<Template | null>(null);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const fetchPrerequisites = useCallback(async () => {
     setLoading(true);
@@ -124,11 +126,11 @@ export function TemplateGrid() {
         }
 
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
     } finally {
         setLoading(false);
     }
-  }, [toast, activeConnectionId]);
+  }, [notify, activeConnectionId]);
   
   useEffect(() => {
     fetchPrerequisites();
@@ -137,7 +139,7 @@ export function TemplateGrid() {
   
   const handleSync = async () => {
     setIsSyncing(true);
-    toast({ title: 'Sincronizando modelos...', description: 'Aguarde enquanto buscamos os dados mais recentes.' });
+    notify.info('Sincronizando modelos...', 'Aguarde enquanto buscamos os dados mais recentes.');
     try {
         const response = await fetch('/api/v1/templates/sync', { method: 'POST' });
         if (!response.ok) {
@@ -145,10 +147,10 @@ export function TemplateGrid() {
             throw new Error(errorData.error || 'Falha na sincronização.');
         }
         const result = await response.json();
-        toast({ title: 'Sincronização Concluída!', description: result.message });
+        notify.success('Sincronização Concluída!', result.message);
         await fetchPrerequisites(); // Recarrega tudo
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro de Sincronização', description: (error as Error).message });
+        notify.error('Erro de Sincronização', (error as Error).message);
     } finally {
         setIsSyncing(false);
     }

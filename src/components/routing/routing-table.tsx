@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -21,6 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Save, Loader2, Bot, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import type { Connection, Persona } from '@/lib/types';
 import { Card, CardContent } from '../ui/card';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
@@ -34,6 +35,7 @@ export function RoutingTable() {
   const [isSaving, setIsSaving] = useState(false);
   
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const isDirty = JSON.stringify(initialConfig) !== JSON.stringify(routingConfig);
 
@@ -62,11 +64,11 @@ export function RoutingTable() {
       setInitialConfig(initialConfigData);
 
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+      notify.error('Erro', (error as Error).message);
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [notify]);
 
   useEffect(() => {
     fetchInitialData();
@@ -104,15 +106,12 @@ export function RoutingTable() {
             throw new Error(`${failedUpdates.length} regras de roteamento falharam ao salvar.`);
         }
         
-        toast({
-            title: 'Roteamento Salvo!',
-            description: 'As regras de roteamento foram salvas com sucesso.',
-        });
+        notify.success('Roteamento Salvo!', 'As regras de roteamento foram salvas com sucesso.');
         
         setInitialConfig(routingConfig);
 
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
     } finally {
         setIsSaving(false);
     }

@@ -2,7 +2,7 @@
 // src/components/gallery/upload-media-dialog.tsx
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import {
     Dialog,
     DialogContent,
@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UploadCloud, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Progress } from '../ui/progress';
 
 interface UploadMediaDialogProps {
@@ -30,6 +31,7 @@ export function UploadMediaDialog({ children, onUploadComplete }: UploadMediaDia
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const resetState = (): void => {
@@ -48,11 +50,7 @@ export function UploadMediaDialog({ children, onUploadComplete }: UploadMediaDia
             
             const MAX_FILE_SIZE = 12 * 1024 * 1024; // 12MB
             if (selectedFile.size > MAX_FILE_SIZE) {
-                toast({
-                    variant: 'destructive',
-                    title: 'Ficheiro Muito Grande',
-                    description: `O tamanho do ficheiro não pode exceder 12MB.`
-                });
+                notify.error('Ficheiro Muito Grande', 'O tamanho do ficheiro não pode exceder 12MB.');
                 return;
             }
             setFile(selectedFile);
@@ -62,7 +60,7 @@ export function UploadMediaDialog({ children, onUploadComplete }: UploadMediaDia
     const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         if (!file) {
-            toast({ variant: 'destructive', title: 'Nenhum ficheiro selecionado.' });
+            notify.error('Nenhum ficheiro selecionado.');
             return;
         }
         setIsUploading(true);
@@ -86,7 +84,7 @@ export function UploadMediaDialog({ children, onUploadComplete }: UploadMediaDia
             }
             
             setUploadProgress(100);
-            toast({ title: 'Upload Concluído!', description: 'A sua mídia foi adicionada à galeria.' });
+            notify.success('Upload Concluído!', 'A sua mídia foi adicionada à galeria.');
             
             if (onUploadComplete) {
                 onUploadComplete();
@@ -95,7 +93,7 @@ export function UploadMediaDialog({ children, onUploadComplete }: UploadMediaDia
             setIsOpen(false);
             
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro de Upload', description: (error as Error).message });
+            notify.error('Erro de Upload', (error as Error).message);
         } finally {
             clearInterval(progressInterval);
             setIsUploading(false);
