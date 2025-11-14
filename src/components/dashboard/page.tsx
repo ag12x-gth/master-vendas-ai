@@ -2,7 +2,7 @@
 // src/components/dashboard/page.tsx
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { DateRange } from 'react-day-picker';
 import { subDays, startOfDay } from 'date-fns';
@@ -19,31 +19,37 @@ import { OngoingCampaigns } from '@/components/dashboard/ongoing-campaigns';
 import { PendingConversations } from '@/components/dashboard/pending-conversations';
 import { PageHeader } from '@/components/page-header';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
-import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
-import { Rocket, ArrowRight, Loader2 } from 'lucide-react';
-import { Button } from '../ui/button';
+import { CardSkeleton, TableSkeleton } from '@/components/ui/skeleton-variants';
+import { Loader2, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ConnectionAlerts } from '@/components/dashboard/connection-alerts';
 import { useVapiCalls } from '@/hooks/useVapiCalls';
 
+const ChartSkeleton = () => (
+  <div className="h-[300px] w-full animate-pulse bg-muted rounded-md flex items-center justify-center">
+    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+  </div>
+);
+
 const CampaignPerformanceChart = dynamic(() => import('@/components/analytics/campaign-performance-chart').then(mod => ({ default: mod.CampaignPerformanceChart })), { 
   ssr: false,
-  loading: () => <ChartSkeleton />
+  loading: ChartSkeleton
 });
 
 const MessageStatusChart = dynamic(() => import('@/components/analytics/message-status-chart').then(mod => ({ default: mod.MessageStatusChart })), { 
   ssr: false,
-  loading: () => <ChartSkeleton />
+  loading: ChartSkeleton
 });
 
 const AttendanceTrendChart = dynamic(() => import('@/components/analytics/attendance-trend-chart').then(mod => ({ default: mod.AttendanceTrendChart })), { 
   ssr: false,
-  loading: () => <ChartSkeleton />
+  loading: ChartSkeleton
 });
 
 const AgentPerformanceTable = dynamic(() => import('@/components/analytics/agent-performance-table').then(mod => ({ default: mod.AgentPerformanceTable })), { 
   ssr: false,
-  loading: () => <TableSkeleton />
+  loading: () => <TableSkeleton rows={5} />
 });
 
 const CallKPIDashboard = dynamic(() => import('@/components/vapi-voice').then(mod => ({ default: mod.CallKPIDashboard })), { 
@@ -53,45 +59,13 @@ const CallKPIDashboard = dynamic(() => import('@/components/vapi-voice').then(mo
 
 const RecentCallsTable = dynamic(() => import('@/components/vapi-voice').then(mod => ({ default: mod.RecentCallsTable })), { 
   ssr: false,
-  loading: () => <TableSkeleton />
+  loading: () => <TableSkeleton rows={5} />
 });
 
 const AIPerformanceSection = dynamic(() => import('@/components/dashboard/ai-performance-section').then(mod => ({ default: mod.AIPerformanceSection })), { 
   ssr: false,
   loading: () => <div className="space-y-4"><CardSkeleton /><CardSkeleton /></div>
 });
-
-function ChartSkeleton() {
-  return (
-    <div className="h-[300px] w-full animate-pulse bg-muted rounded-md flex items-center justify-center">
-      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-    </div>
-  );
-}
-
-function TableSkeleton() {
-  return (
-    <div className="space-y-3">
-      {[...Array(5)].map((_, i) => (
-        <div key={i} className="h-12 w-full animate-pulse bg-muted rounded-md" />
-      ))}
-    </div>
-  );
-}
-
-function CardSkeleton() {
-  return (
-    <Card>
-      <CardHeader>
-        <div className="h-4 w-24 animate-pulse bg-muted rounded" />
-      </CardHeader>
-      <CardContent>
-        <div className="h-8 w-16 animate-pulse bg-muted rounded mb-2" />
-        <div className="h-3 w-32 animate-pulse bg-muted rounded" />
-      </CardContent>
-    </Card>
-  );
-}
 
 export default function DashboardClient() {
   const { metrics: vapiMetrics, calls: vapiCalls, loading: vapiLoading } = useVapiCalls(true);
@@ -110,20 +84,6 @@ export default function DashboardClient() {
           <DateRangePicker onDateChange={setDateRange} initialDate={dateRange} />
         </div>
       </PageHeader>
-      
-      <Alert className="border-primary/50 text-primary-foreground bg-primary/10">
-        <Rocket className="h-4 w-4" />
-        <AlertTitle className="font-bold text-primary">Novidade na Versão 2.4.0: Agentes de IA!</AlertTitle>
-        <AlertDescription className="text-primary/90">
-            Agora você pode criar Agentes de IA e associá-los a cada conexão para automatizar seus atendimentos.
-             <Link href="/agentes-ia/new" passHref>
-                <Button variant="link" className="p-0 h-auto ml-2 text-primary-foreground font-bold">
-                    Criar seu primeiro agente
-                    <ArrowRight className="h-4 w-4 ml-1" />
-                </Button>
-            </Link>
-        </AlertDescription>
-      </Alert>
       
       <ConnectionAlerts />
       
