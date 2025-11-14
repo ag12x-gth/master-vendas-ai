@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { MediaUploader } from '@/components/campaigns/media-uploader';
 import type { Template, Contact, Connection, MediaAsset, HeaderType } from '@/lib/types';
@@ -53,6 +54,7 @@ export function StartConversationDialog({ contact }: { contact: Contact | null }
     const [selectedMedia, setSelectedMedia] = React.useState<MediaAsset | null>(null);
 
     const { toast } = useToast();
+    const notify = React.useMemo(() => createToastNotifier(toast), [toast]);
     const router = useRouter();
 
     const wabaId = React.useMemo(() => {
@@ -103,7 +105,7 @@ export function StartConversationDialog({ contact }: { contact: Contact | null }
                         setSelectedConnectionId(activeConnections[0].id);
                     }
                 } catch (error) {
-                    toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+                    notify.error('Erro', (error as Error).message);
                 } finally {
                     setLoading(false);
                 }
@@ -147,7 +149,7 @@ export function StartConversationDialog({ contact }: { contact: Contact | null }
 
         const requiresMedia = ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(selectedTemplate?.headerType || 'NONE');
         if (requiresMedia && !selectedMedia) {
-             toast({ variant: 'destructive', title: 'Mídia Obrigatória', description: 'Por favor, anexe uma mídia para este modelo.' });
+             notify.error('Mídia Obrigatória', 'Por favor, anexe uma mídia para este modelo.');
              setIsProcessing(false);
              return;
         }
@@ -168,12 +170,12 @@ export function StartConversationDialog({ contact }: { contact: Contact | null }
             const result = await response.json();
             if (!response.ok) throw new Error(result.error);
             
-            toast({ title: 'Conversa Iniciada!', description: 'A mensagem foi enviada com sucesso.'});
+            notify.success('Conversa Iniciada!', 'A mensagem foi enviada com sucesso.');
             router.push(`/atendimentos?conversationId=${result.conversationId}`);
             setIsOpen(false);
 
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro ao Enviar', description: (error as Error).message });
+            notify.error('Erro ao Enviar', (error as Error).message);
         } finally {
             setIsProcessing(false);
         }

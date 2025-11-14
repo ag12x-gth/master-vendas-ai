@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Filter, MoreVertical, PlusCircle, Trash, Edit, Users, DollarSign, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import type { KanbanFunnel } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import Link from 'next/link';
 import {
   AlertDialog,
@@ -32,6 +33,7 @@ export function FunnelList() {
   const [funnels, setFunnels] = useState<KanbanFunnel[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const fetchFunnels = async (): Promise<void> => {
     setLoading(true);
@@ -43,11 +45,7 @@ export function FunnelList() {
       const data = await response.json();
       setFunnels(data);
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao Carregar Funis',
-        description: (error as Error).message,
-      });
+      notify.error('Erro ao Carregar Funis', (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -66,14 +64,10 @@ export function FunnelList() {
         if (!response.ok) {
             throw new Error('Falha ao excluir o funil.');
         }
-        toast({ title: 'Funil Excluído!', description: 'O funil foi removido com sucesso.' });
+        notify.success('Funil Excluído!', 'O funil foi removido com sucesso.');
         await fetchFunnels();
     } catch (error) {
-        toast({
-            variant: 'destructive',
-            title: 'Erro ao Excluir',
-            description: (error as Error).message
-        });
+        notify.error('Erro ao Excluir', (error as Error).message);
     }
   };
 

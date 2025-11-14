@@ -11,8 +11,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import type { ExtendedContact, ContactList, Tag as TagType } from '@/lib/types';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Skeleton } from '../ui/skeleton';
@@ -110,6 +111,7 @@ const ProfileSkeleton = () => (
 export function ContactProfile({ contactId }: { contactId: string }) {
   const router = useRouter();
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const [contact, setContact] = useState<ExtendedContact | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -148,11 +150,11 @@ export function ContactProfile({ contactId }: { contactId: string }) {
         setAvailableLists(await listsRes.json());
 
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro', description: error instanceof Error ? error.message : "Ocorreu um erro." })
+        notify.error('Erro', error instanceof Error ? error.message : "Ocorreu um erro.");
     } finally {
         setLoading(false);
     }
-  }, [contactId, toast]);
+  }, [contactId, notify]);
 
   useEffect(() => {
     void fetchContact();
@@ -193,10 +195,10 @@ export function ContactProfile({ contactId }: { contactId: string }) {
       
       await fetchContact();
       setEditingSection(null);
-      toast({ title: 'Sucesso!', description: 'As informações do contato foram atualizadas.'});
+      notify.success('Sucesso!', 'As informações do contato foram atualizadas.');
 
     } catch (error) {
-       toast({ variant: 'destructive', title: 'Erro ao salvar', description: error instanceof Error ? error.message : "Ocorreu um erro."})
+       notify.error('Erro ao salvar', error instanceof Error ? error.message : "Ocorreu um erro.");
     } finally {
         setIsSaving(false);
     }

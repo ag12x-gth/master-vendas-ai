@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Upload, FileDown, Loader2, CheckCircle, UserPlus, UserCheck, UserX, XCircle, Users } from 'lucide-react';
 import { Progress } from '../ui/progress';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
@@ -42,6 +43,7 @@ type ImportSummary = {
 
 const UploadStep = ({ onFileAccepted }: { onFileAccepted: (file: File) => void }): JSX.Element => {
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
     const [isDragging, setIsDragging] = useState(false);
 
     const handleFileChange = (files: FileList | null): void => {
@@ -49,11 +51,11 @@ const UploadStep = ({ onFileAccepted }: { onFileAccepted: (file: File) => void }
             const file = files[0];
             if (!file) return;
             if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
-                toast({ variant: 'destructive', title: 'Ficheiro Inválido', description: 'Por favor, selecione um ficheiro .csv' });
+                notify.error('Ficheiro Inválido', 'Por favor, selecione um ficheiro .csv');
                 return;
             }
             if (file.size === 0) {
-                toast({ variant: 'destructive', title: 'Ficheiro Vazio', description: 'O ficheiro selecionado está vazio.' });
+                notify.error('Ficheiro Vazio', 'O ficheiro selecionado está vazio.');
                 return;
             }
             onFileAccepted(file);
@@ -292,6 +294,7 @@ export function ImportContactsDialog({ onImportCompleted, children }: ImportCont
   const [selectedListIds, setSelectedListIds] = useState<string[]>([]);
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const { toast } = useToast();
+  const notify = React.useMemo(() => createToastNotifier(toast), [toast]);
 
   const reset = useCallback((): void => {
     setStep('upload');
@@ -324,7 +327,7 @@ export function ImportContactsDialog({ onImportCompleted, children }: ImportCont
             const headers = (results.meta.fields || []).filter(h => h); // Filtra cabeçalhos vazios
             const data = results.data as Record<string, unknown>[];
             if (headers.length === 0 || data.length === 0) {
-                toast({ variant: 'destructive', title: 'Ficheiro Inválido ou Vazio', description: 'Verifique o conteúdo e a formatação do seu ficheiro CSV.' });
+                notify.error('Ficheiro Inválido ou Vazio', 'Verifique o conteúdo e a formatação do seu ficheiro CSV.');
                 reset();
                 return;
             }
@@ -334,7 +337,7 @@ export function ImportContactsDialog({ onImportCompleted, children }: ImportCont
             setStep('mapping');
         },
         error: (error) => {
-            toast({ variant: 'destructive', title: 'Erro de Leitura', description: `Não foi possível analisar o ficheiro: ${error.message}` });
+            notify.error('Erro de Leitura', `Não foi possível analisar o ficheiro: ${error.message}`);
             reset();
         }
     });
@@ -342,7 +345,7 @@ export function ImportContactsDialog({ onImportCompleted, children }: ImportCont
 
   const startProcessing = async (): Promise<void> => {
     if (!mappings.phone || !mappings.name) {
-        toast({ variant: 'destructive', title: 'Mapeamento Incompleto', description: 'Os campos "Nome" e "Telefone" são obrigatórios.' });
+        notify.error('Mapeamento Incompleto', 'Os campos "Nome" e "Telefone" são obrigatórios.');
         return;
     }
 
@@ -382,12 +385,7 @@ export function ImportContactsDialog({ onImportCompleted, children }: ImportCont
             currentOffset += chunkSize;
         } catch (error: unknown) {
             const err = error as { details?: string; error?: string };
-            toast({
-              variant: 'destructive',
-              title: 'Erro Crítico na Importação',
-              description: (<div className="text-xs w-full"><p>{err.details || err.error || 'A importação foi interrompida.'}</p></div>),
-              duration: 30000,
-            });
+            notify.error('Erro Crítico na Importação', err.details || err.error || 'A importação foi interrompida.');
             reset();
             setIsOpen(true);
             return;
