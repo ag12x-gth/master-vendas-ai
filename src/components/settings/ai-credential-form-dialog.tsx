@@ -21,7 +21,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect } from 'react';
+import { createToastNotifier } from '@/lib/toast-helper';
+import { useState, useEffect, useMemo } from 'react';
 import type { AiCredential } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 
@@ -62,6 +63,7 @@ const CredentialInputs = ({ provider, credential }: { provider: Provider | null,
 
 export function AiCredentialFormDialog({ isOpen, onOpenChange, credentialToEdit, onSaveSuccess }: AiCredentialFormDialogProps) {
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
 
@@ -82,7 +84,7 @@ export function AiCredentialFormDialog({ isOpen, onOpenChange, credentialToEdit,
         const provider = isEditing ? credentialToEdit.provider : selectedProvider;
 
         if (!provider) {
-             toast({ variant: 'destructive', title: 'Erro', description: 'O provedor é obrigatório.' });
+             notify.error('Erro', 'O provedor é obrigatório.');
              setIsProcessing(false);
              return;
         }
@@ -98,7 +100,7 @@ export function AiCredentialFormDialog({ isOpen, onOpenChange, credentialToEdit,
         }
 
         if (!isEditing && !apiKey) {
-            toast({ variant: 'destructive', title: 'Erro', description: 'A chave de API é obrigatória ao criar uma nova credencial.' });
+            notify.error('Erro', 'A chave de API é obrigatória ao criar uma nova credencial.');
             setIsProcessing(false);
             return;
         }
@@ -112,11 +114,11 @@ export function AiCredentialFormDialog({ isOpen, onOpenChange, credentialToEdit,
             if (!response.ok) {
                 throw new Error(result.error || 'Falha ao salvar a credencial.');
             }
-            toast({ title: `Credencial ${isEditing ? 'Atualizada' : 'Salva'}!` });
+            notify.success(`Credencial ${isEditing ? 'Atualizada' : 'Salva'}!`);
             onSaveSuccess(result);
             onOpenChange(false);
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+            notify.error('Erro', (error as Error).message);
         } finally {
             setIsProcessing(false);
         }

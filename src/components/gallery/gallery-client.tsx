@@ -1,11 +1,12 @@
 // src/components/gallery/gallery-client.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Loader2, PlusCircle, Trash2, Video, Image as ImageIcon, FileText, Expand } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import {
   Card,
   CardContent,
@@ -116,6 +117,7 @@ export function GalleryClient(): React.ReactElement {
   const [loading, setLoading] = useState(true);
   const [mediaToPreview, setMediaToPreview] = useState<MediaAsset | null>(null);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const fetchMedia = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -125,11 +127,11 @@ export function GalleryClient(): React.ReactElement {
         const data = await res.json() as MediaAsset[];
         setMedia(data);
     } catch(error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
     } finally {
         setLoading(false);
     }
-  }, [toast]);
+  }, [notify]);
 
   useEffect(() => {
     void fetchMedia();
@@ -139,10 +141,10 @@ export function GalleryClient(): React.ReactElement {
     try {
         const response = await fetch(`/api/v1/media/${id}`, { method: 'DELETE' });
         if (!response.ok) throw new Error('Falha ao excluir a mídia.');
-        toast({ title: 'Mídia Excluída!', description: 'O ficheiro foi removido com sucesso.' });
+        notify.success('Mídia Excluída!', 'O ficheiro foi removido com sucesso.');
         void fetchMedia(); // Refresh
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
     }
   }
 

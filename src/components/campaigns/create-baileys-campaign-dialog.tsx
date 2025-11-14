@@ -24,6 +24,7 @@ import {
 import type { ContactList, Connection } from '@/lib/types';
 import { Loader2, Info, ArrowLeft, CalendarIcon, Send, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -78,6 +79,7 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
     const [availableLists, setAvailableLists] = useState<ContactList[]>([]);
     
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
     const baileysConnections = useMemo(() => {
         return connections.filter(c => c.connectionType === 'baileys' && c.isActive);
@@ -117,12 +119,12 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                         setSelectedConnectionId(firstBaileys.id);
                     }
                 } catch (error) {
-                    toast({ variant: 'destructive', title: 'Erro', description: 'Falha ao carregar dados.' });
+                    notify.error('Erro', 'Falha ao carregar dados.');
                 }
             };
             fetchData();
         }
-    }, [isOpen, toast]);
+    }, [isOpen, notify]);
 
     useEffect(() => {
         const initialMappings: Record<string, VariableMapping> = {};
@@ -206,18 +208,18 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
         e.preventDefault();
 
         if (!messageText.trim()) {
-            toast({ variant: 'destructive', title: 'Erro', description: 'A mensagem não pode estar vazia.'});
+            notify.error('Erro', 'A mensagem não pode estar vazia.');
             return;
         }
         
         if (contactListIds.length === 0) {
-            toast({ variant: 'destructive', title: 'Público Obrigatório', description: 'Por favor, selecione pelo menos uma lista de contatos.' });
+            notify.error('Público Obrigatório', 'Por favor, selecione pelo menos uma lista de contatos.');
             return;
         }
 
         const unmappedVars = variableNames.filter(v => !variableMappings[v]?.value);
         if (unmappedVars.length > 0) {
-            toast({ variant: 'destructive', title: 'Variáveis Pendentes', description: `As variáveis {{${unmappedVars.join('}}, {{')}}}} não foram mapeadas.` });
+            notify.error('Variáveis Pendentes', `As variáveis {{${unmappedVars.join('}}, {{')}}}} não foram mapeadas.`);
             return;
         }
 
@@ -255,20 +257,13 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                 throw new Error(result.error || 'Falha ao criar a campanha.');
             }
 
-            toast({
-                title: 'Campanha Criada!',
-                description: result.message || `A campanha "${name}" foi criada com sucesso.`
-            });
+            notify.success('Campanha Criada!', result.message || `A campanha "${name}" foi criada com sucesso.`);
             
             handleOpenChange(false);
             router.refresh();
 
         } catch (error) {
-            toast({
-                variant: 'destructive',
-                title: 'Erro ao Criar Campanha',
-                description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.',
-            });
+            notify.error('Erro ao Criar Campanha', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
         } finally {
             setIsProcessing(false);
         }
@@ -279,22 +274,22 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
 
         if (currentStepConfig?.id === 'info') {
             if (!name.trim()) {
-                toast({ variant: 'destructive', title: 'Nome Obrigatório', description: 'Digite um nome para a campanha.' });
+                notify.error('Nome Obrigatório', 'Digite um nome para a campanha.');
                 return;
             }
             if (!selectedConnectionId) {
-                toast({ variant: 'destructive', title: 'Conexão Obrigatória', description: 'Selecione uma conexão WhatsApp Normal.' });
+                notify.error('Conexão Obrigatória', 'Selecione uma conexão WhatsApp Normal.');
                 return;
             }
         }
 
         if (currentStepConfig?.id === 'message' && !messageText.trim()) {
-            toast({ variant: 'destructive', title: 'Mensagem Obrigatória', description: 'Digite o texto da mensagem.' });
+            notify.error('Mensagem Obrigatória', 'Digite o texto da mensagem.');
             return;
         }
 
         if (currentStepConfig?.id === 'audience' && contactListIds.length === 0) {
-            toast({ variant: 'destructive', title: 'Público Obrigatório', description: 'Selecione pelo menos uma lista de contatos.' });
+            notify.error('Público Obrigatório', 'Selecione pelo menos uma lista de contatos.');
             return;
         }
 

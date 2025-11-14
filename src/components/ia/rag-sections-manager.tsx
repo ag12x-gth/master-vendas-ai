@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -39,6 +39,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Loader2, Plus, Edit, Trash2, Eye, Code } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 
@@ -61,6 +62,7 @@ interface RagSectionsManagerProps {
 
 export function RagSectionsManager({ personaId }: RagSectionsManagerProps) {
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const [sections, setSections] = useState<PromptSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingSection, setEditingSection] = useState<PromptSection | null>(null);
@@ -87,11 +89,7 @@ export function RagSectionsManager({ personaId }: RagSectionsManagerProps) {
       const data = await response.json();
       setSections(data);
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro',
-        description: (error as Error).message,
-      });
+      notify.error('Erro', (error as Error).message);
     } finally {
       setLoading(false);
     }
@@ -155,21 +153,14 @@ export function RagSectionsManager({ personaId }: RagSectionsManagerProps) {
 
       if (!response.ok) throw new Error('Falha ao salvar seção');
 
-      toast({
-        title: 'Sucesso!',
-        description: editingSection
+      notify.success('Sucesso!', editingSection
           ? 'Seção atualizada com sucesso'
-          : 'Seção criada com sucesso',
-      });
+          : 'Seção criada com sucesso');
 
       setIsAddDialogOpen(false);
       fetchSections();
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro',
-        description: (error as Error).message,
-      });
+      notify.error('Erro', (error as Error).message);
     } finally {
       setIsSaving(false);
     }
@@ -186,20 +177,13 @@ export function RagSectionsManager({ personaId }: RagSectionsManagerProps) {
 
       if (!response.ok) throw new Error('Falha ao deletar seção');
 
-      toast({
-        title: 'Sucesso!',
-        description: 'Seção removida com sucesso',
-      });
+      notify.success('Sucesso!', 'Seção removida com sucesso');
 
       setIsDeleteDialogOpen(false);
       setSectionToDelete(null);
       fetchSections();
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro',
-        description: (error as Error).message,
-      });
+      notify.error('Erro', (error as Error).message);
     }
   };
 
