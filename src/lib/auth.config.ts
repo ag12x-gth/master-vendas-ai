@@ -226,23 +226,42 @@ export const authConfig: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }: { url: string; baseUrl: string }) {
-      if (url.startsWith(baseUrl) && url.includes('callbackUrl')) {
-        const urlParams = new URLSearchParams(url.split('?')[1]);
-        const callbackUrl = urlParams.get('callbackUrl');
+      const isOAuthCallback = url.includes('/api/auth/callback/google') || 
+                              url.includes('/api/auth/callback/facebook');
+      
+      if (!isOAuthCallback) {
+        if (url.startsWith('/')) return `${baseUrl}${url}`;
+        if (url.startsWith(baseUrl)) return url;
+        return baseUrl;
+      }
+      
+      let finalDestination = '/dashboard';
+      
+      if (url.includes('callbackUrl=')) {
+        const urlObj = new URL(url, baseUrl);
+        const callbackUrl = urlObj.searchParams.get('callbackUrl');
+        
         if (callbackUrl) {
-          return `${baseUrl}/api/auth/oauth-callback?redirect=${encodeURIComponent(callbackUrl)}`;
+          if (callbackUrl.startsWith('//')) {
+            finalDestination = '/dashboard';
+          } else if (callbackUrl.startsWith('/')) {
+            finalDestination = callbackUrl;
+          } else {
+            try {
+              const callbackUrlObj = new URL(callbackUrl);
+              const baseUrlObj = new URL(baseUrl);
+              
+              if (callbackUrlObj.origin === baseUrlObj.origin) {
+                finalDestination = callbackUrl;
+              }
+            } catch {
+              finalDestination = '/dashboard';
+            }
+          }
         }
       }
       
-      if (url.startsWith('/')) {
-        return `${baseUrl}/api/auth/oauth-callback?redirect=${encodeURIComponent(url)}`;
-      }
-      
-      if (url.startsWith(baseUrl)) {
-        return url;
-      }
-      
-      return `${baseUrl}/api/auth/oauth-callback`;
+      return `${baseUrl}/api/auth/oauth-callback?redirect=${encodeURIComponent(finalDestination)}`;
     },
   },
   pages: {

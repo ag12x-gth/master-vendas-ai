@@ -48,7 +48,22 @@ export async function GET(request: NextRequest) {
       .sign(secretKey);
 
     const { searchParams } = new URL(request.url);
-    const redirectUrl = searchParams.get('redirect') || '/dashboard';
+    let redirectUrl = searchParams.get('redirect') || '/dashboard';
+    
+    if (redirectUrl.startsWith('//')) {
+      redirectUrl = '/dashboard';
+    } else if (!redirectUrl.startsWith('/')) {
+      try {
+        const redirectUrlObj = new URL(redirectUrl);
+        const requestUrlObj = new URL(request.url);
+        
+        if (redirectUrlObj.origin !== requestUrlObj.origin) {
+          redirectUrl = '/dashboard';
+        }
+      } catch {
+        redirectUrl = '/dashboard';
+      }
+    }
 
     const response = NextResponse.redirect(new URL(redirectUrl, request.url));
     
