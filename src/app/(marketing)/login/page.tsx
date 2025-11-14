@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { BotMessageSquare, Eye, EyeOff, Loader2, AlertTriangle, Quote } from 'lucide-react';
+import { BotMessageSquare, Eye, EyeOff, Loader2, AlertTriangle, Quote, Mail } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/landing/theme-toggle';
@@ -20,6 +20,9 @@ import {
   CarouselItem,
 } from '@/components/ui/carousel';
 import Autoplay from "embla-carousel-autoplay"
+import { signIn } from 'next-auth/react';
+import { FcGoogle } from 'react-icons/fc';
+import { FaFacebook } from 'react-icons/fa';
 
 
 const errorMessages: Record<string, { title: string; description: string }> = {
@@ -97,6 +100,8 @@ function LoginPageContent() {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isFacebookLoading, setIsFacebookLoading] = useState(false);
   
   const plugin = useRef(
     Autoplay({ delay: 7000, stopOnInteraction: false, stopOnMouseEnter: true })
@@ -137,6 +142,34 @@ function LoginPageContent() {
         })
     } finally {
         setIsLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await signIn('google', { callbackUrl: '/dashboard' });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Falha ao fazer login com Google',
+      });
+      setIsGoogleLoading(false);
+    }
+  };
+
+  const handleFacebookSignIn = async () => {
+    setIsFacebookLoading(true);
+    try {
+      await signIn('facebook', { callbackUrl: '/dashboard' });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro',
+        description: 'Falha ao fazer login com Facebook',
+      });
+      setIsFacebookLoading(false);
     }
   };
 
@@ -218,11 +251,53 @@ function LoginPageContent() {
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Entrar'}
             </Button>
           </form>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Ou continue com
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Button
+              variant="outline"
+              type="button"
+              disabled={isGoogleLoading || isFacebookLoading}
+              onClick={handleGoogleSignIn}
+              className="w-full"
+            >
+              {isGoogleLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <FcGoogle className="mr-2 h-5 w-5" />
+              )}
+              Google
+            </Button>
+            <Button
+              variant="outline"
+              type="button"
+              disabled={isGoogleLoading || isFacebookLoading}
+              onClick={handleFacebookSignIn}
+              className="w-full"
+            >
+              {isFacebookLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <FaFacebook className="mr-2 h-5 w-5 text-[#1877F2]" />
+              )}
+              Facebook
+            </Button>
+          </div>
           
           <p className="text-sm text-center text-muted-foreground">
               Ainda não tem uma conta?{' '}
               <Link href="/register" className="font-semibold text-primary hover:underline">
-                Cadastre-se
+                Cadastre-se gratuitamente
               </Link>
           </p>
         </div>
