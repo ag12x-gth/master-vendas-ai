@@ -1,0 +1,54 @@
+
+
+1 of 1 error
+Next.js (14.2.33) is outdated (learn more)
+
+Unhandled Runtime Error
+TypeError: templates.find is not a function
+
+Source
+src/components/atendimentos/send-template-dialog.tsx (44:22) @ find
+
+  42 |
+  43 |   const selectedTemplate = useMemo(() => {
+> 44 |     return templates.find(t => t.id === selectedTemplateId);
+     |                      ^
+  45 |   }, [selectedTemplateId, templates]);
+  46 |
+  47 |   const handleSubmit = useCallback(async (e: React.FormEvent) => {
+Call Stack
+React
+mountMemo
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (12600:1)
+Object.useMemo
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (13305:1)
+useMemo
+node_modules/next/dist/compiled/react/cjs/react.development.js (2536:1)
+SendTemplateDialog
+src/components/atendimentos/send-template-dialog.tsx (43:36)
+React
+renderWithHooks
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (11121:1)
+mountIndeterminateComponent
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (16869:1)
+beginWork$1
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (18458:1)
+beginWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (26927:1)
+performUnitOfWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25748:1)
+workLoopSync
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25464:1)
+renderRootSync
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25419:1)
+recoverFromConcurrentError
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24597:1)
+performConcurrentWorkOnRoot
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24542:1)
+workLoop
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (256:1)
+flushWork
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (225:1)
+MessagePort.performWorkUntilDeadline
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (534:1)
+Hide collapsed frames
