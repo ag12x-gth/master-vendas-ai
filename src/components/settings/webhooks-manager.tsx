@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -41,6 +41,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { MoreHorizontal, PlusCircle, Trash2, Edit, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -90,6 +91,7 @@ export function WebhooksManager(): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingWebhook, setEditingWebhook] = useState<Webhook | null>(null);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const fetchWebhooks = useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -99,11 +101,11 @@ export function WebhooksManager(): JSX.Element {
         const data = await res.json();
         setWebhooks(data);
     } catch(error) {
-        toast({ variant: 'destructive', title: 'Erro', description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.' });
+        notify.error('Erro', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
     } finally {
         setLoading(false);
     }
-  }, [toast]);
+  }, [notify]);
   
   useEffect(() => {
     fetchWebhooks();
@@ -139,11 +141,11 @@ export function WebhooksManager(): JSX.Element {
             throw new Error(errorData.error || 'Falha ao salvar o webhook.');
         }
 
-        toast({ title: `Webhook ${isEditing ? 'Atualizado' : 'Criado'}!`, description: `O webhook "${webhookData.name}" foi salvo.`});
+        notify.success(`Webhook ${isEditing ? 'Atualizado' : 'Criado'}!`, `O webhook "${webhookData.name}" foi salvo.`);
         await fetchWebhooks();
 
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro ao Salvar', description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.' });
+        notify.error('Erro ao Salvar', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
     } finally {
         setIsModalOpen(false);
         setEditingWebhook(null);
@@ -162,7 +164,7 @@ export function WebhooksManager(): JSX.Element {
         });
         if (!response.ok) throw new Error('Falha ao atualizar o status.');
     } catch(error) {
-        toast({ variant: 'destructive', title: 'Erro', description: error instanceof Error ? error.message : 'Não foi possível alterar o status.' });
+        notify.error('Erro', error instanceof Error ? error.message : 'Não foi possível alterar o status.');
         setWebhooks(originalWebhooks);
     }
   }
@@ -175,9 +177,9 @@ export function WebhooksManager(): JSX.Element {
         if (response.status !== 204) throw new Error('Falha ao excluir o webhook.');
 
         setWebhooks(webhooks.filter(wh => wh.id !== webhookId));
-        toast({ title: 'Webhook Excluído!' });
+        notify.success('Webhook Excluído!');
     } catch(error) {
-         toast({ variant: 'destructive', title: 'Erro ao Excluir', description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.' });
+         notify.error('Erro ao Excluir', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
     }
   }
 

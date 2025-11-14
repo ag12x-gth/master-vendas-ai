@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -41,6 +41,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { MoreHorizontal, PlusCircle, Trash2, Edit, Loader2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -91,6 +92,7 @@ export function SmsGatewaysManager(): JSX.Element {
     const [editingGateway, setEditingGateway] = useState<SmsGateway | null>(null);
     const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
     const fetchGateways = async (): Promise<void> => {
         try {
@@ -102,7 +104,7 @@ export function SmsGatewaysManager(): JSX.Element {
             const data = await response.json();
             setGateways(data);
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+            notify.error('Erro', (error as Error).message);
         } finally {
             setLoading(false);
         }
@@ -110,7 +112,7 @@ export function SmsGatewaysManager(): JSX.Element {
 
     useEffect(() => {
         fetchGateways();
-    }, [toast]);
+    }, [notify]);
 
     const handleOpenModal = (gateway?: SmsGateway): void => {
         setEditingGateway(gateway || null);
@@ -163,12 +165,12 @@ export function SmsGatewaysManager(): JSX.Element {
                 throw new Error(errorData.error || 'Falha ao salvar o gateway.');
             }
 
-            toast({ title: `Gateway ${isEditing ? 'Atualizado' : 'Criado'}!`, description: 'A configuração do gateway foi salva.' });
+            notify.success(`Gateway ${isEditing ? 'Atualizado' : 'Criado'}!`, 'A configuração do gateway foi salva.');
             setIsModalOpen(false);
             await fetchGateways();
 
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+            notify.error('Erro', (error as Error).message);
         }
     }
 
@@ -182,9 +184,9 @@ export function SmsGatewaysManager(): JSX.Element {
                 throw new Error(errorData.error || 'Falha ao excluir o gateway.');
             }
             setGateways(prev => prev.filter(gw => gw.id !== gatewayId));
-            toast({ title: 'Gateway Excluído!', description: 'O gateway foi removido com sucesso.' });
+            notify.success('Gateway Excluído!', 'O gateway foi removido com sucesso.');
         } catch (error) {
-             toast({ variant: 'destructive', title: 'Erro ao Excluir', description: (error as Error).message });
+             notify.error('Erro ao Excluir', (error as Error).message);
         }
     }
 
@@ -202,7 +204,7 @@ export function SmsGatewaysManager(): JSX.Element {
             if (!response.ok) throw new Error("Falha ao atualizar o status do gateway.");
 
         } catch(error) {
-            toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+            notify.error('Erro', (error as Error).message);
             setGateways(originalGateways);
         }
     }

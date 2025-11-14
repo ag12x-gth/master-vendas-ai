@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -42,6 +42,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { MoreHorizontal, PlusCircle, Trash2, Copy, Check, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import type { ApiKey } from '@/lib/types';
@@ -55,6 +56,7 @@ export function ApiKeysManager() {
   const [isKeyVisible, setIsKeyVisible] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const fetchKeys = async () => {
     try {
@@ -64,7 +66,7 @@ export function ApiKeysManager() {
         const data = await res.json();
         setKeys(data);
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
     } finally {
         setLoading(false);
     }
@@ -97,7 +99,7 @@ export function ApiKeysManager() {
       await fetchKeys();
 
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro', description: error instanceof Error ? error.message : 'Não foi possível gerar a chave.' });
+      notify.error('Erro', error instanceof Error ? error.message : 'Não foi possível gerar a chave.');
     }
   };
   
@@ -108,10 +110,10 @@ export function ApiKeysManager() {
         });
         if (!response.ok) throw new Error('Falha ao revogar a chave.');
 
-        toast({ title: 'Chave Revogada', description: 'A chave de API foi revogada com sucesso.'});
+        notify.success('Chave Revogada', 'A chave de API foi revogada com sucesso.');
         setKeys(prev => prev.filter(k => k.id !== keyId));
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro', description: error instanceof Error ? error.message : 'Não foi possível revogar a chave.' });
+        notify.error('Erro', error instanceof Error ? error.message : 'Não foi possível revogar a chave.');
     }
   }
 
@@ -128,7 +130,7 @@ export function ApiKeysManager() {
     if (!generatedKey) return;
     navigator.clipboard.writeText(generatedKey);
     setIsCopied(true);
-    toast({ title: 'Copiado!', description: 'A chave de API foi copiada para a área de transferência.' });
+    notify.success('Copiado!', 'A chave de API foi copiada para a área de transferência.');
     setTimeout(() => setIsCopied(false), 2000);
   };
 

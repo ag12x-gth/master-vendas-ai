@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -39,6 +39,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { MoreHorizontal, PlusCircle, Trash2, Edit, Loader2, ChevronsLeft, ChevronsRight, ChevronRight, ChevronLeft, Search } from 'lucide-react';
 import {
   DropdownMenu,
@@ -57,6 +58,7 @@ export function TagsManager() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTag, setEditingTag] = useState<Tag | null>(null);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -90,11 +92,11 @@ export function TagsManager() {
         setTags(data.data || []);
         setTotalPages(data.totalPages || 1);
     } catch(error) {
-         toast({ variant: 'destructive', title: 'Erro', description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.' });
+         notify.error('Erro', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
     } finally {
         setLoading(false);
     }
-  }, [page, limit, search, toast]);
+  }, [page, limit, search, notify]);
 
   useEffect(() => {
     const debounce = setTimeout(() => {
@@ -114,7 +116,7 @@ export function TagsManager() {
   const handleSaveTag = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!tagName.trim()) {
-        toast({ variant: 'destructive', title: 'Erro de Validação', description: 'O nome da tag não pode estar vazio.'});
+        notify.error('Erro de Validação', 'O nome da tag não pode estar vazio.');
         return;
     }
     
@@ -135,11 +137,11 @@ export function TagsManager() {
             throw new Error(errorData.error || 'Falha ao salvar a tag.');
         }
 
-        toast({ title: `Tag ${isEditing ? 'Atualizada' : 'Criada'}!`, description: `A tag "${tagName}" foi salva.`});
+        notify.success(`Tag ${isEditing ? 'Atualizada' : 'Criada'}!`, `A tag "${tagName}" foi salva.`);
         await fetchTags(); // Re-fetch all tags
 
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro ao Salvar', description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.' });
+        notify.error('Erro ao Salvar', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
     } finally {
         setIsModalOpen(false);
         setEditingTag(null);
@@ -153,10 +155,10 @@ export function TagsManager() {
         });
         if (response.status !== 204) throw new Error('Falha ao excluir a tag.');
 
-        toast({ title: 'Tag Excluída!' });
+        notify.success('Tag Excluída!');
         await fetchTags();
     } catch(error) {
-         toast({ variant: 'destructive', title: 'Erro ao Excluir', description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.' });
+         notify.error('Erro ao Excluir', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
     }
   }
 
