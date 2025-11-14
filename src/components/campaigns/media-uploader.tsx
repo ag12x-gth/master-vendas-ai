@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -10,6 +10,7 @@ import { MediaLibraryDialog } from './media-library-dialog';
 import { UploadCloud, X, File as FileIcon, Video, Image as ImageIcon, Loader2 } from 'lucide-react';
 import type { MediaAsset, HeaderType } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { useRouter } from 'next/navigation';
 
 interface MediaUploaderProps {
@@ -46,6 +47,7 @@ export function MediaUploader({
   const [progress, setProgress] = useState(0);
   const [fileName, setFileName] = useState('');
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
@@ -55,11 +57,7 @@ export function MediaUploader({
 
     const MAX_FILE_SIZE = 12 * 1024 * 1024; // 12MB
     if (file.size > MAX_FILE_SIZE) {
-        toast({
-            variant: 'destructive',
-            title: 'Ficheiro Muito Grande',
-            description: 'O tamanho do ficheiro não pode exceder 12MB.',
-        });
+        notify.error('Ficheiro Muito Grande', 'O tamanho do ficheiro não pode exceder 12MB.');
         return;
     }
 
@@ -89,10 +87,10 @@ export function MediaUploader({
       setProgress(100);
       onMediaSelect(newAsset);
       
-      toast({ title: 'Upload Concluído!', description: 'Sua mídia foi adicionada à galeria.' });
+      notify.success('Upload Concluído!', 'Sua mídia foi adicionada à galeria.');
       router.refresh(); // Refresh gallery
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro de Upload', description: (error as Error).message });
+      notify.error('Erro de Upload', (error as Error).message);
     } finally {
         clearInterval(progressInterval);
         setUploading(false);
@@ -114,18 +112,14 @@ export function MediaUploader({
           if (!res.ok) throw new Error(data.error || 'Falha ao obter ID da Meta.');
           onHandleGenerated(data.handle);
         } catch (error) {
-          toast({
-            variant: 'destructive',
-            title: 'Erro de Processamento',
-            description: `Não foi possível processar a mídia com a Meta: ${(error as Error).message}`,
-          });
+          notify.error('Erro de Processamento', `Não foi possível processar a mídia com a Meta: ${(error as Error).message}`);
         } finally {
           setIsGeneratingHandle(false);
         }
       }
     };
     generateHandle();
-  }, [selectedMedia, connectionId, onHandleGenerated, toast]);
+  }, [selectedMedia, connectionId, onHandleGenerated, notify]);
 
 
   const handleRemoveMedia = async () => {
@@ -133,10 +127,10 @@ export function MediaUploader({
       try {
         const res = await fetch(`/api/v1/media/${selectedMedia.id}`, { method: 'DELETE' });
         if (!res.ok) throw new Error('Falha ao deletar mídia');
-        toast({ title: 'Mídia removida com sucesso!' });
+        notify.success('Mídia removida com sucesso!');
         router.refresh();
       } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
       }
     }
     onMediaSelect(null);

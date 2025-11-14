@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -33,6 +33,7 @@ import { ptBR } from 'date-fns/locale';
 import type { ContactList, SmsGateway } from '@/lib/types';
 import { Loader2, CalendarIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { useRouter } from 'next/navigation';
 
 interface CreateSmsCampaignDialogProps {
@@ -57,6 +58,7 @@ export function CreateSmsCampaignDialog({ children, onSaveSuccess }: CreateSmsCa
   const [lists, setContactLists] = useState<ContactList[]>([]);
   
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const router = useRouter();
 
   useEffect(() => {
@@ -80,14 +82,14 @@ export function CreateSmsCampaignDialog({ children, onSaveSuccess }: CreateSmsCa
             setSelectedGatewayId(gwData[0].id);
           }
         } catch (error) {
-          toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+          notify.error('Erro', (error as Error).message);
         } finally {
           setIsLoading(false);
         }
       };
       fetchPrereqs();
     }
-  }, [isOpen, toast]);
+  }, [isOpen, notify]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,13 +123,13 @@ export function CreateSmsCampaignDialog({ children, onSaveSuccess }: CreateSmsCa
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || 'Falha ao criar campanha SMS.');
       
-      toast({ title: 'Sucesso!', description: result.message });
+      notify.success('Sucesso!', result.message);
       setIsOpen(false);
       router.refresh();
       if (onSaveSuccess) onSaveSuccess();
 
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+      notify.error('Erro', (error as Error).message);
     } finally {
       setIsProcessing(false);
     }

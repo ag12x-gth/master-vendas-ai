@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import type { Template, Contact } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -38,6 +39,7 @@ export function SendTemplateDialog({ children, templates, connectionId, contact 
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const router = useRouter();
 
   const templateList = useMemo(() => {
@@ -60,7 +62,7 @@ export function SendTemplateDialog({ children, templates, connectionId, contact 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedTemplate || !contact || !connectionId) {
-      toast({ variant: 'destructive', title: 'Erro', description: 'Dados incompletos para iniciar a conversa.' });
+      notify.error('Erro', 'Dados incompletos para iniciar a conversa.');
       return;
     }
     setIsProcessing(true);
@@ -82,16 +84,16 @@ export function SendTemplateDialog({ children, templates, connectionId, contact 
         throw new Error(result.error || 'Falha ao iniciar a conversa.');
       }
       
-      toast({ title: 'Conversa Iniciada!', description: 'A mensagem foi enviada com sucesso.' });
+      notify.success('Conversa Iniciada!', 'A mensagem foi enviada com sucesso.');
       setIsOpen(false);
       router.push(`/atendimentos?conversationId=${result.conversationId}`);
 
     } catch (error) {
-       toast({ variant: 'destructive', title: 'Erro ao Enviar', description: (error as Error).message });
+       notify.error('Erro ao Enviar', (error as Error).message);
     } finally {
         setIsProcessing(false);
     }
-  }, [contact, connectionId, selectedTemplate, toast, router]);
+  }, [contact, connectionId, selectedTemplate, notify, router]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

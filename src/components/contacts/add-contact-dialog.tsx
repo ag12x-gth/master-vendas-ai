@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { MultiSelectCreatable } from '../ui/multi-select-creatable';
 import Image from 'next/image';
 
@@ -39,6 +40,7 @@ const ddiMap: { [key: string]: string } = {
 
 export function AddContactDialog({ children, onSaveSuccess }: AddContactDialogProps) {
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedDDI, setSelectedDDI] = useState('55');
     const [phoneInput, setPhoneInput] = useState('');
@@ -99,16 +101,16 @@ export function AddContactDialog({ children, onSaveSuccess }: AddContactDialogPr
         });
 
         if (response.ok) {
-            toast({ title: "Contato Criado!", description: "O novo contato foi adicionado com sucesso." });
+            notify.success("Contato Criado!", "O novo contato foi adicionado com sucesso.");
             setIsOpen(false);
             if (onSaveSuccess) {
                 onSaveSuccess();
             }
         } else if (response.status === 409) {
-             toast({ variant: 'default', title: "Contato Duplicado", description: "Este contato já existe na sua base de dados." });
+             notify.info("Contato Duplicado", "Este contato já existe na sua base de dados.");
         } else {
             const error = await response.json();
-            toast({ variant: 'destructive', title: "Erro ao criar contato", description: error.error || 'Ocorreu um erro.' });
+            notify.error("Erro ao criar contato", error.error || 'Ocorreu um erro.');
         }
     }
     

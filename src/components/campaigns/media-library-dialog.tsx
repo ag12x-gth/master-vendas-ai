@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,7 @@ import type { MediaAsset, HeaderType } from '@/lib/types';
 import { File as FileIcon, Image as ImageIcon, Search, Loader2, Expand } from 'lucide-react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 
 const MediaPreview = ({ media }: { media: MediaAsset }) => {
     if (media.type === 'IMAGE') {
@@ -78,6 +79,7 @@ export function MediaLibraryDialog({ children, onSelectMedia, mediaType }: Media
   const [media, setMedia] = useState<MediaAsset[]>([]);
   const [mediaToPreview, setMediaToPreview] = useState<MediaAsset | null>(null);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   useEffect(() => {
     if (isOpen) {
@@ -94,14 +96,14 @@ export function MediaLibraryDialog({ children, onSelectMedia, mediaType }: Media
                 const data = await res.json();
                 setMedia(data);
             } catch(error) {
-                toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+                notify.error('Erro', (error as Error).message);
             } finally {
                 setLoading(false);
             }
         }
         fetchMedia();
     }
-  }, [isOpen, toast, mediaType]);
+  }, [isOpen, notify, mediaType]);
 
   const filteredMedia = media.filter(m => {
     const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase());
