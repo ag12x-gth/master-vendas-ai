@@ -58,6 +58,7 @@ import {
 } from 'lucide-react';
 import type { User } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import {
   Card,
   CardHeader,
@@ -153,6 +154,7 @@ function ResetPasswordDialog({ user, isOpen, setIsOpen }: { user: User | null, i
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
     const passwordChecks = useMemo(() => {
         return [
@@ -169,11 +171,11 @@ function ResetPasswordDialog({ user, isOpen, setIsOpen }: { user: User | null, i
         e.preventDefault();
         if (!user) return;
         if (!isPasswordStrong) {
-            toast({ variant: 'destructive', title: 'Senha Fraca', description: 'A senha não atende a todos os requisitos de segurança.' });
+            notify.error('Senha Fraca', 'A senha não atende a todos os requisitos de segurança.');
             return;
         }
         if (password !== confirmPassword) {
-            toast({ variant: 'destructive', title: 'Erro', description: 'As senhas não coincidem.' });
+            notify.error('Erro', 'As senhas não coincidem.');
             return;
         }
         setIsSaving(true);
@@ -185,10 +187,10 @@ function ResetPasswordDialog({ user, isOpen, setIsOpen }: { user: User | null, i
             });
             const result = await response.json();
             if (!response.ok) throw new Error(result.error);
-            toast({ title: 'Senha Atualizada!', description: `A senha de ${user.name} foi alterada.`});
+            notify.success('Senha Atualizada!', `A senha de ${user.name} foi alterada.`);
             setIsOpen(false);
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+            notify.error('Erro', (error as Error).message);
         } finally {
             setIsSaving(false);
         }
@@ -243,6 +245,7 @@ export function TeamTable(): JSX.Element {
   const [isResetPasswordOpen, setResetPasswordOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const isMobileDetected = useIsMobile();
   const isMobile = mounted ? isMobileDetected : false;
   
@@ -260,11 +263,11 @@ export function TeamTable(): JSX.Element {
         const data = await response.json();
         setUsers(data);
     } catch(error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
     } finally {
         setLoading(false);
     }
-  }, [toast]);
+  }, [notify]);
 
   useEffect(() => {
     fetchUsers();
@@ -290,19 +293,12 @@ export function TeamTable(): JSX.Element {
             throw new Error(data.error || 'Falha ao enviar convite.');
         }
         
-        toast({
-            title: 'Convite Enviado!',
-            description: `Um convite foi enviado para ${email}.`,
-        });
+        notify.success('Convite Enviado!', `Um convite foi enviado para ${email}.`);
 
         fetchUsers();
         setInviteModalOpen(false);
     } catch (error) {
-        toast({
-            variant: 'destructive',
-            title: 'Erro ao Convidar',
-            description: (error as Error).message,
-        });
+        notify.error('Erro ao Convidar', (error as Error).message);
     } finally {
         setIsInviting(false);
     }
@@ -320,9 +316,9 @@ export function TeamTable(): JSX.Element {
         if (!response.ok) {
             throw new Error(data.error || 'Falha ao reenviar convite.');
         }
-        toast({ title: 'Convite Reenviado!', description: `Um novo convite foi enviado para ${user.email}.` });
+        notify.success('Convite Reenviado!', `Um novo convite foi enviado para ${user.email}.`);
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
     } finally {
         setIsResending(null);
     }
@@ -335,10 +331,10 @@ export function TeamTable(): JSX.Element {
              const errorData = await response.json();
             throw new Error(errorData.error || "Falha ao verificar o utilizador.");
         }
-        toast({ title: "Utilizador Verificado!", description: `${user.name} foi marcado como verificado.`});
+        notify.success("Utilizador Verificado!", `${user.name} foi marcado como verificado.`);
         fetchUsers(); // Refresh the list to show new status
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
     }
   }
 
@@ -350,10 +346,7 @@ export function TeamTable(): JSX.Element {
     const role = formData.get('role') as User['role'];
 
     setUsers(users.map((u) => (u.id === editingUser.id ? { ...u, role } : u)));
-    toast({
-      title: 'Cargo Atualizado!',
-      description: `O cargo de ${editingUser.name} foi atualizado para ${role}.`,
-    });
+    notify.success('Cargo Atualizado!', `O cargo de ${editingUser.name} foi atualizado para ${role}.`);
     setEditModalOpen(false);
     setEditingUser(null);
   };
@@ -396,17 +389,10 @@ export function TeamTable(): JSX.Element {
             throw new Error(errorData.error || "Falha ao remover utilizador.");
         }
         
-        toast({
-            title: "Utilizador Removido!",
-            description: `O utilizador ${userToRemove.name} foi removido da equipa.`
-        });
+        notify.success("Utilizador Removido!", `O utilizador ${userToRemove.name} foi removido da equipa.`);
         fetchUsers();
     } catch (error) {
-        toast({
-            variant: "destructive",
-            title: "Erro ao Remover",
-            description: (error as Error).message
-        });
+        notify.error("Erro ao Remover", (error as Error).message);
         setUsers(originalUsers);
     }
   }

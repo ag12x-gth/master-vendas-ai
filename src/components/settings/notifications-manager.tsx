@@ -36,6 +36,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import {
   MoreHorizontal,
   PlusCircle,
@@ -128,6 +129,7 @@ export function NotificationsManager() {
   const [editingAgent, setEditingAgent] = useState<NotificationAgent | null>(null);
   const [deleteAgent, setDeleteAgent] = useState<NotificationAgent | null>(null);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const [search, setSearch] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -158,13 +160,9 @@ export function NotificationsManager() {
       const data = await res.json();
       setConnections(data.data || []);
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro',
-        description: error instanceof Error ? error.message : 'Erro ao carregar conexões.',
-      });
+      notify.error('Erro', error instanceof Error ? error.message : 'Erro ao carregar conexões.');
     }
-  }, [toast]);
+  }, [notify]);
 
   const fetchAgents = useCallback(async () => {
     setLoading(true);
@@ -178,26 +176,18 @@ export function NotificationsManager() {
       
       if (!Array.isArray(data.data)) {
         console.error('[NotificationsManager] Unexpected API response:', data);
-        toast({
-          variant: 'destructive',
-          title: 'Erro',
-          description: 'Formato de resposta inválido da API.',
-        });
+        notify.error('Erro', 'Formato de resposta inválido da API.');
         setAgents([]);
         return;
       }
       
       setAgents(data.data);
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro',
-        description: error instanceof Error ? error.message : 'Erro ao carregar agentes.',
-      });
+      notify.error('Erro', error instanceof Error ? error.message : 'Erro ao carregar agentes.');
     } finally {
       setLoading(false);
     }
-  }, [search, toast]);
+  }, [search, notify]);
 
   useEffect(() => {
     fetchConnections();
@@ -237,39 +227,23 @@ export function NotificationsManager() {
     event.preventDefault();
 
     if (!agentName.trim()) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro de Validação',
-        description: 'O nome do agente não pode estar vazio.',
-      });
+      notify.error('Erro de Validação', 'O nome do agente não pode estar vazio.');
       return;
     }
 
     if (!connectionId) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro de Validação',
-        description: 'Selecione uma conexão WhatsApp.',
-      });
+      notify.error('Erro de Validação', 'Selecione uma conexão WhatsApp.');
       return;
     }
 
     if (groupJids.length === 0) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro de Validação',
-        description: 'Adicione pelo menos um grupo WhatsApp.',
-      });
+      notify.error('Erro de Validação', 'Adicione pelo menos um grupo WhatsApp.');
       return;
     }
 
     const hasAtLeastOneNotification = Object.values(enabledNotifications).some(value => value === true);
     if (!hasAtLeastOneNotification) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro de Validação',
-        description: 'Selecione pelo menos um tipo de notificação.',
-      });
+      notify.error('Erro de Validação', 'Selecione pelo menos um tipo de notificação.');
       return;
     }
 
@@ -302,19 +276,12 @@ export function NotificationsManager() {
         throw new Error(errorData.error || 'Falha ao salvar o agente.');
       }
 
-      toast({
-        title: `Agente ${isEditing ? 'Atualizado' : 'Criado'}!`,
-        description: `O agente "${agentName}" foi salvo com sucesso.`,
-      });
+      notify.success(`Agente ${isEditing ? 'Atualizado' : 'Criado'}!`, `O agente "${agentName}" foi salvo com sucesso.`);
       await fetchAgents();
       setIsModalOpen(false);
       setEditingAgent(null);
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao Salvar',
-        description: error instanceof Error ? error.message : 'Erro desconhecido.',
-      });
+      notify.error('Erro ao Salvar', error instanceof Error ? error.message : 'Erro desconhecido.');
     }
   };
 
@@ -328,18 +295,11 @@ export function NotificationsManager() {
 
       if (!response.ok) throw new Error('Falha ao excluir o agente.');
 
-      toast({
-        title: 'Agente Excluído!',
-        description: `O agente "${deleteAgent.name}" foi removido.`,
-      });
+      notify.success('Agente Excluído!', `O agente "${deleteAgent.name}" foi removido.`);
       await fetchAgents();
       setDeleteAgent(null);
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao Excluir',
-        description: error instanceof Error ? error.message : 'Erro desconhecido.',
-      });
+      notify.error('Erro ao Excluir', error instanceof Error ? error.message : 'Erro desconhecido.');
     }
   };
 
@@ -353,20 +313,12 @@ export function NotificationsManager() {
   const addGroupJid = () => {
     const trimmedJid = newGroupJid.trim();
     if (!trimmedJid) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro',
-        description: 'O JID do grupo não pode estar vazio.',
-      });
+      notify.error('Erro', 'O JID do grupo não pode estar vazio.');
       return;
     }
 
     if (groupJids.includes(trimmedJid)) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro',
-        description: 'Este grupo já foi adicionado.',
-      });
+      notify.error('Erro', 'Este grupo já foi adicionado.');
       return;
     }
 

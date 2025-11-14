@@ -61,6 +61,7 @@ import {
 import { cn } from '@/lib/utils';
 import type { Connection as ConnectionType } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { useSession } from '@/contexts/session-context';
 import { toggleConnectionActive, checkConnectionStatus } from '@/app/actions';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip';
@@ -106,11 +107,12 @@ const WebhookInfoCard = () => {
     const webhookUrl = `${baseUrl}/api/webhooks/meta/${webhookSlug}`;
 
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
     const handleCopy = (text: string) => {
         if (!text) return;
         navigator.clipboard.writeText(text);
         setIsUrlCopied(true);
-        toast({ title: 'URL Copiada!', description: 'A URL do webhook foi copiada.' });
+        notify.success('URL Copiada!', 'A URL do webhook foi copiada.');
         setTimeout(() => setIsUrlCopied(false), 2000);
     };
 
@@ -154,6 +156,7 @@ export function ConnectionsManager() {
   const [editingConnection, setEditingConnection] = useState<Connection | null>(null);
   const [isSyncingWebhook, setIsSyncingWebhook] = useState<string | null>(null);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
    const checkWebhookStatus = useCallback(async (connectionId: string): Promise<void> => {
         setConnections(prev => prev.map(c => c.id === connectionId ? { ...c, webhookStatus: 'VERIFICANDO' } : c));
@@ -222,11 +225,11 @@ export function ConnectionsManager() {
             }));
 
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+            notify.error('Erro', (error as Error).message);
         } finally {
             setLoading(false);
         }
-    }, [toast, checkWebhookStatus, checkConnectionHealth]);
+    }, [notify, checkWebhookStatus, checkConnectionHealth]);
 
     useEffect(() => {
         fetchConnections();
@@ -264,11 +267,7 @@ export function ConnectionsManager() {
     try {
       await toggleConnectionActive(connectionId, newIsActive);
     } catch (error) {
-       toast({
-        variant: 'destructive',
-        title: 'Erro',
-        description: 'Não foi possível alterar o status da conexão.',
-      });
+       notify.error('Erro', 'Não foi possível alterar o status da conexão.');
       setConnections(originalConnections);
     }
   };
@@ -283,11 +282,7 @@ export function ConnectionsManager() {
       setEditingConnection(fullConnectionData);
       setIsModalOpen(true);
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao Abrir Edição',
-        description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.',
-      });
+      notify.error('Erro ao Abrir Edição', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
     }
   }
 
@@ -302,9 +297,9 @@ export function ConnectionsManager() {
             throw new Error(errorData.error || 'Falha ao excluir a conexão.');
         }
 
-        toast({ title: 'Conexão Excluída', description: 'A conexão foi removida com sucesso.' });
+        notify.success('Conexão Excluída', 'A conexão foi removida com sucesso.');
     } catch(error) {
-        toast({ variant: 'destructive', title: 'Erro ao Excluir', description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.' });
+        notify.error('Erro ao Excluir', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
         setConnections(originalConnections);
     }
   }
@@ -338,18 +333,14 @@ export function ConnectionsManager() {
             throw new Error(errorData.error || 'Falha ao salvar a conexão.');
         }
         
-        toast({ title: `Conexão ${isEditing ? 'Atualizada' : 'Salva'}!`, description: `A conexão foi salva com sucesso.`});
+        notify.success(`Conexão ${isEditing ? 'Atualizada' : 'Salva'}!`, `A conexão foi salva com sucesso.`);
         
         setIsModalOpen(false);
         setEditingConnection(null);
         fetchConnections();
 
     } catch (error) {
-        toast({
-            variant: 'destructive',
-            title: 'Erro ao Salvar',
-            description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.',
-        });
+        notify.error('Erro ao Salvar', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
     }
   };
 
@@ -363,14 +354,11 @@ export function ConnectionsManager() {
         if (!response.ok) {
             throw new Error(data.error || 'Falha desconhecida ao configurar o webhook.');
         }
-        toast({
-            title: 'Webhook Sincronizado!',
-            description: 'A configuração do webhook foi enviada para a Meta com sucesso.'
-        });
+        notify.success('Webhook Sincronizado!', 'A configuração do webhook foi enviada para a Meta com sucesso.');
         // Re-check status after sync
         await checkWebhookStatus(connectionId);
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro na Sincronização', description: (error as Error).message });
+        notify.error('Erro na Sincronização', (error as Error).message);
     } finally {
         setIsSyncingWebhook(null);
     }
