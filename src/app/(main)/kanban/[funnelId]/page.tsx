@@ -79,7 +79,7 @@ export default function FunnelPage({ params }: { params: { funnelId: string } })
     const oldCards = [...cards];
     
     // Optimistic update - convert value to string for KanbanCard type
-    const updateData: Partial<KanbanCard> = {
+    const updateData: Partial<KanbanCardType> = {
       ...(data.stageId !== undefined && { stageId: data.stageId }),
       ...(data.title !== undefined && { title: data.title }),
       ...(data.notes !== undefined && { notes: data.notes }),
