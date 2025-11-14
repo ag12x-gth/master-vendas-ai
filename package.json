@@ -10,6 +10,7 @@
     "build": "next build",
     "build:prod": "npm install --legacy-peer-deps && next build",
     "start": "next start -p 5000",
+    "start:prod": "NODE_ENV=production node server.js",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",

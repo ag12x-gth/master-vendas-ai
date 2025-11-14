@@ -423,7 +423,9 @@ class EnhancedCache {
 
 // Global singleton key for Enhanced Cache
 declare global {
+  // eslint-disable-next-line no-var
   var __enhancedCacheInstance: EnhancedCache | undefined;
+  // eslint-disable-next-line no-var
   var __redisClient: any;
 }
 

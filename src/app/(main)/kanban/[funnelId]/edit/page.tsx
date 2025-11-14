@@ -274,7 +274,7 @@ export default function EditFunnelPage({ params }: { params: { funnelId: string 
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
                   <strong>Tipos Semânticos:</strong> Configure automações inteligentes marcando etapas especiais.
-                  Por exemplo, marque uma etapa como "Reunião Marcada" para que leads sejam movidos automaticamente
+                  Por exemplo, marque uma etapa como &quot;Reunião Marcada&quot; para que leads sejam movidos automaticamente
                   quando a IA detectar agendamento de reunião na conversa.
                 </AlertDescription>
               </Alert>

@@ -131,7 +131,7 @@ async function detectMeetingInConversation(
   if (allMatches.length > 0) {
     const lastMatch = allMatches[allMatches.length - 1];
     if (lastMatch) {
-      let time = lastMatch.text.trim();
+      const time = lastMatch.text.trim();
       
       if (/^\d{1,2}$/.test(time)) {
         scheduledTime = `${time}h`;

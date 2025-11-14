@@ -1,0 +1,109 @@
+2025-11-14T15:34:00Z info: Deployment: 341193a3-e390-4288-856e-84c62981db7e
+2025-11-14T15:34:00Z info: Build: 423a627d-ef7a-4d63-ad62-b6eb290a285b
+2025-11-14T15:34:00Z info: Running Security Scan
+2025-11-14T15:35:23Z info: Security Scan Complete
+2025-11-14T15:35:23Z info: Installing packages
+--> npm install
+
+
+up to date, audited 1191 packages in 9s
+
+2025-11-14T15:35:34Z info: Starting Build
+
+> nextn@2.4.1 build:prod
+> npm install --legacy-peer-deps && next build
+
+
+
+removed 1 package, and audited 1190 packages in 3s
+
+
+9 vulnerabilities (4 low, 4 moderate, 1 critical)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.com/vercel/next.js/issues
+
+    · cpus
+
+   Creating an optimized production build ...
+
+   Linting and checking validity of types ...
+
+
+Failed to compile.
+
+./src/app/(main)/integrations/webhooks/page.tsx
+9:3  Warning: 'CardTitle' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/(main)/integrations/zapier/page.tsx
+125:9  Warning: 'webhookEndpoint' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/(main)/kanban/[funnelId]/edit/page.tsx
+277:54  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+277:70  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+
+./src/app/(main)/meetings/page.tsx
+1:10  Warning: 'Suspense' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/(main)/templates/page.tsx
+99:40  Warning: 'categoriesError' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/(main)/voice-calls/page.tsx
+24:10  Warning: 'loadingContacts' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/(main)/whatsapp-baileys/page.tsx
+18:27  Warning: 'Contact' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/v1/campaigns/route.ts
+50:28  Warning: 'page' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/contacts/route.ts
+5:60  Warning: 'tags' is defined but never used.  unused-imports/no-unused-imports
+5:66  Warning: 'contactLists' is defined but never used.  unused-imports/no-unused-imports
+6:15  Warning: 'asc' is defined but never used.  unused-imports/no-unused-imports
+6:27  Warning: 'desc' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/v1/conversations/[conversationId]/effective-persona/route.ts
+3:25  Warning: 'connections' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/v1/kanbans/analyze-meetings/route.ts
+2:30  Warning: 'sql' is defined but never used.  unused-imports/no-unused-imports
+4:58  Warning: 'kanbanBoards' is defined but never used.  unused-imports/no-unused-imports
+134:11  Error: 'time' is never reassigned. Use 'const' instead.  prefer-const
+
+./src/app/api/v1/notification-agents/[id]/route.ts
+3:55  Warning: 'connections' is defined but never used.  unused-imports/no-unused-imports
+4:14  Warning: 'and' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/v1/templates/categories/route.ts
+4:25  Warning: 'sql' is defined but never used.  unused-imports/no-unused-imports
+14:27  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/vapi/history/route.ts
+4:21  Warning: 'contacts' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/vapi/metrics/route.ts
+3:21  Warning: 'vapiTranscripts' is defined but never used.  unused-imports/no-unused-imports
+4:30  Warning: 'eq' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/webhook/whatsmeow/route.ts
+163:7  Warning: 'isNewConversation' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/analytics/kpi-card.tsx
+28:9  Warning: 'getTrendColor' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/atendimentos/message-bubble.tsx
+7:102  Warning: 'Heart' is defined but never used.  unused-imports/no-unused-imports
+
+./src/components/campaigns/campaign-table.tsx
+14:105  Warning: 'ChevronsLeft' is defined but never used.  unused-imports/no-unused-imports
+14:119  Warning: 'ChevronLeft' is defined but never used.  unused-imports/no-unused-imports
+14:132  Warning: 'ChevronRight' is defined but never used.  unused-imports/no-unused-imports
+14:146  Warning: 'ChevronsRight' is defined but never used.  unused-imports/no-unused-imports
+
+./src/components/campaigns/create-baileys-campaign-dialog.tsx
+33:16  Warning: 'CardContent' is defined but never used.  unused-imports/no-unus
