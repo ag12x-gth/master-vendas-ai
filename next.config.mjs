@@ -3,8 +3,7 @@ const nextConfig = {
   swcMinify: false,
   
   experimental: {
-    workerThreads: false,
-    cpus: parseInt(process.env.NEXT_PRIVATE_MAX_WORKERS || '2'),
+    cpus: 1,
   },
   
   webpack: (config, { dev, isServer }) => {
