@@ -1,12 +1,5 @@
 export type ToastVariant = 'default' | 'success' | 'error' | 'warning' | 'info';
 
-interface ToastOptions {
-  variant?: 'default' | 'destructive';
-  title?: string;
-  description?: string;
-  duration?: number;
-}
-
 interface NotifyOptions {
   variant: ToastVariant;
   title: string;
@@ -24,7 +17,9 @@ const variantMap: Record<ToastVariant, { variant?: 'default' | 'destructive' }> 
   info: { variant: 'default' },
 };
 
-export function createToastNotifier(toast: (options: ToastOptions) => { id: string; dismiss: () => void; update: (props: ToastOptions) => void }) {
+type ToastFunction = (...args: any[]) => any;
+
+export function createToastNotifier(toast: ToastFunction) {
   return {
     notify: ({ variant, title, description, duration = DEFAULT_DURATION }: NotifyOptions) => {
       toast({

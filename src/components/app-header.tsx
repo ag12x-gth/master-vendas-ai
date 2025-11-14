@@ -55,6 +55,8 @@ import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import VersionBadge from '@/components/version-badge';
+import { ConnectionStatusBadge } from '@/components/dashboard/connection-status-badge';
+import { createToastNotifier } from '@/lib/toast-helper';
 
 const allNavItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'atendente', 'superadmin'] },
@@ -73,6 +75,7 @@ export function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
+  const notify = createToastNotifier(toast);
   const { setTheme } = useTheme();
   const { session } = useSession();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -92,15 +95,13 @@ export function AppHeader() {
         if (!response.ok) {
             throw new Error('A resposta do servidor não foi OK.');
         }
-        // Redirect to login page after successful logout
         router.push('/login');
     } catch (error) {
         console.error("Logout failed:", error);
-        toast({
-            variant: 'destructive',
-            title: 'Erro ao Sair',
-            description: 'Não foi possível fazer o logout. Por favor, tente novamente.',
-        });
+        notify.error(
+          'Erro ao Sair',
+          'Não foi possível fazer o logout. Por favor, tente novamente.'
+        );
     } finally {
         setIsLoggingOut(false);
     }
@@ -165,6 +166,7 @@ export function AppHeader() {
       </Sheet>
 
       <div className="relative ml-auto flex items-center gap-2">
+         <ConnectionStatusBadge />
          <VersionBadge prefix="v" />
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
