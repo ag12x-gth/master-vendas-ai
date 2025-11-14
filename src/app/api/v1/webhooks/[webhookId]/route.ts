@@ -1,70 +1,130 @@
-
-'use server';
-
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { webhooks } from '@/lib/db/schema';
+import { webhookSubscriptions } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { z } from 'zod';
 import { getCompanyIdFromSession } from '@/app/actions';
+import { z } from 'zod';
 
-const webhookUpdateSchema = z.object({
-  name: z.string().min(1, 'Nome do webhook é obrigatório').optional(),
-  url: z.string().url('URL inválida').optional(),
-  eventTriggers: z.array(z.string()).min(1, 'Pelo menos um evento gatilho é necessário').optional(),
-  isActive: z.boolean().optional(),
+const webhookEventTypes = [
+  'conversation_created',
+  'conversation_updated',
+  'message_received',
+  'message_sent',
+  'lead_created',
+  'lead_stage_changed',
+  'sale_closed',
+  'meeting_scheduled',
+  'campaign_sent',
+  'campaign_completed',
+] as const;
+
+const updateWebhookSchema = z.object({
+  name: z.string().min(1).max(255).optional(),
+  url: z.string().url().optional(),
+  events: z.array(z.enum(webhookEventTypes)).min(1).optional(),
+  active: z.boolean().optional(),
 });
 
-
-// PUT /api/v1/webhooks/[webhookId] - Update a webhook
-export async function PUT(request: NextRequest, { params }: { params: { webhookId: string } }) {
-    try {
-        const companyId = await getCompanyIdFromSession();
-        const { webhookId } = params;
-        const body = await request.json();
-        const parsedData = webhookUpdateSchema.safeParse(body);
-
-        if (!parsedData.success) {
-            return NextResponse.json({ error: 'Dados inválidos.', details: parsedData.error.flatten() }, { status: 400 });
-        }
-
-        const [result] = await db.select({ companyId: webhooks.companyId }).from(webhooks).where(eq(webhooks.id, webhookId)).limit(1);
-        if (!result || result.companyId !== companyId) {
-             return NextResponse.json({ error: 'Webhook não encontrado ou não pertence à sua empresa.' }, { status: 404 });
-        }
-
-        const [updatedWebhook] = await db.update(webhooks)
-            .set(parsedData.data)
-            .where(eq(webhooks.id, webhookId))
-            .returning();
-            
-        return NextResponse.json(updatedWebhook);
-    } catch (error) {
-        console.error('Erro ao atualizar webhook:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor.';
-        return NextResponse.json({ error: errorMessage, details: (error as Error).stack }, { status: 500 });
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { webhookId: string } }
+) {
+  try {
+    const companyId = await getCompanyIdFromSession();
+    if (!companyId) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
     }
+
+    const { webhookId } = params;
+    const body = await request.json();
+    const validation = updateWebhookSchema.safeParse(body);
+
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          error: 'Dados inválidos',
+          details: validation.error.flatten().fieldErrors,
+        },
+        { status: 400 }
+      );
+    }
+
+    const existing = await db.query.webhookSubscriptions.findFirst({
+      where: and(
+        eq(webhookSubscriptions.id, webhookId),
+        eq(webhookSubscriptions.companyId, companyId)
+      ),
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Webhook não encontrado' }, { status: 404 });
+    }
+
+    const updateData: any = {};
+    if (validation.data.name !== undefined) updateData.name = validation.data.name;
+    if (validation.data.url !== undefined) updateData.url = validation.data.url;
+    if (validation.data.events !== undefined) updateData.events = validation.data.events;
+    if (validation.data.active !== undefined) updateData.active = validation.data.active;
+
+    const [updated] = await db
+      .update(webhookSubscriptions)
+      .set(updateData)
+      .where(
+        and(
+          eq(webhookSubscriptions.id, webhookId),
+          eq(webhookSubscriptions.companyId, companyId)
+        )
+      )
+      .returning();
+
+    return NextResponse.json(updated);
+  } catch (error) {
+    console.error('[Webhooks] PATCH error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Erro ao atualizar webhook' },
+      { status: 500 }
+    );
+  }
 }
 
-// DELETE /api/v1/webhooks/[webhookId] - Delete a webhook
-export async function DELETE(request: NextRequest, { params }: { params: { webhookId: string } }) {
-    try {
-        const companyId = await getCompanyIdFromSession();
-        const { webhookId } = params;
-        
-        const result = await db.delete(webhooks)
-            .where(and(eq(webhooks.id, webhookId), eq(webhooks.companyId, companyId)))
-            .returning();
-
-        if (result.length === 0) {
-            return NextResponse.json({ error: 'Webhook não encontrado ou não pertence à sua empresa.' }, { status: 404 });
-        }
-
-        return new NextResponse(null, { status: 204 }); // No Content
-
-    } catch (error) {
-        console.error('Erro ao excluir webhook:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor.';
-        return NextResponse.json({ error: errorMessage, details: (error as Error).stack }, { status: 500 });
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { webhookId: string } }
+) {
+  try {
+    const companyId = await getCompanyIdFromSession();
+    if (!companyId) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
     }
+
+    const { webhookId } = params;
+
+    const existing = await db.query.webhookSubscriptions.findFirst({
+      where: and(
+        eq(webhookSubscriptions.id, webhookId),
+        eq(webhookSubscriptions.companyId, companyId)
+      ),
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Webhook não encontrado' }, { status: 404 });
+    }
+
+    await db
+      .delete(webhookSubscriptions)
+      .where(
+        and(
+          eq(webhookSubscriptions.id, webhookId),
+          eq(webhookSubscriptions.companyId, companyId)
+        )
+      );
+
+    return NextResponse.json({ success: true, message: 'Webhook deletado com sucesso' });
+  } catch (error) {
+    console.error('[Webhooks] DELETE error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Erro ao deletar webhook' },
+      { status: 500 }
+    );
+  }
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -63,6 +63,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../ui/select';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PaginationControls } from '@/components/ui/pagination-controls';
 
 interface EnabledNotifications {
   dailyReport: boolean;
@@ -128,6 +130,8 @@ export function NotificationsManager() {
   const { toast } = useToast();
 
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [agentName, setAgentName] = useState('');
   const [description, setDescription] = useState('');
   const [connectionId, setConnectionId] = useState('');
@@ -374,6 +378,14 @@ export function NotificationsManager() {
     setGroupJids((prev) => prev.filter((g) => g !== jid));
   };
 
+  const paginatedAgents = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return agents.slice(startIndex, endIndex);
+  }, [agents, currentPage, pageSize]);
+
+  const totalItems = agents.length;
+
   return (
     <>
       <Card>
@@ -412,14 +424,24 @@ export function NotificationsManager() {
                       <Loader2 className="mx-auto h-6 w-6 animate-spin" />
                     </TableCell>
                   </TableRow>
-                ) : agents.length === 0 ? (
+                ) : paginatedAgents.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
-                      Nenhum agente encontrado.
+                    <TableCell colSpan={6} className="p-0">
+                      <EmptyState
+                        icon={Bell}
+                        title={search ? "Nenhum agente encontrado" : "Nenhum agente configurado"}
+                        description={
+                          search
+                            ? "Não encontramos agentes com o termo de busca informado. Tente outro termo."
+                            : "Você ainda não configurou nenhum agente de notificação. Crie seu primeiro agente para começar a receber notificações automáticas no WhatsApp."
+                        }
+                        actionLabel={!search ? "Criar Agente" : undefined}
+                        onAction={!search ? () => handleOpenModal(null) : undefined}
+                      />
                     </TableCell>
                   </TableRow>
                 ) : (
-                  agents.map((agent) => {
+                  paginatedAgents.map((agent) => {
                     const enabledCount = Object.values(agent.enabledNotifications || {}).filter(Boolean).length;
                     return (
                       <TableRow key={agent.id}>
@@ -479,6 +501,39 @@ export function NotificationsManager() {
               </TableBody>
             </Table>
           </div>
+          {totalItems > pageSize && (
+            <div className="mt-4 flex flex-col gap-4">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">
+                  Mostrando {((currentPage - 1) * pageSize) + 1} a {Math.min(currentPage * pageSize, totalItems)} de {totalItems} agentes
+                </div>
+                <Select
+                  value={pageSize.toString()}
+                  onValueChange={(value) => {
+                    setPageSize(parseInt(value, 10));
+                    setCurrentPage(1);
+                  }}
+                >
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[10, 25, 50].map((size) => (
+                      <SelectItem key={size} value={size.toString()}>
+                        {size} por página
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <PaginationControls
+                totalItems={totalItems}
+                pageSize={pageSize}
+                currentPage={currentPage}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
 

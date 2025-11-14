@@ -20,6 +20,7 @@ import { sendWhatsappTemplateMessage } from './facebookApiService';
 import type { MediaAsset as MediaAssetType, MetaApiMessageResponse, MetaHandle } from './types';
 import { sessionManager as baileysSessionManager } from '@/services/baileys-session-manager';
 import { NotificationService } from '@/lib/notifications/notification-service';
+import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
 
 // Helper para dividir um array em lotes
 function chunkArray<T>(array: T[], size: number): T[][] {
@@ -460,6 +461,18 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
             rate: deliveryRate,
           }
         );
+
+        try {
+          console.log(`[Webhook] Dispatching campaign_sent for campaign ${campaign.id}`);
+          await webhookDispatcher.dispatch(campaign.companyId!, 'campaign_sent', {
+            campaignId: campaign.id,
+            campaignName: campaign.name || 'Campanha sem nome',
+            totalSent: totalSent,
+            totalDelivered: deliveredCount,
+          });
+        } catch (webhookError) {
+          console.error('[Webhook] Error dispatching campaign_sent:', webhookError);
+        }
 
     } catch(error) {
         console.error(`Falha crítica ao enviar campanha de WhatsApp ${campaign.id}:`, error);

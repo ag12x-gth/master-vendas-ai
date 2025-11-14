@@ -25,6 +25,7 @@
     "db:rollback": "tsx scripts/rollback-db.ts",
     "db:reset": "rm -rf drizzle && npm run db:generate && npm run db:migrate",
     "test:queue": "tsx scripts/seed-test-campaigns.ts",
+    "seed:templates": "tsx src/scripts/seed-predefined-templates.ts",
     "lint:fix": "eslint . --ext .ts,.tsx --fix --fix-type problem,suggestion,layout"
   },
   "dependencies": {

@@ -4,6 +4,8 @@ import { kanbanLeads, contacts, contactsToTags, tags, kanbanBoards } from '@/lib
 import { asc, eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { getCompanyIdFromSession } from '@/app/actions';
+import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
+import type { KanbanStage } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
@@ -118,6 +120,26 @@ export async function POST(request: NextRequest) {
             value: value.toString(),
         })
         .returning();
+
+    try {
+      const contact = await db.query.contacts.findFirst({
+        where: eq(contacts.id, contactId),
+      });
+
+      const stages = board.stages as KanbanStage[];
+      const stage = stages.find(s => s.id === stageId);
+
+      console.log(`[Webhook] Dispatching lead_created for lead ${newLead.id}`);
+      await webhookDispatcher.dispatch(companyId, 'lead_created', {
+        leadId: newLead.id,
+        contactId: contact?.id,
+        boardId: board.id,
+        stageName: stage?.title || 'Unknown',
+        value: value,
+      });
+    } catch (webhookError) {
+      console.error('[Webhook] Error dispatching lead_created:', webhookError);
+    }
 
     return NextResponse.json(newLead, { status: 201 });
   } catch (error: any) {

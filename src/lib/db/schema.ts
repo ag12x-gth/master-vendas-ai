@@ -450,6 +450,7 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     lastUsedAt: timestamp('last_used_at'),
     isActive: boolean('is_active').default(true),
     allowCategoryChange: boolean('allow_category_change').default(true),
+    isPredefined: boolean('is_predefined').default(false).notNull(),
   }, (table) => ({
     uniqueNameWaba: unique('message_templates_name_waba_unique').on(table.name, table.wabaId),
   }));
@@ -918,4 +919,99 @@ export const notificationLogsRelations = relations(notificationLogs, ({ one }) =
         fields: [notificationLogs.agentId],
         references: [notificationAgents.id],
     }),
+}));
+
+export const webhookEventTypeEnum = pgEnum('webhook_event_type', [
+  'conversation_created',
+  'conversation_updated',
+  'message_received',
+  'message_sent',
+  'lead_created',
+  'lead_stage_changed',
+  'sale_closed',
+  'meeting_scheduled',
+  'campaign_sent',
+  'campaign_completed',
+]);
+
+export const webhookSubscriptions = pgTable('webhook_subscriptions', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  url: text('url').notNull(),
+  secret: text('secret').notNull(),
+  events: webhookEventTypeEnum('events').array().notNull(),
+  active: boolean('active').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+});
+
+export const webhookEvents = pgTable('webhook_events', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  subscriptionId: text('subscription_id').notNull().references(() => webhookSubscriptions.id, { onDelete: 'cascade' }),
+  eventType: webhookEventTypeEnum('event_type').notNull(),
+  payload: jsonb('payload').notNull(),
+  status: text('status').notNull().default('pending'),
+  attempts: integer('attempts').notNull().default(0),
+  lastAttemptAt: timestamp('last_attempt_at'),
+  nextRetryAt: timestamp('next_retry_at'),
+  response: jsonb('response'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const customTemplateCategories = pgTable('custom_template_categories', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  icon: varchar('icon', { length: 50 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const customMessageTemplates = pgTable('custom_message_templates', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+  categoryId: text('category_id').references(() => customTemplateCategories.id, { onDelete: 'set null' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  content: text('content').notNull(),
+  variables: jsonb('variables').default([]),
+  isPredefined: boolean('is_predefined').notNull().default(false),
+  active: boolean('active').notNull().default(true),
+  usageCount: integer('usage_count').notNull().default(0),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+});
+
+export const webhookSubscriptionsRelations = relations(webhookSubscriptions, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [webhookSubscriptions.companyId],
+    references: [companies.id],
+  }),
+  events: many(webhookEvents),
+}));
+
+export const webhookEventsRelations = relations(webhookEvents, ({ one }) => ({
+  subscription: one(webhookSubscriptions, {
+    fields: [webhookEvents.subscriptionId],
+    references: [webhookSubscriptions.id],
+  }),
+}));
+
+export const customTemplateCategoriesRelations = relations(customTemplateCategories, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [customTemplateCategories.companyId],
+    references: [companies.id],
+  }),
+  templates: many(customMessageTemplates),
+}));
+
+export const customMessageTemplatesRelations = relations(customMessageTemplates, ({ one }) => ({
+  company: one(companies, {
+    fields: [customMessageTemplates.companyId],
+    references: [companies.id],
+  }),
+  category: one(customTemplateCategories, {
+    fields: [customMessageTemplates.categoryId],
+    references: [customTemplateCategories.id],
+  }),
 }));

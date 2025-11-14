@@ -3,6 +3,7 @@ import { kanbanLeads, kanbanBoards } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import type { KanbanStage } from '@/lib/types';
 import { NotificationService } from '@/lib/notifications/notification-service';
+import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
 
 export interface MoveLeadToStageParams {
   leadId: string;
@@ -43,6 +44,7 @@ export async function moveLeadToStage(
     }
 
     const stages = lead.board.stages as KanbanStage[];
+    const previousStage = stages.find(s => s.id === lead.stageId);
     const newStage = stages.find(s => s.id === newStageId);
 
     if (!newStage) {
@@ -59,6 +61,18 @@ export async function moveLeadToStage(
       })
       .where(eq(kanbanLeads.id, leadId));
 
+    try {
+      console.log(`[Webhook] Dispatching lead_stage_changed for lead ${leadId}`);
+      await webhookDispatcher.dispatch(companyId, 'lead_stage_changed', {
+        leadId: lead.id,
+        previousStage: previousStage?.title || 'Unknown',
+        newStage: newStage.title,
+        contactName: lead.contact.name,
+      });
+    } catch (webhookError) {
+      console.error('[Webhook] Error dispatching lead_stage_changed:', webhookError);
+    }
+
     if (isMovingToWin) {
       NotificationService.safeNotify(
         NotificationService.notifyNewSale,
@@ -69,6 +83,18 @@ export async function moveLeadToStage(
           value: lead.value ? Number(lead.value) : undefined,
         }
       );
+
+      try {
+        console.log(`[Webhook] Dispatching sale_closed for lead ${leadId}`);
+        await webhookDispatcher.dispatch(companyId, 'sale_closed', {
+          leadId: lead.id,
+          contactName: lead.contact.name,
+          value: lead.value ? Number(lead.value) : undefined,
+          closedAt: new Date().toISOString(),
+        });
+      } catch (webhookError) {
+        console.error('[Webhook] Error dispatching sale_closed:', webhookError);
+      }
     }
 
     const updatedLead = await db.query.kanbanLeads.findFirst({

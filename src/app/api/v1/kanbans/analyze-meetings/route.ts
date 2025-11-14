@@ -5,6 +5,7 @@ import { conversations, messages, contacts, kanbanLeads, kanbanBoards } from '@/
 import type { KanbanStage } from '@/lib/types';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { NotificationService } from '@/lib/notifications/notification-service';
+import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
 
 interface AnalyzeRequest {
   boardId?: string;
@@ -336,6 +337,17 @@ async function runMeetingBackfill(
             },
             detection.scheduledTime
           );
+
+          try {
+            console.log(`[Webhook] Dispatching meeting_scheduled for conversation ${conv.id}`);
+            await webhookDispatcher.dispatch(companyId, 'meeting_scheduled', {
+              conversationId: conv.id,
+              contactName: contact.name,
+              scheduledTime: detection.scheduledTime,
+            });
+          } catch (webhookError) {
+            console.error('[Webhook] Error dispatching meeting_scheduled:', webhookError);
+          }
         }
         } catch (error) {
           stats.errors++;

@@ -3,6 +3,7 @@
 
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ListSkeleton } from '@/components/ui/skeleton-variants';
 import { AtendimentosClient } from './atendimentos-client';
 
 function Loading() {
@@ -18,11 +19,7 @@ function Loading() {
         {/* Coluna da Lista de Conversas (Skeleton) */}
         <div className="h-full border-r p-4 space-y-2 hidden md:block">
             <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-16 w-full" />
-            <Skeleton className="h-16 w-full" />
-            <Skeleton className="h-16 w-full" />
-            <Skeleton className="h-16 w-full" />
-            <Skeleton className="h-16 w-full" />
+            <ListSkeleton count={5} showAvatar className="space-y-1" />
         </div>
         {/* Coluna do Chat Ativo (Skeleton) */}
         <div className="h-full flex border-r p-4 flex-col gap-4">

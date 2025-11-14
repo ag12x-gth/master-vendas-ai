@@ -1,34 +1,172 @@
-
-
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { templates } from '@/lib/db/schema';
+import { customMessageTemplates, customTemplateCategories } from '@/lib/db/schema';
+import { eq, and, desc, sql, or, like, isNull } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
-import { eq, desc } from 'drizzle-orm';
-import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
+import { z } from 'zod';
 
-export const dynamic = 'force-dynamic';
+const createTemplateSchema = z.object({
+  name: z.string().min(1, 'Nome é obrigatório').max(255),
+  content: z.string().min(1, 'Conteúdo é obrigatório'),
+  categoryId: z.string().optional().nullable(),
+});
 
-// GET /api/v1/templates
-export async function GET(_request: NextRequest) {
-    try {
-        const companyId = await getCompanyIdFromSession();
+function extractVariables(content: string): string[] {
+  const regex = /\{\{([a-zA-Z_][a-zA-Z0-9_]*)\}\}/g;
+  const variables: string[] = [];
+  let match;
 
-        // Cache de templates (5 minutos - dados relativamente estáticos)
-        const cacheKey = `templates:${companyId}`;
-        const companyTemplates = await getCachedOrFetch(cacheKey, async () => {
-            return await db
-                .select()
-                .from(templates)
-                .where(eq(templates.companyId, companyId))
-                .orderBy(desc(templates.updatedAt));
-        }, CacheTTL.LONG);
-
-        return NextResponse.json(companyTemplates);
-
-    } catch (error) {
-        console.error('Erro ao buscar templates:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor.';
-        return NextResponse.json({ error: errorMessage, details: (error as Error).stack }, { status: 500 });
+  while ((match = regex.exec(content)) !== null) {
+    const variableName = match[1];
+    if (variableName && !variables.includes(variableName)) {
+      variables.push(variableName);
     }
+  }
+
+  return variables;
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const companyId = await getCompanyIdFromSession();
+    if (!companyId) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
+    const searchParams = request.nextUrl.searchParams;
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '20');
+    const search = searchParams.get('search') || '';
+    const categoryId = searchParams.get('categoryId') || '';
+    const offset = (page - 1) * limit;
+
+    const whereConditions = [
+      eq(customMessageTemplates.companyId, companyId),
+      eq(customMessageTemplates.active, true),
+    ];
+
+    if (search) {
+      whereConditions.push(
+        or(
+          like(customMessageTemplates.name, `%${search}%`),
+          like(customMessageTemplates.content, `%${search}%`)
+        )!
+      );
+    }
+
+    if (categoryId === 'uncategorized') {
+      whereConditions.push(isNull(customMessageTemplates.categoryId));
+    } else if (categoryId) {
+      whereConditions.push(eq(customMessageTemplates.categoryId, categoryId));
+    }
+
+    const [templates, totalResult] = await Promise.all([
+      db.query.customMessageTemplates.findMany({
+        where: and(...whereConditions),
+        with: {
+          category: true,
+        },
+        orderBy: [desc(customMessageTemplates.updatedAt)],
+        limit,
+        offset,
+      }),
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(customMessageTemplates)
+        .where(and(...whereConditions)),
+    ]);
+
+    const total = totalResult[0]?.count || 0;
+
+    return NextResponse.json({
+      data: templates,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    console.error('[Templates] GET error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Erro ao buscar templates' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const companyId = await getCompanyIdFromSession();
+    if (!companyId) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const validation = createTemplateSchema.safeParse(body);
+
+    if (!validation.success) {
+      return NextResponse.json(
+        {
+          error: 'Dados inválidos',
+          details: validation.error.flatten().fieldErrors,
+        },
+        { status: 400 }
+      );
+    }
+
+    const { name, content, categoryId } = validation.data;
+
+    if (categoryId) {
+      const categoryExists = await db.query.customTemplateCategories.findFirst({
+        where: and(
+          eq(customTemplateCategories.id, categoryId),
+          eq(customTemplateCategories.companyId, companyId)
+        ),
+      });
+
+      if (!categoryExists) {
+        return NextResponse.json({ error: 'Categoria não encontrada' }, { status: 400 });
+      }
+    }
+
+    const variables = extractVariables(content);
+
+    const [newTemplate] = await db
+      .insert(customMessageTemplates)
+      .values({
+        companyId,
+        name,
+        content,
+        categoryId: categoryId || null,
+        variables: variables as any,
+        isPredefined: false,
+        active: true,
+        usageCount: 0,
+      })
+      .returning();
+
+    if (!newTemplate) {
+      return NextResponse.json(
+        { error: 'Erro ao criar template' },
+        { status: 500 }
+      );
+    }
+
+    const templateWithCategory = await db.query.customMessageTemplates.findFirst({
+      where: eq(customMessageTemplates.id, newTemplate.id),
+      with: {
+        category: true,
+      },
+    });
+
+    return NextResponse.json(templateWithCategory, { status: 201 });
+  } catch (error) {
+    console.error('[Templates] POST error:', error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Erro ao criar template' },
+      { status: 500 }
+    );
+  }
 }

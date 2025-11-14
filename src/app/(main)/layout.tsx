@@ -11,6 +11,7 @@ import { redirect } from 'next/navigation';
 import { AnalyticsProvider } from '@/contexts/analytics-context';
 import { ConsoleMonitor } from '@/components/dev/console-monitor';
 import { VapiCallProvider } from '@/contexts/VapiCallContext';
+import { InstallBanner } from '@/components/pwa/install-banner';
 
 export const dynamic = 'force-dynamic'
 export const fetchCache = 'force-no-store';
@@ -58,6 +59,7 @@ export default async function MainLayout({
                 </div>
                     </SidebarProvider>
                     <ConsoleMonitor />
+                    <InstallBanner />
                 </ThemeProvider>
             </VapiCallProvider>
         </AnalyticsProvider>

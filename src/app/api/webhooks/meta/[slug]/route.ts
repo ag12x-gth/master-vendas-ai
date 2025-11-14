@@ -13,6 +13,7 @@ import { getMediaUrl } from '@/lib/facebookApiService';
 import { uploadFileToS3 } from '@/lib/s3';
 import { v4 as uuidv4 } from 'uuid';
 import { processIncomingMessageTrigger } from '@/lib/automation-engine';
+import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
 
 // GET /api/webhooks/meta/[slug] - Used for Facebook Webhook Verification
 export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
@@ -249,15 +250,31 @@ async function processIncomingMessage(
         if (!contact) throw new Error("Falha ao criar ou encontrar o contato.");
             
         let [conversation] = await tx.select().from(conversations).where(and(eq(conversations.contactId, contact.id), eq(conversations.connectionId, connection.id)));
+        let isNewConversation = false;
         if (!conversation) {
             console.log(`➕ [Meta Webhook] Criando nova conversa para ${contact.name}`);
             [conversation] = await tx.insert(conversations).values({ companyId, contactId: contact.id, connectionId: connection.id }).returning();
+            isNewConversation = true;
         } else {
             console.log(`✅ [Meta Webhook] Conversa existente atualizada (ID: ${conversation.id})`);
             [conversation] = await tx.update(conversations).set({ lastMessageAt: new Date(), status: 'IN_PROGRESS', archivedAt: null, archivedBy: null }).where(eq(conversations.id, conversation.id)).returning();
         }
 
         if (!conversation) throw new Error("Falha ao criar ou encontrar a conversa.");
+
+        if (isNewConversation) {
+            try {
+                console.log(`[Webhook] Dispatching conversation_created for conversation ${conversation.id}`);
+                await webhookDispatcher.dispatch(companyId, 'conversation_created', {
+                    conversationId: conversation.id,
+                    contactId: contact.id,
+                    contactPhone: contact.phone,
+                    contactName: contact.name,
+                });
+            } catch (webhookError) {
+                console.error('[Webhook] Error dispatching conversation_created:', webhookError);
+            }
+        }
         
         let permanentMediaUrl = null;
         if (['image', 'video', 'document', 'audio'].includes(messageData.type)) {
@@ -304,6 +321,18 @@ async function processIncomingMessage(
         if (!newMessage) throw new Error('Falha ao salvar a nova mensagem.');
         
         console.log(`✅ [Meta Webhook] Mensagem salva no banco (ID: ${newMessage.id}) na conversa ${conversation.id}`);
+
+        try {
+            console.log(`[Webhook] Dispatching message_received for message ${newMessage.id}`);
+            await webhookDispatcher.dispatch(companyId, 'message_received', {
+                messageId: newMessage.id,
+                conversationId: conversation.id,
+                content: getMessageContent(messageData),
+                senderPhone: contact.phone,
+            });
+        } catch (webhookError) {
+            console.error('[Webhook] Error dispatching message_received:', webhookError);
+        }
             
         return { conversationId: conversation.id, newMessageId: newMessage.id };
     });

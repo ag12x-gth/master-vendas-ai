@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2, FileText, GitBranch, MessageSquareText, SendIcon, Loader2, PlayCircle, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, List, LayoutGrid } from 'lucide-react';
+import { MoreHorizontal, Trash2, FileText, GitBranch, MessageSquareText, SendIcon, Loader2, PlayCircle, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, List, LayoutGrid, Megaphone } from 'lucide-react';
 import type { Campaign, Connection, SmsGateway, Template } from '@/lib/types';
 import {
   AlertDialog,
@@ -36,6 +36,8 @@ import type { DateRange } from 'react-day-picker';
 import { addDays } from 'date-fns';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PaginationControls } from '@/components/ui/pagination-controls';
 
 
 type CampaignTableProps = {
@@ -337,8 +339,16 @@ export function CampaignTable({ channel, baileysOnly = false }: CampaignTablePro
 
     if (campaigns.length === 0) {
       return (
-        <div className="col-span-full text-center py-16 text-muted-foreground">
-          <p>Nenhuma campanha encontrada para os filtros selecionados.</p>
+        <div className="col-span-full">
+          <EmptyState
+            icon={Megaphone}
+            title="Nenhuma campanha encontrada"
+            description={
+              debouncedDateRange || debouncedSelectedId !== 'all'
+                ? "Não encontramos campanhas com os filtros selecionados. Tente ajustar suas opções de filtro ou intervalo de datas."
+                : `Você ainda não criou nenhuma campanha de ${isSms ? 'SMS' : 'WhatsApp'}. Crie sua primeira campanha para começar a enviar mensagens em massa.`
+            }
+          />
         </div>
       );
     }
@@ -463,27 +473,29 @@ export function CampaignTable({ channel, baileysOnly = false }: CampaignTablePro
         {renderContent()}
        </div>
 
-       {totalPages > 1 && (
-         <div className="flex items-center justify-between space-x-2 py-4">
-            <div className="flex-1 text-sm text-muted-foreground">
-                Página {page} de {totalPages}.
+       {totalPages > 1 && campaigns.length > 0 && (
+         <div className="flex flex-col gap-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1 text-sm text-muted-foreground">
+                  Página {page} de {totalPages}.
+              </div>
+              <Select value={limit.toString()} onValueChange={(value) => {setLimit(parseInt(value, 10)); setPage(1);}}>
+                  <SelectTrigger className="w-[140px]">
+                      <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                      {[12, 24, 48, 96].map(val => (
+                           <SelectItem key={val} value={val.toString()}>{val} por página</SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
             </div>
-            <div className="flex items-center gap-2">
-                 <Select value={limit.toString()} onValueChange={(value) => {setLimit(parseInt(value, 10)); setPage(1);}}>
-                    <SelectTrigger className="w-[120px]">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {[12, 24, 48, 96].map(val => (
-                             <SelectItem key={val} value={val.toString()}>{val} por página</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Button variant="outline" size="icon" onClick={() => setPage(1)} disabled={page === 1}><ChevronsLeft className="h-4 w-4" /></Button>
-                <Button variant="outline" size="icon" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}><ChevronLeft className="h-4 w-4" /></Button>
-                <Button variant="outline" size="icon" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}><ChevronRight className="h-4 w-4" /></Button>
-                <Button variant="outline" size="icon" onClick={() => setPage(totalPages)} disabled={page === totalPages}><ChevronsRight className="h-4 w-4" /></Button>
-            </div>
+            <PaginationControls
+              totalItems={totalPages * limit}
+              pageSize={limit}
+              currentPage={page}
+              onPageChange={setPage}
+            />
          </div>
        )}
     </div>

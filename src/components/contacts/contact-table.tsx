@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Upload, PlusCircle, Search, Trash2, List, LayoutGrid, Tags, Download, Loader2, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, MoreHorizontal, Edit, ArrowUpDown, Phone, PhoneCall } from 'lucide-react';
+import { Upload, PlusCircle, Search, Trash2, List, LayoutGrid, Tags, Download, Loader2, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, MoreHorizontal, Edit, ArrowUpDown, Phone, PhoneCall, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { PageHeader } from '../page-header';
 import type { ExtendedContact, ContactList, Tag } from '@/lib/types';
@@ -40,6 +40,8 @@ import Link from 'next/link';
 import { CallButton } from '@/components/vapi-voice/CallButton';
 import { BulkCallDialog } from '@/components/vapi-voice/BulkCallDialog';
 import { useDebounce } from '@/hooks/use-debounce';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PaginationControls } from '@/components/ui/pagination-controls';
 
 type ViewType = 'table' | 'grid';
 type SortKey = 'name' | 'createdAt';
@@ -413,7 +415,7 @@ export function ContactTable() {
         />
         <div className="flex items-center gap-2">
            <AddContactDialog onSaveSuccess={fetchContacts}>
-                <Button variant="outline">
+                <Button variant="outline" data-add-contact>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Adicionar
                 </Button>
@@ -494,6 +496,18 @@ export function ContactTable() {
         <div className="flex justify-center items-center py-16">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
+      ) : contacts.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="Nenhum contato encontrado"
+          description={
+            search || tagFilter !== 'all' || listFilter !== 'all'
+              ? "Não encontramos contatos com os filtros selecionados. Tente ajustar seus critérios de busca."
+              : "Você ainda não tem contatos cadastrados. Adicione ou importe contatos para começar."
+          }
+          actionLabel={!search && tagFilter === 'all' && listFilter === 'all' ? "Adicionar Contato" : undefined}
+          onAction={!search && tagFilter === 'all' && listFilter === 'all' ? () => document.querySelector<HTMLButtonElement>('[data-add-contact]')?.click() : undefined}
+        />
       ) : view === 'table' && !isMobile ? (
         <ContactTableView contacts={contacts} onRowClick={handleRowClick} selectedRows={selectedRows} onSelectedRowsChange={setSelectedRows} isMobile={false} onDelete={handleDelete} onSort={handleSort}/>
       ) : isMobile ? (
@@ -502,31 +516,33 @@ export function ContactTable() {
         <ContactGrid contacts={contacts} onRowClick={handleRowClick} />
       )}
       
-       {totalPages > 1 && (
-         <div className="flex items-center justify-between space-x-2 py-4">
-            <div className="flex-1 text-sm text-muted-foreground">
-                {selectedRows.length > 0 ? (
-                    `${selectedRows.length} de ${contacts.length} linha(s) selecionadas.`
-                ) : (
-                    `Página ${page} de ${totalPages}.`
-                )}
+       {totalPages > 1 && contacts.length > 0 && (
+         <div className="flex flex-col gap-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1 text-sm text-muted-foreground">
+                  {selectedRows.length > 0 ? (
+                      `${selectedRows.length} de ${contacts.length} linha(s) selecionadas.`
+                  ) : (
+                      `Página ${page} de ${totalPages}.`
+                  )}
+              </div>
+              <Select value={limit.toString()} onValueChange={(value) => {setLimit(parseInt(value, 10)); setPage(1);}}>
+                  <SelectTrigger className="w-[180px]">
+                      <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                      {[10, 25, 50, 100, 250, 500].map(val => (
+                           <SelectItem key={val} value={val.toString()}>{val} por página</SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
             </div>
-            <div className="flex items-center gap-2">
-                 <Select value={limit.toString()} onValueChange={(value) => {setLimit(parseInt(value, 10)); setPage(1);}}>
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {[10, 25, 50, 100, 250, 500].map(val => (
-                             <SelectItem key={val} value={val.toString()}>{val} por página</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Button variant="outline" size="icon" onClick={() => setPage(1)} disabled={page === 1}><ChevronsLeft className="h-4 w-4" /></Button>
-                <Button variant="outline" size="icon" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}><ChevronLeft className="h-4 w-4" /></Button>
-                <Button variant="outline" size="icon" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}><ChevronRight className="h-4 w-4" /></Button>
-                <Button variant="outline" size="icon" onClick={() => setPage(totalPages)} disabled={page === totalPages}><ChevronsRight className="h-4 w-4" /></Button>
-            </div>
+            <PaginationControls
+              totalItems={totalPages * limit}
+              pageSize={limit}
+              currentPage={page}
+              onPageChange={setPage}
+            />
          </div>
        )}
 

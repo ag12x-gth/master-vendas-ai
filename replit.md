@@ -31,6 +31,11 @@ Preferred communication style: Simple, everyday language.
 - **Singleton Pattern Enforcement**: True singleton implementation for `EnhancedCache` and Redis client to prevent memory leaks.
 - **Conversations List Pagination Fix**: Smart `limit=0` support with a 10k safety cap for the `/api/v1/conversations` endpoint.
 - **Baileys Mass Campaign System**: End-to-end implementation for direct message campaigns without templates, including dedicated UI components, backend API endpoints, and a dual-path campaign sender for template-based and direct messages.
+- **Analytics Dashboard System**: Comprehensive real-time analytics with KPI metrics (conversations, leads, conversion rate, avg response time calculated via SQL CTE), time-series charts (day/week/month granularity), funnel visualization, campaign/notification metrics, and SWR data fetching with 30s auto-refresh.
+- **Custom Webhooks Integration**: Production-ready webhook system with CRUD management, 10+ event types, HMAC SHA256 signature verification, exponential retry logic (60s → 2h over 5 attempts), background queue worker (60s interval), and Zapier integration documentation with non-blocking dispatches.
+- **Template Management System**: Full CRUD interface for message templates with dynamic variable support ({{name}}, {{phone}}, {{email}}, {{company}}), category organization, usage tracking, predefined system templates with edit/delete protection, and regex-based variable extraction for preview rendering.
+- **UI/UX Component Library**: Production-ready reusable components including skeleton loaders (table/card/list variants), empty states with CTAs, server-side pagination controls with keyboard navigation (arrows/home/end), debounced search inputs (300ms), and text highlighting for search terms.
+- **Progressive Web App (PWA)**: Complete mobile-first PWA implementation with offline support via service worker (Stale-While-Revalidate strategy), app manifest with shortcuts/share target, install prompts with localStorage dismissal, 192x192/512x512 icons, Apple PWA meta tags, and standalone display mode for native app experience.
 
 ## External Dependencies
 ### Third-Party APIs

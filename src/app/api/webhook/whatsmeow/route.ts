@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { messages, conversations, contacts, companies } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { normalizePhone, isGroupChat } from '@/lib/utils/phone';
+import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
 
 interface WhatsmeowWebhook {
   type: string;
@@ -132,6 +133,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     let conversationId: string;
+    let isNewConversation = false;
 
     if (existingConversation) {
       conversationId = existingConversation.id;
@@ -158,19 +160,46 @@ export async function POST(request: NextRequest) {
       }
       
       conversationId = newConversations[0].id;
+      isNewConversation = true;
+
+      try {
+        const [contact] = await db.select().from(contacts).where(eq(contacts.id, contactId)).limit(1);
+        console.log(`[Webhook] Dispatching conversation_created for conversation ${conversationId}`);
+        await webhookDispatcher.dispatch(companyId, 'conversation_created', {
+          conversationId: conversationId,
+          contactId: contactId,
+          contactPhone: contact?.phone,
+          contactName: contact?.name,
+        });
+      } catch (webhookError) {
+        console.error('[Webhook] Error dispatching conversation_created:', webhookError);
+      }
     }
 
     // Save message to database
-    await db.insert(messages).values({
+    const [savedMessage] = await db.insert(messages).values({
       conversationId: conversationId,
       providerMessageId: payload.messageId,
       senderType: 'CONTACT',
       content: payload.data.text || '',
       contentType: 'TEXT',
       sentAt: new Date(payload.timestamp * 1000)
-    });
+    }).returning();
 
     console.log('✅ Message saved for conversation:', conversationId);
+
+    try {
+      const [contact] = await db.select().from(contacts).where(eq(contacts.id, contactId)).limit(1);
+      console.log(`[Webhook] Dispatching message_received for message ${savedMessage.id}`);
+      await webhookDispatcher.dispatch(companyId, 'message_received', {
+        messageId: savedMessage.id,
+        conversationId: conversationId,
+        content: payload.data.text || '',
+        senderPhone: contact?.phone,
+      });
+    } catch (webhookError) {
+      console.error('[Webhook] Error dispatching message_received:', webhookError);
+    }
 
     // Process with AI and handle voice escalation
     const messageText = payload.data.text || '';
