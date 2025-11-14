@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -54,7 +54,7 @@ export function WebhookDialog({
   onSuccess,
 }: WebhookDialogProps) {
   const { toast } = useToast();
-  const notify = createToastNotifier(toast);
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const [loading, setLoading] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
 
@@ -91,10 +91,7 @@ export function WebhookDialog({
   const handleCopySecret = () => {
     if (secret) {
       navigator.clipboard.writeText(secret);
-      toast({
-        title: 'Secret copiado!',
-        description: 'O secret foi copiado para a área de transferência.',
-      });
+      notify.success('Secret copiado!', 'O secret foi copiado para a área de transferência.');
     }
   };
 

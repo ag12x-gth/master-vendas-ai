@@ -22,6 +22,7 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PlusCircle, User, Phone, Mail, Building2, Calendar, MapPin, Briefcase, Hash } from 'lucide-react';
 
@@ -85,6 +86,7 @@ export function TemplateDialog({
   onCategoryCreated,
 }: TemplateDialogProps) {
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const [loading, setLoading] = useState(false);
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -141,11 +143,7 @@ export function TemplateDialog({
 
   const handleCreateCategory = async () => {
     if (!newCategoryName.trim()) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro de validação',
-        description: 'O nome da categoria é obrigatório.',
-      });
+      notify.error('Erro de validação', 'O nome da categoria é obrigatório.');
       return;
     }
 
@@ -165,21 +163,14 @@ export function TemplateDialog({
 
       const data = await response.json();
 
-      toast({
-        title: 'Categoria Criada!',
-        description: `A categoria "${newCategoryName}" foi criada com sucesso.`,
-      });
+      notify.success('Categoria Criada!', `A categoria "${newCategoryName}" foi criada com sucesso.`);
 
       setCategoryId(data.id);
       setShowNewCategory(false);
       setNewCategoryName('');
       onCategoryCreated?.();
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao Criar Categoria',
-        description: error instanceof Error ? error.message : 'Erro desconhecido.',
-      });
+      notify.error('Erro ao Criar Categoria', error instanceof Error ? error.message : 'Erro desconhecido.');
     } finally {
       setCreatingCategory(false);
     }
@@ -189,20 +180,12 @@ export function TemplateDialog({
     e.preventDefault();
 
     if (!name.trim()) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro de validação',
-        description: 'O nome do template é obrigatório.',
-      });
+      notify.error('Erro de validação', 'O nome do template é obrigatório.');
       return;
     }
 
     if (!content.trim()) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro de validação',
-        description: 'O conteúdo do template é obrigatório.',
-      });
+      notify.error('Erro de validação', 'O conteúdo do template é obrigatório.');
       return;
     }
 
@@ -229,19 +212,12 @@ export function TemplateDialog({
         throw new Error(errorData.error || 'Erro ao salvar template');
       }
 
-      toast({
-        title: template ? 'Template Atualizado!' : 'Template Criado!',
-        description: `O template "${name}" foi salvo com sucesso.`,
-      });
+      notify.success(template ? 'Template Atualizado!' : 'Template Criado!', `O template "${name}" foi salvo com sucesso.`);
 
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao Salvar',
-        description: error instanceof Error ? error.message : 'Erro desconhecido.',
-      });
+      notify.error('Erro ao Salvar', error instanceof Error ? error.message : 'Erro desconhecido.');
     } finally {
       setLoading(false);
     }

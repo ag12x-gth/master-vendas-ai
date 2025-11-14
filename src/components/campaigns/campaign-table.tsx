@@ -31,9 +31,11 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../ui/card
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { DateRangePicker } from '../ui/date-range-picker';
 import type { DateRange } from 'react-day-picker';
 import { addDays } from 'date-fns';
+import { useMemo } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { useDebounce } from '@/hooks/use-debounce';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -62,8 +64,7 @@ const statusConfig = {
 } as const;
 
 
-const CampaignCard = memo(({ campaign, onUpdate, onDelete, allTemplates }: { campaign: Campaign, onUpdate: () => void, onDelete: (id: string) => void, allTemplates: Template[] }) => {
-    const { toast } = useToast();
+const CampaignCard = memo(({ campaign, onUpdate, onDelete, allTemplates, notify }: { campaign: Campaign, onUpdate: () => void, onDelete: (id: string) => void, allTemplates: Template[], notify: ReturnType<typeof createToastNotifier> }) => {
     const [isTriggering, setIsTriggering] = useState(false);
     const statusKey = campaign.status as keyof typeof statusConfig;
     const status = statusConfig[statusKey] || statusConfig.Agendada;
@@ -85,10 +86,10 @@ const CampaignCard = memo(({ campaign, onUpdate, onDelete, allTemplates }: { cam
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Falha ao forçar o envio.');
             }
-            toast({ title: 'Campanha Enviada!', description: `A campanha "${campaign.name}" foi enviada para a fila de processamento.` });
+            notify.success('Campanha Enviada!', `A campanha "${campaign.name}" foi enviada para a fila de processamento.`);
             onUpdate(); // Refresh the campaign list
         } catch (error) {
-             toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+             notify.error('Erro', (error as Error).message);
         } finally {
             setIsTriggering(false);
         }
@@ -104,10 +105,10 @@ const CampaignCard = memo(({ campaign, onUpdate, onDelete, allTemplates }: { cam
                  const errorData = await response.json();
                 throw new Error(errorData.error || 'Falha ao excluir a campanha.');
             }
-            toast({ title: 'Campanha Excluída!', description: `A campanha "${campaign.name}" foi removida.` });
+            notify.success('Campanha Excluída!', `A campanha "${campaign.name}" foi removida.`);
             onDelete(campaign.id);
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+            notify.error('Erro', (error as Error).message);
         }
     }
 
@@ -218,6 +219,7 @@ CampaignCard.displayName = 'CampaignCard';
 
 export function CampaignTable({ channel, baileysOnly = false }: CampaignTableProps) {
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [allTemplates, setAllTemplates] = useState<Template[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]);
@@ -284,12 +286,12 @@ export function CampaignTable({ channel, baileysOnly = false }: CampaignTablePro
         }
 
     } catch (error) {
-        toast({ variant: "destructive", title: "Erro", description: (error as Error).message });
+        notify.error("Erro", (error as Error).message);
         setCampaigns([]); // Limpa os dados em caso de erro
     } finally {
         setLoading(false);
     }
-  }, [toast, channel, page, limit, debouncedDateRange, debouncedFilterType, debouncedSelectedId, baileysOnly]);
+  }, [notify, channel, page, limit, debouncedDateRange, debouncedFilterType, debouncedSelectedId, baileysOnly]);
 
   useEffect(() => {
     fetchCampaigns();
@@ -311,11 +313,11 @@ export function CampaignTable({ channel, baileysOnly = false }: CampaignTablePro
             setSmsGateways(smsData);
             setAllTemplates(tplData);
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+            notify.error('Erro', (error as Error).message);
         }
     };
     fetchPrerequisites();
-  }, [toast]);
+  }, [notify]);
 
 
   const handleFilterTypeChange = (type: string) => {
@@ -357,7 +359,7 @@ export function CampaignTable({ channel, baileysOnly = false }: CampaignTablePro
       return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {campaigns.map(campaign => (
-            <CampaignCard key={campaign.id} campaign={campaign} onUpdate={fetchCampaigns} onDelete={handleCampaignDeleted} allTemplates={allTemplates} />
+            <CampaignCard key={campaign.id} campaign={campaign} onUpdate={fetchCampaigns} onDelete={handleCampaignDeleted} allTemplates={allTemplates} notify={notify} />
           ))}
         </div>
       );

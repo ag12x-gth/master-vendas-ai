@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, MoreHorizontal, Edit, Trash2, Loader2, ToggleRight, ToggleLeft } from 'lucide-react';
@@ -34,7 +34,7 @@ export function AutomationList() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<AutomationRule | null>(null);
   const { toast } = useToast();
-  const notify = createToastNotifier(toast);
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const fetchRules = useCallback(async () => {
     setLoading(true);
@@ -48,7 +48,7 @@ export function AutomationList() {
     } finally {
         setLoading(false);
     }
-  }, [toast]);
+  }, [notify]);
   
   useEffect(() => {
     fetchRules();

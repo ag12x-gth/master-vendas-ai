@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -48,7 +48,7 @@ export function ContactListsTable() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingList, setEditingList] = useState<ContactList | null>(null);
     const { toast } = useToast();
-    const notify = createToastNotifier(toast);
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -76,7 +76,7 @@ export function ContactListsTable() {
         } finally {
             setLoading(false);
         }
-    }, [page, limit, search, toast]);
+    }, [page, limit, search, notify]);
 
     useEffect(() => {
         const debounce = setTimeout(() => {

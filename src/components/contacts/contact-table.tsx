@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import {
   Table,
   TableBody,
@@ -18,6 +18,7 @@ import type { ExtendedContact, ContactList, Tag } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 import { Checkbox } from '../ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -272,6 +273,7 @@ export function ContactTable() {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const isMobileDetected = useIsMobile();
   const isMobile = mounted ? isMobileDetected : false;
   
@@ -313,11 +315,11 @@ export function ContactTable() {
         setTotalPages(data.totalPages);
 
     } catch (error) {
-        toast({ variant: "destructive", title: "Erro", description: "Não foi possível carregar os contatos."})
+        notify.error("Erro", "Não foi possível carregar os contatos.");
     } finally {
         setLoading(false);
     }
-  }, [page, limit, sortBy, debouncedSearch, tagFilter, listFilter, toast]);
+  }, [page, limit, sortBy, debouncedSearch, tagFilter, listFilter, notify]);
 
   useEffect(() => {
     fetchContacts();
@@ -336,11 +338,11 @@ export function ContactTable() {
             setAvailableTags(tagsData);
             setAvailableLists(listsData);
         } catch (error) {
-             toast({ variant: "destructive", title: "Erro", description: "Não foi possível carregar as opções de filtro."})
+             notify.error("Erro", "Não foi possível carregar as opções de filtro.");
         }
     };
     fetchFilters();
-  }, [toast]);
+  }, [notify]);
   
   const handleSort = (key: SortKey) => {
     const [currentKey, currentOrder] = sortBy.split(':');
@@ -364,20 +366,17 @@ export function ContactTable() {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Falha ao excluir contato.');
       }
-      toast({ title: 'Contato excluído!', description: 'O contato foi removido com sucesso.' });
+      notify.success('Contato excluído!', 'O contato foi removido com sucesso.');
       fetchContacts(); // Refresh data
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro ao excluir', description: (error as Error).message });
+      notify.error('Erro ao excluir', (error as Error).message);
       setContacts(originalContacts); // Rollback on failure
     }
   };
 
 
   const handleBulkDelete = async () => {
-    toast({
-        title: "A excluir contatos...",
-        description: `Por favor aguarde enquanto ${selectedRows.length} contatos são excluídos.`,
-    });
+    notify.info("A excluir contatos...", `Por favor aguarde enquanto ${selectedRows.length} contatos são excluídos.`);
     
     const originalContacts = [...contacts];
     const newContacts = contacts.filter(c => !selectedRows.includes(c.id));
@@ -389,17 +388,10 @@ export function ContactTable() {
         if (failed.length > 0) {
             throw new Error(`${failed.length} contatos não puderam ser excluídos.`);
         }
-        toast({
-            title: `${selectedRows.length} contatos excluídos`,
-            description: 'Os contatos selecionados foram removidos com sucesso.',
-        });
+        notify.success(`${selectedRows.length} contatos excluídos`, 'Os contatos selecionados foram removidos com sucesso.');
         fetchContacts(); // Refresh data
     } catch (error) {
-        toast({
-            variant: 'destructive',
-            title: 'Erro ao excluir',
-            description: error instanceof Error ? error.message : 'Ocorreu um erro.',
-        });
+        notify.error('Erro ao excluir', error instanceof Error ? error.message : 'Ocorreu um erro.');
         setContacts(originalContacts); // Rollback
     } finally {
         setSelectedRows([]);
