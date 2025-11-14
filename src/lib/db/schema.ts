@@ -92,11 +92,15 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     name: varchar('name', { length: 255 }).notNull(),
     email: varchar('email', { length: 255 }).notNull().unique(),
     avatarUrl: text('avatar_url'),
-    password: text('password').notNull(),
-    firebaseUid: varchar('firebase_uid', { length: 255 }).notNull().unique(),
+    password: text('password'),
+    firebaseUid: varchar('firebase_uid', { length: 255 }).unique(),
     role: userRoleEnum('role').notNull(),
     companyId: text('company_id').references(() => companies.id),
     emailVerified: timestamp("email_verified", { mode: "date" }),
+    googleId: varchar('google_id', { length: 255 }).unique(),
+    facebookId: varchar('facebook_id', { length: 255 }).unique(),
+    googleAccessToken: text('google_access_token'),
+    facebookAccessToken: text('facebook_access_token'),
     createdAt: timestamp('created_at').defaultNow(),
   });
 
