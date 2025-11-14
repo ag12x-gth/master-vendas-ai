@@ -1014,3 +1014,128 @@ export const customMessageTemplatesRelations = relations(customMessageTemplates,
     references: [customTemplateCategories.id],
   }),
 }));
+
+// ==============================
+// CADENCE SYSTEM (DRIP CAMPAIGNS)
+// ==============================
+
+export const cadenceDefinitions = pgTable('cadence_definitions', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  funnelId: text('funnel_id').references(() => kanbanBoards.id, { onDelete: 'set null' }),
+  stageId: text('stage_id'),
+  triggerAfterDays: integer('trigger_after_days').notNull().default(21),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+}, (table) => ({
+  companyActiveIdx: sql`CREATE INDEX IF NOT EXISTS cadence_definitions_company_active_idx ON ${table} (company_id, is_active) WHERE is_active = true`,
+}));
+
+export const cadenceSteps = pgTable('cadence_steps', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  cadenceId: text('cadence_id').notNull().references(() => cadenceDefinitions.id, { onDelete: 'cascade' }),
+  stepOrder: integer('step_order').notNull(),
+  offsetDays: integer('offset_days').notNull().default(0),
+  channel: text('channel').notNull().default('whatsapp'),
+  templateId: text('template_id').references(() => messageTemplates.id, { onDelete: 'set null' }),
+  messageContent: text('message_content'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  cadenceOrderUnique: unique('cadence_steps_cadence_order_unique').on(table.cadenceId, table.stepOrder),
+}));
+
+export const cadenceEnrollmentStatusEnum = pgEnum('cadence_enrollment_status', ['active', 'completed', 'cancelled']);
+
+export const cadenceEnrollments = pgTable('cadence_enrollments', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  cadenceId: text('cadence_id').notNull().references(() => cadenceDefinitions.id, { onDelete: 'cascade' }),
+  leadId: text('lead_id').references(() => kanbanLeads.id, { onDelete: 'cascade' }),
+  contactId: text('contact_id').notNull().references(() => contacts.id, { onDelete: 'cascade' }),
+  conversationId: text('conversation_id').references(() => conversations.id, { onDelete: 'set null' }),
+  status: cadenceEnrollmentStatusEnum('status').notNull().default('active'),
+  currentStep: integer('current_step').notNull().default(0),
+  nextRunAt: timestamp('next_run_at'),
+  enrolledAt: timestamp('enrolled_at').defaultNow().notNull(),
+  completedAt: timestamp('completed_at'),
+  cancelledReason: text('cancelled_reason'),
+}, (table) => ({
+  schedulingIdx: sql`CREATE INDEX IF NOT EXISTS cadence_enrollments_scheduling_idx ON ${table} (status, next_run_at) WHERE status = 'active'`,
+  leadActiveUnique: unique('cadence_enrollments_lead_active_unique').on(table.leadId, table.cadenceId),
+}));
+
+export const cadenceEventTypeEnum = pgEnum('cadence_event_type', ['enrolled', 'step_sent', 'replied', 'completed', 'cancelled']);
+
+export const cadenceEvents = pgTable('cadence_events', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  enrollmentId: text('enrollment_id').notNull().references(() => cadenceEnrollments.id, { onDelete: 'cascade' }),
+  stepId: text('step_id').references(() => cadenceSteps.id, { onDelete: 'set null' }),
+  eventType: cadenceEventTypeEnum('event_type').notNull(),
+  messageId: text('message_id').references(() => messages.id, { onDelete: 'set null' }),
+  metadata: jsonb('metadata'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  enrollmentTypeIdx: sql`CREATE INDEX IF NOT EXISTS cadence_events_enrollment_type_idx ON ${table} (enrollment_id, event_type, created_at DESC)`,
+}));
+
+export const cadenceDefinitionsRelations = relations(cadenceDefinitions, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [cadenceDefinitions.companyId],
+    references: [companies.id],
+  }),
+  funnel: one(kanbanBoards, {
+    fields: [cadenceDefinitions.funnelId],
+    references: [kanbanBoards.id],
+  }),
+  steps: many(cadenceSteps),
+  enrollments: many(cadenceEnrollments),
+}));
+
+export const cadenceStepsRelations = relations(cadenceSteps, ({ one, many }) => ({
+  cadence: one(cadenceDefinitions, {
+    fields: [cadenceSteps.cadenceId],
+    references: [cadenceDefinitions.id],
+  }),
+  template: one(messageTemplates, {
+    fields: [cadenceSteps.templateId],
+    references: [messageTemplates.id],
+  }),
+  events: many(cadenceEvents),
+}));
+
+export const cadenceEnrollmentsRelations = relations(cadenceEnrollments, ({ one, many }) => ({
+  cadence: one(cadenceDefinitions, {
+    fields: [cadenceEnrollments.cadenceId],
+    references: [cadenceDefinitions.id],
+  }),
+  lead: one(kanbanLeads, {
+    fields: [cadenceEnrollments.leadId],
+    references: [kanbanLeads.id],
+  }),
+  contact: one(contacts, {
+    fields: [cadenceEnrollments.contactId],
+    references: [contacts.id],
+  }),
+  conversation: one(conversations, {
+    fields: [cadenceEnrollments.conversationId],
+    references: [conversations.id],
+  }),
+  events: many(cadenceEvents),
+}));
+
+export const cadenceEventsRelations = relations(cadenceEvents, ({ one }) => ({
+  enrollment: one(cadenceEnrollments, {
+    fields: [cadenceEvents.enrollmentId],
+    references: [cadenceEnrollments.id],
+  }),
+  step: one(cadenceSteps, {
+    fields: [cadenceEvents.stepId],
+    references: [cadenceSteps.id],
+  }),
+  message: one(messages, {
+    fields: [cadenceEvents.messageId],
+    references: [messages.id],
+  }),
+}));

@@ -127,6 +127,16 @@ app.prepare().then(() => {
         processCampaignQueue(); // Executa imediatamente
         setInterval(processCampaignQueue, 60000); // Depois a cada 1 minuto
       }, 10000);
+      
+      // Cadence Scheduler - Detector diário + Processor horário
+      try {
+        require('tsx/cjs');
+        const { startCadenceScheduler } = require('./src/lib/cadence-scheduler.ts');
+        startCadenceScheduler();
+        console.log('✅ Cadence Scheduler initialized successfully');
+      } catch (error) {
+        console.error('❌ Cadence Scheduler initialization error:', error.message);
+      }
     }
   });
 });

@@ -398,6 +398,22 @@ async function processIncomingMessage(
                 contentType: messageData.type.toUpperCase(),
                 mediaUrl: permanentMediaUrl,
             });
+            
+            // Cancelar cadências ativas para este contato (resposta do lead)
+            try {
+                const { CadenceService } = await import('@/lib/cadence-service');
+                const cancelledCount = await CadenceService.cancelEnrollmentsByContact(
+                    contact.id, 
+                    companyId, 
+                    'Contact replied'
+                );
+                if (cancelledCount > 0) {
+                    console.log(`[Webhook] ${cancelledCount} cadência(s) cancelada(s) para contato ${contact.id} (recebeu resposta)`);
+                }
+            } catch (cadenceError) {
+                console.error('[Webhook] Erro ao cancelar cadências:', cadenceError);
+                // Não falha o processamento principal se cadence cancelamento falhar
+            }
 
         } catch (error) {
              console.error(`Erro na transação do webhook para a empresa ${companyId}:`, error);
