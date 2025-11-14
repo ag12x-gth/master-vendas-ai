@@ -40,9 +40,22 @@ export function SendTemplateDialog({ children, templates, connectionId, contact 
   const { toast } = useToast();
   const router = useRouter();
 
+  const templateList = useMemo(() => {
+    return Array.isArray(templates) ? templates : [];
+  }, [templates]);
+
   const selectedTemplate = useMemo(() => {
-    return templates.find(t => t.id === selectedTemplateId);
-  }, [selectedTemplateId, templates]);
+    return templateList.find(t => t.id === selectedTemplateId);
+  }, [selectedTemplateId, templateList]);
+
+  const templateBody = useMemo(() => {
+    if (!selectedTemplate?.components) return '';
+    const componentsArray = Array.isArray(selectedTemplate.components) 
+      ? selectedTemplate.components 
+      : [];
+    const bodyComponent = componentsArray.find((c: any) => c.type === 'BODY');
+    return bodyComponent?.text || '';
+  }, [selectedTemplate]);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,16 +112,16 @@ export function SendTemplateDialog({ children, templates, connectionId, contact 
                           <SelectValue placeholder="Selecione um modelo..." />
                       </SelectTrigger>
                       <SelectContent>
-                          {templates.filter(t => t.status === 'APPROVED' || t.status === 'APROVADO').map(t => (
+                          {templateList.filter(t => t.status === 'APPROVED' || t.status === 'APROVADO').map(t => (
                               <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
                           ))}
                       </SelectContent>
                   </Select>
               </div>
 
-              {selectedTemplate && (
+              {selectedTemplate && templateBody && (
                   <div className="p-4 border rounded-md bg-muted/50 text-sm">
-                      <p className="whitespace-pre-wrap">{selectedTemplate.body}</p>
+                      <p className="whitespace-pre-wrap">{templateBody}</p>
                   </div>
               )}
           </div>

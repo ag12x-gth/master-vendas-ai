@@ -450,7 +450,6 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     lastUsedAt: timestamp('last_used_at'),
     isActive: boolean('is_active').default(true),
     allowCategoryChange: boolean('allow_category_change').default(true),
-    isPredefined: boolean('is_predefined').default(false).notNull(),
   }, (table) => ({
     uniqueNameWaba: unique('message_templates_name_waba_unique').on(table.name, table.wabaId),
   }));
