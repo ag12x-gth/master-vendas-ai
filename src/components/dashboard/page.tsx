@@ -17,7 +17,6 @@ import { StatsCards } from '@/components/analytics/stats-cards';
 import { PageHeader } from '@/components/page-header';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { Loader2 } from 'lucide-react';
-import { ConnectionAlerts } from '@/components/dashboard/connection-alerts';
 
 const ChartSkeleton = () => (
   <div className="h-[300px] w-full animate-pulse bg-muted rounded-md flex items-center justify-center">
@@ -50,14 +49,11 @@ export default function DashboardClient() {
     <div className="flex flex-col gap-4 sm:gap-6 pb-20 md:pb-6">
       <PageHeader
         title="Dashboard"
-        description="Bem-vindo de volta! Aqui está uma visão geral da sua conta."
       >
         <div className="hidden sm:block">
           <DateRangePicker onDateChange={setDateRange} initialDate={dateRange} />
         </div>
       </PageHeader>
-      
-      <ConnectionAlerts />
       
       <StatsCards dateRange={dateRange} />
 

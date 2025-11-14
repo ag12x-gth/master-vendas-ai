@@ -10,7 +10,6 @@ export function ConnectionsClient() {
     <div className="space-y-6">
       <PageHeader
         title="Conexões"
-        description="Adicione e gerencie suas conexões com a API do WhatsApp."
       >
       </PageHeader>
       <ConnectionsManager />

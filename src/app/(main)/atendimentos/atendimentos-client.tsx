@@ -12,7 +12,7 @@ export function AtendimentosClient() {
   return (
     <div className="flex h-full flex-col gap-4">
       <div className="flex flex-shrink-0 items-center justify-between">
-        <PageHeader title="Atendimentos" description="Gerencie suas conversas." />
+        <PageHeader title="Atendimentos" />
       </div>
       {/* A div flex-1 garante que InboxView ocupe o espaço restante */}
       <div className="flex-1 min-h-0">

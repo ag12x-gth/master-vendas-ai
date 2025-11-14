@@ -9,7 +9,6 @@ export default function CampaignsPage() {
     <div className="space-y-6">
        <PageHeader
           title="Campanhas de WhatsApp"
-          description="Monitore e analise o desempenho de seus envios de WhatsApp."
         >
             <CreateCampaignDialog>
                 <Button>

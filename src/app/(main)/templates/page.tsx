@@ -218,9 +218,6 @@ export default function TemplatesPage() {
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold">Templates de Mensagens</h1>
-        <p className="text-muted-foreground">
-          Crie e gerencie templates personalizados para suas mensagens
-        </p>
       </div>
 
       <Card>
