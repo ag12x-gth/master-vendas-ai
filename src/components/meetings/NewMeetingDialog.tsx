@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -17,6 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useRouter } from 'next/navigation';
 import { Plus, Loader2, Video, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 
 export function NewMeetingDialog() {
     const [open, setOpen] = useState(false);
@@ -28,6 +29,7 @@ export function NewMeetingDialog() {
     });
     const router = useRouter();
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,10 +54,7 @@ export function NewMeetingDialog() {
                 throw new Error(data.error || 'Erro ao criar reunião');
             }
 
-            toast({
-                title: '✅ Reunião criada com sucesso!',
-                description: 'O bot está entrando na reunião do Google Meet.',
-            });
+            notify.success('✅ Reunião criada com sucesso!', 'O bot está entrando na reunião do Google Meet.');
 
             setOpen(false);
             setFormData({ googleMeetUrl: '', scheduledFor: '', notes: '' });
@@ -66,12 +65,8 @@ export function NewMeetingDialog() {
             }, 500);
         } catch (error: any) {
             console.error('Erro ao criar reunião:', error);
-            toast({
-                title: '❌ Erro ao criar reunião',
-                description: error.message || 'Tente novamente mais tarde.',
-                variant: 'destructive',
-            });
-        } finally {
+            notify.error('❌ Erro ao criar reunião', error.message || 'Tente novamente mais tarde.');
+        } finally{
             setLoading(false);
         }
     };
@@ -85,10 +80,7 @@ export function NewMeetingDialog() {
 
     const handleOpenGoogleMeet = () => {
         window.open('https://meet.google.com/new', '_blank');
-        toast({
-            title: '📹 Google Meet aberto',
-            description: 'Crie sua reunião e cole o link aqui.',
-        });
+        notify.info('📹 Google Meet aberto', 'Crie sua reunião e cole o link aqui.');
     };
 
     return (

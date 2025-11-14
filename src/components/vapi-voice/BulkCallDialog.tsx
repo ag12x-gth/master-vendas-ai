@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { useVapiCalls } from '@/hooks/useVapiCalls';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react';
 
 interface BulkCallDialogProps {
@@ -41,6 +42,7 @@ export function BulkCallDialog({
   const [customContext, setCustomContext] = useState(context);
   const { initiateCall } = useVapiCalls();
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const handleBulkCall = async () => {
     if (!contacts || contacts.length === 0) return;
@@ -80,10 +82,7 @@ export function BulkCallDialog({
     const successCount = callResults.filter((r) => r.success).length;
     const failCount = callResults.filter((r) => !r.success).length;
 
-    toast({
-      title: 'Campanha de chamadas concluída',
-      description: `${successCount} chamadas iniciadas com sucesso, ${failCount} falharam.`,
-    });
+    notify.success('Campanha de chamadas concluída', `${successCount} chamadas iniciadas com sucesso, ${failCount} falharam.`);
 
     if (onCallsInitiated) {
       onCallsInitiated();

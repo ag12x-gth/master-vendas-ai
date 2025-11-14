@@ -5,14 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { Send, Clock, Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import type { Campaign } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 
 export function OngoingCampaigns() {
     const [campaigns, setCampaigns] = useState<Campaign[]>([]);
     const [loading, setLoading] = useState(true);
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
     useEffect(() => {
         const fetchCampaigns = async () => {
@@ -24,13 +26,13 @@ export function OngoingCampaigns() {
                 const activeCampaigns = (result.data || []).filter((c: Campaign) => ['SENDING', 'SCHEDULED', 'QUEUED', 'PENDING'].includes(c.status)).slice(0, 3);
                 setCampaigns(activeCampaigns);
             } catch (error) {
-                 toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+                 notify.error('Erro', (error as Error).message);
             } finally {
                 setLoading(false);
             }
         };
         fetchCampaigns();
-    }, [toast]);
+    }, [notify]);
 
 
   return (

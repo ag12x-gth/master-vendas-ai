@@ -1,7 +1,7 @@
 // src/components/campaigns/report/campaign-report.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { notFound } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
 import { ArrowLeft } from 'lucide-react';
@@ -13,6 +13,7 @@ import { ReportMessagePreview } from '@/components/campaigns/report/report-messa
 import { ReportContactsTable } from '@/components/campaigns/report/report-contacts-table';
 import type { Campaign, CampaignSend } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const ReportSkeleton = (): JSX.Element => (
@@ -45,6 +46,7 @@ export function CampaignReport({ campaignId }: CampaignReportProps): JSX.Element
   const [deliveryReports, setDeliveryReports] = useState<CampaignSend[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   
   const isSmsCampaign = campaign?.channel === 'SMS';
   
@@ -70,17 +72,13 @@ export function CampaignReport({ campaignId }: CampaignReportProps): JSX.Element
             setDeliveryReports(reportData);
 
         } catch (error) {
-             toast({
-                variant: 'destructive',
-                title: 'Erro ao carregar relatório',
-                description: (error as Error).message,
-             })
+             notify.error('Erro ao carregar relatório', (error as Error).message);
         } finally {
             setLoading(false);
         }
     }
     void fetchCampaignData();
-  }, [campaignId, toast]);
+  }, [campaignId, notify]);
 
   if (loading) {
     return <ReportSkeleton />;

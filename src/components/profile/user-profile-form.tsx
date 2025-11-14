@@ -31,19 +31,19 @@ import {
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { useRouter } from 'next/navigation';
 import { useSession } from '@/contexts/session-context';
+import { useMemo } from 'react';
 
 export function UserProfileForm(): JSX.Element {
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const router = useRouter();
   const { session } = useSession();
 
   const handleSaveChanges = (): void => {
-    toast({
-      title: 'Perfil Atualizado!',
-      description: 'Suas informações foram salvas com sucesso.',
-    });
+    notify.success('Perfil Atualizado!', 'Suas informações foram salvas com sucesso.');
   };
 
   const handleLogout = (): void => {

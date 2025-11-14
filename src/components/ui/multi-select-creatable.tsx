@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import type { ContactList, Tag } from '@/lib/types';
 
 
@@ -43,6 +44,7 @@ export function MultiSelectCreatable({
   createEndpoint,
 }: MultiSelectCreatableProps): JSX.Element {
   const { toast } = useToast();
+  const notify = React.useMemo(() => createToastNotifier(toast), [toast]);
   const [open, setOpen] = React.useState(false);
   const [inputValue, setInputValue] = React.useState('');
   const [options, setOptions] = React.useState<Option[]>([]);
@@ -63,9 +65,9 @@ export function MultiSelectCreatable({
         
         setOptions(formattedOptions);
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro ao Carregar', description: (error as Error).message });
+        notify.error('Erro ao Carregar', (error as Error).message);
     }
-  }, [createEndpoint, toast]);
+  }, [createEndpoint, notify]);
   
   React.useEffect(() => {
     if (open) {
@@ -107,10 +109,10 @@ export function MultiSelectCreatable({
         onChange([...selected, newOption.id]);
         setInputValue('');
 
-        toast({ title: 'Criado com Sucesso!', description: `A opção "${newOption.name}" foi criada e selecionada.`});
+        notify.success('Criado com Sucesso!', `A opção "${newOption.name}" foi criada e selecionada.`);
 
     } catch(error) {
-        toast({ variant: 'destructive', title: 'Erro ao Criar', description: (error as Error).message });
+        notify.error('Erro ao Criar', (error as Error).message);
     } finally {
         setIsLoading(false);
     }

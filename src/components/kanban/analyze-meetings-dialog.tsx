@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
 import { Button } from '../ui/button';
 import { Scan, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { ScrollArea } from '../ui/scroll-area';
 
 interface AnalyzeMeetingsDialogProps {
@@ -33,6 +34,7 @@ export function AnalyzeMeetingsDialog({ open, onOpenChange, funnelId }: AnalyzeM
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<AnalyzeResult | null>(null);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const handleAnalyze = async () => {
     setLoading(true);
@@ -54,17 +56,10 @@ export function AnalyzeMeetingsDialog({ open, onOpenChange, funnelId }: AnalyzeM
       const data: AnalyzeResult = await response.json();
       setResult(data);
 
-      toast({
-        title: '✅ Análise concluída!',
-        description: `${data.stats.meetingsDetected} agendamentos detectados, ${data.stats.leadsMoved} leads movidos.`,
-      });
+      notify.success('✅ Análise concluída!', `${data.stats.meetingsDetected} agendamentos detectados, ${data.stats.leadsMoved} leads movidos.`);
     } catch (error) {
       console.error('Erro ao analisar conversas:', error);
-      toast({
-        title: '❌ Erro ao analisar',
-        description: 'Não foi possível analisar as conversas. Tente novamente.',
-        variant: 'destructive',
-      });
+      notify.error('❌ Erro ao analisar', 'Não foi possível analisar as conversas. Tente novamente.');
     } finally {
       setLoading(false);
     }

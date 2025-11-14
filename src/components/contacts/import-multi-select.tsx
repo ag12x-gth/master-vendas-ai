@@ -2,6 +2,7 @@
 'use client'
 
 import * as React from 'react';
+import { createToastNotifier } from '@/lib/toast-helper';
 import {
   Command,
   CommandEmpty,
@@ -35,6 +36,7 @@ export function ImportMultiSelect({ type, selectedIds, setSelectedIds }: ImportM
     const [options, setOptions] = React.useState<Option[]>([]);
     const [open, setOpen] = React.useState(false);
     const { toast } = useToast();
+    const notify = React.useMemo(() => createToastNotifier(toast), [toast]);
 
     React.useEffect(() => {
         const fetchOptions = async (): Promise<void> => {
@@ -44,14 +46,14 @@ export function ImportMultiSelect({ type, selectedIds, setSelectedIds }: ImportM
                 const data: (Tag | ContactList)[] = await response.json();
                 setOptions(data.map(item => ({ value: item.id, label: item.name, color: (item as Tag).color })));
             } catch (error) {
-                toast({ variant: 'destructive', title: `Erro ao carregar ${type}`, description: (error as Error).message });
+                notify.error(`Erro ao carregar ${type}`, (error as Error).message);
             }
         };
 
         if (open) {
             void fetchOptions();
         }
-    }, [open, type, toast]);
+    }, [open, type, notify]);
 
     const handleUnselect = (value: string): void => {
         setSelectedIds(selectedIds.filter((v) => v !== value));

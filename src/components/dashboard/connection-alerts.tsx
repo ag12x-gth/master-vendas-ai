@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, CheckCircle, XCircle, Clock, RefreshCw } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 
 interface ConnectionHealth {
   id: string;
@@ -66,6 +67,8 @@ export function ConnectionAlerts() {
   const [healthData, setHealthData] = useState<HealthResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const fetchHealthData = async () => {
     try {
@@ -81,11 +84,7 @@ export function ConnectionAlerts() {
       setLastUpdate(new Date());
     } catch (error) {
       console.error('Erro ao buscar dados de saúde das conexões:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível verificar o status das conexões',
-        variant: 'destructive'
-      });
+      notify.error('Erro', 'Não foi possível verificar o status das conexões');
     } finally {
       setLoading(false);
     }

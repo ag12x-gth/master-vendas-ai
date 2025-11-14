@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Phone, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { useVapiCalls } from '@/hooks/useVapiCalls';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 
 interface CallButtonProps {
   contactId?: string;
@@ -41,6 +42,7 @@ export function CallButton({
   const [isInitiating, setIsInitiating] = useState(false);
   const { initiateCall } = useVapiCalls();
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const handleInitiateCall = async () => {
     setIsInitiating(true);
@@ -57,16 +59,9 @@ export function CallButton({
     setShowConfirmDialog(false);
 
     if (result.success) {
-      toast({
-        title: 'Chamada iniciada!',
-        description: `Ligando para ${customerName}...`,
-      });
+      notify.success('Chamada iniciada!', `Ligando para ${customerName}...`);
     } else {
-      toast({
-        title: 'Erro ao iniciar chamada',
-        description: result.error,
-        variant: 'destructive',
-      });
+      notify.error('Erro ao iniciar chamada', result.error);
     }
   };
 

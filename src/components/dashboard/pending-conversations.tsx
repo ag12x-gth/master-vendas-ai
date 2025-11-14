@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowRight, Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import type { Conversation } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { RelativeTime } from '../ui/relative-time';
 
 
@@ -16,6 +17,7 @@ export function PendingConversations() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
    useEffect(() => {
         const fetchConversations = async () => {
@@ -28,13 +30,13 @@ export function PendingConversations() {
                 const pendingConversations = data.filter(c => c.status === 'NEW').slice(0, 4);
                 setConversations(pendingConversations);
             } catch (error) {
-                 toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+                 notify.error('Erro', (error as Error).message);
             } finally {
                 setLoading(false);
             }
         };
         fetchConversations();
-    }, [toast]);
+    }, [notify]);
 
 
   return (
