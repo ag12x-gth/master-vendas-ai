@@ -29,7 +29,7 @@ import {
   assembleDynamicPrompt,
   estimateTokenCount,
 } from './prompt-utils';
-import { kanbanLeads, kanbanBoards, kanbanStagePersonas } from './db';
+import { kanbanLeads, kanbanStagePersonas } from './db';
 import { apiCache } from './api-cache';
 
 
@@ -143,7 +143,7 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
                  if (!action.value) return;
                 await db.update(conversations).set({ assignedTo: action.value as User['id'] }).where(eq(conversations.id, conversation.id));
                 break;
-            case 'move_to_stage':
+            case 'move_to_stage': {
                 if (!action.value) return;
                 const activeLead = await db.query.kanbanLeads.findFirst({
                     where: eq(kanbanLeads.contactId, contact.id),
@@ -173,6 +173,7 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
                     await logAutomation('WARN', `Contato não possui lead ativo no Kanban. Ação 'move_to_stage' ignorada.`, logContext);
                 }
                 break;
+            }
         }
         await logAutomation('INFO', `Ação executada com sucesso: ${action.type}`, logContext);
     } catch (error) {

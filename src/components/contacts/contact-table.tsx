@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Upload, PlusCircle, Search, Trash2, List, LayoutGrid, Tags, Download, Loader2, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, MoreHorizontal, Edit, ArrowUpDown, Phone, PhoneCall, Users } from 'lucide-react';
+import { Upload, PlusCircle, Search, Trash2, List, LayoutGrid, Tags, Download, Loader2, MoreHorizontal, Edit, ArrowUpDown, Phone, PhoneCall, Users } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { PageHeader } from '../page-header';
 import type { ExtendedContact, ContactList, Tag } from '@/lib/types';

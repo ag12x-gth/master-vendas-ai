@@ -11,7 +11,6 @@ import { Progress } from '@/components/ui/progress';
 import { 
     AlertTriangle, 
     TrendingUp, 
-    TrendingDown, 
     Lightbulb, 
     MessageSquare,
     Activity,

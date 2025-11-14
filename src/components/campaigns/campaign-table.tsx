@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2, FileText, GitBranch, MessageSquareText, SendIcon, Loader2, PlayCircle, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, List, LayoutGrid, Megaphone } from 'lucide-react';
+import { MoreHorizontal, Trash2, FileText, GitBranch, MessageSquareText, SendIcon, Loader2, PlayCircle, List, LayoutGrid, Megaphone } from 'lucide-react';
 import type { Campaign, Connection, SmsGateway, Template } from '@/lib/types';
 import {
   AlertDialog,

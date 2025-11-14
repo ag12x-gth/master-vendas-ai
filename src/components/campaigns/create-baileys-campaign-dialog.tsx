@@ -30,7 +30,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Checkbox } from '../ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Separator } from '../ui/separator';
@@ -496,7 +496,7 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                     </div>
                 );
 
-            case 'review':
+            case 'review': {
                 const selectedConnection = baileysConnections.find(c => c.id === selectedConnectionId);
                 const selectedList = availableLists.find(l => l.id === contactListIds[0]);
                 
@@ -552,6 +552,7 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                         )}
                     </div>
                 );
+            }
 
             default:
                 return null;

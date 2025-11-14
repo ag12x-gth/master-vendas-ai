@@ -2,8 +2,8 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { contacts, contactsToContactLists, contactsToTags, tags, contactLists } from '@/lib/db/schema';
-import { and, asc, count, desc, eq, ilike, or, sql, inArray, SQL } from 'drizzle-orm';
+import { contacts, contactsToContactLists, contactsToTags } from '@/lib/db/schema';
+import { and, count, eq, ilike, or, sql, inArray, SQL } from 'drizzle-orm';
 import { z } from 'zod';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { getCachedOrFetch, CacheTTL, apiCache } from '@/lib/api-cache';

@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Send, MessageSquare, Phone } from 'lucide-react';
-import type { Connection, Contact } from '@/lib/types';
+import type { Connection } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 
 export default function WhatsAppBaileysPage() {

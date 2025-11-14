@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { notificationAgents, notificationLogs } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
-import { baileysSessionManager } from '@/services/baileys-session-manager';
+import { sessionManager as baileysSessionManager } from '@/services/baileys-session-manager';
 
 export async function POST(
   request: NextRequest,

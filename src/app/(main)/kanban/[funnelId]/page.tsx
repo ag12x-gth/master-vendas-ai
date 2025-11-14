@@ -78,13 +78,16 @@ export default function FunnelPage({ params }: { params: { funnelId: string } })
   const handleUpdateLead = async (leadId: string, data: { stageId?: string; title?: string; value?: number | null; notes?: string }) => {
     const oldCards = [...cards];
     
-    // Optimistic update - only update value if it's explicitly provided
+    // Optimistic update - convert value to string for KanbanCard type
+    const updateData: Partial<KanbanCard> = {
+      ...(data.stageId !== undefined && { stageId: data.stageId }),
+      ...(data.title !== undefined && { title: data.title }),
+      ...(data.notes !== undefined && { notes: data.notes }),
+      ...(data.value !== undefined && { value: data.value === null ? '' : data.value.toString() })
+    };
+    
     setCards(cards.map(card => 
-      card.id === leadId ? { 
-        ...card, 
-        ...data, 
-        ...(data.value !== undefined ? { value: data.value === null ? null : data.value.toString() } : {})
-      } : card
+      card.id === leadId ? { ...card, ...updateData } : card
     ));
 
     try {

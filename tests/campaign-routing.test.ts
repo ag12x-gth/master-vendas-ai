@@ -34,7 +34,6 @@ vi.mock('@/services/baileys-session-manager', () => ({
 }));
 
 // Import after mocks are set up
-import { sendWhatsappCampaign } from '@/lib/campaign-sender';
 import { db } from '@/lib/db';
 import { sendWhatsappTemplateMessage } from '@/lib/facebookApiService';
 import { sessionManager } from '@/services/baileys-session-manager';

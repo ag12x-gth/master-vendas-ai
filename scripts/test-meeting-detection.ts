@@ -2,7 +2,7 @@
 // Uso: npm run tsx scripts/test-meeting-detection.ts
 
 import { db } from '@/lib/db';
-import { kanbanBoards, kanbanLeads, contacts, conversations } from '@/lib/db/schema';
+import { kanbanBoards, kanbanLeads } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
 interface MeetingDetectionResult {

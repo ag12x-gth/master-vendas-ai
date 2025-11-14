@@ -1,16 +1,13 @@
 import { db } from '@/lib/db';
 import { 
   notificationAgents, 
-  notificationAgentGroups, 
   notificationLogs,
   kanbanLeads,
   kanbanBoards,
-  contacts,
   campaigns,
-  conversations,
-  messages
+  conversations
 } from '@/lib/db/schema';
-import { eq, and, gte, desc, sql } from 'drizzle-orm';
+import { eq, and, gte, sql } from 'drizzle-orm';
 import { sessionManager as baileysSessionManager } from '@/services/baileys-session-manager';
 
 interface NotificationStats {

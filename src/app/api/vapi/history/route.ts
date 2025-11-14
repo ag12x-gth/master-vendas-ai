@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserSession } from '@/app/actions';
 import { db } from '@/lib/db';
-import { vapiCalls, contacts } from '@/lib/db/schema';
+import { vapiCalls } from '@/lib/db/schema';
 import { eq, and, gte, lte, desc, sql, or, ilike } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {

@@ -1,5 +1,5 @@
 import { db } from '../src/lib/db';
-import { aiPersonas, personaPromptSections } from '../src/lib/db/schema';
+import { personaPromptSections } from '../src/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
 interface Section {

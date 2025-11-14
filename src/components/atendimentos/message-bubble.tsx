@@ -4,7 +4,7 @@
 
 import { cn } from "@/lib/utils";
 import type { Message } from "@/lib/types";
-import { Check, CheckCheck, Clock, AlertTriangle, FileText, ImageIcon, Mic, Video, User, Bot, Smile, Heart } from 'lucide-react';
+import { Check, CheckCheck, Clock, AlertTriangle, FileText, ImageIcon, Mic, Video, User, Bot, Smile } from 'lucide-react';
 import Image from "next/image";
 import { AudioPlayer } from "./audio-player";
 import { Avatar, AvatarFallback } from "../ui/avatar";

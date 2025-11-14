@@ -112,6 +112,7 @@ export default function EditFunnelPage({ params }: { params: { funnelId: string 
     
     const items = Array.from(stages);
     const [reorderedItem] = items.splice(result.source.index, 1);
+    if (!reorderedItem) return;
     items.splice(result.destination.index, 0, reorderedItem);
     
     setStages(items);
@@ -138,10 +139,11 @@ export default function EditFunnelPage({ params }: { params: { funnelId: string 
       return;
     }
 
-    // Validar semanticType único (excluir 'NONE' e valores vazios)
-    const semanticTypes = stages
-      .map(s => s.semanticType)
-      .filter(st => st && st !== 'NONE');
+    // Validar semanticType único (excluir valores vazios/undefined)
+    const semanticTypes = stages.reduce<SemanticType[]>((acc, stage) => {
+      if (stage.semanticType) acc.push(stage.semanticType);
+      return acc;
+    }, []);
     
     const duplicates = semanticTypes.filter((item, index) => semanticTypes.indexOf(item) !== index);
     if (duplicates.length > 0) {

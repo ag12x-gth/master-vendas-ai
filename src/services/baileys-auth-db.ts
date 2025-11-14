@@ -3,7 +3,7 @@ import { baileysAuthState } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import type { AuthenticationCreds, SignalDataTypeMap } from '@whiskeysockets/baileys';
 import { proto } from '@whiskeysockets/baileys';
-import { initAuthCreds, BufferJSON } from '@whiskeysockets/baileys';
+import { initAuthCreds } from '@whiskeysockets/baileys';
 
 export async function useDatabaseAuthState(connectionId: string) {
   const writeData = async (data: any, key: string) => {

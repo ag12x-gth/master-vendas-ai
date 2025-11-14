@@ -453,7 +453,7 @@ export function AddMeetingTimeDialog({ open, onOpenChange, card, onSave }: AddMe
               }}
             />
             <p className="text-xs text-muted-foreground">
-              Exemplos: "segunda 15h", "terça às 14h30", "14h", "quinta-feira 16h"
+              Exemplos: &quot;segunda 15h&quot;, &quot;terça às 14h30&quot;, &quot;14h&quot;, &quot;quinta-feira 16h&quot;
             </p>
           </div>
         </div>

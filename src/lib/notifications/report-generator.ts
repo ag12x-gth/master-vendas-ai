@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { campaigns, kanbanLeads, notificationLogs } from '@/lib/db/schema';
+import { campaigns } from '@/lib/db/schema';
 import { eq, and, gte, lte, sql } from 'drizzle-orm';
 
 export interface ReportPeriod {

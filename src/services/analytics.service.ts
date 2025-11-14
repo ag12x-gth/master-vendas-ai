@@ -9,7 +9,7 @@ import {
   notificationLogs,
   notificationAgents,
 } from '@/lib/db/schema';
-import { eq, and, gte, lte, sql, desc, count } from 'drizzle-orm';
+import { eq, and, gte, lte, sql, count } from 'drizzle-orm';
 import type { KanbanStage } from '@/lib/types';
 
 export interface DateRange {

@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { Phone, PhoneCall, PhoneMissed, CheckCircle2, XCircle } from 'lucide-react';
+import { Phone, PhoneCall, CheckCircle2, XCircle } from 'lucide-react';
 
 interface CallStatusBadgeProps {
   status: 'initiated' | 'ringing' | 'in_progress' | 'completed' | 'failed';

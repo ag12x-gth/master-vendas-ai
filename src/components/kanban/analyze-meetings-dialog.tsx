@@ -92,7 +92,7 @@ export function AnalyzeMeetingsDialog({ open, onOpenChange, funnelId }: AnalyzeM
               <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
                 <li>Analisar TODAS as conversas deste funil</li>
                 <li>Detectar agendamentos de calls/reuniões nas mensagens</li>
-                <li>Mover leads automaticamente para o estágio "Call Agendada"</li>
+                <li>Mover leads automaticamente para o estágio &quot;Call Agendada&quot;</li>
                 <li>Atualizar horários nas notas dos leads</li>
               </ul>
             </div>

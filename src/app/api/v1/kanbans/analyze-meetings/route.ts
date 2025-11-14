@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { eq, and, desc, gte, sql } from 'drizzle-orm';
+import { eq, and, desc, gte } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { conversations, messages, contacts, kanbanLeads, kanbanBoards } from '@/lib/db/schema';
+import { conversations, messages, contacts, kanbanLeads } from '@/lib/db/schema';
 import type { KanbanStage } from '@/lib/types';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { NotificationService } from '@/lib/notifications/notification-service';

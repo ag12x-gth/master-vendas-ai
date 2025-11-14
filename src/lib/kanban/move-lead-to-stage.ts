@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { kanbanLeads, kanbanBoards } from '@/lib/db/schema';
+import { kanbanLeads } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import type { KanbanStage } from '@/lib/types';
 import { NotificationService } from '@/lib/notifications/notification-service';

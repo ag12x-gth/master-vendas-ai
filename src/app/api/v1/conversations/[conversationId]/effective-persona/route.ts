@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { conversations, connections, kanbanLeads, kanbanStagePersonas, aiPersonas } from '@/lib/db/schema';
+import { conversations, kanbanLeads, kanbanStagePersonas, aiPersonas } from '@/lib/db/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 

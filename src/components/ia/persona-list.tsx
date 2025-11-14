@@ -19,7 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreVertical, Edit, Copy, Trash2, Loader2, Bot, FileText, Globe } from 'lucide-react';
+import { MoreVertical, Edit, Copy, Trash2, Loader2, Bot, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import type { Persona } from '@/lib/types';

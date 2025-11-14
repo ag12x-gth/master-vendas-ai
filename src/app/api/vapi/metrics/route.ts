@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { vapiCalls, vapiTranscripts } from '@/lib/db/schema';
-import { sql, and, gte, lte, eq, desc } from 'drizzle-orm';
+import { vapiCalls } from '@/lib/db/schema';
+import { sql, and, gte, lte, desc } from 'drizzle-orm';
 import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 export async function GET(request: NextRequest) {
