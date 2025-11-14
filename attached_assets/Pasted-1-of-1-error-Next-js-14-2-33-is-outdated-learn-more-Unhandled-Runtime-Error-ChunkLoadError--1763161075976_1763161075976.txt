@@ -1,0 +1,52 @@
+1 of 1 error
+Next.js (14.2.33) is outdated (learn more)
+
+Unhandled Runtime Error
+ChunkLoadError: Loading chunk _app-pages-browser_src_components_analytics_attendance-trend-chart_tsx failed.
+(error: https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/_next/undefined)
+
+Source
+Next.js
+<unknown>
+file:///home/runner/workspace/.next/static/chunks/webpack.js (155:40)
+Array.reduce
+<anonymous>
+Next.js
+fn.e
+file:///home/runner/workspace/.next/static/chunks/webpack.js (391:50)
+src/components/dashboard/page.tsx (32:44) @ AttendanceTrendChart.loadableGenerated.modules [as loader]
+
+  30 | });
+  31 |
+> 32 | const AttendanceTrendChart = dynamic(() => import('@/components/analytics/attendance-trend-chart').then(mod => ({ default: mod.AttendanceTrendChart })), { 
+     |                                            ^
+  33 |   ssr: false,
+  34 |   loading: ChartSkeleton
+  35 | });
+Call Stack
+loader
+webpack:/src/shared/lib/lazy-dynamic/loadable.tsx
+React
+lazyInitializer
+node_modules/next/dist/compiled/react/cjs/react.development.js (2171:1)
+mountLazyComponent
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (16750:1)
+beginWork$1
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (18464:1)
+beginWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (26927:1)
+performUnitOfWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25748:1)
+workLoopConcurrent
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25734:1)
+renderRootConcurrent
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25690:1)
+performConcurrentWorkOnRoot
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24504:1)
+workLoop
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (256:1)
+flushWork
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (225:1)
+MessagePort.performWorkUntilDeadline
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (534:1)
+Hide collapsed frames

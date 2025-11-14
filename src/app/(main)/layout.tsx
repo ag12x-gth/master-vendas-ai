@@ -12,8 +12,8 @@ import { AnalyticsProvider } from '@/contexts/analytics-context';
 import { VapiCallProvider } from '@/contexts/VapiCallContext';
 import dynamic from 'next/dynamic';
 
-const ConsoleMonitor = dynamic(() => import('@/components/dev/console-monitor').then(m => ({ default: m.ConsoleMonitor })), { ssr: false });
-const InstallBanner = dynamic(() => import('@/components/pwa/install-banner').then(m => ({ default: m.InstallBanner })), { ssr: false });
+const ConsoleMonitor = dynamic(() => import('@/components/dev/console-monitor').then(m => m.ConsoleMonitor), { ssr: false });
+const InstallBanner = dynamic(() => import('@/components/pwa/install-banner').then(m => m.InstallBanner), { ssr: false });
 
 export default async function MainLayout({
   children,

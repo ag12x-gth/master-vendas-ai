@@ -24,20 +24,29 @@ const ChartSkeleton = () => (
   </div>
 );
 
-const CampaignPerformanceChart = dynamic(() => import('@/components/analytics/campaign-performance-chart').then(mod => ({ default: mod.CampaignPerformanceChart })), { 
-  ssr: false,
-  loading: ChartSkeleton
-});
+const CampaignPerformanceChart = dynamic(
+  () => import('@/components/analytics/campaign-performance-chart').then(mod => mod.CampaignPerformanceChart),
+  { 
+    ssr: false,
+    loading: ChartSkeleton
+  }
+);
 
-const AttendanceTrendChart = dynamic(() => import('@/components/analytics/attendance-trend-chart').then(mod => ({ default: mod.AttendanceTrendChart })), { 
-  ssr: false,
-  loading: ChartSkeleton
-});
+const AttendanceTrendChart = dynamic(
+  () => import('@/components/analytics/attendance-trend-chart').then(mod => mod.AttendanceTrendChart),
+  { 
+    ssr: false,
+    loading: ChartSkeleton
+  }
+);
 
-const AIPerformanceSection = dynamic(() => import('@/components/dashboard/ai-performance-section').then(mod => ({ default: mod.AIPerformanceSection })), { 
-  ssr: false,
-  loading: ChartSkeleton
-});
+const AIPerformanceSection = dynamic(
+  () => import('@/components/dashboard/ai-performance-section').then(mod => mod.AIPerformanceSection),
+  { 
+    ssr: false,
+    loading: ChartSkeleton
+  }
+);
 
 export default function DashboardClient() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
