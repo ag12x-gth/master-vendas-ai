@@ -33,47 +33,49 @@ const ConversationListItem = ({ conversation, isSelected, onSelect }: { conversa
             type="button"
             onClick={() => onSelect(conversation.id)}
             className={cn(
-                "w-full text-left p-3 rounded-lg flex gap-3 transition-colors",
+                "w-full text-left p-3 rounded-lg flex gap-3 transition-colors min-w-0",
                 isSelected ? "bg-primary/20" : "hover:bg-muted"
             )}
         >
-            <Avatar>
+            <Avatar className="shrink-0">
                 <AvatarImage src={conversation.contactAvatar || ''} alt={conversation.contactName} data-ai-hint="avatar user" />
                 <AvatarFallback>{conversation.contactName.substring(0, 2)}</AvatarFallback>
             </Avatar>
-            <div className="flex-1 overflow-hidden">
-                <div className="flex flex-col">
-                    <div className="flex justify-between items-baseline gap-2">
-                        <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                            <p className="font-semibold truncate">{conversation.contactName}</p>
-                            {conversation.isGroup && (
-                                <Badge variant="secondary" className="shrink-0 text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 flex items-center gap-1">
-                                    <Users className="h-3 w-3" />
-                                    GRUPO
-                                </Badge>
-                            )}
-                            {conversation.contactActiveConversationsCount && conversation.contactActiveConversationsCount > 1 && (
-                                <Badge variant="secondary" className="shrink-0 text-xs bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300 flex items-center gap-1">
-                                    <Users className="h-3 w-3" />
-                                    {conversation.contactActiveConversationsCount}
-                                </Badge>
-                            )}
-                        </div>
+            <div className="flex-1 min-w-0 flex flex-col gap-1">
+                <div className="flex justify-between items-start gap-2 min-w-0">
+                    <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                        <p className="font-semibold truncate">{conversation.contactName}</p>
+                        {conversation.isGroup && (
+                            <Badge variant="secondary" className="shrink-0 text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300 flex items-center gap-1">
+                                <Users className="h-3 w-3" />
+                                GRUPO
+                            </Badge>
+                        )}
+                        {conversation.contactActiveConversationsCount && conversation.contactActiveConversationsCount > 1 && (
+                            <Badge variant="secondary" className="shrink-0 text-xs bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300 flex items-center gap-1">
+                                <Users className="h-3 w-3" />
+                                {conversation.contactActiveConversationsCount}
+                            </Badge>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-xs text-muted-foreground">
+                            <RelativeTime date={conversation.lastMessageAt} />
+                        </span>
                         {conversation.connectionName && (
-                            <Badge variant="outline" className="shrink-0 text-xs">
+                            <Badge variant="outline" className="text-xs">
                                 {conversation.connectionName}
                             </Badge>
                         )}
                     </div>
-                     <RelativeTime date={conversation.lastMessageAt} />
                 </div>
-                <div className="flex justify-between items-start mt-1">
-                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground truncate pr-2">
+                <div className="flex justify-between items-center gap-2 min-w-0">
+                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground flex-1 min-w-0">
                          <StatusIcon status={conversation.lastMessageStatus} />
                          <span className="truncate">{conversation.lastMessage}</span>
                     </div>
                     {conversation.unreadCount && conversation.unreadCount > 0 && (
-                        <Badge className="h-5 w-5 flex items-center justify-center p-0">{conversation.unreadCount}</Badge>
+                        <Badge className="h-5 w-5 flex items-center justify-center p-0 shrink-0">{conversation.unreadCount}</Badge>
                     )}
                 </div>
             </div>

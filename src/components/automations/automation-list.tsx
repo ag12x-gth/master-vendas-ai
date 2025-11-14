@@ -8,6 +8,7 @@ import { PlusCircle, MoreHorizontal, Edit, Trash2, Loader2, ToggleRight, ToggleL
 import { AutomationRuleForm } from './automation-rule-form';
 import type { AutomationRule } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +34,7 @@ export function AutomationList() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingRule, setEditingRule] = useState<AutomationRule | null>(null);
   const { toast } = useToast();
+  const notify = createToastNotifier(toast);
 
   const fetchRules = useCallback(async () => {
     setLoading(true);
@@ -42,7 +44,7 @@ export function AutomationList() {
         const data = await response.json();
         setRules(data);
     } catch(error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
     } finally {
         setLoading(false);
     }
@@ -68,11 +70,11 @@ export function AutomationList() {
               body: JSON.stringify({ isActive: newStatus }),
           });
           if (!response.ok) throw new Error('Falha ao atualizar o status da regra.');
-          toast({ title: 'Status Atualizado!', description: `A regra "${rule.name}" foi ${newStatus ? 'ativada' : 'desativada'}.`});
+          notify.success('Status Atualizado!', `A regra "${rule.name}" foi ${newStatus ? 'ativada' : 'desativada'}.`);
 
       } catch (error) {
           setRules(originalRules);
-          toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+          notify.error('Erro', (error as Error).message);
       }
   }
 
@@ -80,10 +82,10 @@ export function AutomationList() {
     try {
         const response = await fetch(`/api/v1/automations/${ruleId}`, { method: 'DELETE' });
         if (response.status !== 204) throw new Error('Falha ao excluir a regra.');
-        toast({ title: 'Regra Excluída!' });
+        notify.success('Regra Excluída!');
         fetchRules();
     } catch(error) {
-        toast({ variant: 'destructive', title: 'Erro ao Excluir', description: (error as Error).message });
+        notify.error('Erro ao Excluir', (error as Error).message);
     }
   }
   

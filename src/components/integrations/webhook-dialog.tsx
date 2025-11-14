@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Copy, Eye, EyeOff } from 'lucide-react';
 
 const WEBHOOK_EVENTS = [
@@ -53,6 +54,7 @@ export function WebhookDialog({
   onSuccess,
 }: WebhookDialogProps) {
   const { toast } = useToast();
+  const notify = createToastNotifier(toast);
   const [loading, setLoading] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
 
@@ -100,40 +102,24 @@ export function WebhookDialog({
     e.preventDefault();
 
     if (!name.trim()) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro de validação',
-        description: 'O nome do webhook é obrigatório.',
-      });
+      notify.error('Erro de validação', 'O nome do webhook é obrigatório.');
       return;
     }
 
     if (!url.trim()) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro de validação',
-        description: 'A URL do webhook é obrigatória.',
-      });
+      notify.error('Erro de validação', 'A URL do webhook é obrigatória.');
       return;
     }
 
     try {
       new URL(url);
     } catch {
-      toast({
-        variant: 'destructive',
-        title: 'Erro de validação',
-        description: 'Por favor, insira uma URL válida.',
-      });
+      notify.error('Erro de validação', 'Por favor, insira uma URL válida.');
       return;
     }
 
     if (selectedEvents.length === 0) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro de validação',
-        description: 'Selecione pelo menos um evento.',
-      });
+      notify.error('Erro de validação', 'Selecione pelo menos um evento.');
       return;
     }
 
@@ -163,10 +149,7 @@ export function WebhookDialog({
 
       const data = await response.json();
 
-      toast({
-        title: webhook ? 'Webhook Atualizado!' : 'Webhook Criado!',
-        description: `O webhook "${name}" foi salvo com sucesso.`,
-      });
+      notify.success(webhook ? 'Webhook Atualizado!' : 'Webhook Criado!', `O webhook "${name}" foi salvo com sucesso.`);
 
       if (!webhook && data.secret) {
         setSecret(data.secret);
@@ -176,11 +159,7 @@ export function WebhookDialog({
         onOpenChange(false);
       }
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Erro ao Salvar',
-        description: error instanceof Error ? error.message : 'Erro desconhecido.',
-      });
+      notify.error('Erro ao Salvar', error instanceof Error ? error.message : 'Erro desconhecido.');
     } finally {
       setLoading(false);
     }

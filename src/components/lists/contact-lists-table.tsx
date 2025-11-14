@@ -37,6 +37,7 @@ import { Label } from '@/components/ui/label';
 import { PlusCircle, MoreHorizontal, Loader2, Trash2, Edit, ChevronsRight, ChevronsLeft, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import type { ContactList } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Textarea } from '../ui/textarea';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../ui/dropdown-menu';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
@@ -47,6 +48,7 @@ export function ContactListsTable() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingList, setEditingList] = useState<ContactList | null>(null);
     const { toast } = useToast();
+    const notify = createToastNotifier(toast);
 
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -70,7 +72,7 @@ export function ContactListsTable() {
             setTotalPages(data.totalPages || 1);
 
         } catch (error) {
-                 toast({ variant: 'destructive', title: 'Erro', description: error instanceof Error ? error.message : 'Não foi possível carregar as listas.' });
+                 notify.error('Erro', error instanceof Error ? error.message : 'Não foi possível carregar as listas.');
         } finally {
             setLoading(false);
         }
@@ -93,9 +95,9 @@ export function ContactListsTable() {
             const response = await fetch(`/api/v1/lists/${listId}`, { method: 'DELETE' });
             if (!response.ok) throw new Error('Falha ao excluir a lista.');
             await fetchLists();
-            toast({ title: 'Lista Excluída', description: 'A lista de contatos foi removida com sucesso.'});
+            notify.success('Lista Excluída', 'A lista de contatos foi removida com sucesso.');
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro', description: error instanceof Error ? error.message : 'Não foi possível excluir a lista.' });
+            notify.error('Erro', error instanceof Error ? error.message : 'Não foi possível excluir a lista.');
         }
     }
 
@@ -124,12 +126,12 @@ export function ContactListsTable() {
             }
 
             const savedList: ContactList = await response.json();
-            toast({ title: `Lista ${isEditing ? 'Atualizada' : 'Criada'}!`, description: `A lista "${savedList.name}" foi salva.`});
+            notify.success(`Lista ${isEditing ? 'Atualizada' : 'Criada'}!`, `A lista "${savedList.name}" foi salva.`);
             await fetchLists();
 
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro ao Salvar', description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.' });
-        } finally {
+            notify.error('Erro ao Salvar', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
+        } finally{
             setIsModalOpen(false);
             setEditingList(null);
         }
