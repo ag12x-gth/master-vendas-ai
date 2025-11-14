@@ -194,7 +194,7 @@ export default function WhatsAppBaileysPage() {
                   <div className="text-xs text-muted-foreground flex items-center gap-2">
                     <span>Status:</span>
                     <Badge
-                      variant={selectedConnection.status === 'connected' ? 'default' : 'secondary'}
+                      variant={selectedConnection.status === 'Conectado' ? 'default' : 'secondary'}
                     >
                       {selectedConnection.status}
                     </Badge>
