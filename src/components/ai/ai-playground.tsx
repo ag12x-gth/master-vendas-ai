@@ -1,7 +1,7 @@
 // src/components/ai/ai-playground.tsx
 'use client';
 
-import { useState, useRef, useEffect, FormEvent, useCallback } from 'react';
+import { useState, useRef, useEffect, FormEvent, useCallback, useMemo } from 'react';
 import {
   Bot,
   Send,
@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { cn } from '@/lib/utils';
 import { processMessageContent } from '@/lib/markdown';
 import { Avatar, AvatarFallback } from '../ui/avatar';
@@ -166,6 +167,7 @@ export function AiPlayground() {
   const [isSending, setIsSending] = useState(false);
   
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
@@ -194,11 +196,11 @@ export function AiPlayground() {
         handleSelectChat(data[0]);
       }
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+      notify.error('Erro', (error as Error).message);
     } finally {
       setLoadingChats(false);
     }
-  }, [toast, selectedChat]); // eslint-disable-line
+  }, [notify, selectedChat]); // eslint-disable-line
 
   useEffect(() => {
       fetchChats();
@@ -217,7 +219,7 @@ export function AiPlayground() {
         setMessages(messageList.map(normalizeMessage));
 
     } catch (error) {
-         toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+         notify.error('Erro', (error as Error).message);
     } finally {
         setLoadingMessages(false);
     }
@@ -231,7 +233,7 @@ export function AiPlayground() {
         setChats(prev => [newChat, ...prev]);
         handleSelectChat(newChat);
     } catch(error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
     }
   }
 
@@ -247,9 +249,9 @@ export function AiPlayground() {
             credentials: 'include',
         });
         if (response.status !== 204) throw new Error('Falha ao excluir a conversa.');
-        toast({ title: 'Conversa Excluída!' });
+        notify.success('Conversa Excluída!');
     } catch(error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
         fetchChats(); // Re-fetch to restore state on error
     }
   }
@@ -265,7 +267,7 @@ export function AiPlayground() {
         });
         if (!response.ok) throw new Error('Falha ao renomear a conversa.');
     } catch(error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
         setChats(originalChats);
     }
   }

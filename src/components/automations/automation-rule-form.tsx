@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,7 @@ import { Textarea } from '../ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { PlusCircle, Trash2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import type { Tag, ContactList, User, AutomationRule, AutomationCondition, AutomationAction, Connection } from '@/lib/types';
 import { ContactMultiSelect } from '../contacts/contact-multi-select';
 
@@ -143,6 +144,7 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
   const [availableConnections, setAvailableConnections] = useState<Connection[]>([]);
 
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   
   const resetForm = useCallback(() => {
     const isEditing = !!ruleToEdit;
@@ -178,14 +180,14 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
             resetForm();
 
         } catch(error) {
-             toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+             notify.error('Erro', (error as Error).message);
         } finally {
             setLoading(false);
         }
       };
       fetchPrerequisites();
     }
-  }, [open, resetForm, toast]);
+  }, [open, resetForm, notify]);
   
   const updateCondition = (id: string, field: string, value: any): void => {
     setConditions(prev => prev.map(item => item.id === id ? { ...item, [field]: value } : item));
@@ -227,11 +229,11 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || 'Falha ao salvar a regra.');
         
-        toast({ title: 'Sucesso!', description: `A regra "${result.name}" foi salva.` });
+        notify.success('Sucesso!', `A regra "${result.name}" foi salva.`);
         onOpenChange(false);
         onSaveSuccess();
     } catch(error) {
-        toast({ variant: 'destructive', title: 'Erro ao Salvar', description: (error as Error).message });
+        notify.error('Erro ao Salvar', (error as Error).message);
     } finally {
         setIsProcessing(false);
     }

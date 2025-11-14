@@ -3,10 +3,11 @@
 
 import { Loader2, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import type { Conversation, Message, Template, Contact } from '@/lib/types';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { ConversationList } from './conversation-list';
 import { ActiveChat } from './active-chat';
 import { ContactDetailsPanel } from './contact-details-panel';
@@ -45,6 +46,7 @@ const NoConversationSelected = () => (
 
 export function InboxView({ preselectedConversationId }: { preselectedConversationId?: string }) {
   const { toast } = useToast();
+  const notify = useMemo(() => createToastNotifier(toast), [toast]);
   const [initialLoading, setInitialLoading] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -75,10 +77,10 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
       return data || [];
 
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+      notify.error('Erro', (error as Error).message);
       return [];
     }
-  }, [toast]);
+  }, [notify]);
 
   const fetchAndSetMessages = useCallback(async (conversationId: string) => {
     setLoadingMessages(true);
@@ -90,11 +92,11 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
       setCurrentMessages(data);
 
     } catch (error) {
-       toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+       notify.error('Erro', (error as Error).message);
     } finally {
       setLoadingMessages(false);
     }
-  }, [toast]);
+  }, [notify]);
   
   const fetchContactDetails = useCallback(async (contactId: string) => {
     try {
@@ -103,16 +105,16 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
         const data = await res.json();
         setSelectedContact(data);
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
     }
-  }, [toast]);
+  }, [notify]);
 
 
   useEffect(() => {
     const fetchInitialData = async () => {
         const [initialConversations] = await Promise.all([
             fetchConversations(),
-            fetch('/api/v1/message-templates').then(res => res.json()).then(data => setTemplates(data.templates || data)).catch(() => toast({ variant: 'destructive', title: 'Erro', description: 'Não foi possível carregar os modelos.' }))
+            fetch('/api/v1/message-templates').then(res => res.json()).then(data => setTemplates(data.templates || data)).catch(() => notify.error('Erro', 'Não foi possível carregar os modelos.'))
         ]);
         
         fetch('/api/v1/conversations/status').then(res => res.json()).then(data => setLastKnownUpdate(data.lastUpdated));
@@ -189,7 +191,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
     try {
       const response = await fetch(`/api/v1/conversations/${selectedConversation.id}/archive`, { method: 'POST' });
       if (!response.ok) throw new Error('Falha ao arquivar a conversa.');
-      toast({ title: "Conversa Arquivada" });
+      notify.success("Conversa Arquivada");
       
       const updatedConversations = await fetchConversations();
       const nextConversation = updatedConversations.find(c => c.id !== selectedConversation.id);
@@ -204,7 +206,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
       }
 
     } catch (error) {
-      toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+      notify.error('Erro', (error as Error).message);
     }
   }
   
@@ -214,14 +216,14 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
         const response = await fetch(`/api/v1/conversations/${selectedConversation.id}/archive`, { method: 'DELETE' });
         if (!response.ok) throw new Error('Falha ao reabrir a conversa.');
         
-        toast({ title: "Conversa Reaberta" });
+        notify.success("Conversa Reaberta");
         await fetchConversations();
         
         const unarchivedConvo = await response.json();
         setSelectedConversation(unarchivedConvo);
 
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+        notify.error('Erro', (error as Error).message);
     }
   }
 
@@ -258,7 +260,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
         setCurrentMessages(prev => prev.map(m => m.id === tempId ? result : m));
 
     } catch (error) {
-        toast({ variant: 'destructive', title: 'Erro de Envio', description: (error as Error).message });
+        notify.error('Erro de Envio', (error as Error).message);
         setCurrentMessages(prev => prev.map(m => m.id === tempId ? {...m, status: 'FAILED' } : m));
         throw error;
     }
@@ -283,12 +285,12 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
         throw new Error(errorData.error || 'Falha ao alternar status da IA.');
       }
 
-      toast({ title: 'Status da IA Alterado!', description: `A IA foi ${aiActive ? 'reativada' : 'desativada'} para esta conversa.`});
+      notify.success('Status da IA Alterado!', `A IA foi ${aiActive ? 'reativada' : 'desativada'} para esta conversa.`);
 
     } catch (error) {
       // Revert on failure
       setSelectedConversation(originalConversation);
-      toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+      notify.error('Erro', (error as Error).message);
     }
   }
 

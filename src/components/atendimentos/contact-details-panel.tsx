@@ -1,9 +1,10 @@
 // src/components/atendimentos/contact-details-panel.tsx
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import type { Tag, ContactList, ExtendedContact } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -33,6 +34,7 @@ interface EffectivePersona {
 
 export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefined }) => {
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
     const [contact, setContact] = useState<ExtendedContact | null>(null);
     const [loading, setLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -85,11 +87,11 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
             }
 
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro', description: (error as Error).message });
+            notify.error('Erro', (error as Error).message);
         } finally {
             setLoading(false);
         }
-    }, [toast]);
+    }, [notify]);
 
     useEffect(() => {
         if (contactId) {
@@ -117,9 +119,9 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
             // Refetch full contact data to preserve activeConversations
             await fetchDetails(contact.id);
             
-            toast({ title: 'Salvo!', description: 'As informações do contato foram atualizadas.' });
+            notify.success('Salvo!', 'As informações do contato foram atualizadas.');
         } catch (error) {
-            toast({ variant: 'destructive', title: 'Erro ao Salvar', description: (error as Error).message });
+            notify.error('Erro ao Salvar', (error as Error).message);
         } finally {
             setIsSaving(false);
         }
@@ -146,16 +148,9 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
             }
 
             const result = await response.json();
-            toast({ 
-                title: '📞 Chamada Iniciada!', 
-                description: `Ligando para ${contact.name}. ID: ${result.callId}` 
-            });
+            notify.success('📞 Chamada Iniciada!', `Ligando para ${contact.name}. ID: ${result.callId}`);
         } catch (error) {
-            toast({ 
-                variant: 'destructive', 
-                title: 'Erro ao Iniciar Chamada', 
-                description: (error as Error).message 
-            });
+            notify.error('Erro ao Iniciar Chamada', (error as Error).message);
         } finally {
             setIsCalling(false);
         }
@@ -184,16 +179,9 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
                 ? 'Genérico' 
                 : aiPersonas.find(p => p.id === personaId)?.name || 'Desconhecido';
 
-            toast({ 
-                title: '✅ Agente IA Atualizado', 
-                description: `Agente ${personaName} vinculado à conversa.` 
-            });
+            notify.success('✅ Agente IA Atualizado', `Agente ${personaName} vinculado à conversa.`);
         } catch (error) {
-            toast({ 
-                variant: 'destructive', 
-                title: 'Erro', 
-                description: (error as Error).message 
-            });
+            notify.error('Erro', (error as Error).message);
         }
     }
     

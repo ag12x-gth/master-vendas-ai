@@ -25,6 +25,7 @@ import {
 import type { Template, ContactList, MediaAsset, HeaderType, Connection } from '@/lib/types';
 import { Loader2, Info, ArrowLeft, CalendarIcon, ImageIcon, Send, Clock, VideoIcon, FileText, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { createToastNotifier } from '@/lib/toast-helper';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -125,6 +126,7 @@ export function CreateWhatsappCampaignDialog({
     const [availableLists, setAvailableLists] = useState<ContactList[]>([]);
     
     const { toast } = useToast();
+    const notify = useMemo(() => createToastNotifier(toast), [toast]);
     
     const requiresMedia = useMemo(() => selectedTemplate ? ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(selectedTemplate.headerType || '') : false, [selectedTemplate]);
     const steps = getSteps(requiresMedia);
@@ -151,11 +153,11 @@ export function CreateWhatsappCampaignDialog({
                 })
                 .then(data => setAvailableLists(data.data || []))
                 .catch(error => {
-                    toast({ variant: 'destructive', title: 'Erro', description: error.message });
+                    notify.error('Erro', error.message);
                     setAvailableLists([]);
                 });
         }
-    }, [isOpen, toast]);
+    }, [isOpen, notify]);
     
     useEffect(() => {
         if(connections.length > 0 && !selectedConnectionId) {
@@ -245,17 +247,17 @@ export function CreateWhatsappCampaignDialog({
         e.preventDefault();
 
         if (!selectedTemplate) {
-            toast({ variant: 'destructive', title: 'Erro', description: 'O modelo de base não foi encontrado.'});
+            notify.error('Erro', 'O modelo de base não foi encontrado.');
             return;
         }
         
         if (requiresMedia && !selectedMedia) {
-            toast({ variant: 'destructive', title: 'Mídia Obrigatória', description: 'Por favor, selecione um ficheiro de mídia para o cabeçalho.' });
+            notify.error('Mídia Obrigatória', 'Por favor, selecione um ficheiro de mídia para o cabeçalho.');
             return;
         }
         
         if (contactListIds.length === 0) {
-            toast({ variant: 'destructive', title: 'Público Obrigatório', description: 'Por favor, selecione pelo menos uma lista de contatos.' });
+            notify.error('Público Obrigatório', 'Por favor, selecione pelo menos uma lista de contatos.');
             return;
         }
 
@@ -294,20 +296,13 @@ export function CreateWhatsappCampaignDialog({
                 throw new Error(result.error || 'Falha ao criar a campanha.');
             }
 
-            toast({
-                title: 'Campanha Criada!',
-                description: result.message || `A campanha "${name}" foi criada e está em processamento.`
-            });
+            notify.success('Campanha Criada!', result.message || `A campanha "${name}" foi criada e está em processamento.`);
             
             handleOpenChangeWithReset(false);
             router.refresh();
 
         } catch (error) {
-            toast({
-                variant: 'destructive',
-                title: 'Erro ao Criar Campanha',
-                description: error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.',
-            });
+            notify.error('Erro ao Criar Campanha', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
         } finally {
             setIsProcessing(false);
         }
@@ -317,22 +312,22 @@ export function CreateWhatsappCampaignDialog({
         const currentStepConfig = steps[currentStep];
 
         if (currentStepConfig?.id === 'info' && !selectedTemplate) {
-            toast({ variant: 'destructive', title: 'Seleção Obrigatória', description: 'Por favor, selecione um modelo para continuar.' });
+            notify.error('Seleção Obrigatória', 'Por favor, selecione um modelo para continuar.');
             return;
         }
 
         if (currentStepConfig?.id === 'audience' && contactListIds.length === 0) {
-            toast({ variant: 'destructive', title: 'Público Obrigatório', description: 'Por favor, selecione pelo menos uma lista de contatos.' });
+            notify.error('Público Obrigatório', 'Por favor, selecione pelo menos uma lista de contatos.');
             return;
         }
 
         if (currentStepConfig?.id === 'media' && requiresMedia) {
             if (!selectedMedia) {
-                toast({ variant: 'destructive', title: 'Mídia Obrigatória', description: 'Por favor, selecione um ficheiro para o cabeçalho.' });
+                notify.error('Mídia Obrigatória', 'Por favor, selecione um ficheiro para o cabeçalho.');
                 return;
             }
              if (!mediaHandleId) {
-                toast({ variant: 'destructive', title: 'Mídia em Processamento', description: 'Aguarde o processamento da mídia com a Meta antes de avançar.' });
+                notify.error('Mídia em Processamento', 'Aguarde o processamento da mídia com a Meta antes de avançar.');
                 return;
             }
         }
@@ -403,7 +398,7 @@ export function CreateWhatsappCampaignDialog({
                                     size="sm"
                                     onClick={() => {
                                         navigator.clipboard.writeText(mediaHandleId);
-                                        toast({ title: 'Copiado!' });
+                                        notify.success('Copiado!');
                                     }}
                                 >
                                     <Copy className="h-3 w-3 mr-2" /> Copiar
