@@ -147,11 +147,11 @@ export function WebhookDialog({
         throw new Error(errorData.error || 'Erro ao salvar webhook');
       }
 
-      const data = await response.json();
+      const data = response.status === 204 ? null : await response.json();
 
       notify.success(webhook ? 'Webhook Atualizado!' : 'Webhook Criado!', `O webhook "${name}" foi salvo com sucesso.`);
 
-      if (!webhook && data.secret) {
+      if (!webhook && data?.secret) {
         setSecret(data.secret);
         setShowSecret(true);
       } else {
