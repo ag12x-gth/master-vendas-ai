@@ -56,7 +56,6 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import VersionBadge from '@/components/version-badge';
 import { ConnectionStatusBadge } from '@/components/dashboard/connection-status-badge';
-import { createToastNotifier } from '@/lib/toast-helper';
 
 const allNavItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'atendente', 'superadmin'] },
@@ -75,7 +74,6 @@ export function AppHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
-  const notify = createToastNotifier(toast);
   const { setTheme } = useTheme();
   const { session } = useSession();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -98,10 +96,12 @@ export function AppHeader() {
         router.push('/login');
     } catch (error) {
         console.error("Logout failed:", error);
-        notify.error(
-          'Erro ao Sair',
-          'Não foi possível fazer o logout. Por favor, tente novamente.'
-        );
+        toast({
+          variant: 'destructive',
+          title: 'Erro ao Sair',
+          description: 'Não foi possível fazer o logout. Por favor, tente novamente.',
+          duration: 4000,
+        });
     } finally {
         setIsLoggingOut(false);
     }

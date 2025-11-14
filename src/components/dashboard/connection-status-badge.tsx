@@ -8,7 +8,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { AlertTriangle, CheckCircle, RefreshCw, Wifi } from 'lucide-react';
+import { AlertTriangle, CheckCircle, RefreshCw, Wifi, XCircle } from 'lucide-react';
 import Link from 'next/link';
 
 interface HealthSummary {
@@ -26,17 +26,22 @@ interface HealthResponse {
 export function ConnectionStatusBadge() {
   const [summary, setSummary] = useState<HealthSummary | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   const fetchHealth = async () => {
     try {
       setLoading(true);
+      setHasError(false);
       const response = await fetch('/api/v1/connections/health');
       if (response.ok) {
         const data: HealthResponse = await response.json();
         setSummary(data.summary);
+      } else {
+        setHasError(true);
       }
     } catch (error) {
       console.error('Erro ao verificar conexões:', error);
+      setHasError(true);
     } finally {
       setLoading(false);
     }
@@ -48,13 +53,31 @@ export function ConnectionStatusBadge() {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading || !summary) {
+  if (loading && !summary) {
     return (
       <Badge variant="outline" className="gap-1.5">
         <RefreshCw className="h-3 w-3 animate-spin" />
         <span className="text-xs">Verificando...</span>
       </Badge>
     );
+  }
+
+  if (hasError && !summary) {
+    return (
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        className="h-8 gap-2 px-2 text-red-500"
+        onClick={fetchHealth}
+      >
+        <XCircle className="h-4 w-4" />
+        <span className="text-xs font-medium">Erro</span>
+      </Button>
+    );
+  }
+
+  if (!summary) {
+    return null;
   }
 
   const hasProblems = summary.expired > 0 || summary.error > 0;
@@ -118,7 +141,20 @@ export function ConnectionStatusBadge() {
             </div>
           </div>
 
-          {hasProblems && (
+          {hasError && (
+            <div className="pt-2 border-t">
+              <p className="text-xs text-yellow-600 dark:text-yellow-400 mb-2 flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3" />
+                Dados podem estar desatualizados
+              </p>
+              <Button variant="outline" size="sm" className="w-full" onClick={fetchHealth}>
+                <RefreshCw className="h-3 w-3 mr-2" />
+                Tentar Novamente
+              </Button>
+            </div>
+          )}
+
+          {hasProblems && !hasError && (
             <div className="pt-2 border-t">
               <p className="text-xs text-red-600 dark:text-red-400 mb-2">
                 Algumas conexões precisam de atenção
