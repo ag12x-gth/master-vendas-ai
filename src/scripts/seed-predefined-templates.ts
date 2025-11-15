@@ -75,6 +75,11 @@ async function seedPredefinedTemplates() {
       }
 
       const connection = companyConnections[0];
+      if (!connection) {
+        console.warn(`  ⚠️  Connection is undefined for company ${company.name}. Skipping...`);
+        continue;
+      }
+      
       const wabaId = connection.wabaId || 'default';
 
       console.log(`  🔗 Using connection: ${connection.config_name} (WABA: ${wabaId})`);
@@ -86,7 +91,7 @@ async function seedPredefinedTemplates() {
           .where(eq(messageTemplates.name, template.name))
           .limit(1);
 
-        if (existingTemplate.length > 0 && existingTemplate[0].companyId === company.id) {
+        if (existingTemplate.length > 0 && existingTemplate[0]?.companyId === company.id) {
           console.log(`  ⏭️  Template "${template.displayName}" already exists. Skipping...`);
           totalSkipped++;
           continue;
@@ -101,17 +106,14 @@ async function seedPredefinedTemplates() {
 
         await db.insert(messageTemplates).values({
           name: template.name,
-          displayName: template.displayName,
           wabaId: wabaId,
           category: template.category,
           language: 'pt_BR',
           parameterFormat: 'POSITIONAL',
           status: 'APPROVED',
-          components: components,
+          components: components as any,
           companyId: company.id,
           connectionId: connection.id,
-          isPredefined: true,
-          isActive: true,
         });
 
         console.log(`  ✅ Created template: ${template.displayName}`);

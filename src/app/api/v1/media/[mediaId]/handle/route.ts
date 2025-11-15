@@ -38,7 +38,7 @@ export async function POST(request: NextRequest, { params }: { params: { mediaId
             return NextResponse.json({ error: 'Conexão não encontrada.' }, { status: 404 });
         }
         
-        const wabaId = connection.wabaId;
+        const wabaId = connection?.wabaId;
         if (!wabaId) {
             return NextResponse.json({ error: 'Conexão não possui WABA ID configurado.' }, { status: 400 });
         }
