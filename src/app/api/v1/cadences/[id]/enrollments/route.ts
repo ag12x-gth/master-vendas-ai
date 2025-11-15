@@ -67,10 +67,12 @@ export async function GET(
     });
 
     // Total count
-    const [{ count }] = await db
+    const countResult = await db
       .select({ count: db.$count(cadenceEnrollments.id) })
       .from(cadenceEnrollments)
       .where(and(...whereConditions));
+    
+    const count = countResult[0]?.count ?? 0;
 
     return NextResponse.json({
       enrollments,

@@ -63,7 +63,7 @@ export async function PUT(request: NextRequest, { params }: { params: { leadId: 
             finalLead = moveResult.lead;
         }
 
-        const updateData: { value?: string | null; title?: string; notes?: string } = {};
+        const updateData: Partial<typeof kanbanLeads.$inferInsert> = {};
         if (parsedData.data.value !== undefined) {
             updateData.value = parsedData.data.value === null ? null : parsedData.data.value.toString();
         }
@@ -76,7 +76,7 @@ export async function PUT(request: NextRequest, { params }: { params: { leadId: 
 
         if (Object.keys(updateData).length > 0) {
             const [updatedLead] = await db.update(kanbanLeads)
-                .set(updateData)
+                .set(updateData as any)
                 .where(eq(kanbanLeads.id, leadId))
                 .returning();
 

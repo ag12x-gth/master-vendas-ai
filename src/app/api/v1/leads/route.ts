@@ -121,6 +121,10 @@ export async function POST(request: NextRequest) {
         })
         .returning();
 
+    if (!newLead) {
+      return NextResponse.json({ error: 'Falha ao criar lead.' }, { status: 500 });
+    }
+
     try {
       const contact = await db.query.contacts.findFirst({
         where: eq(contacts.id, contactId),
