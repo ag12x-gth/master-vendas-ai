@@ -7,8 +7,9 @@ import FacebookProvider from 'next-auth/providers/facebook';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
 import { db } from '@/lib/db';
-import { users, companies } from '@/lib/db/schema';
+import { users, companies, kanbanBoards, type KanbanStage } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { v4 as uuidv4 } from 'uuid';
 
 declare module 'next-auth' {
   interface Session {
@@ -154,9 +155,12 @@ export const authConfig: NextAuthOptions = {
           user.googleId = account.provider === 'google' ? providerId : existingUser.googleId;
           user.facebookId = account.provider === 'facebook' ? providerId : existingUser.facebookId;
         } else {
+          const uniqueSuffix = uuidv4().split('-')[0];
+          const userName = user.name || user.email?.split('@')[0] || 'User';
+          
           const [newCompany] = await db
             .insert(companies)
-            .values({ name: `${user.name}'s Company` })
+            .values({ name: `${userName}'s Company ${uniqueSuffix}` })
             .returning();
 
           if (!newCompany) {
@@ -189,6 +193,24 @@ export const authConfig: NextAuthOptions = {
           if (!createdUser) {
             throw new Error('Falha ao criar usuário');
           }
+
+          const defaultStagesData: KanbanStage[] = [
+            { id: uuidv4(), title: 'Novo Lead', type: 'NEUTRAL' },
+            { id: uuidv4(), title: 'Qualificado', type: 'NEUTRAL' },
+            { id: uuidv4(), title: 'Proposta Enviada', type: 'NEUTRAL', semanticType: 'proposal_sent' },
+            { id: uuidv4(), title: 'Fechado (Ganho)', type: 'WIN' },
+            { id: uuidv4(), title: 'Perdido', type: 'LOSS' },
+          ];
+
+          await db
+            .insert(kanbanBoards)
+            .values({
+              name: 'Funil Padrão',
+              companyId: newCompany.id,
+              funnelType: 'GENERAL',
+              objective: 'Funil criado automaticamente para gerenciar seus leads',
+              stages: defaultStagesData,
+            });
 
           user.id = createdUser.id;
           user.role = createdUser.role;
