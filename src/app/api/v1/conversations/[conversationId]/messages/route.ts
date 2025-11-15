@@ -126,7 +126,7 @@ export async function POST(request: NextRequest, { params }: { params: { convers
         }
 
         let sentMessageResponse: any;
-        let providerMessageId: string | undefined;
+        let providerMessageId: string | null | undefined;
         let templateName = 'Mensagem de Texto';
         
         if (parsedBody.data.type === 'text') {
