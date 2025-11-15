@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let newAgent;
+    let newAgent: any = null;
 
     await db.transaction(async (tx) => {
       const [agent] = await tx.insert(notificationAgents).values({

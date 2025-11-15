@@ -16,6 +16,9 @@ export type NewTag = typeof schema.tags.$inferInsert;
 export type ContactList = typeof schema.contactLists.$inferSelect & { contactCount?: number };
 export type Template = typeof schema.messageTemplates.$inferSelect & {
   connection?: Connection;
+  body?: string;
+  headerType?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | null;
+  components?: any[];
 };
 export type MediaAsset = typeof schema.mediaAssets.$inferSelect;
 export type SmsGateway = typeof schema.smsGateways.$inferSelect;

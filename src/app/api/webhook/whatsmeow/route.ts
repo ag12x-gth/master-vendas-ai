@@ -186,6 +186,11 @@ export async function POST(request: NextRequest) {
       sentAt: new Date(payload.timestamp * 1000)
     }).returning();
 
+    if (!savedMessage) {
+      console.error('Failed to save message');
+      return NextResponse.json({ error: 'Failed to save message' }, { status: 500 });
+    }
+
     console.log('✅ Message saved for conversation:', conversationId);
 
     try {

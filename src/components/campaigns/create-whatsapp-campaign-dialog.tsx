@@ -128,20 +128,23 @@ export function CreateWhatsappCampaignDialog({
     const { toast } = useToast();
     const notify = useMemo(() => createToastNotifier(toast), [toast]);
     
-    const requiresMedia = useMemo(() => selectedTemplate ? ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(selectedTemplate.headerType || '') : false, [selectedTemplate]);
+    const requiresMedia = useMemo(() => {
+        if (!selectedTemplate?.headerType) return false;
+        return ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(selectedTemplate.headerType);
+    }, [selectedTemplate]);
     const steps = getSteps(requiresMedia);
 
     const templateParts = useMemo(() => {
         if (!selectedTemplate?.body) return [];
-        return selectedTemplate.body.split(/(\{\{.*?\}\})/).map((part) => ({
-          type: part.match(/(\{\{.*?\}\})/) ? 'variable' : 'text',
+        return selectedTemplate.body.split(/(\{\{.*?\}\})/).map((part: string) => ({
+          type: part.match(/(\{\{.*?\}\})/) ? 'variable' as const : 'text' as const,
           content: part,
           name: part.match(/\{\{(.*?)\}\}/)?.[1] || '',
         }));
     }, [selectedTemplate]);
     
     const variableNames = useMemo(() => 
-        templateParts.filter(p => p.type === 'variable').map(p => p.name).filter((v, i, a) => a.indexOf(v) === i)
+        templateParts.filter((p) => p.type === 'variable').map((p) => p.name).filter((v, i, a) => a.indexOf(v) === i)
     , [templateParts]);
 
     useEffect(() => {
