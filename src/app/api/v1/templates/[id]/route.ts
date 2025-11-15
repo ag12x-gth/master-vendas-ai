@@ -117,6 +117,10 @@ export async function PATCH(
       )
       .returning();
 
+    if (!updated) {
+      return NextResponse.json({ error: 'Template não encontrado' }, { status: 404 });
+    }
+
     const templateWithCategory = await db.query.customMessageTemplates.findFirst({
       where: eq(customMessageTemplates.id, updated.id),
       with: {

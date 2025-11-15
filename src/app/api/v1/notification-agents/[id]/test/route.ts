@@ -85,7 +85,7 @@ export async function POST(
             status: messageId ? 'sent' : 'failed',
             failureReason: messageId ? null : 'Falha ao enviar mensagem',
             retryCount: 0,
-          });
+          } as any);
 
           return {
             groupJid: group.groupJid,
@@ -104,7 +104,7 @@ export async function POST(
             failureReason: error instanceof Error ? error.message : 'Erro desconhecido',
             errorCode: 'SEND_ERROR',
             retryCount: 0,
-          });
+          } as any);
 
           return {
             groupJid: group.groupJid,

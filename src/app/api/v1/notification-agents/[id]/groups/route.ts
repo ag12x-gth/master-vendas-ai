@@ -52,7 +52,7 @@ export async function GET(
 
     const linkedGroupJids = new Set(agent.groups.map(g => g.groupJid));
 
-    const groups = Object.values(allGroups).map(group => ({
+    const groups = Object.values(allGroups).map((group: any) => ({
       id: group.id,
       subject: group.subject,
       participantCount: group.participants?.length || 0,

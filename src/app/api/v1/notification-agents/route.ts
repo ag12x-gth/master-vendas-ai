@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    if (!newAgent) {
+    if (!newAgent || !newAgent.id) {
       return NextResponse.json(
         { error: 'Erro ao criar agente' },
         { status: 500 }
