@@ -106,18 +106,12 @@ export async function PUT(request: NextRequest, { params }: { params: { personaI
                     isActive: true,
                 }));
 
-                await db.transaction(async (tx) => {
-                    await tx.insert(personaPromptSections).values(sectionValues);
-                    await tx.update(aiPersonas)
-                        .set({ systemPrompt: null })
-                        .where(eq(aiPersonas.id, updated.id));
-                });
+                await db.insert(personaPromptSections).values(sectionValues);
 
-                console.log(`[PersonaAPI] ✅ ${sections.length} seções criadas e systemPrompt limpo`);
+                console.log(`[PersonaAPI] ✅ ${sections.length} seções RAG criadas - systemPrompt preservado`);
                 
                 return NextResponse.json({
                     ...updated,
-                    systemPrompt: null,
                     _ragSectionsCreated: sections.length,
                 });
 
