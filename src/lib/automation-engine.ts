@@ -299,6 +299,37 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
             throw new Error(`Persona usa provider ${persona.provider}, mas apenas OPENAI é suportado nesta função.`);
         }
 
+        // 🕒 DELAYS HUMANIZADOS: Detectar se é primeira resposta ou demais respostas (24h window)
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        const recentAIMessages = await db.query.messages.findMany({
+            where: and(
+                eq(messages.conversationId, conversation.id),
+                eq(messages.senderType, 'AI'),
+                sql`${messages.sentAt} >= ${twentyFourHoursAgo}`
+            ),
+            limit: 1,
+        });
+
+        const isFirstResponse = recentAIMessages.length === 0;
+        
+        // Calcular delay humanizado baseado na configuração do agente
+        let minDelay = isFirstResponse ? persona.firstResponseMinDelay : persona.followupResponseMinDelay;
+        let maxDelay = isFirstResponse ? persona.firstResponseMaxDelay : persona.followupResponseMaxDelay;
+        
+        // Guard: garantir que min <= max (corrigir ranges malformados)
+        if (minDelay > maxDelay) {
+            await logAutomation('WARN', `⚠️  Invalid delay range detected (min: ${minDelay}, max: ${maxDelay}). Swapping values.`, logContextBase);
+            [minDelay, maxDelay] = [maxDelay, minDelay];
+        }
+        
+        const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+        
+        const responseType = isFirstResponse ? 'primeira resposta (24h)' : 'demais respostas';
+        await logAutomation('INFO', `🕒 Delay humanizado: ${randomDelay}s (${responseType}, range: ${minDelay}-${maxDelay}s)`, logContextBase);
+        
+        // Aplicar delay antes de gerar resposta
+        await sleep(randomDelay * 1000);
+
         // ✅ FIX: Buscar mensagens mais recentes primeiro (DESC) e reverter para ordem cronológica
         // Isso garante que pegamos as mensagens MAIS NOVAS, não as antigas
         const allMessages = await db.query.messages.findMany({
