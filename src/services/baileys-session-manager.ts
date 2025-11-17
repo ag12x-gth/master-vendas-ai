@@ -559,14 +559,21 @@ class BaileysSessionManager {
     try {
       console.log(`[Baileys AI] Generating auto-response for ${phoneNumber}`);
 
-      // Buscar conversa com agente IA vinculado
-      const [conversation] = await db
+      // Buscar conversa E conexão para determinar agente IA
+      const [conversationData] = await db
         .select({
-          assignedPersonaId: conversations.assignedPersonaId,
+          conversationPersonaId: conversations.assignedPersonaId,
+          connectionPersonaId: connections.assignedPersonaId,
         })
         .from(conversations)
+        .leftJoin(connections, eq(conversations.connectionId, connections.id))
         .where(eq(conversations.id, conversationId))
         .limit(1);
+
+      if (!conversationData) {
+        console.log(`[Baileys AI] 🚫 Conversation ${conversationId} not found. Skipping auto-response.`);
+        return;
+      }
 
       // Buscar histórico recente de mensagens
       const recentMessages = await db.query.messages.findMany({
@@ -583,9 +590,11 @@ class BaileysSessionManager {
         }))
         .filter((msg) => msg.content.trim());
 
-      // OBRIGATÓRIO: Apenas responder se houver agente IA vinculado
-      if (!conversation?.assignedPersonaId) {
-        console.log(`[Baileys AI] 🚫 No AI persona assigned to conversation ${conversationId}. Skipping auto-response.`);
+      // Determinar qual agente IA usar (prioridade: conversa > conexão)
+      const personaId = conversationData.conversationPersonaId || conversationData.connectionPersonaId;
+
+      if (!personaId) {
+        console.log(`[Baileys AI] 🚫 No AI persona assigned to conversation or connection. Skipping auto-response.`);
         return;
       }
 
@@ -593,15 +602,16 @@ class BaileysSessionManager {
       const [persona] = await db
         .select()
         .from(aiPersonas)
-        .where(eq(aiPersonas.id, conversation.assignedPersonaId))
+        .where(eq(aiPersonas.id, personaId))
         .limit(1);
 
       if (!persona) {
-        console.log(`[Baileys AI] 🚫 Persona ${conversation.assignedPersonaId} not found. Skipping auto-response.`);
+        console.log(`[Baileys AI] 🚫 Persona ${personaId} not found. Skipping auto-response.`);
         return;
       }
 
-      console.log(`[Baileys AI] Using persona: ${persona.name}`);
+      const source = conversationData.conversationPersonaId ? 'conversation' : 'connection';
+      console.log(`[Baileys AI] Using persona: ${persona.name} (from ${source})`);
       
       const { openAIService } = await import('./ai/openai-service');
       const aiResponse = await openAIService.generateResponseWithPersona(
