@@ -1,9 +1,22 @@
 import OpenAI from 'openai';
+import {
+  detectLanguage,
+  getPersonaPromptSections,
+  assembleDynamicPrompt,
+  estimateTokenCount,
+} from '@/lib/prompt-utils';
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }
+
+const INTERNAL_RULES = `REGRAS INTERNAS OBRIGATÓRIAS:
+- NUNCA se identifique como "assistente virtual", "IA", "inteligência artificial", "robô", "bot" ou similar
+- Você é um atendente REAL da empresa, não um sistema automatizado
+- Seja genuíno, autêntico e natural nas interações
+- Responda como se fosse uma pessoa de verdade atendendo pelo WhatsApp
+- Mantenha a naturalidade e humanização em todas as respostas`;
 
 export class OpenAIService {
   private client: OpenAI;
@@ -69,20 +82,39 @@ Instruções:
     persona: any
   ): Promise<string> {
     try {
-      const systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um assistente especializado.`;
-      
-      const enrichedPrompt = `${systemPrompt}
+      console.log(`[OpenAI] Generating response with persona: ${persona.name}`);
+      console.log(`[OpenAI] Message: ${userMessage.substring(0, 50)}`);
 
-${contactName ? `O nome do cliente é ${contactName}.` : ''}`;
+      let systemPrompt: string;
+
+      const detectedLanguage = detectLanguage(userMessage);
+      console.log(`[OpenAI] Detected language: ${detectedLanguage}`);
+
+      if (persona.useRag) {
+        const promptSections = await getPersonaPromptSections(persona.id, detectedLanguage);
+        
+        if (promptSections.length > 0) {
+          const contextInfo = contactName ? `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contactName}` : '';
+          systemPrompt = INTERNAL_RULES + '\n\n' + assembleDynamicPrompt(promptSections, contextInfo);
+          console.log(`[OpenAI] RAG active: ${promptSections.length} sections loaded (${estimateTokenCount(systemPrompt)} tokens estimated)`);
+        } else {
+          systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um atendente especializado da empresa no WhatsApp.`;
+          systemPrompt = INTERNAL_RULES + '\n\n' + systemPrompt;
+          systemPrompt += contactName ? `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contactName}` : '';
+          console.log(`[OpenAI] RAG active but no sections found. Using traditional systemPrompt (${estimateTokenCount(systemPrompt)} tokens estimated)`);
+        }
+      } else {
+        systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um atendente especializado da empresa no WhatsApp.`;
+        systemPrompt = INTERNAL_RULES + '\n\n' + systemPrompt;
+        systemPrompt += contactName ? `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contactName}` : '';
+        console.log(`[OpenAI] RAG disabled: using traditional systemPrompt (${estimateTokenCount(systemPrompt)} tokens estimated)`);
+      }
 
       const messages: ChatMessage[] = [
-        { role: 'system', content: enrichedPrompt },
+        { role: 'system', content: systemPrompt },
         ...conversationHistory.slice(-6),
         { role: 'user', content: userMessage },
       ];
-
-      console.log(`[OpenAI] Generating response with persona: ${persona.name}`);
-      console.log(`[OpenAI] Message: ${userMessage.substring(0, 50)}`);
 
       const temperature = persona.temperature ? parseFloat(persona.temperature.toString()) : 0.7;
       const maxTokens = persona.maxOutputTokens || 500;
@@ -96,7 +128,7 @@ ${contactName ? `O nome do cliente é ${contactName}.` : ''}`;
 
       const response = completion.choices[0]?.message?.content || 'Desculpe, não consegui processar sua mensagem.';
       
-      console.log(`[OpenAI] Response generated with ${persona.name}:`, response.substring(0, 50));
+      console.log(`[OpenAI] Response generated:`, response.substring(0, 50));
 
       return response;
     } catch (error) {
