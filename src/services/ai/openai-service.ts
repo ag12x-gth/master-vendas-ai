@@ -33,46 +33,16 @@ export class OpenAIService {
     });
   }
 
+  /**
+   * @deprecated Método genérico removido - use apenas generateResponseWithPersona()
+   * Sistema configurado para responder APENAS com agentes IA personalizados vinculados
+   */
   async generateResponse(
     userMessage: string,
     contactName?: string,
     conversationHistory: ChatMessage[] = []
   ): Promise<string> {
-    try {
-      const systemPrompt = `Você é um assistente virtual prestativo e amigável que responde mensagens de WhatsApp.
-${contactName ? `O nome do cliente é ${contactName}.` : ''}
-
-Instruções:
-- Seja breve e direto nas respostas (máximo 2-3 frases quando possível)
-- Use tom amigável e profissional
-- Responda em português brasileiro
-- Se não souber algo, seja honesto
-- Ofereça ajuda adicional quando apropriado`;
-
-      const messages: ChatMessage[] = [
-        { role: 'system', content: systemPrompt },
-        ...conversationHistory.slice(-6), // Últimas 3 interações (6 mensagens)
-        { role: 'user', content: userMessage },
-      ];
-
-      console.log('[OpenAI] Generating response for message:', userMessage.substring(0, 50));
-
-      const completion = await this.client.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages,
-        temperature: 0.7,
-        max_tokens: 300,
-      });
-
-      const response = completion.choices[0]?.message?.content || 'Desculpe, não consegui processar sua mensagem.';
-      
-      console.log('[OpenAI] Response generated:', response.substring(0, 50));
-
-      return response;
-    } catch (error) {
-      console.error('[OpenAI] Error generating response:', error);
-      throw error;
-    }
+    throw new Error('Generic AI responses are disabled. Please assign an AI persona to the conversation.');
   }
 
   async generateResponseWithPersona(

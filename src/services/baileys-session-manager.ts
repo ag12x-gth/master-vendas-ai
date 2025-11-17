@@ -583,43 +583,33 @@ class BaileysSessionManager {
         }))
         .filter((msg) => msg.content.trim());
 
-      let aiResponse: string;
-
-      // Se tem agente IA personalizado vinculado, usar ele
-      if (conversation?.assignedPersonaId) {
-        const [persona] = await db
-          .select()
-          .from(aiPersonas)
-          .where(eq(aiPersonas.id, conversation.assignedPersonaId))
-          .limit(1);
-
-        if (persona) {
-          console.log(`[Baileys AI] Using persona: ${persona.name}`);
-          const { openAIService } = await import('./ai/openai-service');
-          aiResponse = await openAIService.generateResponseWithPersona(
-            userMessage,
-            contactName,
-            conversationHistory,
-            persona
-          );
-        } else {
-          // Fallback para genérico se persona não existir mais
-          const { openAIService } = await import('./ai/openai-service');
-          aiResponse = await openAIService.generateResponse(
-            userMessage,
-            contactName,
-            conversationHistory
-          );
-        }
-      } else {
-        // Sem agente personalizado, usar genérico
-        const { openAIService } = await import('./ai/openai-service');
-        aiResponse = await openAIService.generateResponse(
-          userMessage,
-          contactName,
-          conversationHistory
-        );
+      // OBRIGATÓRIO: Apenas responder se houver agente IA vinculado
+      if (!conversation?.assignedPersonaId) {
+        console.log(`[Baileys AI] 🚫 No AI persona assigned to conversation ${conversationId}. Skipping auto-response.`);
+        return;
       }
+
+      // Buscar agente IA personalizado
+      const [persona] = await db
+        .select()
+        .from(aiPersonas)
+        .where(eq(aiPersonas.id, conversation.assignedPersonaId))
+        .limit(1);
+
+      if (!persona) {
+        console.log(`[Baileys AI] 🚫 Persona ${conversation.assignedPersonaId} not found. Skipping auto-response.`);
+        return;
+      }
+
+      console.log(`[Baileys AI] Using persona: ${persona.name}`);
+      
+      const { openAIService } = await import('./ai/openai-service');
+      const aiResponse = await openAIService.generateResponseWithPersona(
+        userMessage,
+        contactName,
+        conversationHistory,
+        persona
+      );
 
       // Enviar resposta via WhatsApp
       const messageId = await this.sendMessage(connectionId, phoneNumber, {
