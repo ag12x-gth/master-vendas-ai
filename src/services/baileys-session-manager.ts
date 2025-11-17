@@ -613,6 +613,37 @@ class BaileysSessionManager {
       const source = conversationData.conversationPersonaId ? 'conversation' : 'connection';
       console.log(`[Baileys AI] Using persona: ${persona.name} (from ${source})`);
       
+      // Detectar se é primeira resposta das últimas 24h
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const recentAIMessages = await db.query.messages.findMany({
+        where: (messages, { and, eq, gte }) => and(
+          eq(messages.conversationId, conversationId),
+          eq(messages.senderType, 'AI'),
+          gte(messages.sentAt, oneDayAgo)
+        ),
+        limit: 1,
+      });
+
+      const isFirstResponse = recentAIMessages.length === 0;
+      
+      // Calcular delay humanizado baseado na configuração do agente
+      let minDelay = isFirstResponse ? persona.firstResponseMinDelay : persona.followupResponseMinDelay;
+      let maxDelay = isFirstResponse ? persona.firstResponseMaxDelay : persona.followupResponseMaxDelay;
+      
+      // Guard: garantir que min <= max (corrigir ranges malformados)
+      if (minDelay > maxDelay) {
+        console.warn(`[Baileys AI] ⚠️  Invalid delay range detected (min: ${minDelay}, max: ${maxDelay}). Swapping values.`);
+        [minDelay, maxDelay] = [maxDelay, minDelay];
+      }
+      
+      const randomDelay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
+      
+      const responseType = isFirstResponse ? 'primeira resposta (24h)' : 'demais respostas';
+      console.log(`[Baileys AI] Delay humanizado: ${randomDelay}s (${responseType}, range: ${minDelay}-${maxDelay}s)`);
+      
+      // Aplicar delay antes de gerar resposta
+      await new Promise(resolve => setTimeout(resolve, randomDelay * 1000));
+      
       const { openAIService } = await import('./ai/openai-service');
       const aiResponse = await openAIService.generateResponseWithPersona(
         userMessage,

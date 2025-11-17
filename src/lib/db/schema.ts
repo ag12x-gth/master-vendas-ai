@@ -290,6 +290,10 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     mcpServerUrl: text('mcp_server_url'),
     mcpServerHeaders: jsonb('mcp_server_headers').$type<Record<string, string>>(),
     useRag: boolean('use_rag').default(false).notNull(),
+    firstResponseMinDelay: integer('first_response_min_delay').default(33).notNull(),
+    firstResponseMaxDelay: integer('first_response_max_delay').default(68).notNull(),
+    followupResponseMinDelay: integer('followup_response_min_delay').default(81).notNull(),
+    followupResponseMaxDelay: integer('followup_response_max_delay').default(210).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
   });

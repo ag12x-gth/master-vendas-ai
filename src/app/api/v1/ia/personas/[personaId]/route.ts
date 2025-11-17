@@ -22,7 +22,27 @@ const personaUpdateSchema = z.object({
   mcpServerUrl: z.string().url("A URL do servidor MCP é inválida.").optional().nullable(),
   mcpServerHeaders: z.record(z.string()).optional().nullable(),
   useRag: z.boolean().optional(),
-});
+  firstResponseMinDelay: z.number().int().min(0).optional(),
+  firstResponseMaxDelay: z.number().int().min(0).optional(),
+  followupResponseMinDelay: z.number().int().min(0).optional(),
+  followupResponseMaxDelay: z.number().int().min(0).optional(),
+}).refine(
+  (data) => {
+    if (data.firstResponseMinDelay !== undefined && data.firstResponseMaxDelay !== undefined) {
+      return data.firstResponseMinDelay <= data.firstResponseMaxDelay;
+    }
+    return true;
+  },
+  { message: 'Delay mínimo da primeira resposta deve ser menor ou igual ao máximo', path: ['firstResponseMinDelay'] }
+).refine(
+  (data) => {
+    if (data.followupResponseMinDelay !== undefined && data.followupResponseMaxDelay !== undefined) {
+      return data.followupResponseMinDelay <= data.followupResponseMaxDelay;
+    }
+    return true;
+  },
+  { message: 'Delay mínimo de demais respostas deve ser menor ou igual ao máximo', path: ['followupResponseMinDelay'] }
+);
 
 // GET /api/v1/ia/personas/[personaId] - Fetch a single agent
 export async function GET(_request: NextRequest, { params }: { params: { personaId: string } }) {

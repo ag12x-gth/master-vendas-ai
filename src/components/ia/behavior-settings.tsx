@@ -28,6 +28,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { createToastNotifier } from '@/lib/toast-helper';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { ResponseDelaySettings } from './response-delay-settings';
 
 interface McpTool {
     name: string;
@@ -61,6 +62,10 @@ export function BehaviorSettings({
     mcpServerUrl: agent?.mcpServerUrl || '',
     mcpServerHeaders: agent?.mcpServerHeaders ? JSON.stringify(agent.mcpServerHeaders, null, 2) : '',
     useRag: agent?.useRag || false,
+    firstResponseMinDelay: agent?.firstResponseMinDelay || 33,
+    firstResponseMaxDelay: agent?.firstResponseMaxDelay || 68,
+    followupResponseMinDelay: agent?.followupResponseMinDelay || 81,
+    followupResponseMaxDelay: agent?.followupResponseMaxDelay || 210,
   });
 
   const [availableTools, setAvailableTools] = useState<McpTool[]>([]);
@@ -80,6 +85,10 @@ export function BehaviorSettings({
         mcpServerUrl: agent?.mcpServerUrl || '',
         mcpServerHeaders: agent?.mcpServerHeaders ? JSON.stringify(agent.mcpServerHeaders, null, 2) : '',
         useRag: agent?.useRag || false,
+        firstResponseMinDelay: agent?.firstResponseMinDelay || 33,
+        firstResponseMaxDelay: agent?.firstResponseMaxDelay || 68,
+        followupResponseMinDelay: agent?.followupResponseMinDelay || 81,
+        followupResponseMaxDelay: agent?.followupResponseMaxDelay || 210,
     });
     setAvailableTools([]);
   }, [agent]);
@@ -141,6 +150,10 @@ export function BehaviorSettings({
             mcpServerUrl: payload.mcpServerUrl || null,
             mcpServerHeaders: parsedHeaders,
             useRag: payload.useRag,
+            firstResponseMinDelay: payload.firstResponseMinDelay,
+            firstResponseMaxDelay: payload.firstResponseMaxDelay,
+            followupResponseMinDelay: payload.followupResponseMinDelay,
+            followupResponseMaxDelay: payload.followupResponseMaxDelay,
         }),
       });
 
@@ -250,6 +263,14 @@ export function BehaviorSettings({
                         <Slider id="max-tokens" name="maxOutputTokens" min={256} max={8192} step={256} value={[formData.maxOutputTokens || 2048]} onValueChange={(value) => handleSliderChange('maxOutputTokens', value)} />
                     </div>
                 </div>
+
+                <ResponseDelaySettings
+                  firstResponseMinDelay={formData.firstResponseMinDelay}
+                  firstResponseMaxDelay={formData.firstResponseMaxDelay}
+                  followupResponseMinDelay={formData.followupResponseMinDelay}
+                  followupResponseMaxDelay={formData.followupResponseMaxDelay}
+                  onChange={(field, value) => setFormData((prev) => ({ ...prev, [field]: value }))}
+                />
 
                 <Card>
                     <CardHeader>
