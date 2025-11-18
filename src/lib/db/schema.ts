@@ -498,7 +498,7 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     id: text('id').primaryKey().default(sql`gen_random_uuid()`),
     campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
     contactId: text('contact_id').notNull().references(() => contacts.id, { onDelete: 'cascade' }),
-    connectionId: text('connection_id').notNull().references(() => connections.id, { onDelete: 'set null' }),
+    connectionId: text('connection_id').references(() => connections.id, { onDelete: 'set null' }),
     providerMessageId: text('provider_message_id'),
     status: text('status').notNull(),
     failureReason: text('failure_reason'),
