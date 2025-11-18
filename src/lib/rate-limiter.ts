@@ -11,8 +11,53 @@ const IP_LIMIT = 10;      // Requisições por minuto por IP (proteção brute-f
 const AUTH_LIMIT = 5;     // Tentativas de login por IP em 15 minutos
 
 /**
- * TRUE SLIDING WINDOW implementation usando timestamps
- * Remove timestamps expirados antes de contar e adicionar novo
+ * Lua script atômico para sliding window rate limiting
+ * Garante que toda operação (remover expirados + contar + adicionar) seja atômica
+ * Elimina race conditions e é mais eficiente que pipelines
+ * 
+ * KEYS[1] = chave do sorted set
+ * ARGV[1] = timestamp atual (ms)
+ * ARGV[2] = janela de tempo (ms) - ex: 60000 para 1 minuto
+ * ARGV[3] = limite de requisições
+ * ARGV[4] = TTL em segundos
+ * ARGV[5] = member único (timestamp-random)
+ * 
+ * Retorna: 1 se permitido, 0 se bloqueado
+ */
+const SLIDING_WINDOW_LUA_SCRIPT = `
+local key = KEYS[1]
+local now = tonumber(ARGV[1])
+local window_ms = tonumber(ARGV[2])
+local limit = tonumber(ARGV[3])
+local ttl = tonumber(ARGV[4])
+local member = ARGV[5]
+
+local window_start = now - window_ms
+
+-- Remove timestamps expirados
+redis.call('ZREMRANGEBYSCORE', key, 0, window_start)
+
+-- Conta requests válidos na janela
+local count = redis.call('ZCARD', key)
+
+-- Se excedeu limite, retorna 0 (bloqueado)
+if count >= limit then
+  return 0
+end
+
+-- Adiciona novo timestamp
+redis.call('ZADD', key, now, member)
+
+-- Define TTL para cleanup automático
+redis.call('EXPIRE', key, ttl)
+
+-- Retorna 1 (permitido)
+return 1
+`;
+
+/**
+ * TRUE SLIDING WINDOW implementation usando Lua script atômico
+ * Elimina race conditions usando execução atômica no Redis
  */
 async function checkSlidingWindowLimit(
   key: string,
@@ -20,30 +65,22 @@ async function checkSlidingWindowLimit(
   windowSeconds: number = 60
 ): Promise<boolean> {
   const now = Date.now();
-  const windowStart = now - (windowSeconds * 1000);
-  
-  // Generate unique member string ONCE to use in both zadd and potential zrem
+  const windowMs = windowSeconds * 1000;
   const member = `${now}-${Math.random()}`;
   
-  // Remove timestamps expirados e conta requests válidos
-  const pipeline = redis.pipeline();
-  pipeline.zremrangebyscore(key, 0, windowStart); // Remove antigos
-  pipeline.zcard(key); // Conta requests na janela
-  pipeline.zadd(key, now, member); // Adiciona novo timestamp único
-  pipeline.expire(key, windowSeconds); // Define TTL
+  // Executa script Lua atomicamente
+  const result = await redis.eval(
+    SLIDING_WINDOW_LUA_SCRIPT,
+    1, // número de KEYS
+    key, // KEYS[1]
+    now.toString(), // ARGV[1]
+    windowMs.toString(), // ARGV[2]
+    limit.toString(), // ARGV[3]
+    windowSeconds.toString(), // ARGV[4]
+    member // ARGV[5]
+  ) as number;
   
-  const results = await pipeline.exec();
-  
-  // results[1] é o count antes de adicionar o novo request
-  const count = results?.[1]?.[1] as number || 0;
-  
-  // Se count >= limit, remove o timestamp que acabamos de adicionar (rollback)
-  if (count >= limit) {
-    await redis.zrem(key, member); // Use same member variable for successful rollback
-    return false;
-  }
-  
-  return true;
+  return result === 1;
 }
 
 export async function checkRateLimits(

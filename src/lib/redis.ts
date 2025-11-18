@@ -553,6 +553,69 @@ class EnhancedCache {
     return newValue;
   }
 
+  // Lua script evaluation for atomic operations
+  async eval(script: string, numKeys: number, ...args: string[]): Promise<number> {
+    // Extract keys and arguments
+    const keys = args.slice(0, numKeys);
+    const argv = args.slice(numKeys);
+    
+    // Parse the sliding window Lua script
+    // This is a specialized implementation for rate limiting
+    if (script.includes('ZREMRANGEBYSCORE') && script.includes('ZCARD')) {
+      const key = keys[0];
+      if (!key) return 0;
+      
+      const now = parseInt(argv[0] || '0');
+      const windowMs = parseInt(argv[1] || '0');
+      const limit = parseInt(argv[2] || '0');
+      const ttl = parseInt(argv[3] || '0');
+      const member = argv[4] || '';
+      
+      const windowStart = now - windowMs;
+      
+      // Get or create sorted set - NO CLONING, mutate in place
+      const item = this.data.get(key);
+      let zset: Map<string, number>;
+      
+      if (item?.value instanceof Map) {
+        zset = item.value; // Use existing Map directly (no clone)
+      } else {
+        zset = new Map<string, number>();
+      }
+      
+      // Remove expired entries IN PLACE (critical for sliding window)
+      for (const [m, score] of Array.from(zset.entries())) {
+        if (score <= windowStart) {
+          zset.delete(m);
+        }
+      }
+      
+      // Always persist the cleaned set (even when blocked)
+      // This ensures expired timestamps are removed
+      this.data.set(key, { value: zset, expireAt: item?.expireAt });
+      
+      // Count current entries AFTER cleanup
+      const count = zset.size;
+      
+      // Check limit
+      if (count >= limit) {
+        return 0; // Blocked - but cleanup was already persisted
+      }
+      
+      // Add new member
+      zset.set(member, now);
+      
+      // Set expiration ONLY on successful increment (mirrors Redis behavior)
+      const expireAt = Date.now() + (ttl * 1000);
+      this.data.set(key, { value: zset, expireAt });
+      
+      return 1; // Allowed
+    }
+    
+    // Fallback for unknown scripts
+    return 0;
+  }
+
   // Get cache metrics
   getMetrics() {
     const hitRate = this.metrics.hits + this.metrics.misses > 0
