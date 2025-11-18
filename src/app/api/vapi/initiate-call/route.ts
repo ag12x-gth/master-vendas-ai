@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import * as CircuitBreaker from '@/lib/circuit-breaker';
 
 interface InitiateCallRequest {
   phoneNumber: string;
@@ -110,16 +111,28 @@ Instruções:
       callPayload.phoneNumberId = VAPI_PHONE_NUMBER_ID;
     }
 
+    // Check circuit breaker before making request
+    if (CircuitBreaker.isOpen('vapi')) {
+      return NextResponse.json(
+        { error: 'Serviço de voz temporariamente indisponível. Tente novamente em alguns minutos.' },
+        { status: 503 }
+      );
+    }
+
     const response = await fetch('https://api.vapi.ai/call', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${VAPI_API_KEY}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(callPayload)
+      body: JSON.stringify(callPayload),
+      signal: AbortSignal.timeout(15000) // Timeout de 15s
     });
 
     if (!response.ok) {
+      // Record failure for circuit breaker
+      await CircuitBreaker.recordFailure('vapi');
+      
       const errorData = await response.json().catch(() => ({}));
       
       if (response.status === 400 && errorData.message?.includes('Over Concurrency Limit')) {
@@ -148,6 +161,9 @@ Instruções:
         { status: 503 }
       );
     }
+
+    // Record success for circuit breaker
+    await CircuitBreaker.recordSuccess('vapi');
 
     const callData = await response.json();
 

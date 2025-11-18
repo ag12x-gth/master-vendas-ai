@@ -21,6 +21,7 @@ import type { MediaAsset as MediaAssetType, MetaApiMessageResponse, MetaHandle }
 import { sessionManager as baileysSessionManager } from '@/services/baileys-session-manager';
 import { NotificationService } from '@/lib/notifications/notification-service';
 import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
+import * as CircuitBreaker from '@/lib/circuit-breaker';
 
 // Helper para dividir um array em lotes
 function chunkArray<T>(array: T[], size: number): T[][] {
@@ -571,6 +572,11 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
 
     switch(provider) {
         case 'witi': {
+            // Check circuit breaker before making request
+            if (CircuitBreaker.isOpen('sms_witi')) {
+                throw new Error('Witi SMS gateway temporariamente indisponível devido a falhas recentes. Tente novamente em alguns minutos.');
+            }
+            
             if (!credentials || !credentials.token) {
                 throw new Error("Credenciais 'token' ausentes para o gateway Witi.");
             }
@@ -581,25 +587,40 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
             const payload = { tipo_envio: "common", referencia: campaign.name, mensagens: messages };
             const url = `https://sms.witi.me/sms/send.aspx?chave=${apiKey}`;
             
-            const response = await fetch(url, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify(payload),
-                signal: AbortSignal.timeout(15000) // Timeout de 15s
-            });
-            const responseText = await response.text();
-            
-            if (!response.ok) throw new Error(`Witi API Error: ${responseText}`);
-            
             try {
-                const data = JSON.parse(responseText) as { status: string };
-                return { success: data.status !== 'ERRO', ...data };
-            } catch(e) {
-                return { success: true, details: responseText };
+                const response = await fetch(url, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify(payload),
+                    signal: AbortSignal.timeout(15000) // Timeout de 15s
+                });
+                const responseText = await response.text();
+                
+                if (!response.ok) {
+                    CircuitBreaker.recordFailure('sms_witi');
+                    throw new Error(`Witi API Error: ${responseText}`);
+                }
+                
+                CircuitBreaker.recordSuccess('sms_witi');
+                
+                try {
+                    const data = JSON.parse(responseText) as { status: string };
+                    return { success: data.status !== 'ERRO', ...data };
+                } catch(e) {
+                    return { success: true, details: responseText };
+                }
+            } catch (error) {
+                CircuitBreaker.recordFailure('sms_witi');
+                throw error;
             }
         }
         
         case 'seven': {
+            // Check circuit breaker before making request
+            if (CircuitBreaker.isOpen('sms_seven')) {
+                throw new Error('Seven.io SMS gateway temporariamente indisponível devido a falhas recentes. Tente novamente em alguns minutos.');
+            }
+            
             if (!credentials || !credentials.apiKey) {
                 throw new Error("Credenciais 'apiKey' ausentes para o gateway seven.io.");
             }
@@ -610,20 +631,30 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
             const sevenPayload = { to: toNumbers, text: campaign.message!, from: "ZAPMaster" };
             const sevenUrl = 'https://gateway.seven.io/api/sms';
             
-            const sevenResponse = await fetch(sevenUrl, { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json', 'X-Api-Key': sevenApiKey }, 
-                body: JSON.stringify(sevenPayload),
-                signal: AbortSignal.timeout(15000) // Timeout de 15s
-            });
-            const sevenResponseText = await sevenResponse.text();
-
-            if (!sevenResponse.ok) throw new Error(`Seven.io API Error: Status ${sevenResponse.status} - ${sevenResponseText}`);
-            
             try {
-                return { success: true, ...JSON.parse(sevenResponseText) } as Record<string, unknown>;
-            } catch (e) {
-                return { success: true, details: sevenResponseText };
+                const sevenResponse = await fetch(sevenUrl, { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json', 'X-Api-Key': sevenApiKey }, 
+                    body: JSON.stringify(sevenPayload),
+                    signal: AbortSignal.timeout(15000) // Timeout de 15s
+                });
+                const sevenResponseText = await sevenResponse.text();
+
+                if (!sevenResponse.ok) {
+                    CircuitBreaker.recordFailure('sms_seven');
+                    throw new Error(`Seven.io API Error: Status ${sevenResponse.status} - ${sevenResponseText}`);
+                }
+                
+                CircuitBreaker.recordSuccess('sms_seven');
+                
+                try {
+                    return { success: true, ...JSON.parse(sevenResponseText) } as Record<string, unknown>;
+                } catch (e) {
+                    return { success: true, details: sevenResponseText };
+                }
+            } catch (error) {
+                CircuitBreaker.recordFailure('sms_seven');
+                throw error;
             }
         }
         

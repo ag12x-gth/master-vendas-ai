@@ -10,22 +10,35 @@ const USER_LIMIT = 20;    // Requisições por minuto por utilizador
 const IP_LIMIT = 10;      // Requisições por minuto por IP (proteção brute-force)
 const AUTH_LIMIT = 5;     // Tentativas de login por IP em 15 minutos
 
-async function checkLimit(
+/**
+ * TRUE SLIDING WINDOW implementation usando timestamps
+ * Remove timestamps expirados antes de contar e adicionar novo
+ */
+async function checkSlidingWindowLimit(
   key: string,
   limit: number,
   windowSeconds: number = 60
 ): Promise<boolean> {
-  const current = await redis.get(key);
-  if (current && parseInt(current, 10) >= limit) {
+  const now = Date.now();
+  const windowStart = now - (windowSeconds * 1000);
+  
+  // Remove timestamps expirados e conta requests válidos
+  const pipeline = redis.pipeline();
+  pipeline.zremrangebyscore(key, 0, windowStart); // Remove antigos
+  pipeline.zcard(key); // Conta requests na janela
+  pipeline.zadd(key, now, `${now}-${Math.random()}`); // Adiciona novo timestamp único
+  pipeline.expire(key, windowSeconds); // Define TTL
+  
+  const results = await pipeline.exec();
+  
+  // results[1] é o count antes de adicionar o novo request
+  const count = results?.[1]?.[1] as number || 0;
+  
+  // Se count >= limit, remove o timestamp que acabamos de adicionar (rollback)
+  if (count >= limit) {
+    await redis.zrem(key, `${now}-${Math.random()}`);
     return false;
   }
-
-  const pipeline = redis.pipeline();
-  pipeline.incr(key);
-  if (!current) { // Se a chave não existe, define a expiração
-    pipeline.expire(key, windowSeconds);
-  }
-  await pipeline.exec();
   
   return true;
 }
@@ -34,15 +47,12 @@ export async function checkRateLimits(
   companyId: string,
   userId: string
 ): Promise<RateLimitResult> {
-  const now = Math.floor(Date.now() / 1000);
-  const minute = Math.floor(now / 60);
-
-  const companyKey = `rate_limit:company:${companyId}:${minute}`;
-  const userKey = `rate_limit:user:${userId}:${minute}`;
+  const companyKey = `rate_limit:company:${companyId}`;
+  const userKey = `rate_limit:user:${userId}`;
 
   const [companyAllowed, userAllowed] = await Promise.all([
-    checkLimit(companyKey, COMPANY_LIMIT),
-    checkLimit(userKey, USER_LIMIT),
+    checkSlidingWindowLimit(companyKey, COMPANY_LIMIT, 60),
+    checkSlidingWindowLimit(userKey, USER_LIMIT, 60),
   ]);
 
   if (!userAllowed) {
@@ -65,15 +75,13 @@ export async function checkRateLimits(
 /**
  * Rate limiting por IP para prevenir brute-force/DoS
  * Usado em rotas públicas (login, register, etc)
+ * TRUE SLIDING WINDOW de 60 segundos
  */
 export async function checkIpRateLimit(
   ipAddress: string
 ): Promise<RateLimitResult> {
-  const now = Math.floor(Date.now() / 1000);
-  const minute = Math.floor(now / 60);
-
-  const ipKey = `rate_limit:ip:${ipAddress}:${minute}`;
-  const allowed = await checkLimit(ipKey, IP_LIMIT);
+  const ipKey = `rate_limit:ip:${ipAddress}`;
+  const allowed = await checkSlidingWindowLimit(ipKey, IP_LIMIT, 60);
 
   if (!allowed) {
     return {
@@ -87,16 +95,13 @@ export async function checkIpRateLimit(
 
 /**
  * Rate limiting para tentativas de autenticação (login/register)
- * Janela de 15 minutos para prevenir brute-force em credenciais
+ * TRUE SLIDING WINDOW de 15 minutos para prevenir brute-force em credenciais
  */
 export async function checkAuthRateLimit(
   ipAddress: string
 ): Promise<RateLimitResult> {
-  const now = Math.floor(Date.now() / 1000);
-  const quarterHour = Math.floor(now / 900); // 900s = 15 minutos
-
-  const authKey = `rate_limit:auth:${ipAddress}:${quarterHour}`;
-  const allowed = await checkLimit(authKey, AUTH_LIMIT, 900); // TTL 15 min
+  const authKey = `rate_limit:auth:${ipAddress}`;
+  const allowed = await checkSlidingWindowLimit(authKey, AUTH_LIMIT, 900); // 900s = 15 min
 
   if (!allowed) {
     return {
