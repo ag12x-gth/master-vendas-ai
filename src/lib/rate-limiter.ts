@@ -22,11 +22,14 @@ async function checkSlidingWindowLimit(
   const now = Date.now();
   const windowStart = now - (windowSeconds * 1000);
   
+  // Generate unique member string ONCE to use in both zadd and potential zrem
+  const member = `${now}-${Math.random()}`;
+  
   // Remove timestamps expirados e conta requests válidos
   const pipeline = redis.pipeline();
   pipeline.zremrangebyscore(key, 0, windowStart); // Remove antigos
   pipeline.zcard(key); // Conta requests na janela
-  pipeline.zadd(key, now, `${now}-${Math.random()}`); // Adiciona novo timestamp único
+  pipeline.zadd(key, now, member); // Adiciona novo timestamp único
   pipeline.expire(key, windowSeconds); // Define TTL
   
   const results = await pipeline.exec();
@@ -36,7 +39,7 @@ async function checkSlidingWindowLimit(
   
   // Se count >= limit, remove o timestamp que acabamos de adicionar (rollback)
   if (count >= limit) {
-    await redis.zrem(key, `${now}-${Math.random()}`);
+    await redis.zrem(key, member); // Use same member variable for successful rollback
     return false;
   }
   
