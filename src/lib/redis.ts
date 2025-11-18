@@ -385,6 +385,174 @@ class EnhancedCache {
     return null;
   }
 
+  // Redis Sorted Set (ZSET) methods for metrics and rate limiting
+  async zadd(key: string, score: number, member: string): Promise<number> {
+    const item = this.data.get(key);
+    const zset = item?.value ? new Map(item.value) : new Map<string, number>();
+    
+    if (item && !(item.value instanceof Map)) {
+      throw new Error(`Key ${key} is not a sorted set`);
+    }
+    
+    // Add or update member with score
+    const isNew = !zset.has(member);
+    zset.set(member, score);
+    
+    this.data.set(key, { value: zset, expireAt: item?.expireAt });
+    
+    return isNew ? 1 : 0; // Return 1 if new member, 0 if updated
+  }
+
+  async zrem(key: string, member: string): Promise<number> {
+    const item = this.data.get(key);
+    
+    if (!item || !(item.value instanceof Map)) {
+      return 0;
+    }
+    
+    const zset = item.value;
+    const deleted = zset.delete(member) ? 1 : 0;
+    
+    this.data.set(key, { value: zset, expireAt: item.expireAt });
+    
+    return deleted;
+  }
+
+  async zcard(key: string): Promise<number> {
+    const item = this.data.get(key);
+    
+    if (!item || !(item.value instanceof Map)) {
+      return 0;
+    }
+    
+    return item.value.size;
+  }
+
+  async zrange(key: string, start: number, stop: number): Promise<string[]> {
+    const item = this.data.get(key);
+    
+    if (!item || !(item.value instanceof Map)) {
+      return [];
+    }
+    
+    const zset = item.value;
+    
+    // Sort by score (ascending)
+    const sorted = Array.from(zset.entries())
+      .sort((a, b) => a[1] - b[1])
+      .map(([member]) => member);
+    
+    // Handle negative indices like Redis does
+    const len = sorted.length;
+    const actualStart = start < 0 ? Math.max(0, len + start) : start;
+    const actualStop = stop < 0 ? len + stop + 1 : stop + 1;
+    
+    return sorted.slice(actualStart, actualStop);
+  }
+
+  async zremrangebyscore(key: string, min: number, max: number): Promise<number> {
+    const item = this.data.get(key);
+    
+    if (!item || !(item.value instanceof Map)) {
+      return 0;
+    }
+    
+    const zset = item.value;
+    let removed = 0;
+    
+    // Remove members with score between min and max
+    for (const [member, score] of zset.entries()) {
+      if (score >= min && score <= max) {
+        zset.delete(member);
+        removed++;
+      }
+    }
+    
+    this.data.set(key, { value: zset, expireAt: item.expireAt });
+    
+    return removed;
+  }
+
+  // Pipeline support for atomic operations
+  pipeline() {
+    const commands: Array<{ method: string; args: any[] }> = [];
+    
+    const pipelineObj = {
+      zadd: (key: string, score: number, member: string) => {
+        commands.push({ method: 'zadd', args: [key, score, member] });
+        return pipelineObj;
+      },
+      zrem: (key: string, member: string) => {
+        commands.push({ method: 'zrem', args: [key, member] });
+        return pipelineObj;
+      },
+      zcard: (key: string) => {
+        commands.push({ method: 'zcard', args: [key] });
+        return pipelineObj;
+      },
+      zremrangebyscore: (key: string, min: number, max: number) => {
+        commands.push({ method: 'zremrangebyscore', args: [key, min, max] });
+        return pipelineObj;
+      },
+      incr: (key: string) => {
+        commands.push({ method: 'incr', args: [key] });
+        return pipelineObj;
+      },
+      expire: (key: string, seconds: number) => {
+        commands.push({ method: 'expire', args: [key, seconds] });
+        return pipelineObj;
+      },
+      exec: async () => {
+        const results: Array<[Error | null, any]> = [];
+        
+        for (const cmd of commands) {
+          try {
+            let result: any;
+            
+            if (cmd.method === 'zadd') {
+              const [key, score, member] = cmd.args as [string, number, string];
+              result = await this.zadd(key, score, member);
+            } else if (cmd.method === 'zrem') {
+              const [key, member] = cmd.args as [string, string];
+              result = await this.zrem(key, member);
+            } else if (cmd.method === 'zcard') {
+              const [key] = cmd.args as [string];
+              result = await this.zcard(key);
+            } else if (cmd.method === 'zremrangebyscore') {
+              const [key, min, max] = cmd.args as [string, number, number];
+              result = await this.zremrangebyscore(key, min, max);
+            } else if (cmd.method === 'incr') {
+              const [key] = cmd.args as [string];
+              result = await this.incr(key);
+            } else if (cmd.method === 'expire') {
+              const [key, seconds] = cmd.args as [string, number];
+              result = await this.expire(key, seconds);
+            }
+            
+            results.push([null, result]);
+          } catch (error) {
+            results.push([error as Error, null]);
+          }
+        }
+        
+        return results;
+      }
+    };
+    
+    return pipelineObj;
+  }
+
+  // Increment counter (for metrics)
+  async incr(key: string): Promise<number> {
+    const item = this.data.get(key);
+    const currentValue = item?.value ? parseInt(String(item.value)) : 0;
+    const newValue = currentValue + 1;
+    
+    this.data.set(key, { value: newValue, expireAt: item?.expireAt });
+    
+    return newValue;
+  }
+
   // Get cache metrics
   getMetrics() {
     const hitRate = this.metrics.hits + this.metrics.misses > 0
