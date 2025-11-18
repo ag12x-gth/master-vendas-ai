@@ -6,7 +6,6 @@
  * - SMS (Witi, Seven.io)
  * - Vapi Voice Calls
  * - OpenAI/Google Gemini
- * - Hume EVI
  * 
  * Uses Redis Sorted Sets for efficient percentile calculation
  * Metrics retention: 24 hours rolling window
@@ -20,8 +19,7 @@ export type ApiProvider =
   | 'sms_seven' 
   | 'vapi' 
   | 'openai' 
-  | 'google' 
-  | 'hume';
+  | 'google';
 
 export interface ApiMetricsData {
   provider: ApiProvider;
@@ -159,8 +157,7 @@ export class ApiMetrics {
       'sms_seven',
       'vapi',
       'openai',
-      'google',
-      'hume'
+      'google'
     ];
     
     return Promise.all(
