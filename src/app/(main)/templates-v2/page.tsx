@@ -54,8 +54,10 @@ import {
   Eye,
   Loader2,
   MessageSquare,
+  Megaphone,
 } from 'lucide-react';
 import { TemplateBuilder } from '@/components/message-templates/template-builder';
+import { CreateWhatsappCampaignDialog } from '@/components/campaigns/create-whatsapp-campaign-dialog';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -109,7 +111,9 @@ export default function TemplatesV2Page() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showViewDialog, setShowViewDialog] = useState(false);
+  const [showCampaignDialog, setShowCampaignDialog] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<MessageTemplate | null>(null);
+  const [selectedTemplateForCampaign, setSelectedTemplateForCampaign] = useState<MessageTemplate | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [selectedConnectionForCreate, setSelectedConnectionForCreate] = useState<string>('');
@@ -312,6 +316,11 @@ export default function TemplatesV2Page() {
     setShowViewDialog(true);
   };
 
+  const handleCreateCampaign = (template: MessageTemplate) => {
+    setSelectedTemplateForCampaign(template);
+    setShowCampaignDialog(true);
+  };
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex flex-col gap-4">
@@ -500,6 +509,12 @@ export default function TemplatesV2Page() {
                           <Eye className="mr-2 h-4 w-4" />
                           Ver Detalhes
                         </DropdownMenuItem>
+                        {template.status === 'APPROVED' && (
+                          <DropdownMenuItem onClick={() => handleCreateCampaign(template)}>
+                            <Megaphone className="mr-2 h-4 w-4" />
+                            Criar Campanha
+                          </DropdownMenuItem>
+                        )}
                         {(template.status === 'DRAFT' || template.status === 'REJECTED') && (
                           <DropdownMenuItem onClick={() => handleSubmitTemplate(template.id)}>
                             <Send className="mr-2 h-4 w-4" />
