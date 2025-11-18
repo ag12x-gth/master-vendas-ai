@@ -325,8 +325,11 @@ export default function TemplatesV2Page() {
       ? template.components.find((c: any) => c.type === 'HEADER')
       : null;
     
+    const matchingConnection = connections.find(c => c.id === template.connectionId);
+    
     return {
       ...template,
+      connection: matchingConnection,
       body: bodyComponent?.text || '',
       headerType: (headerComponent?.format as 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | null) || null,
     };
