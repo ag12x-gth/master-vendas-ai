@@ -5,6 +5,7 @@ import { db } from '@/lib/db';
 import { connections } from './db/schema';
 import { eq } from 'drizzle-orm';
 import { decrypt } from './crypto';
+import * as CircuitBreaker from './circuit-breaker';
 
 const FACEBOOK_API_VERSION = process.env.FACEBOOK_API_VERSION || 'v20.0';
 
@@ -23,6 +24,13 @@ export async function sendWhatsappTemplateMessage({
     languageCode,
     components,
 }: SendTemplateArgs): Promise<Record<string, unknown>> {
+
+    // Verifica circuit breaker para Meta API
+    if (CircuitBreaker.isOpen('meta')) {
+        const stats = CircuitBreaker.getStats('meta');
+        const resetIn = stats.openUntil ? Math.ceil((stats.openUntil - Date.now()) / 1000) : 0;
+        throw new Error(`Meta API circuit breaker está ABERTO. Tente novamente em ${resetIn}s.`);
+    }
 
     const [connection] = await db.select().from(connections).where(eq(connections.id, connectionId));
     if (!connection) {
@@ -68,11 +76,18 @@ export async function sendWhatsappTemplateMessage({
 
     if (!response.ok) {
         console.error(`[Facebook API] Erro para ${to}:`, JSON.stringify(responseData, null, 2));
+        
+        // Registra falha no circuit breaker
+        CircuitBreaker.recordFailure('meta');
+        
         const error = new Error(responseData.error?.message || 'Falha ao enviar mensagem de modelo via WhatsApp.');
         // Propaga status HTTP para permitir retry logic detectar erros transientes (5xx, 429)
         Object.assign(error, { code: response.status, response: { status: response.status } });
         throw error;
     }
+
+    // Registra sucesso no circuit breaker
+    CircuitBreaker.recordSuccess('meta');
 
     if (process.env.NODE_ENV !== 'production') console.debug(`[Facebook API] Sucesso para ${to}. Resposta:`, JSON.stringify(responseData, null, 2));
     return responseData;
