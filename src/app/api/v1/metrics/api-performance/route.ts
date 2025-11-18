@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ApiMetrics } from '@/lib/metrics/api-metrics';
-import { getUserSession } from '@/lib/auth';
+import { getUserSession } from '@/app/actions';
 
 /**
  * GET /api/v1/metrics/api-performance
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getUserSession();
     
-    if (!session?.userId) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -42,7 +42,7 @@ export async function DELETE(request: NextRequest) {
   try {
     const session = await getUserSession();
     
-    if (!session?.userId) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

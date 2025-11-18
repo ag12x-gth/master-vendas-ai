@@ -111,7 +111,7 @@ export class ApiMetrics {
       const latencies = latencyEntries
         .map((entry: string) => {
           const parts = entry.split('-');
-          return parseInt(parts[parts.length - 1]);
+          return parseInt(parts[parts.length - 1] || '0');
         })
         .filter((latency: number) => !isNaN(latency))
         .sort((a: number, b: number) => a - b);
