@@ -64,7 +64,7 @@ describe('Rate Limiter - Lua Script Atômico', () => {
   });
 
   it('deve garantir atomicidade - teste de concorrência', async () => {
-    const promises = [];
+    const promises: Promise<{ allowed: boolean; message?: string }>[] = [];
     for (let i = 0; i < 25; i++) {
       promises.push(checkRateLimits('company-concurrent', 'user-concurrent'));
     }
