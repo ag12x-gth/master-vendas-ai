@@ -56,14 +56,43 @@ export async function GET(_request: NextRequest) {
 
     console.log(`[CRON] Encontradas ${pendingCampaigns.length} campanhas para processar.`);
 
-    const campaignPromises = pendingCampaigns.map(campaign => {
-        const channelUpper = campaign.channel?.toUpperCase();
-        if (channelUpper === 'WHATSAPP') {
-            return sendWhatsappCampaign(campaign);
-        } else if (channelUpper === 'SMS') {
-            return sendSmsCampaign(campaign);
+    // CAS (Compare-And-Set) Update Atômico para prevenir duplicação em CRON concorrentes
+    const campaignPromises = pendingCampaigns.map(async (campaign) => {
+        try {
+            // Tenta adquirir lock atômico via UPDATE condicional
+            const updateResult = await db
+                .update(campaigns)
+                .set({ status: 'SENDING' })
+                .where(and(
+                    eq(campaigns.id, campaign.id),
+                    or(
+                        inArray(campaigns.status, ['QUEUED', 'PENDING']),
+                        and(
+                            eq(campaigns.status, 'SCHEDULED'),
+                            lte(campaigns.scheduledAt, now)
+                        )
+                    )
+                ));
+
+            // Verifica se conseguiu o lock (1 linha afetada = sucesso, 0 = outra instância pegou)
+            if (!updateResult || updateResult.rowCount === 0) {
+                console.log(`[CRON] Campanha ${campaign.id} já sendo processada por outra instância (CAS falhou). Pulando.`);
+                return;
+            }
+
+            console.log(`[CRON] Lock adquirido para campanha ${campaign.id}. Iniciando envio.`);
+
+            // Envia a campanha
+            const channelUpper = campaign.channel?.toUpperCase();
+            if (channelUpper === 'WHATSAPP') {
+                return sendWhatsappCampaign(campaign);
+            } else if (channelUpper === 'SMS') {
+                return sendSmsCampaign(campaign);
+            }
+        } catch (error) {
+            console.error(`[CRON] Erro ao processar campanha ${campaign.id}:`, error);
+            throw error;
         }
-        return Promise.resolve(); // Ignora canais desconhecidos
     });
     
     // Executa o envio em paralelo mas espera por todas para responder.
