@@ -316,8 +316,38 @@ export default function TemplatesV2Page() {
     setShowViewDialog(true);
   };
 
+  const convertMessageTemplateToTemplate = (template: MessageTemplate) => {
+    const bodyComponent = Array.isArray(template.components) 
+      ? template.components.find((c: any) => c.type === 'BODY')
+      : null;
+    
+    const headerComponent = Array.isArray(template.components)
+      ? template.components.find((c: any) => c.type === 'HEADER')
+      : null;
+    
+    return {
+      ...template,
+      body: bodyComponent?.text || '',
+      headerType: (headerComponent?.format as 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | null) || null,
+    };
+  };
+
   const handleCreateCampaign = (template: MessageTemplate) => {
-    setSelectedTemplateForCampaign(template);
+    const bodyComponent = Array.isArray(template.components) 
+      ? template.components.find((c: any) => c.type === 'BODY')
+      : null;
+    
+    if (!bodyComponent?.text) {
+      toast({
+        variant: 'destructive',
+        title: 'Template inválido',
+        description: 'Este template não possui conteúdo de mensagem (BODY). Não é possível criar uma campanha.',
+      });
+      return;
+    }
+    
+    const templateForCampaign = convertMessageTemplateToTemplate(template);
+    setSelectedTemplateForCampaign(templateForCampaign as any);
     setShowCampaignDialog(true);
   };
 
@@ -684,6 +714,19 @@ export default function TemplatesV2Page() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Dialog: Criar Campanha */}
+      {selectedTemplateForCampaign && (
+        <CreateWhatsappCampaignDialog
+          isOpen={showCampaignDialog}
+          onOpenChange={setShowCampaignDialog}
+          connections={connections}
+          templates={templates.map(convertMessageTemplateToTemplate) as any[]}
+          isLoading={loading}
+          onBack={() => setShowCampaignDialog(false)}
+          initialTemplate={selectedTemplateForCampaign}
+        />
+      )}
     </div>
   );
 }
