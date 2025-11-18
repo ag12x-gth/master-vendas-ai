@@ -72,10 +72,11 @@ export async function GET(_request: NextRequest) {
                             lte(campaigns.scheduledAt, now)
                         )
                     )
-                ));
+                ))
+                .returning({ id: campaigns.id });
 
-            // Verifica se conseguiu o lock (1 linha afetada = sucesso, 0 = outra instância pegou)
-            if (!updateResult || updateResult.rowCount === 0) {
+            // Verifica se conseguiu o lock (1 linha retornada = sucesso, 0 = outra instância pegou)
+            if (!updateResult || updateResult.length === 0) {
                 console.log(`[CRON] Campanha ${campaign.id} já sendo processada por outra instância (CAS falhou). Pulando.`);
                 return;
             }

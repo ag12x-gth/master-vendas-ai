@@ -35,6 +35,63 @@ function chunkArray<T>(array: T[], size: number): T[][] {
 // Helper para criar uma pausa
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Helper para determinar se um erro é transiente (retryable)
+function isTransientError(error: any): boolean {
+    const errorMessage = error?.message?.toLowerCase() || '';
+    const errorCode = error?.code || error?.response?.status;
+    
+    // Network errors transientes
+    if (errorMessage.includes('timeout') || 
+        errorMessage.includes('econnreset') || 
+        errorMessage.includes('econnrefused') ||
+        errorMessage.includes('network') ||
+        errorMessage.includes('socket hang up')) {
+        return true;
+    }
+    
+    // HTTP 5xx errors (server-side transientes)
+    if (errorCode >= 500 && errorCode < 600) {
+        return true;
+    }
+    
+    // Rate limit temporário (429)
+    if (errorCode === 429) {
+        return true;
+    }
+    
+    // Erros permanentes: 4xx (exceto 429), invalid params, etc
+    return false;
+}
+
+// Helper para retry com exponential backoff
+async function withRetry<T>(
+    fn: () => Promise<T>,
+    maxRetries: number = 3,
+    initialDelayMs: number = 2000
+): Promise<T> {
+    let lastError: any;
+    
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+            return await fn();
+        } catch (error) {
+            lastError = error;
+            
+            // Se não é transiente ou última tentativa, falha imediatamente
+            if (!isTransientError(error) || attempt === maxRetries) {
+                throw error;
+            }
+            
+            // Exponential backoff: 2s → 4s → 8s
+            const delayMs = initialDelayMs * Math.pow(2, attempt);
+            console.log(`[RETRY] Tentativa ${attempt + 1}/${maxRetries} falhou com erro transiente. Tentando novamente em ${delayMs}ms...`, error);
+            await sleep(delayMs);
+        }
+    }
+    
+    throw lastError;
+}
+
 // Helper para extrair texto do body de um template (message_templates usa components jsonb)
 function extractBodyText(template: any): string {
     // Se tem campo body direto (templates legado), usa ele
@@ -147,11 +204,14 @@ async function sendViaBaileys(
     }
     
     try {
-        const messageId = await baileysSessionManager.sendMessage(
-            connectionId,
-            contact.phone,
-            { text: messageText }
-        );
+        // Envolve com retry logic para erros transientes
+        const messageId = await withRetry(async () => {
+            return await baileysSessionManager.sendMessage(
+                connectionId,
+                contact.phone,
+                { text: messageText }
+            );
+        });
         
         if (messageId) {
             return {
@@ -223,12 +283,15 @@ async function sendViaMetaApi(
             components.push({ type: 'body', parameters: bodyParams });
         }
         
-        const response = await sendWhatsappTemplateMessage({
-            connectionId: connection.id,
-            to: contact.phone,
-            templateName: resolvedTemplate.name,
-            languageCode: resolvedTemplate.language,
-            components,
+        // Envolve com retry logic para erros transientes (5xx, timeout, network)
+        const response = await withRetry(async () => {
+            return await sendWhatsappTemplateMessage({
+                connectionId: connection.id,
+                to: contact.phone,
+                templateName: resolvedTemplate.name,
+                languageCode: resolvedTemplate.language,
+                components,
+            });
         });
         
         return {
