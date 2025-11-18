@@ -68,7 +68,10 @@ export async function sendWhatsappTemplateMessage({
 
     if (!response.ok) {
         console.error(`[Facebook API] Erro para ${to}:`, JSON.stringify(responseData, null, 2));
-        throw new Error(responseData.error?.message || 'Falha ao enviar mensagem de modelo via WhatsApp.');
+        const error = new Error(responseData.error?.message || 'Falha ao enviar mensagem de modelo via WhatsApp.');
+        // Propaga status HTTP para permitir retry logic detectar erros transientes (5xx, 429)
+        Object.assign(error, { code: response.status, response: { status: response.status } });
+        throw error;
     }
 
     if (process.env.NODE_ENV !== 'production') console.debug(`[Facebook API] Sucesso para ${to}. Resposta:`, JSON.stringify(responseData, null, 2));
@@ -125,7 +128,10 @@ export async function sendWhatsappTextMessage({ connectionId, to, text }: SendTe
 
     if (!response.ok) {
         console.error(`[Facebook API - Text] Erro para ${to}:`, JSON.stringify(responseData, null, 2));
-        throw new Error(responseData.error?.message || 'Falha ao enviar mensagem de texto via WhatsApp.');
+        const error = new Error(responseData.error?.message || 'Falha ao enviar mensagem de texto via WhatsApp.');
+        // Propaga status HTTP para permitir retry logic detectar erros transientes (5xx, 429)
+        Object.assign(error, { code: response.status, response: { status: response.status } });
+        throw error;
     }
 
     console.log(`[Facebook API - Text] Sucesso para ${to}.`);
