@@ -16,7 +16,7 @@ Preferred communication style: Simple, everyday language.
 ### Core Architectural Decisions
 - **Dual WhatsApp Connection Strategy**: Supports both Meta API and local Baileys (QR code) connections with a hybrid messaging system.
 - **Real-time Communication**: Socket.IO for instant updates.
-- **AI Personas and Automation Engine**: Persona-based design with provider abstraction (OpenAI, Google Gemini) and RAG capabilities via a vector database. Includes AI-powered automatic lead progression and humanized AI response delays.
+- **AI Personas and Automation Engine**: Persona-based design with OpenAI provider and RAG capabilities via a vector database. Includes AI-powered automatic lead progression and humanized AI response delays.
 - **Campaign Queue Management**: Custom queue system with rate limiting and retry logic, including a dedicated Baileys mass campaign system and an automated cadence (drip campaign) system.
 - **Encryption**: AES-256-GCM for sensitive data at rest.
 - **Multi-tenant Architecture**: Company-based tenant model ensuring data isolation.
@@ -36,12 +36,11 @@ Preferred communication style: Simple, everyday language.
 - **Baileys WhatsApp Library**: `@whiskeysockets/baileys`.
 
 ### AI/ML Services
-- **OpenAI**: GPT-3.5-turbo, GPT-4 via `@ai-sdk/openai`.
-- **Google Generative AI**: Gemini Pro via `@ai-sdk/google`, `@google/generative-ai`.
+- **OpenAI**: GPT-3.5-turbo, GPT-4, GPT-4o via `@ai-sdk/openai`.
 - **Vector Database**: PostgreSQL with `pgvector` extension.
 
 ### Cloud Services
-- **AWS Services**: S3 (media storage), CloudFront (CDN), SES v2 (email notifications).
+- **AWS Services**: S3 (media storage), CloudFront (CDN).
 - **Google Cloud Storage**: Alternative file storage.
 
 ### Infrastructure

@@ -3,8 +3,6 @@ import { NextResponse } from 'next/server';
 import { getApps } from 'firebase/app';
 import redis from '@/lib/redis';
 import { fileExists, uploadFileToS3, getPresignedDownloadUrl, deleteFileFromS3 } from '@/lib/s3';
-import { GoogleGenerativeAI } from '@google/generative-ai';
-// Object Storage import removed - using S3 adapter functions directly
 
 interface IntegrationTest {
   name: string;
@@ -427,68 +425,29 @@ async function testRedisCache(): Promise<IntegrationTest> {
 }
 
 async function testAIAPIs(): Promise<IntegrationTest> {
-  const hasGoogleAI = !!process.env.GOOGLE_GENAI_API_KEY;
-  const hasGemini = !!process.env.GEMINI_API_KEY;
   const hasOpenAI = !!process.env.OPENAI_API_KEY;
   
-  const configured = hasGoogleAI || hasGemini || hasOpenAI;
-  
   const details: any = {
-    google_genai_configured: hasGoogleAI,
-    gemini_configured: hasGemini,
     openai_configured: hasOpenAI,
-    primary_provider: process.env.AI_PRIMARY_PROVIDER || 'google'
+    primary_provider: 'openai'
   };
   
   const suggestions = [];
   
-  if (hasGoogleAI) {
-    try {
-      // Testar Google Generative AI
-      const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENAI_API_KEY!);
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      
-      // Fazer uma chamada simples de teste
-      const result = await model.generateContent({
-        contents: [{
-          role: 'user',
-          parts: [{ text: 'Responda apenas "OK" para confirmar que está funcionando.' }]
-        }]
-      });
-      
-      const response = await result.response;
-      const text = response.text();
-      
-      details.google_genai_test = {
-        status: 'success',
-        model: 'gemini-1.5-flash',
-        response_received: !!text
-      };
-    } catch (error: any) {
-      details.google_genai_test = {
-        status: 'error',
-        error: error.message
-      };
-      suggestions.push('Verifique se a chave GOOGLE_GENAI_API_KEY está válida e tem as permissões necessárias');
-    }
+  if (!hasOpenAI) {
+    suggestions.push('Configure OPENAI_API_KEY para usar OpenAI');
   } else {
-    suggestions.push('Configure GOOGLE_GENAI_API_KEY para usar Google Generative AI');
-  }
-  
-  if (hasOpenAI) {
     details.openai_model = process.env.OPENAI_MODEL || 'gpt-4o-mini';
-  } else {
-    suggestions.push('Opcionalmente configure OPENAI_API_KEY para usar OpenAI como provider alternativo');
   }
   
   return {
     name: 'APIs de IA',
-    status: configured ? (details.google_genai_test?.status === 'success' ? 'success' : 'warning') : 'error',
-    configured,
+    status: hasOpenAI ? 'success' : 'error',
+    configured: hasOpenAI,
     details,
-    message: configured 
-      ? 'APIs de IA configuradas'
-      : 'Nenhuma API de IA configurada',
+    message: hasOpenAI 
+      ? 'OpenAI API configurada'
+      : 'OpenAI API não configurada',
     suggestions: suggestions.length > 0 ? suggestions : undefined
   };
 }

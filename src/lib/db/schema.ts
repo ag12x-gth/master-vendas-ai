@@ -270,7 +270,7 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     id: text('id').primaryKey().default(sql`gen_random_uuid()`),
     companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
-    provider: text('provider').notNull(), // e.g., 'GEMINI', 'OPENAI'
+    provider: text('provider').notNull(), // e.g., 'OPENAI'
     apiKey: text('api_key').notNull(), // This will be encrypted
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
@@ -281,8 +281,8 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     systemPrompt: text('system_prompt'),
-    provider: text('provider').notNull(), // 'GEMINI' or 'OPENAI'
-    model: text('model').notNull(), // e.g., 'gemini-1.5-pro-latest'
+    provider: text('provider').notNull(), // 'OPENAI'
+    model: text('model').notNull(), // e.g., 'gpt-4', 'gpt-3.5-turbo'
     credentialId: text('credential_id').references(() => aiCredentials.id, { onDelete: 'set null' }),
     temperature: decimal('temperature', { precision: 3, scale: 2 }).default('0.7').notNull(),
     topP: decimal('top_p', { precision: 3, scale: 2 }).default('0.9').notNull(),
