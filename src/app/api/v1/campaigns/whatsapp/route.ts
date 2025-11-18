@@ -2,7 +2,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { campaigns, contactLists, contactsToContactLists } from '@/lib/db/schema';
+import { campaigns, contactLists, contactsToContactLists, connections } from '@/lib/db/schema';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { z } from 'zod';
 import redis from '@/lib/redis';
@@ -37,6 +37,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         const { contactListIds, schedule, ...campaignData } = parsed.data;
         const isScheduled = !!schedule;
+
+        // FASE 0: Validar conexão - verificar que existe, pertence à empresa e está ativa
+        const [connection] = await db
+            .select()
+            .from(connections)
+            .where(and(
+                eq(connections.id, campaignData.connectionId),
+                eq(connections.companyId, companyId)
+            ));
+        
+        if (!connection) {
+            return NextResponse.json({ 
+                error: 'Conexão inválida', 
+                description: 'A conexão selecionada não existe ou não pertence à sua empresa.' 
+            }, { status: 403 });
+        }
+        
+        if (!connection.isActive) {
+            return NextResponse.json({ 
+                error: 'Conexão inativa', 
+                description: `A conexão "${connection.config_name}" está inativa. Por favor, ative a conexão antes de criar uma campanha.` 
+            }, { status: 400 });
+        }
 
         // FASE 1: Validar ownership - verificar que TODAS as listas pertencem à empresa
         const ownedLists = await db

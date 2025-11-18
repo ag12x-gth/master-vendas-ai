@@ -5,7 +5,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { companies, connections, whatsappDeliveryReports, contacts, conversations, messages, campaigns } from '@/lib/db/schema';
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and, inArray, sql, isNull } from 'drizzle-orm';
 import { getPhoneVariations, canonicalizeBrazilPhone, sanitizePhone } from '@/lib/utils';
 import crypto from 'crypto';
 import { decrypt } from '@/lib/crypto';
@@ -149,7 +149,7 @@ async function processWebhookEvents(payload: any, companyId: string) {
 }
 
 async function updateMessageStatus(statusObject: any, companyId: string) {
-    const { id: wamid, status, errors, timestamp } = statusObject;
+    const { id: wamid, status, errors, timestamp, recipient_id } = statusObject;
     if (!wamid) return;
 
     try {
@@ -168,6 +168,7 @@ async function updateMessageStatus(statusObject: any, companyId: string) {
             .where(eq(conversations.companyId, companyId))
             .as('company_convos');
         
+        // Tenta atualizar mensagem pelo providerMessageId
         const updatedMessages = await db.update(messages)
             .set(dataToUpdate)
             .where(
@@ -178,11 +179,8 @@ async function updateMessageStatus(statusObject: any, companyId: string) {
             )
             .returning({ id: messages.id });
 
-        if (updatedMessages.length > 0) {
-            return;
-        }
-
-        await db.update(whatsappDeliveryReports)
+        // Tenta atualizar delivery reports pelo providerMessageId
+        const updatedDeliveryReports = await db.update(whatsappDeliveryReports)
             .set({ ...dataToUpdate, updatedAt: eventDate })
             .where(
                 and(
@@ -191,6 +189,66 @@ async function updateMessageStatus(statusObject: any, companyId: string) {
                 )
             )
             .returning({ id: whatsappDeliveryReports.id });
+        
+        // FALLBACK: Se não atualizou por wamid, busca delivery reports/mensagens órfãs com providerMessageId NULL
+        // e faz backfill (caso Meta não tenha retornado wamid no envio inicial)
+        if (updatedMessages.length === 0 && updatedDeliveryReports.length === 0) {
+            // Busca delivery reports órfãos (sem providerMessageId) recentes (últimas 24h)
+            const orphanedReports = await db
+                .select()
+                .from(whatsappDeliveryReports)
+                .innerJoin(campaigns, eq(whatsappDeliveryReports.campaignId, campaigns.id))
+                .innerJoin(contacts, eq(whatsappDeliveryReports.contactId, contacts.id))
+                .where(
+                    and(
+                        eq(campaigns.companyId, companyId),
+                        isNull(whatsappDeliveryReports.providerMessageId),
+                        eq(whatsappDeliveryReports.status, 'sent'),
+                        sql`${whatsappDeliveryReports.sentAt} > NOW() - INTERVAL '24 hours'`
+                    )
+                )
+                .limit(10); // Limita para evitar busca excessiva
+            
+            // Tenta fazer match por recipient_id ou timestamp próximo
+            // (Meta envia recipient_id que corresponde ao phone number)
+            for (const orphanRow of orphanedReports) {
+                const report = orphanRow.whatsapp_delivery_reports;
+                const contact = orphanRow.contacts;
+                
+                // Se recipient_id bate com o phone do contato (sem formatação)
+                const contactPhonePlain = contact.phone.replace(/\D/g, '');
+                if (recipient_id && contactPhonePlain.endsWith(recipient_id.replace(/\D/g, ''))) {
+                    // BACKFILL delivery report
+                    await db.update(whatsappDeliveryReports)
+                        .set({ ...dataToUpdate, providerMessageId: wamid, updatedAt: eventDate })
+                        .where(eq(whatsappDeliveryReports.id, report.id));
+                    
+                    // BACKFILL mensagem correspondente
+                    const messagesToBackfill = await db
+                        .select()
+                        .from(messages)
+                        .innerJoin(conversations, eq(messages.conversationId, conversations.id))
+                        .where(
+                            and(
+                                eq(conversations.contactId, report.contactId),
+                                eq(conversations.companyId, companyId),
+                                isNull(messages.providerMessageId),
+                                sql`(${messages.metadata}::jsonb->>'campaignId')::text = ${report.campaignId}::text`
+                            )
+                        )
+                        .limit(1);
+                    
+                    if (messagesToBackfill.length > 0) {
+                        await db.update(messages)
+                            .set({ ...dataToUpdate, providerMessageId: wamid })
+                            .where(eq(messages.id, messagesToBackfill[0].messages.id));
+                    }
+                    
+                    console.log(`[Webhook] Backfilled providerMessageId ${wamid} para delivery report ${report.id} e mensagem associada (recipient: ${recipient_id})`);
+                    break; // Só faz backfill do primeiro match
+                }
+            }
+        }
         
     } catch (error) {
         console.error(`[Webhook] Erro ao atualizar status para a mensagem ${wamid} da empresa ${companyId}:`, error);

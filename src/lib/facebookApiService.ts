@@ -10,7 +10,8 @@ import * as CircuitBreaker from './circuit-breaker';
 const FACEBOOK_API_VERSION = process.env.FACEBOOK_API_VERSION || 'v20.0';
 
 interface SendTemplateArgs {
-    connectionId: string;
+    connectionId?: string;
+    connection?: typeof connections.$inferSelect;
     to: string;
     templateName: string;
     languageCode: string;
@@ -19,6 +20,7 @@ interface SendTemplateArgs {
 
 export async function sendWhatsappTemplateMessage({
     connectionId,
+    connection: providedConnection,
     to,
     templateName,
     languageCode,
@@ -32,9 +34,18 @@ export async function sendWhatsappTemplateMessage({
         throw new Error(`Meta API circuit breaker está ABERTO. Tente novamente em ${resetIn}s.`);
     }
 
-    const [connection] = await db.select().from(connections).where(eq(connections.id, connectionId));
-    if (!connection) {
-        throw new Error(`Conexão com ID ${connectionId} não encontrada.`);
+    let connection: typeof connections.$inferSelect;
+    
+    if (providedConnection) {
+        connection = providedConnection;
+    } else if (connectionId) {
+        const [fetchedConnection] = await db.select().from(connections).where(eq(connections.id, connectionId));
+        if (!fetchedConnection) {
+            throw new Error(`Conexão com ID ${connectionId} não encontrada.`);
+        }
+        connection = fetchedConnection;
+    } else {
+        throw new Error('Nem connectionId nem connection foram fornecidos.');
     }
 
     if (!connection.accessToken) {

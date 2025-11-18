@@ -12,9 +12,11 @@ import {
     mediaAssets, 
     whatsappDeliveryReports,
     connections,
-    messageTemplates
+    messageTemplates,
+    conversations,
+    messages
 } from '@/lib/db/schema';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, and } from 'drizzle-orm';
 import { decrypt } from './crypto';
 import { sendWhatsappTemplateMessage } from './facebookApiService';
 import type { MediaAsset as MediaAssetType, MetaApiMessageResponse, MetaHandle } from './types';
@@ -35,6 +37,75 @@ function chunkArray<T>(array: T[], size: number): T[][] {
 
 // Helper para criar uma pausa
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Helper para criar/atualizar conversa e salvar mensagem de campanha
+async function createCampaignConversationAndMessage(
+    companyId: string,
+    contactId: string,
+    connectionId: string,
+    providerMessageId: string | null,
+    messageContent: string,
+    campaignId: string
+): Promise<void> {
+    try {
+        await db.transaction(async (tx) => {
+            // Buscar ou criar conversa
+            let [conversation] = await tx
+                .select()
+                .from(conversations)
+                .where(and(
+                    eq(conversations.contactId, contactId),
+                    eq(conversations.connectionId, connectionId)
+                ));
+            
+            if (conversation) {
+                // Atualiza conversa existente
+                const [updatedConvo] = await tx
+                    .update(conversations)
+                    .set({
+                        lastMessageAt: new Date(),
+                        status: 'IN_PROGRESS',
+                        archivedAt: null,
+                        archivedBy: null,
+                    })
+                    .where(eq(conversations.id, conversation.id))
+                    .returning();
+                conversation = updatedConvo;
+            } else {
+                // Cria nova conversa
+                [conversation] = await tx
+                    .insert(conversations)
+                    .values({
+                        companyId,
+                        contactId,
+                        connectionId,
+                        status: 'IN_PROGRESS',
+                        lastMessageAt: new Date(),
+                    })
+                    .returning();
+            }
+            
+            if (!conversation) {
+                throw new Error('Falha ao criar ou atualizar conversa para mensagem de campanha.');
+            }
+            
+            // Salvar mensagem de campanha
+            await tx.insert(messages).values({
+                conversationId: conversation.id,
+                providerMessageId,
+                senderType: 'SYSTEM',
+                content: messageContent,
+                contentType: 'TEXT',
+                status: 'SENT',
+                sentAt: new Date(),
+                metadata: { campaignId }, // Guarda ID da campanha no metadata
+            });
+        });
+    } catch (error) {
+        console.error('[Campaign] Erro ao criar conversa/mensagem:', error);
+        // Não lançar erro para não interromper o fluxo da campanha
+    }
+}
 
 // Helper para determinar se um erro é transiente (retryable)
 function isTransientError(error: any): boolean {
@@ -287,7 +358,7 @@ async function sendViaMetaApi(
         // Envolve com retry logic para erros transientes (5xx, timeout, network)
         const response = await withRetry(async () => {
             return await sendWhatsappTemplateMessage({
-                connectionId: connection.id,
+                connection,
                 to: contact.phone,
                 templateName: resolvedTemplate.name,
                 languageCode: resolvedTemplate.language,
@@ -495,6 +566,28 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
 
             if (deliveryReports.length > 0) {
                  await db.insert(whatsappDeliveryReports).values(deliveryReports as any);
+                 
+                 // Criar conversas e mensagens para envios bem-sucedidos
+                 const successfulReports = deliveryReports.filter(r => r.status === 'SENT');
+                 if (successfulReports.length > 0) {
+                     const conversationPromises = successfulReports.map(report => {
+                         const messageContent = resolvedTemplate.name !== 'direct_message'
+                             ? `Template: ${resolvedTemplate.name}`
+                             : resolvedTemplate.bodyText;
+                         
+                         return createCampaignConversationAndMessage(
+                             campaign.companyId!,
+                             report.contactId,
+                             report.connectionId,
+                             report.providerMessageId,
+                             messageContent,
+                             campaign.id
+                         );
+                     });
+                     
+                     // Executa todas as criações em paralelo mas não falha se alguma der erro
+                     await Promise.allSettled(conversationPromises);
+                 }
             }
 
             if (index < contactBatches.length - 1) {
