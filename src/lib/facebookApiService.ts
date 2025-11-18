@@ -61,6 +61,7 @@ export async function sendWhatsappTemplateMessage({
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(15000), // Timeout de 15s
     });
 
     const responseData = await response.json() as { error?: { message: string }};
@@ -117,6 +118,7 @@ export async function sendWhatsappTextMessage({ connectionId, to, text }: SendTe
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(15000), // Timeout de 15s
     });
 
     const responseData = await response.json() as { error?: { message: string }};
@@ -137,7 +139,8 @@ export async function getMediaUrl(mediaId: string, accessToken: string): Promise
         const response = await fetch(url, {
             headers: {
                 'Authorization': `Bearer ${accessToken}`
-            }
+            },
+            signal: AbortSignal.timeout(15000), // Timeout de 15s
         });
         const data = await response.json() as { url?: string; error?: { message: string } };
         if (!response.ok) {

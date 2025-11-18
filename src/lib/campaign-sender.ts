@@ -356,6 +356,7 @@ async function getMediaData(assetId: string, connectionId: string, wabaId: strin
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ connectionId }),
+        signal: AbortSignal.timeout(15000), // Timeout de 15s
     });
 
     const handleData = await handleResponse.json() as { error?: string, handle?: string };
@@ -580,7 +581,12 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
             const payload = { tipo_envio: "common", referencia: campaign.name, mensagens: messages };
             const url = `https://sms.witi.me/sms/send.aspx?chave=${apiKey}`;
             
-            const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            const response = await fetch(url, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify(payload),
+                signal: AbortSignal.timeout(15000) // Timeout de 15s
+            });
             const responseText = await response.text();
             
             if (!response.ok) throw new Error(`Witi API Error: ${responseText}`);
@@ -604,7 +610,12 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
             const sevenPayload = { to: toNumbers, text: campaign.message!, from: "ZAPMaster" };
             const sevenUrl = 'https://gateway.seven.io/api/sms';
             
-            const sevenResponse = await fetch(sevenUrl, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Api-Key': sevenApiKey }, body: JSON.stringify(sevenPayload) });
+            const sevenResponse = await fetch(sevenUrl, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json', 'X-Api-Key': sevenApiKey }, 
+                body: JSON.stringify(sevenPayload),
+                signal: AbortSignal.timeout(15000) // Timeout de 15s
+            });
             const sevenResponseText = await sevenResponse.text();
 
             if (!sevenResponse.ok) throw new Error(`Seven.io API Error: Status ${sevenResponse.status} - ${sevenResponseText}`);

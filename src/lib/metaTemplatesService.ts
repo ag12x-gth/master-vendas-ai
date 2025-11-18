@@ -152,6 +152,7 @@ export async function submitTemplateToMeta(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(15000), // Timeout de 15s
     });
 
     const responseData = await response.json();
@@ -217,6 +218,7 @@ export async function getTemplateStatus(
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
+      signal: AbortSignal.timeout(15000), // Timeout de 15s
     });
 
     if (!response.ok) {
