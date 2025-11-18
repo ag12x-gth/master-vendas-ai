@@ -12,7 +12,7 @@ import {
   connections,
   aiPersonas,
 } from './db/schema';
-import { and, eq, or, isNull, sql } from 'drizzle-orm';
+import { and, eq, gte, or, isNull, sql } from 'drizzle-orm';
 import type {
   AutomationCondition,
   AutomationAction,
@@ -305,7 +305,7 @@ async function callExternalAIAgent(context: AutomationTriggerContext, personaId:
             where: and(
                 eq(messages.conversationId, conversation.id),
                 eq(messages.senderType, 'AI'),
-                sql`${messages.sentAt} >= ${twentyFourHoursAgo}`
+                gte(messages.sentAt, twentyFourHoursAgo)
             ),
             limit: 1,
         });
