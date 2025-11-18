@@ -82,6 +82,8 @@ function classifyChat(remoteJid: string, msg: any): ChatClassification {
 
 class BaileysSessionManager {
   private sessions = new Map<string, SessionData>();
+  private phoneToConnectionMap = new Map<string, string>();
+  private messageQueue = new Map<string, any[]>();
   private readonly MAX_RETRY_ATTEMPTS = 3;
   private readonly RECONNECT_INTERVAL = 5000;
 
@@ -118,7 +120,36 @@ class BaileysSessionManager {
         return;
       }
 
-      console.log(`[Baileys] Creating new session for connection ${connectionId}`);
+      const [connectionData] = await db
+        .select()
+        .from(connections)
+        .where(eq(connections.id, connectionId))
+        .limit(1);
+
+      if (!connectionData) {
+        throw new Error(`Connection ${connectionId} not found in database`);
+      }
+
+      const phoneNumber = connectionData.phone;
+      
+      if (phoneNumber) {
+        const existingConnectionId = this.phoneToConnectionMap.get(phoneNumber);
+        if (existingConnectionId && existingConnectionId !== connectionId) {
+          console.warn(`[Baileys] ⚠️  CONFLICT DETECTED: Phone ${phoneNumber} already connected via ${existingConnectionId}`);
+          console.warn(`[Baileys] ⚠️  Attempting to connect again with ${connectionId} - BLOCKING to prevent 'Stream Errored (conflict)'`);
+          
+          const existingSession = this.sessions.get(existingConnectionId);
+          if (existingSession && existingSession.status === 'connected') {
+            console.warn(`[Baileys] ❌ Cannot create duplicate session. Phone ${phoneNumber} is active on connection ${existingConnectionId}`);
+            throw new Error(`Phone ${phoneNumber} already connected. Disconnect existing session first.`);
+          } else {
+            console.log(`[Baileys] 🔄 Existing session ${existingConnectionId} is not connected, removing stale mapping`);
+            this.phoneToConnectionMap.delete(phoneNumber);
+          }
+        }
+      }
+
+      console.log(`[Baileys] Creating new session for connection ${connectionId} (Phone: ${phoneNumber || 'unknown'})`);
       
       const emitter = new EventEmitter();
       
@@ -184,6 +215,14 @@ class BaileysSessionManager {
             const shouldReconnect = statusCode !== 401;
             
             console.log(`[Baileys] Connection closed for ${connectionId}. Status code: ${statusCode}, Error: ${errorMessage}`);
+            
+            if (sessionData.phone) {
+              const mappedConnectionId = this.phoneToConnectionMap.get(sessionData.phone);
+              if (mappedConnectionId === connectionId) {
+                this.phoneToConnectionMap.delete(sessionData.phone);
+                console.log(`[Baileys] 🗑️  Removed phone mapping for ${sessionData.phone}`);
+              }
+            }
 
             if (statusCode === 515) {
               console.log(`[Baileys] Error 515 - WhatsApp stream error. Will reconnect...`);
@@ -260,6 +299,15 @@ class BaileysSessionManager {
             const phoneNumber = sock.user?.id?.split(':')[0] || '';
             sessionData.phone = phoneNumber;
 
+            if (phoneNumber) {
+              const existingConnectionId = this.phoneToConnectionMap.get(phoneNumber);
+              if (existingConnectionId && existingConnectionId !== connectionId) {
+                console.warn(`[Baileys] ⚠️  Phone ${phoneNumber} was mapped to ${existingConnectionId}, updating to ${connectionId}`);
+              }
+              this.phoneToConnectionMap.set(phoneNumber, connectionId);
+              console.log(`[Baileys] ✅ Registered phone mapping: ${phoneNumber} → ${connectionId}`);
+            }
+
             await db
               .update(connections)
               .set({
@@ -272,6 +320,20 @@ class BaileysSessionManager {
               .where(eq(connections.id, connectionId));
 
             emitter.emit('connected', { phone: phoneNumber });
+            
+            const queuedMessages = this.messageQueue.get(connectionId);
+            if (queuedMessages && queuedMessages.length > 0) {
+              console.log(`[Baileys] 📥 Processing ${queuedMessages.length} queued messages from reconnection`);
+              for (const msg of queuedMessages) {
+                try {
+                  await this.handleIncomingMessage(connectionId, companyId, msg);
+                } catch (error) {
+                  console.error(`[Baileys] Error processing queued message:`, error);
+                }
+              }
+              this.messageQueue.delete(connectionId);
+              console.log(`[Baileys] ✅ Queue cleared for ${connectionId}`);
+            }
           }
         } catch (error) {
           console.error(`[Baileys] Error in connection.update handler:`, error);
@@ -285,7 +347,15 @@ class BaileysSessionManager {
           if (!msg.message) continue;
           if (msg.key.fromMe) continue;
 
-          await this.handleIncomingMessage(connectionId, companyId, msg);
+          if (sessionData.status === 'connected') {
+            await this.handleIncomingMessage(connectionId, companyId, msg);
+          } else {
+            console.warn(`[Baileys] ⚠️  Message received but connection not ready (status: ${sessionData.status}). Queueing for later.`);
+            const queue = this.messageQueue.get(connectionId) || [];
+            queue.push(msg);
+            this.messageQueue.set(connectionId, queue);
+            console.log(`[Baileys] 📥 Queued message from ${msg.key.remoteJid}. Queue size: ${queue.length}`);
+          }
         }
       });
 
@@ -743,6 +813,21 @@ class BaileysSessionManager {
       }
       
       sessionData.socket?.end(undefined);
+      
+      if (sessionData.phone) {
+        const mappedConnectionId = this.phoneToConnectionMap.get(sessionData.phone);
+        if (mappedConnectionId === connectionId) {
+          this.phoneToConnectionMap.delete(sessionData.phone);
+          console.log(`[Baileys] 🗑️  Cleared phone mapping for ${sessionData.phone}`);
+        }
+      }
+      
+      if (this.messageQueue.has(connectionId)) {
+        const queueSize = this.messageQueue.get(connectionId)?.length || 0;
+        this.messageQueue.delete(connectionId);
+        console.log(`[Baileys] 🗑️  Cleared message queue (${queueSize} messages) for ${connectionId}`);
+      }
+      
       this.sessions.delete(connectionId);
       console.log(`[Baileys] Session ${connectionId} deleted`);
     }
