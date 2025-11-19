@@ -14,6 +14,7 @@ import { uploadFileToS3 } from '@/lib/s3';
 import { v4 as uuidv4 } from 'uuid';
 import { processIncomingMessageTrigger } from '@/lib/automation-engine';
 import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
+import { UserNotificationsService } from '@/lib/notifications/user-notifications.service';
 
 // GET /api/webhooks/meta/[slug] - Used for Facebook Webhook Verification
 export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
@@ -281,7 +282,7 @@ async function processIncomingMessage(
     
     console.log(`📨 [Meta Webhook] Nova mensagem de ${contactData.profile.name} (${phone}): "${messagePreview}"`);
     
-    const { conversationId, newMessageId } = await db.transaction(async (tx) => {
+    const { conversationId, newMessageId, isNewConversation, contactId, contactName, contactPhone } = await db.transaction(async (tx) => {
         const [connection] = await tx.select().from(connections).where(and(eq(connections.phoneNumberId, metadata.phone_number_id), eq(connections.companyId, companyId)));
         if (!connection) {
             console.error(`❌ [Meta Webhook] Conexão não encontrada para Phone Number ID: ${metadata.phone_number_id}`);
@@ -319,20 +320,6 @@ async function processIncomingMessage(
         }
 
         if (!conversation) throw new Error("Falha ao criar ou encontrar a conversa.");
-
-        if (isNewConversation) {
-            try {
-                console.log(`[Webhook] Dispatching conversation_created for conversation ${conversation.id}`);
-                await webhookDispatcher.dispatch(companyId, 'conversation_created', {
-                    conversationId: conversation.id,
-                    contactId: contact.id,
-                    contactPhone: contact.phone,
-                    contactName: contact.name,
-                });
-            } catch (webhookError) {
-                console.error('[Webhook] Error dispatching conversation_created:', webhookError);
-            }
-        }
         
         let permanentMediaUrl = null;
         if (['image', 'video', 'document', 'audio'].includes(messageData.type)) {
@@ -392,8 +379,41 @@ async function processIncomingMessage(
             console.error('[Webhook] Error dispatching message_received:', webhookError);
         }
             
-        return { conversationId: conversation.id, newMessageId: newMessage.id };
+        return { 
+            conversationId: conversation.id, 
+            newMessageId: newMessage.id,
+            isNewConversation,
+            contactId: contact.id,
+            contactName: contact.name || contact.phone,
+            contactPhone: contact.phone
+        };
     });
+
+    // Notificar usuários sobre novo atendimento (APÓS transação commitada)
+    if (isNewConversation && conversationId) {
+        try {
+            await UserNotificationsService.notifyNewConversation(
+                companyId,
+                conversationId,
+                contactName
+            );
+            console.log(`[UserNotifications] New conversation notification sent for ${conversationId}`);
+        } catch (notifError) {
+            console.error('[UserNotifications] Error sending new conversation notification:', notifError);
+        }
+        
+        try {
+            console.log(`[Webhook] Dispatching conversation_created for conversation ${conversationId}`);
+            await webhookDispatcher.dispatch(companyId, 'conversation_created', {
+                conversationId: conversationId,
+                contactId: contactId,
+                contactPhone: contactPhone,
+                contactName: contactName,
+            });
+        } catch (webhookError) {
+            console.error('[Webhook] Error dispatching conversation_created:', webhookError);
+        }
+    }
 
     if (conversationId && newMessageId) {
       console.log(`🤖 [Meta Webhook] Disparando automações para conversa ${conversationId}`);

@@ -560,6 +560,15 @@ class BaileysSessionManager {
         return;
       }
 
+      // Check if conversation already exists for notification purposes
+      const existingConversation = await db.query.conversations.findFirst({
+        where: (convs, { and, eq }) => and(
+          eq(convs.contactId, contact.id),
+          eq(convs.connectionId, connectionId)
+        ),
+      });
+      const isNewConversation = !existingConversation;
+
       const [conversation] = await db
         .insert(conversations)
         .values({
@@ -581,6 +590,21 @@ class BaileysSessionManager {
       if (!conversation) {
         console.error('[Baileys] Failed to create/update conversation');
         return;
+      }
+
+      // Notify users about new conversation
+      if (isNewConversation) {
+        try {
+          const { UserNotificationsService } = await import('@/lib/notifications/user-notifications.service');
+          await UserNotificationsService.notifyNewConversation(
+            companyId,
+            conversation.id,
+            contact.name || contact.whatsappName || contact.phone
+          );
+          console.log(`[UserNotifications] New conversation notification sent for ${conversation.id}`);
+        } catch (notifError) {
+          console.error('[UserNotifications] Error sending new conversation notification:', notifError);
+        }
       }
 
       await db.insert(messages).values({
