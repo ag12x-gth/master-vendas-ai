@@ -1,4 +1,4 @@
-modules = ["nodejs-20", "bash", "web", "nix", "postgresql-16", "go-1.21", "go-1.24"]
+modules = ["nodejs-20", "bash", "web", "nix", "go-1.21", "go-1.24", "postgresql-16"]
 [agent]
 expertMode = true
 integrations = ["javascript_object_storage:1.0.0", "replitmail:1.0.0"]

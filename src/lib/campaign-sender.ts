@@ -22,6 +22,7 @@ import { sendWhatsappTemplateMessage } from './facebookApiService';
 import type { MediaAsset as MediaAssetType, MetaApiMessageResponse, MetaHandle } from './types';
 import { sessionManager as baileysSessionManager } from '@/services/baileys-session-manager';
 import { NotificationService } from '@/lib/notifications/notification-service';
+import { UserNotificationsService } from '@/lib/notifications/user-notifications.service';
 import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
 import * as CircuitBreaker from '@/lib/circuit-breaker';
 
@@ -567,8 +568,9 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
                  await db.insert(whatsappDeliveryReports).values(deliveryReports as any);
                  
                  // Criar conversas e mensagens para envios bem-sucedidos
-                 const successfulReports = deliveryReports.filter(r => r.status === 'SENT');
+                 const successfulReports = deliveryReports.filter(r => r.status.toUpperCase() === 'SENT');
                  if (successfulReports.length > 0) {
+                     console.log(`[Campaign] Criando conversas/mensagens para ${successfulReports.length} envios bem-sucedidos`);
                      const conversationPromises = successfulReports.map(report => {
                          const messageContent = resolvedTemplate.name !== 'direct_message'
                              ? `Template: ${resolvedTemplate.name}`
@@ -585,7 +587,10 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
                      });
                      
                      // Executa todas as criações em paralelo mas não falha se alguma der erro
-                     await Promise.allSettled(conversationPromises);
+                     const results = await Promise.allSettled(conversationPromises);
+                     const failed = results.filter(r => r.status === 'rejected').length;
+                     const succeeded = results.filter(r => r.status === 'fulfilled').length;
+                     console.log(`[Campaign] Conversas/mensagens criadas: ${succeeded} sucessos, ${failed} falhas`);
                  }
             }
 
@@ -618,6 +623,19 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
             rate: deliveryRate,
           }
         );
+
+        // Criar notificação in-app para campanha concluída
+        try {
+          await UserNotificationsService.notifyCampaignCompleted(
+            campaign.companyId!,
+            campaign.id,
+            campaign.name || 'Campanha sem nome',
+            totalSent
+          );
+          console.log(`[UserNotifications] Campaign completed notification sent for ${campaign.id}`);
+        } catch (notifError) {
+          console.error('[UserNotifications] Error sending campaign notification:', notifError);
+        }
 
         try {
           console.log(`[Webhook] Dispatching campaign_sent for campaign ${campaign.id}`);

@@ -898,6 +898,40 @@ export const customMessageTemplates = pgTable('custom_message_templates', {
   updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
 });
 
+// ==============================
+// USER NOTIFICATIONS (IN-APP)
+// ==============================
+
+export const userNotificationTypeEnum = pgEnum('user_notification_type', [
+  'campaign_completed',
+  'new_conversation',
+  'system_error',
+  'info',
+]);
+
+export const userNotifications = pgTable('user_notifications', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+  type: userNotificationTypeEnum('type').notNull(),
+  title: varchar('title', { length: 255 }).notNull(),
+  message: text('message').notNull(),
+  linkTo: text('link_to'),
+  metadata: jsonb('metadata').$type<{
+    campaignId?: string;
+    conversationId?: string;
+    contactId?: string;
+    errorId?: string;
+    [key: string]: any;
+  }>(),
+  isRead: boolean('is_read').notNull().default(false),
+  readAt: timestamp('read_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  userReadIdx: sql`CREATE INDEX IF NOT EXISTS user_notifications_user_read_idx ON ${table} (user_id, is_read, created_at DESC)`,
+  companyIdx: sql`CREATE INDEX IF NOT EXISTS user_notifications_company_idx ON ${table} (company_id, created_at DESC)`,
+}));
+
 export const webhookSubscriptionsRelations = relations(webhookSubscriptions, ({ one, many }) => ({
   company: one(companies, {
     fields: [webhookSubscriptions.companyId],
