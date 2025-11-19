@@ -38,6 +38,7 @@ import { Separator } from '../ui/separator';
 import { MediaUploader } from './media-uploader';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { WhatsAppPreview } from './whatsapp-preview';
 
 const contactFields = [
     { value: 'name', label: 'Nome' },
@@ -211,6 +212,46 @@ export function CreateWhatsappCampaignDialog({
           return part;
         });
     }, [variableMappings]);
+
+    const getPreviewBody = useCallback(() => {
+        if (!selectedTemplate?.body) return '';
+        let processedBody = selectedTemplate.body;
+        
+        Object.entries(variableMappings).forEach(([varName, mapping]) => {
+            const pattern = new RegExp(`\\{\\{${varName}\\}\\}`, 'g');
+            if (mapping.type === 'fixed' && mapping.value) {
+                processedBody = processedBody.replace(pattern, mapping.value);
+            } else if (mapping.type === 'dynamic' && mapping.value) {
+                const mappedField = contactFields.find(f => f.value === mapping.value);
+                processedBody = processedBody.replace(pattern, `[${mappedField?.label.toUpperCase() || 'CAMPO'}]`);
+            }
+        });
+        
+        return processedBody;
+    }, [selectedTemplate, variableMappings]);
+
+    const getTemplateComponents = useCallback(() => {
+        if (!selectedTemplate?.components) return { header: null, footer: null, buttons: [], headerMediaUrl: null };
+        
+        const components = selectedTemplate.components as any[];
+        const headerComponent = components.find((c: any) => c.type === 'HEADER');
+        const footerComponent = components.find((c: any) => c.type === 'FOOTER');
+        const buttonsComponent = components.find((c: any) => c.type === 'BUTTONS');
+        
+        let headerMediaUrl = null;
+        if (headerComponent?.format && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerComponent.format)) {
+            headerMediaUrl = headerComponent.example?.header_handle?.[0] || 
+                            selectedMedia?.s3Url || 
+                            null;
+        }
+        
+        return {
+            header: headerComponent,
+            footer: footerComponent?.text || null,
+            buttons: buttonsComponent?.buttons || [],
+            headerMediaUrl
+        };
+    }, [selectedTemplate, selectedMedia]);
 
     const resetState = useCallback(() => {
         setIsProcessing(false);
@@ -534,10 +575,36 @@ export function CreateWhatsappCampaignDialog({
                             )}
 
                             <div className="space-y-2">
-                                <Label>Pré-visualização Final da Mensagem</Label>
-                                <div className="p-4 border rounded-md bg-muted/50 h-full">
-                                    <p className="text-sm whitespace-pre-wrap flex-1">{highlightVariables(selectedTemplate?.body || '')}</p>
-                                </div>
+                                {(() => {
+                                    const { header, footer, buttons, headerMediaUrl } = getTemplateComponents();
+                                    const headerFormat = header?.format;
+                                    
+                                    return (
+                                        <WhatsAppPreview
+                                            header={
+                                                headerFormat === 'IMAGE' || headerFormat === 'VIDEO' || headerFormat === 'DOCUMENT'
+                                                    ? {
+                                                        type: headerFormat.toLowerCase() as 'image' | 'video' | 'document',
+                                                        content: headerFormat === 'DOCUMENT' ? selectedMedia?.name || 'document.pdf' : undefined,
+                                                        url: headerMediaUrl || undefined
+                                                    }
+                                                    : headerFormat === 'TEXT' && header?.text
+                                                    ? {
+                                                        type: 'text',
+                                                        content: header.text
+                                                    }
+                                                    : undefined
+                                            }
+                                            body={getPreviewBody()}
+                                            footer={footer || undefined}
+                                            buttons={buttons.length > 0 ? buttons.map((btn: any) => ({
+                                                type: btn.type.toLowerCase() as 'quick_reply' | 'url' | 'phone_number',
+                                                text: btn.text || btn.title || 'Button',
+                                                url: btn.url
+                                            })) : undefined}
+                                        />
+                                    );
+                                })()}
                             </div>
                         </div>
                         <DialogFooter className="pt-4 border-t mt-auto">
@@ -588,20 +655,38 @@ export function CreateWhatsappCampaignDialog({
                         <div className={cn("space-y-4", isMediaStep && "md:col-span-2")}>
                            {renderStepContent()}
                         </div>
-                        {!isMediaStep && (
-                            <div className="space-y-2 hidden md:flex md:flex-col">
-                                <Label>Pré-visualização</Label>
-                                <div className="p-4 border rounded-md bg-muted/50 h-full flex flex-col">
-                                     {selectedMedia && (
-                                        <div className="flex items-center gap-2 p-2 bg-background rounded border mb-2">
-                                            <ImageIcon className="h-4 w-4 text-muted-foreground" />
-                                            <span className="text-xs font-semibold truncate">{selectedMedia.name}</span>
-                                        </div>
-                                    )}
-                                    <p className="text-sm whitespace-pre-wrap flex-1">{highlightVariables(selectedTemplate?.body || '')}</p>
+                        {!isMediaStep && (() => {
+                            const { header, footer, buttons, headerMediaUrl } = getTemplateComponents();
+                            const headerFormat = header?.format;
+                            
+                            return (
+                                <div className="space-y-2 hidden md:flex md:flex-col overflow-auto">
+                                    <WhatsAppPreview
+                                        header={
+                                            headerFormat === 'IMAGE' || headerFormat === 'VIDEO' || headerFormat === 'DOCUMENT'
+                                                ? {
+                                                    type: headerFormat.toLowerCase() as 'image' | 'video' | 'document',
+                                                    content: headerFormat === 'DOCUMENT' ? selectedMedia?.name || 'document.pdf' : undefined,
+                                                    url: headerMediaUrl || undefined
+                                                }
+                                                : headerFormat === 'TEXT' && header?.text
+                                                ? {
+                                                    type: 'text',
+                                                    content: header.text
+                                                }
+                                                : undefined
+                                        }
+                                        body={getPreviewBody()}
+                                        footer={footer || undefined}
+                                        buttons={buttons.length > 0 ? buttons.map((btn: any) => ({
+                                            type: btn.type.toLowerCase() as 'quick_reply' | 'url' | 'phone_number',
+                                            text: btn.text || btn.title || 'Button',
+                                            url: btn.url
+                                        })) : undefined}
+                                    />
                                 </div>
-                            </div>
-                        )}
+                            );
+                        })()}
                     </div>
                     <DialogFooter className="pt-4 border-t">
                         <div className="flex justify-end w-full">

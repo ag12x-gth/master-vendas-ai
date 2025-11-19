@@ -117,10 +117,8 @@ const allNavItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'atendente', 'superadmin'] },
   { href: '/ajuda', label: 'Primeiros Passos', icon: LifeBuoy, roles: ['admin', 'atendente', 'superadmin'] },
   { href: '/atendimentos', label: 'Atendimentos', icon: MessagesSquare, roles: ['admin', 'atendente', 'superadmin'] },
-  { href: '/automations', label: 'Automações', icon: GitBranch, roles: ['admin', 'superadmin'] },
-  { href: '/kanban', label: 'Pipeline Kanban', icon: Kanban, roles: ['admin', 'superadmin'] },
   {
-    label: 'Leads',
+    label: 'Leads & CRM',
     icon: Users,
     roles: ['admin', 'atendente', 'superadmin'],
     isGroup: true,
@@ -128,36 +126,44 @@ const allNavItems = [
         { href: '/contacts', label: 'Contatos', icon: Users, roles: ['admin', 'atendente', 'superadmin'] },
         { href: '/lists', label: 'Listas', icon: ClipboardList, roles: ['admin', 'atendente', 'superadmin'] },
         { href: '/tags', label: 'Tags', icon: Tags, roles: ['admin', 'superadmin'] },
+        { href: '/kanban', label: 'Pipeline Kanban', icon: Kanban, roles: ['admin', 'superadmin'] },
     ]
   },
   {
-    label: 'WhatsApp',
-    icon: MessageSquareText,
+    label: 'Campanhas',
+    icon: Send,
     roles: ['admin', 'superadmin'],
     isGroup: true,
     subItems: [
-      { href: '/campaigns', label: 'Campanhas Whatsapp Business', icon: Send, roles: ['admin', 'superadmin'] },
-      { href: '/campaigns-baileys', label: 'Campanhas Whatsapp Normal', icon: Send, roles: ['admin', 'superadmin'] },
-      { href: '/templates', label: 'Modelos', icon: MessageSquareText, roles: ['admin', 'superadmin'] },
+      { href: '/campaigns', label: 'WhatsApp Business', icon: MessageSquareText, roles: ['admin', 'superadmin'] },
+      { href: '/campaigns-baileys', label: 'WhatsApp Normal', icon: MessageCircle, roles: ['admin', 'superadmin'] },
+      { href: '/sms', label: 'SMS', icon: MessageCircle, roles: ['admin', 'superadmin'] },
       { href: '/templates-v2', label: 'Templates WhatsApp', icon: MessageSquareText, roles: ['admin', 'superadmin'] },
-      { href: '/whatsapp-baileys', label: 'Mensagens Whatsapp Normal', icon: MessageCircle, roles: ['admin', 'superadmin'] },
-      { href: '/connections', label: 'Conexões Whatsapp Business', icon: Plug, roles: ['admin', 'superadmin'] },
-      { href: '/whatsapp-sessoes', label: 'Sessões Whatsapp Normal', icon: BotMessageSquare, roles: ['admin', 'superadmin'] },
     ],
   },
-   {
-    label: 'SMS',
-    icon: MessageCircle,
+  {
+    label: 'Automação',
+    icon: GitBranch,
     roles: ['admin', 'superadmin'],
     isGroup: true,
     subItems: [
-      { href: '/sms', label: 'Campanhas', icon: Send, roles: ['admin', 'superadmin'] },
+      { href: '/automations', label: 'Fluxos', icon: GitBranch, roles: ['admin', 'superadmin'] },
+      { href: '/agentes-ia', label: 'Agentes de IA', icon: Bot, roles: ['admin', 'superadmin'] },
+      { href: '/roteamento', label: 'Roteamento', icon: Route, roles: ['admin', 'superadmin'] },
+    ],
+  },
+  {
+    label: 'Canais',
+    icon: Plug,
+    roles: ['admin', 'superadmin'],
+    isGroup: true,
+    subItems: [
+      { href: '/connections', label: 'WhatsApp Business', icon: Plug, roles: ['admin', 'superadmin'] },
+      { href: '/whatsapp-sessoes', label: 'Sessões WhatsApp', icon: BotMessageSquare, roles: ['admin', 'superadmin'] },
+      { href: '/voice-calls', label: 'Voice Calls', icon: Phone, roles: ['admin', 'superadmin'] },
     ],
   },
   { href: '/gallery', label: 'Galeria', icon: GalleryVertical, roles: ['admin', 'superadmin'] },
-  { href: '/agentes-ia', label: 'Agentes de IA', icon: Bot, roles: ['admin', 'superadmin'] },
-  { href: '/voice-calls', label: 'Voice Calls', icon: Phone, roles: ['admin', 'superadmin'] },
-  { href: '/roteamento', label: 'Roteamento', icon: Route, roles: ['admin', 'superadmin'] },
 ];
 
 const NavItemLink = ({ item, isExpanded }: { item: any, isExpanded: boolean }) => {
