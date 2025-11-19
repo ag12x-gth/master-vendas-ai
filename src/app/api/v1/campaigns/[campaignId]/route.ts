@@ -2,7 +2,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { campaigns, connections, smsGateways, smsDeliveryReports, templates as templateSchema, whatsappDeliveryReports } from '@/lib/db/schema';
+import { campaigns, connections, smsGateways, smsDeliveryReports, templates as templateSchema, whatsappDeliveryReports, messageTemplates } from '@/lib/db/schema';
 import { eq, and, sql, or } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 
@@ -44,8 +44,28 @@ export async function GET(request: NextRequest, { params }: { params: { campaign
                 connectionName: connections.config_name,
                 smsGatewayName: smsGateways.name,
                 templateName: templateSchema.name,
-                templateBody: templateSchema.body,
-                templateHeaderType: templateSchema.headerType,
+                templateBody: sql<string>`(
+                    SELECT elem->>'text'
+                    FROM message_templates, 
+                         jsonb_array_elements(components) AS elem
+                    WHERE message_templates.id = ${campaigns.templateId}
+                      AND elem->>'type' = 'BODY'
+                    LIMIT 1
+                )`.as('templateBody'),
+                templateHeaderType: sql<string>`COALESCE((
+                    SELECT COALESCE(
+                        elem->>'format',
+                        CASE 
+                            WHEN elem->'example'->>'header_handle' IS NOT NULL THEN 'IMAGE'
+                            ELSE 'TEXT'
+                        END
+                    )
+                    FROM message_templates, 
+                         jsonb_array_elements(components) AS elem
+                    WHERE message_templates.id = ${campaigns.templateId}
+                      AND elem->>'type' = 'HEADER'
+                    LIMIT 1
+                ), 'NONE')`.as('templateHeaderType'),
             })
             .from(campaigns)
             .leftJoin(connections, eq(campaigns.connectionId, connections.id))
