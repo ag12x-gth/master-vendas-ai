@@ -1,5 +1,4 @@
 // src/lib/notifications/user-notifications.service.ts
-'use server';
 
 import { db } from '@/lib/db';
 import { userNotifications, campaigns, conversations } from '@/lib/db/schema';

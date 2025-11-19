@@ -57,6 +57,9 @@ import { useToast } from '@/hooks/use-toast';
 import { createToastNotifier } from '@/lib/toast-helper';
 import VersionBadge from '@/components/version-badge';
 import { ConnectionStatusBadge } from '@/components/dashboard/connection-status-badge';
+import { useNotifications } from '@/hooks/use-notifications';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 const allNavItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'atendente', 'superadmin'] },
@@ -86,6 +89,9 @@ export function AppHeader() {
   const userEmail = session?.userData?.email || 'email@exemplo.com';
   
   const isSuperAdmin = userRole === 'superadmin';
+  
+  // Hook de notificações
+  const { notifications, unreadCount, markAsRead } = useNotifications(30000);
 
 
   const handleLogout = async () => {
@@ -169,21 +175,51 @@ export function AppHeader() {
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
                     <Bell className="h-5 w-5" />
-                    <Badge className="absolute top-0 right-0 h-4 w-4 shrink-0 rounded-full p-0 flex items-center justify-center text-xs">2</Badge>
+                    {unreadCount > 0 && (
+                      <Badge className="absolute top-0 right-0 h-4 w-4 shrink-0 rounded-full p-0 flex items-center justify-center text-xs">
+                        {unreadCount}
+                      </Badge>
+                    )}
                     <span className="sr-only">Notificações</span>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuContent align="end" className="w-80 max-h-[400px] overflow-y-auto">
                 <DropdownMenuLabel>Notificações</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex flex-col items-start gap-1">
-                    <p className="font-semibold">Campanha Concluída</p>
-                    <p className="text-xs text-muted-foreground">Sua campanha &quot;Promoção de Natal&quot; foi enviada com sucesso.</p>
-                </DropdownMenuItem>
-                 <DropdownMenuItem className="flex flex-col items-start gap-1">
-                    <p className="font-semibold">Novo Atendimento</p>
-                    <p className="text-xs text-muted-foreground">Você tem um novo atendimento de João da Silva aguardando.</p>
-                </DropdownMenuItem>
+                {notifications.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    Nenhuma notificação
+                  </div>
+                ) : (
+                  notifications.map((notification) => (
+                    <DropdownMenuItem
+                      key={notification.id}
+                      className={cn(
+                        "flex flex-col items-start gap-1 cursor-pointer",
+                        !notification.isRead && "bg-accent/50"
+                      )}
+                      onClick={() => {
+                        if (!notification.isRead) {
+                          markAsRead(notification.id);
+                        }
+                        if (notification.linkTo) {
+                          router.push(notification.linkTo);
+                        }
+                      }}
+                    >
+                      <div className="flex justify-between items-start w-full">
+                        <p className="font-semibold text-sm">{notification.title}</p>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(notification.createdAt), { 
+                            addSuffix: true, 
+                            locale: ptBR 
+                          })}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{notification.message}</p>
+                    </DropdownMenuItem>
+                  ))
+                )}
             </DropdownMenuContent>
         </DropdownMenu>
 
