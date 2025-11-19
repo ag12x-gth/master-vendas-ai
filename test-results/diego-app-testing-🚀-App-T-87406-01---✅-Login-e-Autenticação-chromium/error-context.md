@@ -34,29 +34,42 @@
               - img [ref=e42]
               - paragraph [ref=e45]: "\"O ótimo marketing faz o cliente se sentir inteligente.\""
               - paragraph [ref=e46]: "- Joe Chernov"
-    - generic [ref=e48]:
+    - generic [ref=e47]:
       - generic [ref=e49]:
-        - heading "Bem-vindo de volta!" [level=2] [ref=e50]
-        - paragraph [ref=e51]: Acesse sua conta para continuar.
-      - generic [ref=e52]:
-        - generic [ref=e53]:
-          - generic [ref=e54]:
-            - generic [ref=e55]: Email
-            - textbox "Email" [ref=e56]
-          - generic [ref=e57]:
-            - generic [ref=e58]:
-              - generic [ref=e59]: Senha
-              - link "Esqueceu sua senha?" [ref=e60] [cursor=pointer]:
-                - /url: /forgot-password
-            - generic [ref=e61]:
-              - textbox "Senha" [ref=e62]
-              - button [ref=e63]:
-                - img [ref=e64]
-        - button "Entrar" [ref=e67]
-      - paragraph [ref=e68]:
-        - text: Ainda não tem uma conta?
-        - link "Cadastre-se gratuitamente" [ref=e69] [cursor=pointer]:
-          - /url: /register
+        - img [ref=e50]
+        - generic [ref=e52]: v2.4.1
+      - generic [ref=e53]:
+        - generic [ref=e54]:
+          - heading "Bem-vindo de volta!" [level=2] [ref=e55]
+          - paragraph [ref=e56]: Acesse sua conta para continuar.
+        - generic [ref=e57]:
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - generic [ref=e60]: Email
+              - textbox "Email" [ref=e61]: diegomaninhu@gmail.com
+            - generic [ref=e62]:
+              - generic [ref=e63]:
+                - generic [ref=e64]: Senha
+                - link "Esqueceu sua senha?" [ref=e65] [cursor=pointer]:
+                  - /url: /forgot-password
+              - generic [ref=e66]:
+                - textbox "Senha" [ref=e67]: MasterIA2025!
+                - button [ref=e68] [cursor=pointer]:
+                  - img [ref=e69] [cursor=pointer]
+          - button "Entrar" [ref=e72] [cursor=pointer]
+        - generic [ref=e77]: Ou continue com
+        - button "Facebook" [ref=e79] [cursor=pointer]:
+          - img [ref=e80] [cursor=pointer]
+          - text: Facebook
+        - paragraph [ref=e82]:
+          - text: Ainda não tem uma conta?
+          - link "Cadastre-se gratuitamente" [ref=e83] [cursor=pointer]:
+            - /url: /register
+  - button "Toggle theme" [ref=e85] [cursor=pointer]:
+    - img [ref=e86] [cursor=pointer]
+    - img
+    - generic [ref=e92] [cursor=pointer]: Toggle theme
   - region "Notifications (F8)":
     - list
+  - alert [ref=e93]
 ```
