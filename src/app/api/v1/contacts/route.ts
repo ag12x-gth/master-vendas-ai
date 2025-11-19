@@ -7,6 +7,7 @@ import { and, count, eq, ilike, or, sql, inArray, SQL } from 'drizzle-orm';
 import { z } from 'zod';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { getCachedOrFetch, CacheTTL, apiCache } from '@/lib/api-cache';
+import { sanitizePhone, canonicalizeBrazilPhone } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -263,12 +264,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     
     const { listIds, tagIds, ...contactData } = parsed.data;
+    
+    // Normalize phone number to canonical Brazilian format
+    const sanitized = sanitizePhone(contactData.phone);
+    const normalizedPhone = sanitized ? canonicalizeBrazilPhone(sanitized) : contactData.phone;
 
     const newContact = await db.transaction(async (tx) => {
         const [createdContact] = await tx
             .insert(contacts)
             .values({
                 ...contactData,
+                phone: normalizedPhone,
                 companyId,
             })
             .returning();

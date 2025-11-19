@@ -98,7 +98,6 @@ async function createCampaignConversationAndMessage(
                 contentType: 'TEXT',
                 status: 'SENT',
                 sentAt: new Date(),
-                metadata: { campaignId }, // Guarda ID da campanha no metadata
             });
         });
     } catch (error) {
@@ -579,7 +578,7 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
                              campaign.companyId!,
                              report.contactId,
                              report.connectionId,
-                             report.providerMessageId,
+                             report.providerMessageId || null,
                              messageContent,
                              campaign.id
                          );

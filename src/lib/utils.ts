@@ -84,6 +84,7 @@ export function sanitizePhone(input: unknown): string | null {
 /**
  * Cria a versão canônica de um número de telefone brasileiro, adicionando o 9º dígito quando aplicável.
  * Este é o formato que DEVE ser salvo no banco de dados.
+ * Também remove duplicações do código de país (55).
  * @param phone O número de telefone sanitizado em E.164 (ex: +5511987654321 ou +551187654321).
  * @returns O número de telefone no formato canônico (+55DDD9...).
  */
@@ -91,21 +92,46 @@ export function canonicalizeBrazilPhone(phone: string): string {
   const sanitized = sanitizePhone(phone); // Garante que começa com + e só tem dígitos
   if (!sanitized) return phone; // Retorna original em caso de erro
 
+  let normalized = sanitized;
+  
+  // Remove duplicações iterativamente do código de país brasileiro (55)
+  // Números brasileiros válidos: +55 (país) + DDD (2) + número (8-9 dígitos)
+  // Comprimento máximo válido: 14 caracteres (+55 + 2 DDD + 9 + 8 dígitos)
+  //
+  // Loop para remover TODOS os "55" duplicados enquanto length > 14
+  // Exemplos:
+  // - +555564... (16 chars) → +5564... (14 chars)
+  // - +555555... (16 chars) → +5555... (14 chars) preserva DDD 55
+  // - +55555555... (18 chars) → +5555... (14 chars) múltiplas duplicações
+  while (normalized.startsWith('+55') && normalized.length > 14) {
+    // Remove os caracteres nas posições 3-4 (um bloco "55" duplicado)
+    normalized = '+55' + normalized.substring(5);
+    
+    // Safety: Evita loop infinito se algo der errado
+    if (!normalized.startsWith('+55') || normalized.length < 12) break;
+  }
+
   // Verifica se é um número de celular brasileiro (+55) com DDD >= 11
-  if (sanitized.startsWith('+55') && parseInt(sanitized.substring(3, 5), 10) >= 11) {
-    // Se tem 13 caracteres, já tem o 9º dígito (ex: +55119...)
-    if (sanitized.length === 14) {
-      return sanitized;
-    }
-    // Se tem 12 caracteres, não tem o 9º dígito (ex: +5511...)
-    if (sanitized.length === 13) {
-      // Insere o '9' após o DDD
-      return `${sanitized.slice(0, 5)}9${sanitized.slice(5)}`;
+  // e adiciona o 9º dígito se necessário
+  if (normalized.startsWith('+55') && normalized.length >= 12) {
+    const ddd = normalized.substring(3, 5);
+    const dddNum = parseInt(ddd, 10);
+    
+    // Apenas para celulares (DDD >= 11) e dentro do comprimento esperado
+    if (dddNum >= 11) {
+      // Se tem 14 caracteres, já tem o 9º dígito
+      if (normalized.length === 14) {
+        return normalized;
+      }
+      // Se tem 13 caracteres, não tem o 9º dígito - adiciona
+      if (normalized.length === 13) {
+        return `${normalized.slice(0, 5)}9${normalized.slice(5)}`;
+      }
     }
   }
 
-  // Para todos os outros casos (não-celular, não-Brasil, etc.), retorna como está
-  return sanitized;
+  // Para todos os outros casos (números fixos, não-Brasil, etc.), retorna como está
+  return normalized;
 }
 
 

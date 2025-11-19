@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { contacts, contactsToContactLists, contactsToTags } from '@/lib/db/schema';
 import { inArray, eq, and } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
-import { sanitizePhone } from '@/lib/utils';
+import { sanitizePhone, canonicalizeBrazilPhone } from '@/lib/utils';
 
 interface RequestBody {
   chunk: Record<string, any>[];
@@ -52,7 +52,12 @@ export async function POST(request: NextRequest) {
     const processedPhonesInChunk = new Set<string>();
     
     const phoneColumn = mappings.phone;
-    const phoneNumbersInChunk = chunk.map(row => sanitizePhone(row[phoneColumn])).filter(p => p !== null) as string[];
+    const phoneNumbersInChunk = chunk
+      .map(row => {
+        const sanitized = sanitizePhone(row[phoneColumn]);
+        return sanitized ? canonicalizeBrazilPhone(sanitized) : null;
+      })
+      .filter(p => p !== null) as string[];
     
     const existingContacts = phoneNumbersInChunk.length > 0 ? await db
       .select({ id: contacts.id, phone: contacts.phone })
@@ -67,7 +72,8 @@ export async function POST(request: NextRequest) {
 
 
     for (const rawData of chunk) {
-        const sanitizedPhone = sanitizePhone(rawData[mappings.phone]);
+        const sanitized = sanitizePhone(rawData[mappings.phone]);
+        const sanitizedPhone = sanitized ? canonicalizeBrazilPhone(sanitized) : null;
         const sanitizedName = sanitizeString(rawData[mappings.name]);
 
         if (!sanitizedName || !sanitizedPhone) {
