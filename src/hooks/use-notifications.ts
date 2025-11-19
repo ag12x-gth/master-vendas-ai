@@ -25,6 +25,7 @@ export function useNotifications(refreshInterval: number = 30000) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -90,6 +91,12 @@ export function useNotifications(refreshInterval: number = 30000) {
   }, []);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    
     fetchNotifications();
 
     // Auto-refresh se refreshInterval for fornecido
@@ -99,7 +106,7 @@ export function useNotifications(refreshInterval: number = 30000) {
     }
     
     return undefined;
-  }, [fetchNotifications, refreshInterval]);
+  }, [mounted, fetchNotifications, refreshInterval]);
 
   return {
     notifications,
@@ -109,5 +116,6 @@ export function useNotifications(refreshInterval: number = 30000) {
     markAsRead,
     markAllAsRead,
     refresh: fetchNotifications,
+    mounted,
   };
 }

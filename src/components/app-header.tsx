@@ -91,7 +91,7 @@ export function AppHeader() {
   const isSuperAdmin = userRole === 'superadmin';
   
   // Hook de notificações
-  const { notifications, unreadCount, markAsRead } = useNotifications(30000);
+  const { notifications, unreadCount, markAsRead, mounted } = useNotifications(30000);
 
 
   const handleLogout = async () => {
@@ -175,7 +175,7 @@ export function AppHeader() {
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
                     <Bell className="h-5 w-5" />
-                    {unreadCount > 0 && (
+                    {mounted && unreadCount > 0 && (
                       <Badge className="absolute top-0 right-0 h-4 w-4 shrink-0 rounded-full p-0 flex items-center justify-center text-xs">
                         {unreadCount}
                       </Badge>
