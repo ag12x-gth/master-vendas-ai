@@ -366,7 +366,7 @@ export function CampaignTable({ channel, baileysOnly = false }: CampaignTablePro
     }
 
     return (
-        <div className="border rounded-lg w-full relative">
+        <div className="w-full border rounded-lg relative">
             <div className="w-full overflow-auto">
                 <Table>
                     <TableHeader>
