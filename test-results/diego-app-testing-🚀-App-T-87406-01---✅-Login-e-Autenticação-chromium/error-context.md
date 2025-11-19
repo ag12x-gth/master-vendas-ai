@@ -1,0 +1,62 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - img [ref=e5]
+        - heading "Master IA" [level=1] [ref=e8]
+      - region [ref=e9]:
+        - generic [ref=e11]:
+          - group [ref=e12]:
+            - generic [ref=e13]:
+              - img [ref=e14]
+              - paragraph [ref=e17]: "\"O objetivo do marketing é conhecer e entender o cliente tão bem que o produto ou serviço se vende sozinho.\""
+              - paragraph [ref=e18]: "- Peter Drucker"
+          - group [ref=e19]:
+            - generic [ref=e20]:
+              - img [ref=e21]
+              - paragraph [ref=e24]: "\"Marketing não é sobre as coisas que você faz, mas sobre as histórias que você conta.\""
+              - paragraph [ref=e25]: "- Seth Godin"
+          - group [ref=e26]:
+            - generic [ref=e27]:
+              - img [ref=e28]
+              - paragraph [ref=e31]: "\"As pessoas não compram o que você faz, elas compram o porquê você faz.\""
+              - paragraph [ref=e32]: "- Simon Sinek"
+          - group [ref=e33]:
+            - generic [ref=e34]:
+              - img [ref=e35]
+              - paragraph [ref=e38]: "\"A melhor publicidade é a que os clientes satisfeitos fazem.\""
+              - paragraph [ref=e39]: "- Philip Kotler"
+          - group [ref=e40]:
+            - generic [ref=e41]:
+              - img [ref=e42]
+              - paragraph [ref=e45]: "\"O ótimo marketing faz o cliente se sentir inteligente.\""
+              - paragraph [ref=e46]: "- Joe Chernov"
+    - generic [ref=e48]:
+      - generic [ref=e49]:
+        - heading "Bem-vindo de volta!" [level=2] [ref=e50]
+        - paragraph [ref=e51]: Acesse sua conta para continuar.
+      - generic [ref=e52]:
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - generic [ref=e55]: Email
+            - textbox "Email" [ref=e56]
+          - generic [ref=e57]:
+            - generic [ref=e58]:
+              - generic [ref=e59]: Senha
+              - link "Esqueceu sua senha?" [ref=e60] [cursor=pointer]:
+                - /url: /forgot-password
+            - generic [ref=e61]:
+              - textbox "Senha" [ref=e62]
+              - button [ref=e63]:
+                - img [ref=e64]
+        - button "Entrar" [ref=e67]
+      - paragraph [ref=e68]:
+        - text: Ainda não tem uma conta?
+        - link "Cadastre-se gratuitamente" [ref=e69] [cursor=pointer]:
+          - /url: /register
+  - region "Notifications (F8)":
+    - list
+```
