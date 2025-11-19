@@ -932,6 +932,47 @@ export const userNotifications = pgTable('user_notifications', {
   companyIdx: sql`CREATE INDEX IF NOT EXISTS user_notifications_company_idx ON ${table} (company_id, created_at DESC)`,
 }));
 
+// ==============================
+// ERROR MONITORING SYSTEM
+// ==============================
+
+export const errorSourceEnum = pgEnum('error_source', ['frontend', 'backend', 'database', 'api', 'webhook']);
+export const errorSeverityEnum = pgEnum('error_severity', ['low', 'medium', 'high', 'critical']);
+export const errorStatusEnum = pgEnum('error_status', ['new', 'investigating', 'resolved', 'ignored']);
+
+export const systemErrors = pgTable('system_errors', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  companyId: text('company_id').references(() => companies.id, { onDelete: 'set null' }),
+  userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+  source: errorSourceEnum('source').notNull(),
+  severity: errorSeverityEnum('severity').notNull().default('medium'),
+  status: errorStatusEnum('status').notNull().default('new'),
+  errorType: varchar('error_type', { length: 255 }),
+  message: text('message').notNull(),
+  stack: text('stack'),
+  context: jsonb('context').$type<{
+    url?: string;
+    userAgent?: string;
+    component?: string;
+    apiEndpoint?: string;
+    requestBody?: any;
+    responseStatus?: number;
+    [key: string]: any;
+  }>(),
+  aiDiagnosis: text('ai_diagnosis'),
+  aiRecommendation: text('ai_recommendation'),
+  aiAnalyzedAt: timestamp('ai_analyzed_at'),
+  occurrenceCount: integer('occurrence_count').notNull().default(1),
+  lastOccurredAt: timestamp('last_occurred_at').defaultNow().notNull(),
+  resolvedAt: timestamp('resolved_at'),
+  resolvedBy: text('resolved_by').references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  sourceStatusIdx: sql`CREATE INDEX IF NOT EXISTS system_errors_source_status_idx ON ${table} (source, status, created_at DESC)`,
+  severityIdx: sql`CREATE INDEX IF NOT EXISTS system_errors_severity_idx ON ${table} (severity, created_at DESC)`,
+  companyIdx: sql`CREATE INDEX IF NOT EXISTS system_errors_company_idx ON ${table} (company_id, created_at DESC) WHERE company_id IS NOT NULL`,
+}));
+
 export const webhookSubscriptionsRelations = relations(webhookSubscriptions, ({ one, many }) => ({
   company: one(companies, {
     fields: [webhookSubscriptions.companyId],
