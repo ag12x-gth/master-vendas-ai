@@ -24,34 +24,25 @@ const getBreakpoint = (width: number): Breakpoint => {
   return '4xl';
 };
 
+const getInitialState = (): ResponsiveState => {
+  return {
+    breakpoint: 'lg',
+    isMobile: false,
+    isTablet: false,
+    isDesktop: true,
+    isLargeDesktop: false,
+    width: 1024,
+  };
+};
+
 export function useResponsive(): ResponsiveState {
-  const [state, setState] = useState<ResponsiveState>(() => {
-    if (typeof window === 'undefined') {
-      return {
-        breakpoint: 'lg',
-        isMobile: false,
-        isTablet: false,
-        isDesktop: true,
-        isLargeDesktop: false,
-        width: 1024,
-      };
-    }
-
-    const width = window.innerWidth;
-    const breakpoint = getBreakpoint(width);
-
-    return {
-      breakpoint,
-      isMobile: width < 768,
-      isTablet: width >= 768 && width < 1024,
-      isDesktop: width >= 1024,
-      isLargeDesktop: width >= 1920,
-      width,
-    };
-  });
+  const [mounted, setMounted] = useState(false);
+  const [state, setState] = useState<ResponsiveState>(getInitialState);
 
   useEffect(() => {
-    const handleResize = () => {
+    setMounted(true);
+    
+    const updateState = () => {
       const width = window.innerWidth;
       const breakpoint = getBreakpoint(width);
 
@@ -65,9 +56,19 @@ export function useResponsive(): ResponsiveState {
       });
     };
 
+    updateState();
+
+    const handleResize = () => {
+      updateState();
+    };
+
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  if (!mounted) {
+    return getInitialState();
+  }
 
   return state;
 }
