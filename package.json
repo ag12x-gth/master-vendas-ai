@@ -22,7 +22,7 @@
     "db:generate:vector": "drizzle-kit generate --config=drizzle.vector.config.ts",
     "db:migrate": "tsx scripts/migrate-db.ts",
     "db:migrate:vector": "tsx scripts/migrate-vector-db.ts",
-    "db:push": "tsx scripts/push-db.ts",
+    "db:push": "yes '' | drizzle-kit push --config=drizzle.config.ts",
     "db:rollback": "tsx scripts/rollback-db.ts",
     "db:reset": "rm -rf drizzle && npm run db:generate && npm run db:migrate",
     "test:queue": "tsx scripts/seed-test-campaigns.ts",
