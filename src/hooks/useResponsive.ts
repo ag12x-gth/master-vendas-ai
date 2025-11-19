@@ -11,6 +11,7 @@ export interface ResponsiveState {
   isDesktop: boolean;
   isLargeDesktop: boolean;
   width: number;
+  mounted: boolean;
 }
 
 const getBreakpoint = (width: number): Breakpoint => {
@@ -32,6 +33,7 @@ const getInitialState = (): ResponsiveState => {
     isDesktop: true,
     isLargeDesktop: false,
     width: 1024,
+    mounted: false,
   };
 };
 
@@ -53,6 +55,7 @@ export function useResponsive(): ResponsiveState {
         isDesktop: width >= 1024,
         isLargeDesktop: width >= 1920,
         width,
+        mounted: true,
       });
     };
 

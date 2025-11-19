@@ -41,13 +41,13 @@ export function ResponsiveDialog({
   className,
   size = 'md'
 }: ResponsiveDialogProps) {
-  const { isMobile } = useResponsive();
+  const { isMobile, mounted } = useResponsive();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          isMobile ? 'w-[95%] max-h-[90vh] overflow-y-auto' : sizeClasses[size],
+          mounted && isMobile ? 'w-[95%] max-h-[90vh] overflow-y-auto' : sizeClasses[size],
           'p-4 sm:p-6',
           className
         )}

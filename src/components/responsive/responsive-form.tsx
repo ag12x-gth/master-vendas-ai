@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -112,12 +113,12 @@ export function ResponsiveButtonGroup({
   className,
   vertical = false
 }: ResponsiveButtonGroupProps) {
-  const { isMobile } = useResponsive();
+  const { isMobile, mounted } = useResponsive();
 
   return (
     <div className={cn(
       'flex gap-2 sm:gap-3',
-      (vertical || isMobile) ? 'flex-col' : 'flex-row',
+      (vertical || (mounted && isMobile)) ? 'flex-col' : 'flex-row',
       className
     )}>
       {children}

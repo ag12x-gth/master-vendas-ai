@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import {
   Dialog,
   DialogContent,
@@ -29,13 +30,13 @@ export function ResponsiveModal({
   className,
   fullScreenMobile = false
 }: ResponsiveModalProps) {
-  const { isMobile } = useResponsive();
+  const { isMobile, mounted } = useResponsive();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={cn(
-          isMobile
+          mounted && isMobile
             ? fullScreenMobile
               ? 'w-full h-full max-w-none max-h-none rounded-none'
               : 'w-[95%] max-w-lg'

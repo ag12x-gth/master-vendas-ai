@@ -1,0 +1,45 @@
+1 of 1 error
+Next.js (14.2.33) is outdated (learn more)
+
+Unhandled Runtime Error
+Error: Invalid src prop (https://e45cb235-2e9a-4a4d-bd5f-f2c452b50262-00-lmygdne6adv3.riker.replit.dev/objects/zapmaster/682b91ea-15ee-42da-8855-70309b237008/media/43918e28-6006-43f1-98cc-da3f59a2c0cd.png) on `next/image`, hostname "e45cb235-2e9a-4a4d-bd5f-f2c452b50262-00-lmygdne6adv3.riker.replit.dev" is not configured under images in your `next.config.js`
+See more info: https://nextjs.org/docs/messages/next-image-unconfigured-host
+
+Call Stack
+defaultLoader
+webpack:/src/shared/lib/image-loader.ts
+loader
+webpack:/src/shared/lib/get-img-props.ts
+Array.map
+<anonymous>
+map
+webpack:/src/shared/lib/get-img-props.ts
+generateImgAttrs
+webpack:/src/shared/lib/get-img-props.ts
+props
+webpack:/src/client/image-component.tsx
+React
+renderWithHooks
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (11121:1)
+updateForwardRef
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (15854:1)
+beginWork$1
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (18521:1)
+beginWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (26927:1)
+performUnitOfWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25748:1)
+workLoopSync
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25464:1)
+renderRootSync
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25419:1)
+recoverFromConcurrentError
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24597:1)
+performConcurrentWorkOnRoot
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24542:1)
+workLoop
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (256:1)
+flushWork
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (225:1)
+MessagePort.performWorkUntilDeadline
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (534:1)

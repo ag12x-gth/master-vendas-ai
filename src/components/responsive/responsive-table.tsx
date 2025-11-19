@@ -26,7 +26,7 @@ export function ResponsiveTable<T extends { id: string | number }>({
   loading,
   emptyMessage = 'Nenhum dado encontrado'
 }: ResponsiveTableProps<T>) {
-  const { isMobile } = useResponsive();
+  const { isMobile, mounted } = useResponsive();
 
   if (loading) {
     return (
@@ -46,7 +46,7 @@ export function ResponsiveTable<T extends { id: string | number }>({
     );
   }
 
-  if (isMobile && mobileCard) {
+  if (mounted && isMobile && mobileCard) {
     return (
       <div className="space-y-3">
         {data.map((item) => (
