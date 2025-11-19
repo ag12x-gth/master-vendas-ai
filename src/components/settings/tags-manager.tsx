@@ -181,8 +181,9 @@ export function TagsManager() {
           </Button>
         </CardHeader>
         <CardContent>
-          <div className="w-full overflow-x-auto border rounded-lg">
-            <Table>
+          <div className="w-full border rounded-lg relative">
+            <div className="w-full overflow-auto">
+                <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Preview</TableHead>
@@ -254,6 +255,7 @@ export function TagsManager() {
                 )}
               </TableBody>
             </Table>
+            </div>
           </div>
             {totalPages > 1 && (
                 <div className="flex items-center justify-between space-x-2 py-4">

@@ -209,8 +209,9 @@ export function ApiKeysManager() {
           </Dialog>
         </CardHeader>
         <CardContent>
-          <div className="w-full overflow-x-auto border rounded-lg">
-            <Table>
+          <div className="w-full border rounded-lg relative">
+            <div className="w-full overflow-auto">
+                <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Nome</TableHead>
@@ -274,6 +275,7 @@ export function ApiKeysManager() {
                 )}
               </TableBody>
             </Table>
+            </div>
           </div>
         </CardContent>
       </Card>

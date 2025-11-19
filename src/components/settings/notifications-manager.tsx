@@ -357,8 +357,9 @@ export function NotificationsManager() {
           </Button>
         </CardHeader>
         <CardContent>
-          <div className="w-full overflow-x-auto border rounded-lg">
-            <Table>
+          <div className="w-full border rounded-lg relative">
+            <div className="w-full overflow-auto">
+                <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Nome</TableHead>
@@ -452,6 +453,7 @@ export function NotificationsManager() {
                 )}
               </TableBody>
             </Table>
+            </div>
           </div>
           {totalItems > pageSize && (
             <div className="mt-4 flex flex-col gap-4">

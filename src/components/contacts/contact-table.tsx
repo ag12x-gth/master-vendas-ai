@@ -151,112 +151,114 @@ const ContactTableView = memo(({ contacts, onRowClick, selectedRows, onSelectedR
     }
 
     return (
-         <div className="border rounded-lg w-full overflow-x-auto">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[50px]">
-                            <Checkbox 
-                                checked={selectedRows.length === contacts.length && contacts.length > 0}
-                                onCheckedChange={handleSelectAll}
-                             />
-                        </TableHead>
-                        <TableHead>
-                            <Button variant="ghost" onClick={() => onSort('name')}>
-                                Nome <ArrowUpDown className="ml-2 h-4 w-4" />
-                            </Button>
-                        </TableHead>
-                        <TableHead>Telefone</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Tags</TableHead>
-                        <TableHead>Listas</TableHead>
-                        <TableHead>
-                            <Button variant="ghost" onClick={() => onSort('createdAt')}>
-                                Data de Criação <ArrowUpDown className="ml-2 h-4 w-4" />
-                            </Button>
-                        </TableHead>
-                        <TableHead className="text-right">Ações</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {contacts.map((contact) => (
-                    <TableRow key={contact.id}>
-                         <TableCell>
-                           <Checkbox 
-                                checked={selectedRows.includes(contact.id)}
-                                onCheckedChange={(checked) => handleSelectRow(contact.id, !!checked)}
-                            />
-                        </TableCell>
-                        <TableCell>
-                            <Link href={`/contacts/${contact.id}`} className="font-medium hover:underline">{contact.name}</Link>
-                        </TableCell>
-                        <TableCell>{contact.phone}</TableCell>
-                        <TableCell>{contact.email}</TableCell>
-                        <TableCell>
-                            <div className="flex flex-wrap gap-1">
-                                {contact.tags?.map(tag => (
-                                    <Badge key={tag.id} style={{ backgroundColor: tag.color, color: '#fff' }}>{tag.name}</Badge>
-                                ))}
-                            </div>
-                        </TableCell>
-                        <TableCell>
-                             <div className="flex flex-wrap gap-1">
-                                {contact.lists?.map(list => (
-                                    <Badge key={list.id} variant="secondary">{list.name}</Badge>
-                                ))}
-                            </div>
-                        </TableCell>
-                        <TableCell>{contact.createdAt ? new Date(contact.createdAt).toLocaleDateString('pt-BR') : '-'}</TableCell>
-                        <TableCell className="text-right">
-                           <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent>
-                                    <CallButton
-                                        contactId={contact.id}
-                                        customerName={contact.name}
-                                        customerNumber={contact.phone}
-                                        trigger={
-                                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                                <Phone className="mr-2 h-4 w-4" /> Ligar
-                                            </DropdownMenuItem>
-                                        }
-                                    />
-                                    <DropdownMenuItem onSelect={() => onRowClick(contact.id)}>
-                                        <Edit className="mr-2 h-4 w-4" /> Editar
-                                    </DropdownMenuItem>
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
-                                                <Trash2 className="mr-2 h-4 w-4" /> Excluir
-                                            </DropdownMenuItem>
-                                        </AlertDialogTrigger>
-                                         <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                    Tem certeza que deseja excluir o contato &quot;{contact.name}&quot;? Esta ação não pode ser desfeita.
-                                                </AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => onDelete(contact.id)}>Sim, Excluir</AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
-                                </DropdownMenuContent>
-                           </DropdownMenu>
-                        </TableCell>
-                    </TableRow>
-                    ))}
-                    {contacts.length === 0 && (
-                    <TableRow>
-                        <TableCell colSpan={8} className="h-24 text-center">Nenhum contato encontrado.</TableCell>
-                    </TableRow>
-                    )}
-                </TableBody>
-            </Table>
+         <div className="border rounded-lg w-full relative">
+            <div className="w-full overflow-auto">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[50px]">
+                                <Checkbox 
+                                    checked={selectedRows.length === contacts.length && contacts.length > 0}
+                                    onCheckedChange={handleSelectAll}
+                                 />
+                            </TableHead>
+                            <TableHead>
+                                <Button variant="ghost" onClick={() => onSort('name')}>
+                                    Nome <ArrowUpDown className="ml-2 h-4 w-4" />
+                                </Button>
+                            </TableHead>
+                            <TableHead>Telefone</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Tags</TableHead>
+                            <TableHead>Listas</TableHead>
+                            <TableHead>
+                                <Button variant="ghost" onClick={() => onSort('createdAt')}>
+                                    Data de Criação <ArrowUpDown className="ml-2 h-4 w-4" />
+                                </Button>
+                            </TableHead>
+                            <TableHead className="text-right">Ações</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {contacts.map((contact) => (
+                        <TableRow key={contact.id}>
+                             <TableCell>
+                               <Checkbox 
+                                    checked={selectedRows.includes(contact.id)}
+                                    onCheckedChange={(checked) => handleSelectRow(contact.id, !!checked)}
+                                />
+                            </TableCell>
+                            <TableCell>
+                                <Link href={`/contacts/${contact.id}`} className="font-medium hover:underline">{contact.name}</Link>
+                            </TableCell>
+                            <TableCell>{contact.phone}</TableCell>
+                            <TableCell>{contact.email}</TableCell>
+                            <TableCell>
+                                <div className="flex flex-wrap gap-1">
+                                    {contact.tags?.map(tag => (
+                                        <Badge key={tag.id} style={{ backgroundColor: tag.color, color: '#fff' }}>{tag.name}</Badge>
+                                    ))}
+                                </div>
+                            </TableCell>
+                            <TableCell>
+                                 <div className="flex flex-wrap gap-1">
+                                    {contact.lists?.map(list => (
+                                        <Badge key={list.id} variant="secondary">{list.name}</Badge>
+                                    ))}
+                                </div>
+                            </TableCell>
+                            <TableCell>{contact.createdAt ? new Date(contact.createdAt).toLocaleDateString('pt-BR') : '-'}</TableCell>
+                            <TableCell className="text-right">
+                               <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent>
+                                        <CallButton
+                                            contactId={contact.id}
+                                            customerName={contact.name}
+                                            customerNumber={contact.phone}
+                                            trigger={
+                                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                    <Phone className="mr-2 h-4 w-4" /> Ligar
+                                                </DropdownMenuItem>
+                                            }
+                                        />
+                                        <DropdownMenuItem onSelect={() => onRowClick(contact.id)}>
+                                            <Edit className="mr-2 h-4 w-4" /> Editar
+                                        </DropdownMenuItem>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
+                                                    <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                                                </DropdownMenuItem>
+                                            </AlertDialogTrigger>
+                                             <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Tem certeza que deseja excluir o contato &quot;{contact.name}&quot;? Esta ação não pode ser desfeita.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => onDelete(contact.id)}>Sim, Excluir</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </DropdownMenuContent>
+                               </DropdownMenu>
+                            </TableCell>
+                        </TableRow>
+                        ))}
+                        {contacts.length === 0 && (
+                        <TableRow>
+                            <TableCell colSpan={8} className="h-24 text-center">Nenhum contato encontrado.</TableCell>
+                        </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
         </div>
     )
 });

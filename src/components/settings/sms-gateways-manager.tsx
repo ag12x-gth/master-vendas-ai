@@ -233,8 +233,9 @@ export function SmsGatewaysManager(): JSX.Element {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="w-full overflow-x-auto border rounded-lg">
-            <Table>
+          <div className="w-full border rounded-lg relative">
+            <div className="w-full overflow-auto">
+                <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Nome da Configuração</TableHead>
@@ -305,6 +306,7 @@ export function SmsGatewaysManager(): JSX.Element {
                 )}
               </TableBody>
             </Table>
+            </div>
           </div>
         </CardContent>
       </Card>

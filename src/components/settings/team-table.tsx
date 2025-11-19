@@ -492,8 +492,9 @@ export function TeamTable(): JSX.Element {
         ) : isMobile ? (
             <TeamListMobile users={users} onEdit={openEditModal} onDeactivate={openDeactivateAlert} onRemove={openRemoveAlert} onResendInvite={handleResendInvite} onResetPassword={openResetPasswordDialog} isResending={isResending} onMarkAsVerified={handleMarkAsVerified}/>
         ) : (
-            <div className="w-full overflow-x-auto border rounded-lg">
-                <Table>
+            <div className="w-full border rounded-lg relative">
+                <div className="w-full overflow-auto">
+                    <Table>
                     <TableHeader>
                     <TableRow>
                         <TableHead>Nome</TableHead>
@@ -600,6 +601,7 @@ export function TeamTable(): JSX.Element {
                         ))}
                     </TableBody>
                 </Table>
+                </div>
             </div>
         )}
       </CardContent>

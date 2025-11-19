@@ -366,45 +366,47 @@ export function CampaignTable({ channel, baileysOnly = false }: CampaignTablePro
     }
 
     return (
-        <div className="border rounded-lg w-full overflow-x-auto">
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Nome</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Data de Envio</TableHead>
-                        <TableHead>Enviadas</TableHead>
-                        {!isSms && <TableHead>Entregues</TableHead>}
-                        {!isSms && <TableHead>Lidas</TableHead>}
-                        {isSms && <TableHead>Falhas</TableHead>}
-                        <TableHead className="text-right">Ações</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {campaigns.map(campaign => {
-                        const statusKey = campaign.status as keyof typeof statusConfig;
-                        const status = statusConfig[statusKey] || statusConfig.Agendada;
-                        const campaignDate = campaign.sentAt || campaign.scheduledAt;
-                        const isSms = campaign.channel === 'SMS';
-                        return (
-                            <TableRow key={campaign.id}>
-                                <TableCell className="font-medium">{campaign.name}</TableCell>
-                                <TableCell><Badge variant={status.variant} className={cn(status.className)}>{status.text}</Badge></TableCell>
-                                <TableCell>{campaignDate ? new Date(campaignDate).toLocaleString('pt-BR') : '-'}</TableCell>
-                                <TableCell>{campaign.sent}</TableCell>
-                                {!isSms && <TableCell>{campaign.delivered}</TableCell>}
-                                {!isSms && <TableCell>{campaign.read}</TableCell>}
-                                {isSms && <TableCell>{campaign.failed}</TableCell>}
-                                <TableCell className="text-right">
-                                    <Link href={`/campaigns/${campaign.id}/report`}>
-                                        <Button variant="outline" size="sm">Ver Relatório</Button>
-                                    </Link>
-                                </TableCell>
-                            </TableRow>
-                        )
-                    })}
-                </TableBody>
-            </Table>
+        <div className="border rounded-lg w-full relative">
+            <div className="w-full overflow-auto">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Nome</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Data de Envio</TableHead>
+                            <TableHead>Enviadas</TableHead>
+                            {!isSms && <TableHead>Entregues</TableHead>}
+                            {!isSms && <TableHead>Lidas</TableHead>}
+                            {isSms && <TableHead>Falhas</TableHead>}
+                            <TableHead className="text-right">Ações</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {campaigns.map(campaign => {
+                            const statusKey = campaign.status as keyof typeof statusConfig;
+                            const status = statusConfig[statusKey] || statusConfig.Agendada;
+                            const campaignDate = campaign.sentAt || campaign.scheduledAt;
+                            const isSms = campaign.channel === 'SMS';
+                            return (
+                                <TableRow key={campaign.id}>
+                                    <TableCell className="font-medium">{campaign.name}</TableCell>
+                                    <TableCell><Badge variant={status.variant} className={cn(status.className)}>{status.text}</Badge></TableCell>
+                                    <TableCell>{campaignDate ? new Date(campaignDate).toLocaleString('pt-BR') : '-'}</TableCell>
+                                    <TableCell>{campaign.sent}</TableCell>
+                                    {!isSms && <TableCell>{campaign.delivered}</TableCell>}
+                                    {!isSms && <TableCell>{campaign.read}</TableCell>}
+                                    {isSms && <TableCell>{campaign.failed}</TableCell>}
+                                    <TableCell className="text-right">
+                                        <Link href={`/campaigns/${campaign.id}/report`}>
+                                            <Button variant="outline" size="sm">Ver Relatório</Button>
+                                        </Link>
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        })}
+                    </TableBody>
+                </Table>
+            </div>
         </div>
     )
   };

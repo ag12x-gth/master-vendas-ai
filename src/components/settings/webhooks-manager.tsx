@@ -199,8 +199,9 @@ export function WebhooksManager(): JSX.Element {
           </Button>
         </CardHeader>
         <CardContent>
-          <div className="w-full overflow-x-auto border rounded-lg">
-            <Table>
+          <div className="w-full border rounded-lg relative">
+            <div className="w-full overflow-auto">
+                <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Nome</TableHead>
@@ -272,6 +273,7 @@ export function WebhooksManager(): JSX.Element {
                 )}
               </TableBody>
             </Table>
+            </div>
           </div>
         </CardContent>
       </Card>
