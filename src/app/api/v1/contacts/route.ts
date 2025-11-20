@@ -244,9 +244,15 @@ async function fetchContactsData(options: {
         
         const totalContacts = totalContactsResult[0]?.value ?? 0;
         
-        // db.execute() retorna um array diretamente, não um objeto com .rows
-        const contactsWithRelations = Array.isArray(rawContactsResult) ? rawContactsResult : [];
-
+        // ✅ db.execute() do Drizzle retorna um array diretamente (com metadados)
+        // Type: Record<string, unknown>[] & Iterable & ResultQueryMeta
+        const contactsWithRelations = Array.isArray(rawContactsResult) 
+            ? rawContactsResult 
+            : [];
+        
+        if (contactsWithRelations.length === 0 && totalContacts > 0) {
+            console.warn('[fetchContactsData] Query retornou 0 contatos mas total é', totalContacts);
+        }
 
         return {
             data: contactsWithRelations,

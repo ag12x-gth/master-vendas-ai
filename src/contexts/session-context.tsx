@@ -32,13 +32,15 @@ export function MainContent({ children }: { children: ReactNode }): JSX.Element 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       <AppHeader />
-      <main className="flex-1 overflow-y-auto bg-muted/40 p-3 sm:p-4 md:p-6 lg:p-8 pb-20 md:pb-6">
+      <main className="flex-1 overflow-y-auto bg-muted/40 p-3 sm:p-4 md:p-6 lg:p-8 pb-6">
         {mounted && !hasFacebookLinked && userEmail && (
           <div className="max-w-7xl mx-auto mb-4">
             <FacebookLinkBanner userEmail={userEmail} />
           </div>
         )}
-        {children}
+        <div className="w-full max-w-full">
+          {children}
+        </div>
       </main>
     </div>
   );
