@@ -19,9 +19,13 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('endDate');
     
     const cacheKey = `vapi-analytics:${companyId}:${startDate || 'all'}:${endDate || 'all'}`;
+    // Usar TTL otimizado: histórico (10min) se tem intervalo de datas, atual (1min) se dados recentes
+    const isHistorical = startDate || endDate;
+    const ttl = isHistorical ? CacheTTL.ANALYTICS_HISTORICAL : CacheTTL.ANALYTICS_CURRENT;
+    
     const data = await getCachedOrFetch(cacheKey, async () => {
       return await fetchVapiAnalytics(companyId, startDate, endDate);
-    }, CacheTTL.SHORT);
+    }, ttl);
 
     return NextResponse.json(data);
   } catch (error: any) {

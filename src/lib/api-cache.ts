@@ -89,9 +89,11 @@ export async function getCachedOrFetch<T>(
 
 // TTLs recomendados por tipo de dados
 export const CacheTTL = {
-  REAL_TIME: 5000,      // 5s - dados em tempo real (conversas ativas)
-  SHORT: 30000,         // 30s - dados frequentes (lista de conversas)
-  MEDIUM: 60000,        // 1min - dados semi-estáticos (contatos)
-  LONG: 300000,         // 5min - dados estáticos (configurações, stats)
-  VERY_LONG: 900000,    // 15min - dados raramente alterados (listas, tags)
+  REAL_TIME: 5000,         // 5s - dados em tempo real (conversas ativas)
+  SHORT: 30000,            // 30s - dados frequentes (lista de conversas, leads kanban)
+  MEDIUM: 60000,           // 1min - dados semi-estáticos (contatos, campanhas)
+  LONG: 300000,            // 5min - dados estáticos (configurações, stats)
+  VERY_LONG: 900000,       // 15min - dados raramente alterados (listas, tags)
+  ANALYTICS_CURRENT: 60000,  // 1min - analytics de dados atuais/hoje
+  ANALYTICS_HISTORICAL: 600000, // 10min - analytics de dados históricos (última semana/mês)
 } as const;

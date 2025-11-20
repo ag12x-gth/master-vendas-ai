@@ -39,6 +39,7 @@ import { MediaUploader } from './media-uploader';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { WhatsAppPreview } from './whatsapp-preview';
+import { TemplatePreview } from './TemplatePreview';
 
 const contactFields = [
     { value: 'name', label: 'Nome' },
@@ -655,34 +656,19 @@ export function CreateWhatsappCampaignDialog({
                         <div className={cn("space-y-4", isMediaStep && "md:col-span-2")}>
                            {renderStepContent()}
                         </div>
-                        {!isMediaStep && (() => {
-                            const { header, footer, buttons, headerMediaUrl } = getTemplateComponents();
-                            const headerFormat = header?.format;
+                        {!isMediaStep && selectedTemplate?.components && (() => {
+                            const contactFieldsMapping = contactFields.reduce((acc, field) => {
+                                acc[field.value] = field.label;
+                                return acc;
+                            }, {} as Record<string, string>);
                             
                             return (
                                 <div className="space-y-2 hidden md:flex md:flex-col overflow-auto">
-                                    <WhatsAppPreview
-                                        header={
-                                            headerFormat === 'IMAGE' || headerFormat === 'VIDEO' || headerFormat === 'DOCUMENT'
-                                                ? {
-                                                    type: headerFormat.toLowerCase() as 'image' | 'video' | 'document',
-                                                    content: headerFormat === 'DOCUMENT' ? selectedMedia?.name || 'document.pdf' : undefined,
-                                                    url: headerMediaUrl || undefined
-                                                }
-                                                : headerFormat === 'TEXT' && header?.text
-                                                ? {
-                                                    type: 'text',
-                                                    content: header.text
-                                                }
-                                                : undefined
-                                        }
-                                        body={getPreviewBody()}
-                                        footer={footer || undefined}
-                                        buttons={buttons.length > 0 ? buttons.map((btn: any) => ({
-                                            type: btn.type.toLowerCase() as 'quick_reply' | 'url' | 'phone_number',
-                                            text: btn.text || btn.title || 'Button',
-                                            url: btn.url
-                                        })) : undefined}
+                                    <TemplatePreview
+                                        components={selectedTemplate.components as any}
+                                        variableMappings={variableMappings}
+                                        contactFieldsMap={contactFieldsMapping}
+                                        mediaUrl={selectedMedia?.s3Url || null}
                                     />
                                 </div>
                             );

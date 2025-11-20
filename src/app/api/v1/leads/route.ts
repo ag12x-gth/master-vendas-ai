@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
 import type { KanbanStage } from '@/lib/types';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,61 +28,11 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'O parâmetro boardId é obrigatório.' }, { status: 400 });
         }
         
-        const [board] = await db.select().from(kanbanBoards).where(eq(kanbanBoards.id, boardId));
-        if (board?.companyId !== companyId) {
-             return NextResponse.json({ error: 'Funil não encontrado ou não pertence à sua empresa.' }, { status: 404 });
-        }
-
-        const flatLeadsAndContacts = await db
-            .select({
-                lead: kanbanLeads,
-                contact: {
-                    id: contacts.id,
-                    companyId: contacts.companyId,
-                    name: contacts.name,
-                    whatsappName: contacts.whatsappName,
-                    phone: contacts.phone,
-                    email: contacts.email,
-                    avatarUrl: contacts.avatarUrl,
-                    status: contacts.status,
-                    notes: contacts.notes,
-                    profileLastSyncedAt: contacts.profileLastSyncedAt,
-                    addressStreet: contacts.addressStreet,
-                    addressNumber: contacts.addressNumber,
-                    addressComplement: contacts.addressComplement,
-                    addressDistrict: contacts.addressDistrict,
-                    addressCity: contacts.addressCity,
-                    addressState: contacts.addressState,
-                    addressZipCode: contacts.addressZipCode,
-                    createdAt: contacts.createdAt,
-                    externalId: contacts.externalId,
-                    externalProvider: contacts.externalProvider
-                },
-            })
-            .from(kanbanLeads)
-            .innerJoin(contacts, eq(kanbanLeads.contactId, contacts.id))
-            .where(eq(kanbanLeads.boardId, boardId))
-            .orderBy(asc(kanbanLeads.createdAt));
-            
-        // Post-process to add tags, as Drizzle doesn't handle nested relations easily in one query
-        const leads = await Promise.all(flatLeadsAndContacts.map(async (row) => {
-            const { lead, contact } = row;
-            if (!contact) return lead;
-
-            const contactTags = await db
-                .select({ id: tags.id, name: tags.name, color: tags.color })
-                .from(tags)
-                .innerJoin(contactsToTags, eq(tags.id, contactsToTags.tagId))
-                .where(eq(contactsToTags.contactId, contact.id));
-
-            return {
-                ...lead,
-                contact: {
-                    ...contact,
-                    tags: contactTags
-                }
-            };
-        }));
+        // Cache baseado no boardId
+        const cacheKey = `leads:${companyId}:${boardId}`;
+        const leads = await getCachedOrFetch(cacheKey, async () => {
+            return await fetchLeadsData(companyId, boardId);
+        }, CacheTTL.SHORT); // 30s cache - dados atualizados frequentemente no Kanban
 
         return NextResponse.json(leads);
     } catch (error) {
@@ -89,6 +40,66 @@ export async function GET(request: NextRequest) {
         const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor.';
         return NextResponse.json({ error: errorMessage, details: (error as Error).stack }, { status: 500 });
     }
+}
+
+async function fetchLeadsData(companyId: string, boardId: string) {
+    const [board] = await db.select().from(kanbanBoards).where(eq(kanbanBoards.id, boardId));
+    if (board?.companyId !== companyId) {
+        throw new Error('Funil não encontrado ou não pertence à sua empresa.');
+    }
+
+    const flatLeadsAndContacts = await db
+        .select({
+            lead: kanbanLeads,
+            contact: {
+                id: contacts.id,
+                companyId: contacts.companyId,
+                name: contacts.name,
+                whatsappName: contacts.whatsappName,
+                phone: contacts.phone,
+                email: contacts.email,
+                avatarUrl: contacts.avatarUrl,
+                status: contacts.status,
+                notes: contacts.notes,
+                profileLastSyncedAt: contacts.profileLastSyncedAt,
+                addressStreet: contacts.addressStreet,
+                addressNumber: contacts.addressNumber,
+                addressComplement: contacts.addressComplement,
+                addressDistrict: contacts.addressDistrict,
+                addressCity: contacts.addressCity,
+                addressState: contacts.addressState,
+                addressZipCode: contacts.addressZipCode,
+                createdAt: contacts.createdAt,
+                externalId: contacts.externalId,
+                externalProvider: contacts.externalProvider
+            },
+        })
+        .from(kanbanLeads)
+        .innerJoin(contacts, eq(kanbanLeads.contactId, contacts.id))
+        .where(eq(kanbanLeads.boardId, boardId))
+        .orderBy(asc(kanbanLeads.createdAt));
+        
+    // Post-process to add tags
+    const leads = await Promise.all(flatLeadsAndContacts.map(async (row) => {
+        const { lead, contact } = row;
+        if (!contact) return lead;
+
+        const contactTags = await db
+            .select({ id: tags.id, name: tags.name, color: tags.color })
+            .from(tags)
+            .innerJoin(contactsToTags, eq(tags.id, contactsToTags.tagId))
+            .where(eq(contactsToTags.contactId, contact.id));
+
+        return {
+            ...lead,
+            contact: {
+                ...contact,
+                tags: contactTags
+            }
+        };
+    }));
+
+    return leads;
 }
 
 
