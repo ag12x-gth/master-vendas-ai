@@ -4,12 +4,20 @@
 Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control panel with AI automation capabilities. It provides a centralized platform for managing multi-channel campaigns, customer service conversations, contact management (CRM), and AI-driven chatbots using Meta's WhatsApp Business API and Baileys. The project aims to be an all-in-one solution for automated, intelligent communication, offering an intuitive dashboard for businesses, including an AI-powered lead progression system and a Kanban lead management system.
 
 ## Recent Changes
-### 2025-11-20: Critical Authentication Bug Fix
-- **Fixed:** Contacts page /contacts returning 401 "Não autorizado" error
-- **Root Cause:** React `cache()` wrapper in `getUserSession()` function was caching stale unauthenticated state
-- **Solution:** Removed `cache()` wrapper from `getUserSession` in `src/app/actions.ts`
-- **Impact:** 28,028 contacts now accessible; CRM fully functional
-- **Documentation:** See `docs/BUG_FIX_CONTACTS_AUTH_20251120.md` for full technical details
+### 2025-11-20: Contacts Page Critical Fixes (Data Retrieval + Layout + Pagination)
+- **Bug #1 - Empty Contact List:** Fixed `db.execute()` result handling - Drizzle returns array directly, not `{rows: []}` object
+  - **Root Cause:** Code assumed incorrect return type from `db.execute()`
+  - **Solution:** Proper `Array.isArray()` validation in `src/app/api/v1/contacts/route.ts`
+  - **Impact:** 22,782 contacts now visible (was showing empty list)
+- **Bug #2 - Layout Broken:** Fixed excessive mobile padding cutting off table content
+  - **Root Cause:** 80px bottom padding (`pb-20`) on mobile layout
+  - **Solution:** Reduced to 24px (`pb-6`) and added responsive wrapper
+  - **Files:** `src/contexts/session-context.tsx`, `src/app/(main)/contacts/page.tsx`
+- **Bug #3 - Incorrect Pagination:** Fixed query misalignment between count and data queries
+  - **Root Cause:** Count query used Drizzle ORM, data query used raw SQL with different filter logic
+  - **Solution:** Aligned both queries to use identical SQL raw logic with `COUNT(DISTINCT c.id)`
+  - **Impact:** Pagination now accurate with filters (tags/lists), no more empty pages
+- **Prevention:** Added validation logging and comprehensive documentation in `docs/BUG_FIX_CONTACTS_AUTH_20251120.md`
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
