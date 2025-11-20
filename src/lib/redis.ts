@@ -658,6 +658,8 @@ declare global {
   var __enhancedCacheInstance: EnhancedCache | undefined;
   // eslint-disable-next-line no-var
   var __redisClient: any;
+  // eslint-disable-next-line no-var
+  var __processListenersRegistered: boolean | undefined;
 }
 
 // Create Redis client or enhanced cache based on environment
@@ -679,8 +681,13 @@ if (process.env.REDIS_URL) {
     console.log('📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)');
     redis = new EnhancedCache();
     global.__enhancedCacheInstance = redis;
-    
-    // Graceful shutdown
+  } else {
+    redis = global.__enhancedCacheInstance;
+  }
+  
+  // Register process listeners only once (prevents MaxListenersExceededWarning)
+  if (!global.__processListenersRegistered) {
+    // Graceful shutdown handlers
     process.on('SIGINT', () => {
       if (global.__enhancedCacheInstance) {
         global.__enhancedCacheInstance.destroy();
@@ -696,8 +703,8 @@ if (process.env.REDIS_URL) {
       }
       process.exit(0);
     });
-  } else {
-    redis = global.__enhancedCacheInstance;
+    
+    global.__processListenersRegistered = true;
   }
 }
 

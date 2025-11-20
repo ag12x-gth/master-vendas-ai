@@ -5,8 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CallKPIDashboard } from '@/components/vapi-voice/CallKPIDashboard';
 import { CallHistoryTable } from '@/components/vapi-voice/CallHistoryTable';
 import { BulkCallDialog } from '@/components/vapi-voice/BulkCallDialog';
+import { VoiceCallsAnalytics } from '@/components/vapi-voice/VoiceCallsAnalytics';
 import { useVapiCalls } from '@/hooks/useVapiCalls';
-import { Phone, PhoneCall, History } from 'lucide-react';
+import { Phone, PhoneCall, History, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -78,7 +79,7 @@ export default function VoiceCallsPage() {
             Histórico Completo
           </TabsTrigger>
           <TabsTrigger value="analytics">
-            <Phone className="h-4 w-4 mr-2" />
+            <BarChart3 className="h-4 w-4 mr-2" />
             Analytics
           </TabsTrigger>
         </TabsList>
@@ -98,17 +99,7 @@ export default function VoiceCallsPage() {
         </TabsContent>
 
         <TabsContent value="analytics" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Analytics em Desenvolvimento</CardTitle>
-              <CardDescription>
-                Gráficos e relatórios detalhados serão exibidos aqui
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex items-center justify-center h-64">
-              <p className="text-muted-foreground">Em breve...</p>
-            </CardContent>
-          </Card>
+          <VoiceCallsAnalytics />
         </TabsContent>
       </Tabs>
 
