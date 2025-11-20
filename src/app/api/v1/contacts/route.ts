@@ -81,6 +81,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             return await fetchContactsData({ companyId, page, limit, search, sortBy, sortOrder, tagId, listId, listIds });
         }, CacheTTL.SHORT);
 
+        console.log(`[Contacts API] Returning ${data?.data?.length || 0} contacts out of ${data?.totalPages || 0} pages for company ${companyId}`);
         return NextResponse.json(data);
     } catch (error) {
         console.error("Erro ao buscar contatos:", error);
