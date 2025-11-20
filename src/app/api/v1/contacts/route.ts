@@ -102,55 +102,9 @@ async function fetchContactsData(options: {
     listIds: string[];
 }) {
         const { companyId, page, limit, search, sortBy, sortOrder, tagId, listId, listIds } = options;
-
         const offset = (page - 1) * limit;
 
-        const whereClauses: (SQL | undefined)[] = [eq(contacts.companyId, companyId)];
-        if (search) {
-            const digitsOnlySearch = search.replace(/\D/g, '');
-            const searchConditions = or(
-                ilike(contacts.name, `%${search}%`),
-                ilike(contacts.email, `%${search}%`),
-                // Se o termo de busca contiver dígitos, busca também no telefone.
-                digitsOnlySearch ? sql`"phone" ILIKE ${'%' + digitsOnlySearch + '%'}` : undefined
-            );
-            whereClauses.push(searchConditions);
-        }
-        
-        if (tagId && tagId !== 'all') {
-          const subquery = db
-            .select({ contactId: contactsToTags.contactId })
-            .from(contactsToTags)
-            .where(eq(contactsToTags.tagId, tagId));
-          
-          whereClauses.push(inArray(contacts.id, subquery));
-        }
-
-        if (listId && listId !== 'all') {
-            const subquery = db
-            .select({ contactId: contactsToContactLists.contactId })
-            .from(contactsToContactLists)
-            .where(eq(contactsToContactLists.listId, listId));
-            
-            whereClauses.push(inArray(contacts.id, subquery));
-        }
-
-        if (listIds && listIds.length > 0) {
-            const subquery = db
-            .selectDistinct({ contactId: contactsToContactLists.contactId })
-            .from(contactsToContactLists)
-            .where(inArray(contactsToContactLists.listId, listIds));
-            
-            whereClauses.push(inArray(contacts.id, subquery));
-        }
-        
-        const finalWhereClauses = and(...whereClauses.filter((c): c is SQL => !!c));
-
-        // Query para contar total de contatos
-        const countQuery = db.select({ value: count() }).from(contacts).where(finalWhereClauses);
-        
-        // ✅ CORREÇÃO 7: JOIN com json_agg para evitar N+1 queries
-        // Agora fazemos 1 única query em vez de 3 queries separadas
+        // ✅ IMPORTANTE: Usar a mesma lógica SQL para contagem e dados para garantir consistência
         const sortableColumns: { [key: string]: string } = {
             name: 'name',
             createdAt: 'created_at',
@@ -158,7 +112,7 @@ async function fetchContactsData(options: {
         const orderByField = sortableColumns[sortBy] || 'created_at';
         const orderDirection = sortOrder === 'asc' ? 'ASC' : 'DESC';
 
-        // Construir filtros WHERE dinâmicos
+        // Construir filtros WHERE dinâmicos (usados tanto para contagem quanto para dados)
         let whereConditions = sql`c.company_id = ${companyId}`;
         
         if (search) {
@@ -181,6 +135,13 @@ async function fetchContactsData(options: {
         if (listIds && listIds.length > 0) {
             whereConditions = sql`${whereConditions} AND c.id IN (SELECT DISTINCT contact_id FROM contacts_to_contact_lists WHERE list_id = ANY(${listIds}))`;
         }
+
+        // Query de contagem usando a MESMA lógica SQL que a query de dados
+        const countQuery = sql`
+            SELECT COUNT(DISTINCT c.id) as value
+            FROM contacts c
+            WHERE ${whereConditions}
+        `;
 
         // Query otimizada com LEFT JOIN + json_agg
         // ⚠️ IMPORTANTE: Aliases para manter camelCase e compatibilidade da API
@@ -237,12 +198,15 @@ async function fetchContactsData(options: {
             LIMIT ${limit} OFFSET ${offset}
         `;
 
-        const [totalContactsResult, rawContactsResult] = await Promise.all([
-            countQuery,
+        const [countResult, rawContactsResult] = await Promise.all([
+            db.execute(countQuery),
             db.execute(dataQuery),
         ]);
         
-        const totalContacts = totalContactsResult[0]?.value ?? 0;
+        // Extrair contagem do resultado
+        const totalContacts = Array.isArray(countResult) && countResult[0] 
+            ? Number(countResult[0].value) 
+            : 0;
         
         // ✅ db.execute() do Drizzle retorna um array diretamente (com metadados)
         // Type: Record<string, unknown>[] & Iterable & ResultQueryMeta
