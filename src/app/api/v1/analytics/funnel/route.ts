@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserSession } from '@/app/actions';
 import { analyticsService } from '@/services/analytics.service';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,7 +14,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl;
     const boardId = searchParams.get('boardId');
 
-    const funnel = await analyticsService.getFunnelData(user.companyId, boardId || undefined);
+    const companyId = user.companyId!;
+    const cacheKey = `analytics-funnel:${companyId}:${boardId || 'all'}`;
+
+    const funnel = await getCachedOrFetch(cacheKey, async () => {
+      return await analyticsService.getFunnelData(companyId, boardId || undefined);
+    }, CacheTTL.ANALYTICS_TIMESERIES_CURRENT);
 
     return NextResponse.json(funnel);
   } catch (error) {

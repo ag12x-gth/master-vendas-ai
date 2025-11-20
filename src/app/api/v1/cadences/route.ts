@@ -4,6 +4,7 @@ import { cadenceDefinitions, cadenceSteps } from '@/lib/db/schema';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 const createCadenceSchema = z.object({
   name: z.string().min(1, 'Name is required').max(255),
@@ -29,21 +30,24 @@ export async function GET(req: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();
 
-    const cadences = await db.query.cadenceDefinitions.findMany({
-      where: eq(cadenceDefinitions.companyId, companyId),
-      orderBy: [desc(cadenceDefinitions.createdAt)],
-      with: {
-        funnel: {
-          columns: {
-            id: true,
-            name: true,
+    const cacheKey = `cadences:${companyId}`;
+    const cadences = await getCachedOrFetch(cacheKey, async () => {
+      return await db.query.cadenceDefinitions.findMany({
+        where: eq(cadenceDefinitions.companyId, companyId),
+        orderBy: [desc(cadenceDefinitions.createdAt)],
+        with: {
+          funnel: {
+            columns: {
+              id: true,
+              name: true,
+            },
+          },
+          steps: {
+            orderBy: (steps) => [steps.stepOrder],
           },
         },
-        steps: {
-          orderBy: (steps) => [steps.stepOrder],
-        },
-      },
-    });
+      });
+    }, CacheTTL.CONFIG_SEMI_STATIC);
 
     return NextResponse.json({ cadences });
   } catch (error) {

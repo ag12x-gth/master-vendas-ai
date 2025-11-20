@@ -3,6 +3,7 @@ import { getUserSession } from '@/app/actions';
 import { db } from '@/lib/db';
 import { messageTemplates, connections } from '@/lib/db/schema';
 import { eq, and, or, like, desc } from 'drizzle-orm';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 export async function GET(request: NextRequest) {
   const { user } = await getUserSession();
@@ -16,39 +17,44 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const search = searchParams.get('search');
 
-    let query = db
-      .select({
-        template: messageTemplates,
-        connection: connections,
-      })
-      .from(messageTemplates)
-      .leftJoin(connections, eq(messageTemplates.connectionId, connections.id))
-      .where(eq(messageTemplates.companyId, user.companyId))
-      .$dynamic();
+    const companyId = user.companyId!;
+    const cacheKey = `message-templates:${companyId}:${connectionId || 'all'}:${status || 'all'}:${search || ''}`;
 
-    if (connectionId) {
-      query = query.where(eq(messageTemplates.connectionId, connectionId));
-    }
+    const templates = await getCachedOrFetch(cacheKey, async () => {
+      let query = db
+        .select({
+          template: messageTemplates,
+          connection: connections,
+        })
+        .from(messageTemplates)
+        .leftJoin(connections, eq(messageTemplates.connectionId, connections.id))
+        .where(eq(messageTemplates.companyId, companyId))
+        .$dynamic();
 
-    if (status) {
-      query = query.where(eq(messageTemplates.status, status));
-    }
+      if (connectionId) {
+        query = query.where(eq(messageTemplates.connectionId, connectionId));
+      }
 
-    if (search) {
-      query = query.where(
-        or(
-          like(messageTemplates.name, `%${search}%`),
-          like(messageTemplates.displayName, `%${search}%`)
-        )
-      );
-    }
+      if (status) {
+        query = query.where(eq(messageTemplates.status, status));
+      }
 
-    const results = await query.orderBy(desc(messageTemplates.createdAt));
+      if (search) {
+        query = query.where(
+          or(
+            like(messageTemplates.name, `%${search}%`),
+            like(messageTemplates.displayName, `%${search}%`)
+          )
+        );
+      }
 
-    const templates = results.map(row => ({
-      ...row.template,
-      connection: row.connection,
-    }));
+      const results = await query.orderBy(desc(messageTemplates.createdAt));
+
+      return results.map(row => ({
+        ...row.template,
+        connection: row.connection,
+      }));
+    }, CacheTTL.CONFIG_STATIC);
 
     return NextResponse.json(templates);
   } catch (error) {

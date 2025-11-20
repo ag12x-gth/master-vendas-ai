@@ -7,8 +7,7 @@ import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { encrypt } from '@/lib/crypto';
-
-export const dynamic = 'force-dynamic';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 const connectionSchema = z.object({
     configName: z.string().min(1, 'Nome da conexão é obrigatório'),
@@ -23,25 +22,29 @@ const connectionSchema = z.object({
 export async function GET(_request: NextRequest) {
     try {
         const companyId = await getCompanyIdFromSession();
-        const companyConnections = await db
-            .select({
-                id: connections.id,
-                companyId: connections.companyId,
-                config_name: connections.config_name,
-                connectionType: connections.connectionType,
-                wabaId: connections.wabaId,
-                phoneNumberId: connections.phoneNumberId,
-                appId: connections.appId,
-                accessToken: connections.accessToken,
-                webhookSecret: connections.webhookSecret,
-                appSecret: connections.appSecret,
-                isActive: connections.isActive,
-                assignedPersonaId: connections.assignedPersonaId,
-                createdAt: connections.createdAt
-            })
-            .from(connections)
-            .where(eq(connections.companyId, companyId))
-            .orderBy(desc(connections.createdAt));
+        
+        const cacheKey = `connections:${companyId}`;
+        const companyConnections = await getCachedOrFetch(cacheKey, async () => {
+            return await db
+                .select({
+                    id: connections.id,
+                    companyId: connections.companyId,
+                    config_name: connections.config_name,
+                    connectionType: connections.connectionType,
+                    wabaId: connections.wabaId,
+                    phoneNumberId: connections.phoneNumberId,
+                    appId: connections.appId,
+                    accessToken: connections.accessToken,
+                    webhookSecret: connections.webhookSecret,
+                    appSecret: connections.appSecret,
+                    isActive: connections.isActive,
+                    assignedPersonaId: connections.assignedPersonaId,
+                    createdAt: connections.createdAt
+                })
+                .from(connections)
+                .where(eq(connections.companyId, companyId))
+                .orderBy(desc(connections.createdAt));
+        }, CacheTTL.CONFIG_SEMI_STATIC);
         
         // Retorna os dados, mas o token permanece encriptado
         return NextResponse.json(companyConnections);

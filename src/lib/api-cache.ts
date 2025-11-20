@@ -87,13 +87,21 @@ export async function getCachedOrFetch<T>(
   return data;
 }
 
-// TTLs recomendados por tipo de dados
+// TTLs recomendados por tipo de dados (Estratégia Tiered Cache Expansion)
 export const CacheTTL = {
   REAL_TIME: 5000,         // 5s - dados em tempo real (conversas ativas)
   SHORT: 30000,            // 30s - dados frequentes (lista de conversas, leads kanban)
   MEDIUM: 60000,           // 1min - dados semi-estáticos (contatos, campanhas)
   LONG: 300000,            // 5min - dados estáticos (configurações, stats)
   VERY_LONG: 900000,       // 15min - dados raramente alterados (listas, tags)
-  ANALYTICS_CURRENT: 60000,  // 1min - analytics de dados atuais/hoje
-  ANALYTICS_HISTORICAL: 600000, // 10min - analytics de dados históricos (última semana/mês)
+  
+  // Analytics Tier (Current vs Historical Data)
+  ANALYTICS_CURRENT: 60000,          // 1min - analytics de dados atuais/hoje
+  ANALYTICS_TIMESERIES_CURRENT: 120000,   // 2min - séries temporais atuais
+  ANALYTICS_HISTORICAL: 600000,      // 10min - analytics de dados históricos
+  ANALYTICS_TIMESERIES_HISTORICAL: 900000, // 15min - séries temporais históricas
+  
+  // Configuration Tier (Semi-Static Data)
+  CONFIG_SEMI_STATIC: 300000,        // 5min - listas, conexões, cadências
+  CONFIG_STATIC: 900000,             // 15min - templates, personas (raramente mudam)
 } as const;

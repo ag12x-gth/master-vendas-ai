@@ -5,8 +5,7 @@ import { getCompanyIdFromSession } from '@/app/actions';
 import { and, count, eq, sql, desc, gte, inArray } from 'drizzle-orm';
 import { kanbanLeads, contacts, whatsappDeliveryReports, smsDeliveryReports, conversations, users, kanbanBoards, campaigns } from '@/lib/db/schema';
 import { subDays, startOfDay, endOfDay } from 'date-fns';
-
-export const dynamic = 'force-dynamic';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 export async function GET(request: NextRequest) {
     try {
@@ -18,6 +17,10 @@ export async function GET(request: NextRequest) {
 
         const endDate = endDateParam ? endOfDay(new Date(endDateParam)) : endOfDay(new Date());
         const startDate = startDateParam ? startOfDay(new Date(startDateParam)) : startOfDay(subDays(endDate, 30));
+        
+        const cacheKey = `dashboard-stats:${companyId}:${startDate.toISOString()}:${endDate.toISOString()}`;
+        
+        const stats = await getCachedOrFetch(cacheKey, async () => {
 
         // Where clause for date range to be reused
         const dateRangeFilter = gte(kanbanLeads.createdAt, startDate);
@@ -77,13 +80,14 @@ export async function GET(request: NextRequest) {
         .orderBy(desc(sql<number>`count(${conversations.id})::int`));
 
             
-        const stats = {
+        return {
             totalLeadValue: totalLeadsResult?.value || 0,
             totalContacts: totalContactsResult?.count || 0,
             totalMessagesSent: (totalWhatsappSentResult?.count || 0) + (totalSmsSentResult?.count || 0),
             pendingConversations: pendingConversationsResult?.count || 0,
             agentPerformance,
         };
+        }, CacheTTL.MEDIUM);
 
         return NextResponse.json(stats);
 

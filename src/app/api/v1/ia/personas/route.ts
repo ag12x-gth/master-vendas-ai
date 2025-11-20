@@ -9,6 +9,7 @@ import { getCompanyIdFromSession } from '@/app/actions';
 import { z } from 'zod';
 import { desc, eq } from 'drizzle-orm';
 import { parsePromptIntoSections } from '@/lib/rag/prompt-parser';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
 const personaCreateSchema = z.object({
   name: z.string().min(1, 'O nome é obrigatório.'),
@@ -46,10 +47,15 @@ const personaCreateSchema = z.object({
 export async function GET(_request: NextRequest) {
     try {
         const companyId = await getCompanyIdFromSession();
-        const personas = await db.query.aiPersonas.findMany({
-            where: eq(aiPersonas.companyId, companyId),
-            orderBy: desc(aiPersonas.createdAt),
-        });
+        
+        const cacheKey = `ia-personas:${companyId}`;
+        const personas = await getCachedOrFetch(cacheKey, async () => {
+            return await db.query.aiPersonas.findMany({
+                where: eq(aiPersonas.companyId, companyId),
+                orderBy: desc(aiPersonas.createdAt),
+            });
+        }, CacheTTL.CONFIG_STATIC);
+        
         return NextResponse.json(personas);
     } catch (error) {
         console.error('Erro ao buscar agentes:', error);

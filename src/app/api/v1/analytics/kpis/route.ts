@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserSession } from '@/app/actions';
 import { analyticsService } from '@/services/analytics.service';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
+import { differenceInDays } from 'date-fns';
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,10 +20,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'startDate and endDate are required' }, { status: 400 });
     }
 
-    const kpis = await analyticsService.getKPIMetrics(user.companyId, {
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
-    });
+    const companyId = user.companyId!;
+    const cacheKey = `analytics-kpis:${companyId}:${startDate}:${endDate}`;
+    
+    // Determinar se é histórico (> 1 dia atrás) ou atual
+    const daysDiff = differenceInDays(new Date(), new Date(endDate));
+    const isHistorical = daysDiff > 1;
+    const ttl = isHistorical ? CacheTTL.ANALYTICS_HISTORICAL : CacheTTL.ANALYTICS_CURRENT;
+
+    const kpis = await getCachedOrFetch(cacheKey, async () => {
+      return await analyticsService.getKPIMetrics(companyId, {
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+      });
+    }, ttl);
 
     return NextResponse.json(kpis);
   } catch (error) {

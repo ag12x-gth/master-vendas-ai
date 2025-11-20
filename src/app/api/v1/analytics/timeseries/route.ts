@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserSession } from '@/app/actions';
 import { analyticsService } from '@/services/analytics.service';
+import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
+import { differenceInDays } from 'date-fns';
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,14 +21,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'startDate and endDate are required' }, { status: 400 });
     }
 
-    const timeseries = await analyticsService.getTimeSeriesData(
-      user.companyId,
-      {
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
-      },
-      granularity
-    );
+    const companyId = user.companyId!;
+    const cacheKey = `analytics-timeseries:${companyId}:${startDate}:${endDate}:${granularity}`;
+    
+    // Determinar se é histórico (> 1 dia atrás) ou atual
+    const daysDiff = differenceInDays(new Date(), new Date(endDate));
+    const isHistorical = daysDiff > 1;
+    const ttl = isHistorical ? CacheTTL.ANALYTICS_TIMESERIES_HISTORICAL : CacheTTL.ANALYTICS_TIMESERIES_CURRENT;
+
+    const timeseries = await getCachedOrFetch(cacheKey, async () => {
+      return await analyticsService.getTimeSeriesData(
+        companyId,
+        {
+          startDate: new Date(startDate),
+          endDate: new Date(endDate),
+        },
+        granularity
+      );
+    }, ttl);
 
     return NextResponse.json(timeseries);
   } catch (error) {
