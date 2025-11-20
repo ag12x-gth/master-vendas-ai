@@ -244,13 +244,8 @@ async function fetchContactsData(options: {
         
         const totalContacts = totalContactsResult[0]?.value ?? 0;
         
-        // Debug: verificar estrutura do resultado
-        console.log('[fetchContactsData] rawContactsResult type:', typeof rawContactsResult);
-        console.log('[fetchContactsData] rawContactsResult keys:', Object.keys(rawContactsResult || {}));
-        console.log('[fetchContactsData] rawContactsResult.rows length:', (rawContactsResult as any)?.rows?.length);
-        console.log('[fetchContactsData] rawContactsResult length (if array):', Array.isArray(rawContactsResult) ? rawContactsResult.length : 'not an array');
-        
-        const contactsWithRelations = (rawContactsResult as any).rows || [];
+        // db.execute() retorna um array diretamente, não um objeto com .rows
+        const contactsWithRelations = Array.isArray(rawContactsResult) ? rawContactsResult : [];
 
 
         return {
