@@ -1,7 +1,7 @@
 
 'use client';
 
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import type { UserWithCompany } from '@/lib/types';
 import { AppHeader } from '@/components/app-header';
 import { FacebookLinkBanner } from '@/components/oauth/facebook-link-banner';
@@ -21,14 +21,19 @@ const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export function MainContent({ children }: { children: ReactNode }): JSX.Element {
   const { session } = useSession();
+  const [mounted, setMounted] = useState(false);
   const userEmail = session?.userData?.email || '';
   const hasFacebookLinked = !!session?.userData?.facebookId;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className="flex flex-col flex-1 overflow-hidden">
       <AppHeader />
-      <main className="flex-1 overflow-y-auto bg-muted/40 p-3 sm:p-4 md:p-6 lg:p-8 pb-20 md:pb-6" suppressHydrationWarning>
-        {!hasFacebookLinked && userEmail && (
+      <main className="flex-1 overflow-y-auto bg-muted/40 p-3 sm:p-4 md:p-6 lg:p-8 pb-20 md:pb-6">
+        {mounted && !hasFacebookLinked && userEmail && (
           <div className="max-w-7xl mx-auto mb-4">
             <FacebookLinkBanner userEmail={userEmail} />
           </div>
