@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2, FileText, GitBranch, MessageSquareText, SendIcon, Loader2, PlayCircle, List, LayoutGrid, Megaphone } from 'lucide-react';
+import { MoreHorizontal, Trash2, FileText, GitBranch, MessageSquareText, SendIcon, Loader2, PlayCircle, List, LayoutGrid, Megaphone, Pause, Play } from 'lucide-react';
 import type { Campaign, Connection, SmsGateway, Template } from '@/lib/types';
 import {
   AlertDialog,
@@ -54,18 +54,21 @@ const statusConfig = {
     QUEUED: { variant: 'outline', text: 'Na Fila', className: 'border-blue-500 text-blue-500' },
     SCHEDULED: { variant: 'secondary', text: 'Agendada', className: 'bg-orange-500 hover:bg-orange-600 text-secondary-foreground' },
     PENDING: { variant: 'secondary', text: 'Pendente', className: 'bg-yellow-500 hover:bg-yellow-600 text-black' },
+    PAUSED: { variant: 'secondary', text: 'Pausada', className: 'bg-gray-500 hover:bg-gray-600 text-white' },
     FAILED: { variant: 'destructive', text: 'Falhou', className: '' },
     // Legacy statuses for graceful fallback
     Concluída: { variant: 'default', text: 'Concluída', className: 'bg-green-500 hover:bg-green-600' },
     Enviando: { variant: 'outline', text: 'Enviando', className: 'border-blue-500 text-blue-500' },
     Agendada: { variant: 'secondary', text: 'Agendada', className: 'bg-orange-500 hover:bg-orange-600 text-secondary-foreground' },
     Pendente: { variant: 'secondary', text: 'Pendente', className: 'bg-yellow-500 hover:bg-yellow-600 text-black' },
+    Pausada: { variant: 'secondary', text: 'Pausada', className: 'bg-gray-500 hover:bg-gray-600 text-white' },
     Falhou: { variant: 'destructive', text: 'Falhou', className: '' },
 } as const;
 
 
 const CampaignCard = memo(({ campaign, onUpdate, onDelete, allTemplates, notify }: { campaign: Campaign, onUpdate: () => void, onDelete: (id: string) => void, allTemplates: Template[], notify: ReturnType<typeof createToastNotifier> }) => {
     const [isTriggering, setIsTriggering] = useState(false);
+    const [isPauseResuming, setIsPauseResuming] = useState(false);
     const statusKey = campaign.status as keyof typeof statusConfig;
     const status = statusConfig[statusKey] || statusConfig.Agendada;
     const isSms = campaign.channel === 'SMS';
@@ -92,6 +95,46 @@ const CampaignCard = memo(({ campaign, onUpdate, onDelete, allTemplates, notify 
              notify.error('Erro', (error as Error).message);
         } finally {
             setIsTriggering(false);
+        }
+    }
+    
+    const handlePause = async () => {
+        setIsPauseResuming(true);
+        try {
+            const response = await fetch(`/api/v1/campaigns/${campaign.id}/pause`, {
+                method: 'PUT'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.description || errorData.error || 'Falha ao pausar a campanha.');
+            }
+            notify.success('Campanha Pausada!', `A campanha "${campaign.name}" foi pausada.`);
+            onUpdate(); // Refresh the campaign list
+        } catch (error) {
+             notify.error('Erro', (error as Error).message);
+        } finally {
+            setIsPauseResuming(false);
+        }
+    }
+    
+    const handleResume = async () => {
+        setIsPauseResuming(true);
+        try {
+            const response = await fetch(`/api/v1/campaigns/${campaign.id}/resume`, {
+                method: 'PUT'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.description || errorData.error || 'Falha ao retomar a campanha.');
+            }
+            notify.success('Campanha Retomada!', `A campanha "${campaign.name}" foi retomada.`);
+            onUpdate(); // Refresh the campaign list
+        } catch (error) {
+             notify.error('Erro', (error as Error).message);
+        } finally {
+            setIsPauseResuming(false);
         }
     }
     
@@ -139,6 +182,18 @@ const CampaignCard = memo(({ campaign, onUpdate, onDelete, allTemplates, notify 
                         Forçar Envio Agora
                     </DropdownMenuItem>
                     </>
+                 )}
+                 {(['SCHEDULED', 'PENDING', 'QUEUED', 'SENDING'].includes(campaign.status)) && (
+                    <DropdownMenuItem onClick={handlePause} disabled={isPauseResuming}>
+                        {isPauseResuming ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Pause className="mr-2 h-4 w-4" />}
+                        Pausar Campanha
+                    </DropdownMenuItem>
+                 )}
+                 {campaign.status === 'PAUSED' && (
+                    <DropdownMenuItem onClick={handleResume} disabled={isPauseResuming}>
+                        {isPauseResuming ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}
+                        Retomar Campanha
+                    </DropdownMenuItem>
                  )}
                 <DropdownMenuSeparator />
                 <AlertDialog>

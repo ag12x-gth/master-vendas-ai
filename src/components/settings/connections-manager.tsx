@@ -68,7 +68,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 
 type ConnectionStatus = 'Conectado' | 'Falha na Conexão' | 'Não Verificado';
 type WebhookStatus = 'CONFIGURADO' | 'DIVERGENTE' | 'NAO_CONFIGURADO' | 'VERIFICANDO' | 'ERRO';
-type HealthStatus = 'healthy' | 'expired' | 'error' | 'inactive';
+type HealthStatus = 'healthy' | 'expiring_soon' | 'expired' | 'error' | 'inactive';
 
 type Connection = ConnectionType & {
     connectionStatus?: ConnectionStatus;
@@ -76,6 +76,7 @@ type Connection = ConnectionType & {
     healthStatus?: HealthStatus;
     healthErrorMessage?: string;
     lastHealthCheck?: Date;
+    tokenExpiresIn?: number;
 };
 
 const connectionStatusConfig: Record<ConnectionStatus, { icon: React.ElementType, color: string, text: string }> = {
@@ -94,6 +95,7 @@ const webhookStatusConfig: Record<WebhookStatus, { icon: React.ElementType, colo
 
 const healthStatusConfig: Record<HealthStatus, { icon: React.ElementType, color: string, text: string, bgColor: string }> = {
     healthy: { icon: CheckCircle2, color: 'text-green-600', text: 'Saudável', bgColor: 'bg-green-50' },
+    expiring_soon: { icon: AlertTriangle, color: 'text-yellow-600', text: 'Token Expira em Breve', bgColor: 'bg-yellow-50' },
     expired: { icon: AlertTriangle, color: 'text-red-600', text: 'Token Expirado', bgColor: 'bg-red-50' },
     error: { icon: XCircle, color: 'text-red-600', text: 'Erro', bgColor: 'bg-red-50' },
     inactive: { icon: AlertCircle, color: 'text-gray-600', text: 'Inativa', bgColor: 'bg-gray-50' },
@@ -185,6 +187,7 @@ export function ConnectionsManager() {
                         ...conn,
                         healthStatus: healthData.status,
                         healthErrorMessage: healthData.errorMessage,
+                        tokenExpiresIn: healthData.tokenExpiresIn,
                         lastHealthCheck: new Date(healthData.lastChecked)
                     };
                 }
@@ -364,8 +367,76 @@ export function ConnectionsManager() {
     }
   }
 
+  const expiringSoonConnections = useMemo(() => 
+    connections.filter(c => c.healthStatus === 'expiring_soon'), 
+    [connections]
+  );
+
+  const expiredConnections = useMemo(() => 
+    connections.filter(c => c.healthStatus === 'expired'), 
+    [connections]
+  );
+
   return (
     <div className="space-y-6">
+          {/* Banner de Alerta para Tokens Expirando */}
+          {expiringSoonConnections.length > 0 && (
+            <Card className="border-yellow-200 bg-yellow-50">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-yellow-900 mb-1">
+                      Token{expiringSoonConnections.length > 1 ? 's' : ''} Expirando em Breve
+                    </h3>
+                    <p className="text-sm text-yellow-800 mb-2">
+                      {expiringSoonConnections.length} conexã{expiringSoonConnections.length > 1 ? 'ões têm' : 'o tem'} token{expiringSoonConnections.length > 1 ? 's' : ''} que expira{expiringSoonConnections.length > 1 ? 'm' : ''} em menos de 7 dias.
+                      Renove o{expiringSoonConnections.length > 1 ? 's' : ''} token{expiringSoonConnections.length > 1 ? 's' : ''} para evitar interrupções.
+                    </p>
+                    <div className="space-y-1">
+                      {expiringSoonConnections.map(conn => (
+                        <div key={conn.id} className="text-xs text-yellow-700 flex items-center gap-2">
+                          <span className="font-medium">{conn.config_name}:</span>
+                          <span>{conn.tokenExpiresIn !== undefined && conn.tokenExpiresIn >= 0 
+                            ? `Expira em ${conn.tokenExpiresIn} dia${conn.tokenExpiresIn !== 1 ? 's' : ''}`
+                            : 'Data de expiração não disponível'
+                          }</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Banner de Alerta para Tokens Expirados */}
+          {expiredConnections.length > 0 && (
+            <Card className="border-red-200 bg-red-50">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <XCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-red-900 mb-1">
+                      Token{expiredConnections.length > 1 ? 's' : ''} Expirado{expiredConnections.length > 1 ? 's' : ''}
+                    </h3>
+                    <p className="text-sm text-red-800 mb-2">
+                      {expiredConnections.length} conexã{expiredConnections.length > 1 ? 'ões têm' : 'o tem'} token{expiredConnections.length > 1 ? 's' : ''} expirado{expiredConnections.length > 1 ? 's' : ''}.
+                      Renove o{expiredConnections.length > 1 ? 's' : ''} token{expiredConnections.length > 1 ? 's' : ''} imediatamente para restaurar a funcionalidade.
+                    </p>
+                    <div className="space-y-1">
+                      {expiredConnections.map(conn => (
+                        <div key={conn.id} className="text-xs text-red-700">
+                          <span className="font-medium">{conn.config_name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
           <div className="flex flex-col sm:flex-row justify-end gap-2">
               <Button variant="outline" onClick={checkConnectionHealth} className="w-full sm:w-auto">
                   <AlertCircle className="mr-2 h-4 w-4" />

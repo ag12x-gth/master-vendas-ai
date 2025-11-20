@@ -520,6 +520,13 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
         const contactBatches = chunkArray(campaignContacts, batchSize);
 
         for (const [index, batch] of contactBatches.entries()) {
+            // Verificar se a campanha foi pausada antes de processar o próximo lote
+            const [currentCampaign] = await db.select({ status: campaigns.status }).from(campaigns).where(eq(campaigns.id, campaign.id));
+            if (currentCampaign?.status === 'PAUSED') {
+                console.log(`[Campanha WhatsApp ${campaign.id}] Campanha pausada pelo usuário. Interrompendo envio.`);
+                return; // Sai da função sem marcar como completa ou falha
+            }
+
             console.log(`[Campanha WhatsApp ${campaign.id}] Processando lote ${index + 1}/${contactBatches.length} com ${batch.length} contatos.`);
 
             const variableMappings = campaign.variableMappings as Record<string, { type: 'dynamic' | 'fixed', value: string }> || {};
@@ -803,6 +810,13 @@ export async function sendSmsCampaign(campaign: typeof campaigns.$inferSelect): 
         const contactBatches = chunkArray(campaignContacts, batchSize);
 
         for (const [index, batch] of contactBatches.entries()) {
+            // Verificar se a campanha foi pausada antes de processar o próximo lote
+            const [currentCampaign] = await db.select({ status: campaigns.status }).from(campaigns).where(eq(campaigns.id, campaign.id));
+            if (currentCampaign?.status === 'PAUSED') {
+                console.log(`[Campanha SMS ${campaign.id}] Campanha pausada pelo usuário. Interrompendo envio.`);
+                return; // Sai da função sem marcar como completa ou falha
+            }
+
             console.log(`[Campanha SMS ${campaign.id}] Processando lote ${index + 1}/${contactBatches.length} com ${batch.length} contatos.`);
             try {
                 const providerResponse = await sendSmsBatch(gateway, campaign, batch);

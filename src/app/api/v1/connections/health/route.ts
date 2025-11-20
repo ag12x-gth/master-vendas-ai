@@ -15,9 +15,10 @@ interface ConnectionHealth {
   name: string;
   phoneNumberId: string | null;
   isActive: boolean;
-  status: 'healthy' | 'expired' | 'error' | 'inactive';
+  status: 'healthy' | 'expired' | 'error' | 'inactive' | 'expiring_soon';
   lastChecked: Date;
   errorMessage?: string;
+  tokenExpiresIn?: number; // dias até expiração
 }
 
 export async function GET(_request: NextRequest) {
@@ -70,19 +71,73 @@ export async function GET(_request: NextRequest) {
                 health.status = 'error';
                 health.errorMessage = 'Falha ao desencriptar o token de acesso';
               } else {
-              // Testar o token com a API do Facebook
-              const response = await fetch(`https://graph.facebook.com/${FACEBOOK_API_VERSION}/${connection.phoneNumberId}`, {
-                method: 'GET',
-                headers: {
-                  'Authorization': `Bearer ${accessToken}`,
-                },
-              });
+                // Usar debug_token para obter informações detalhadas do token
+                try {
+                  const debugTokenUrl = `https://graph.facebook.com/${FACEBOOK_API_VERSION}/debug_token?input_token=${accessToken}&access_token=${accessToken}`;
+                  const debugResponse = await fetch(debugTokenUrl, {
+                    method: 'GET',
+                    signal: AbortSignal.timeout(10000),
+                  });
 
-              if (!response.ok) {
-                const errorData = await response.json();
-                health.status = 'expired';
-                health.errorMessage = errorData.error?.message || 'Token de acesso inválido ou expirado';
-              }
+                  if (!debugResponse.ok) {
+                    // Fallback: testar com requisição simples
+                    const response = await fetch(`https://graph.facebook.com/${FACEBOOK_API_VERSION}/${connection.phoneNumberId}`, {
+                      method: 'GET',
+                      headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                      },
+                    });
+
+                    if (!response.ok) {
+                      const errorData = await response.json();
+                      health.status = 'expired';
+                      health.errorMessage = errorData.error?.message || 'Token de acesso inválido ou expirado';
+                    }
+                  } else {
+                    const debugData = await debugResponse.json();
+                    
+                    if (debugData.data?.is_valid) {
+                      // Calcular dias até expiração
+                      if (debugData.data.expires_at && debugData.data.expires_at > 0) {
+                        const expiresAt = debugData.data.expires_at * 1000; // Converte para ms
+                        const now = Date.now();
+                        const daysUntilExpiry = Math.floor((expiresAt - now) / (1000 * 60 * 60 * 24));
+                        health.tokenExpiresIn = daysUntilExpiry;
+                        
+                        // Definir status baseado na proximidade da expiração
+                        if (daysUntilExpiry < 0) {
+                          health.status = 'expired';
+                          health.errorMessage = 'Token expirado';
+                        } else if (daysUntilExpiry < 7) {
+                          health.status = 'expiring_soon';
+                          health.errorMessage = `Token expira em ${daysUntilExpiry} dia(s)`;
+                        } else {
+                          health.status = 'healthy';
+                        }
+                      } else {
+                        // Token válido mas sem data de expiração (tokens permanentes)
+                        health.status = 'healthy';
+                      }
+                    } else {
+                      health.status = 'expired';
+                      health.errorMessage = 'Token inválido segundo Meta Graph API';
+                    }
+                  }
+                } catch (error) {
+                  // Em caso de erro na verificação, tentar método simples
+                  const response = await fetch(`https://graph.facebook.com/${FACEBOOK_API_VERSION}/${connection.phoneNumberId}`, {
+                    method: 'GET',
+                    headers: {
+                      'Authorization': `Bearer ${accessToken}`,
+                    },
+                  });
+
+                  if (!response.ok) {
+                    const errorData = await response.json();
+                    health.status = 'expired';
+                    health.errorMessage = errorData.error?.message || 'Token de acesso inválido ou expirado';
+                  }
+                }
               }
             }
           }
@@ -99,6 +154,7 @@ export async function GET(_request: NextRequest) {
     const summary = {
       total: healthChecks.length,
       healthy: healthChecks.filter(h => h.status === 'healthy').length,
+      expiring_soon: healthChecks.filter(h => h.status === 'expiring_soon').length,
       expired: healthChecks.filter(h => h.status === 'expired').length,
       error: healthChecks.filter(h => h.status === 'error').length,
       inactive: healthChecks.filter(h => h.status === 'inactive').length
