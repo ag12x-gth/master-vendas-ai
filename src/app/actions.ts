@@ -13,7 +13,6 @@ import { randomBytes, createHash } from 'crypto';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
 import { z } from 'zod';
-import { cache } from 'react';
 
 // ==========================================
 // SESSION / AUTH UTILS
@@ -91,7 +90,7 @@ const getUserSessionUncached = async (): Promise<{ user: UserWithCompany | null,
     }
 };
 
-export const getUserSession = cache(getUserSessionUncached);
+export const getUserSession = getUserSessionUncached;
 
 
 export async function getCompanyIdFromSession(): Promise<string> {
