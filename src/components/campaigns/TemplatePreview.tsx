@@ -46,6 +46,8 @@ const CONTACT_SAMPLE_DATA: Record<string, string> = {
   email: 'joao@exemplo.com',
   company: 'Exemplo Ltda',
   city: 'São Paulo',
+  addressStreet: 'Av. Paulista, 1000',
+  addressCity: 'São Paulo',
 };
 
 export function TemplatePreview({
@@ -70,6 +72,9 @@ export function TemplatePreview({
       const match = part.match(/\{\{(.*?)\}\}/);
       if (match) {
         const varName = match[1];
+        if (!varName) {
+          return <span key={index}>{part}</span>;
+        }
         const mapping = variableMappings[varName];
         
         if (mapping?.type === 'fixed' && mapping.value) {

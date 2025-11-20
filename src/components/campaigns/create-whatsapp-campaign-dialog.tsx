@@ -38,7 +38,6 @@ import { Separator } from '../ui/separator';
 import { MediaUploader } from './media-uploader';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { WhatsAppPreview } from './whatsapp-preview';
 import { TemplatePreview } from './TemplatePreview';
 
 const contactFields = [
@@ -184,8 +183,23 @@ export function CreateWhatsappCampaignDialog({
         if (selectedTemplate) {
             setName(`Campanha - ${selectedTemplate.name}`);
             const initialMappings: Record<string, VariableMapping> = {};
-            variableNames.forEach(name => {
-                initialMappings[name] = { type: 'fixed', value: '' };
+            
+            // Tentar extrair valores de exemplo do template Meta API
+            const bodyComponent = selectedTemplate.components?.find((c: any) => c.type === 'BODY');
+            const exampleValues = bodyComponent?.example?.body_text?.[0] || [];
+            
+            variableNames.forEach((varName) => {
+                // Converter nome da variável para índice numérico (ex: '1' -> 0, '2' -> 1)
+                const varIndex = parseInt(varName, 10);
+                const exampleIndex = !isNaN(varIndex) ? varIndex - 1 : -1;
+                
+                // Se houver valor de exemplo no índice correto, usar como fixed
+                if (exampleIndex >= 0 && exampleValues[exampleIndex]) {
+                    initialMappings[varName] = { type: 'fixed', value: exampleValues[exampleIndex] };
+                } else {
+                    // Senão, usar dynamic com fallback para 'name'
+                    initialMappings[varName] = { type: 'dynamic', value: 'name' };
+                }
             });
             setVariableMappings(initialMappings);
         } else {
@@ -193,66 +207,6 @@ export function CreateWhatsappCampaignDialog({
             setVariableMappings({});
         }
     }, [selectedTemplate, variableNames]);
-
-
-    const highlightVariables = useCallback((body: string) => {
-        if (!body) return '';
-        return body.split(/(\{\{.*?\}\})/).map((part, index) => {
-          if (part.match(/(\{\{.*?\}\})/)) {
-            const varName = part.match(/\{\{(.*?)\}\}/)?.[1] || '';
-            const mapping = variableMappings[varName];
-            if (mapping?.type === 'fixed' && mapping.value) {
-                 return ( <span key={index} className="font-bold text-green-500">{mapping.value}</span> )
-            }
-            if (mapping?.type === 'dynamic' && mapping.value) {
-                const mappedField = contactFields.find(f => f.value === mapping.value);
-                return ( <span key={index} className="font-bold text-primary">[{mappedField?.label.toUpperCase()}]</span> )
-            }
-            return ( <span key={index} className="font-bold text-yellow-500">{part}</span> )
-          }
-          return part;
-        });
-    }, [variableMappings]);
-
-    const getPreviewBody = useCallback(() => {
-        if (!selectedTemplate?.body) return '';
-        let processedBody = selectedTemplate.body;
-        
-        Object.entries(variableMappings).forEach(([varName, mapping]) => {
-            const pattern = new RegExp(`\\{\\{${varName}\\}\\}`, 'g');
-            if (mapping.type === 'fixed' && mapping.value) {
-                processedBody = processedBody.replace(pattern, mapping.value);
-            } else if (mapping.type === 'dynamic' && mapping.value) {
-                const mappedField = contactFields.find(f => f.value === mapping.value);
-                processedBody = processedBody.replace(pattern, `[${mappedField?.label.toUpperCase() || 'CAMPO'}]`);
-            }
-        });
-        
-        return processedBody;
-    }, [selectedTemplate, variableMappings]);
-
-    const getTemplateComponents = useCallback(() => {
-        if (!selectedTemplate?.components) return { header: null, footer: null, buttons: [], headerMediaUrl: null };
-        
-        const components = selectedTemplate.components as any[];
-        const headerComponent = components.find((c: any) => c.type === 'HEADER');
-        const footerComponent = components.find((c: any) => c.type === 'FOOTER');
-        const buttonsComponent = components.find((c: any) => c.type === 'BUTTONS');
-        
-        let headerMediaUrl = null;
-        if (headerComponent?.format && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerComponent.format)) {
-            headerMediaUrl = headerComponent.example?.header_handle?.[0] || 
-                            selectedMedia?.s3Url || 
-                            null;
-        }
-        
-        return {
-            header: headerComponent,
-            footer: footerComponent?.text || null,
-            buttons: buttonsComponent?.buttons || [],
-            headerMediaUrl
-        };
-    }, [selectedTemplate, selectedMedia]);
 
     const resetState = useCallback(() => {
         setIsProcessing(false);
@@ -576,36 +530,13 @@ export function CreateWhatsappCampaignDialog({
                             )}
 
                             <div className="space-y-2">
-                                {(() => {
-                                    const { header, footer, buttons, headerMediaUrl } = getTemplateComponents();
-                                    const headerFormat = header?.format;
-                                    
-                                    return (
-                                        <WhatsAppPreview
-                                            header={
-                                                headerFormat === 'IMAGE' || headerFormat === 'VIDEO' || headerFormat === 'DOCUMENT'
-                                                    ? {
-                                                        type: headerFormat.toLowerCase() as 'image' | 'video' | 'document',
-                                                        content: headerFormat === 'DOCUMENT' ? selectedMedia?.name || 'document.pdf' : undefined,
-                                                        url: headerMediaUrl || undefined
-                                                    }
-                                                    : headerFormat === 'TEXT' && header?.text
-                                                    ? {
-                                                        type: 'text',
-                                                        content: header.text
-                                                    }
-                                                    : undefined
-                                            }
-                                            body={getPreviewBody()}
-                                            footer={footer || undefined}
-                                            buttons={buttons.length > 0 ? buttons.map((btn: any) => ({
-                                                type: btn.type.toLowerCase() as 'quick_reply' | 'url' | 'phone_number',
-                                                text: btn.text || btn.title || 'Button',
-                                                url: btn.url
-                                            })) : undefined}
-                                        />
-                                    );
-                                })()}
+                                <p className="font-semibold">Preview da Mensagem:</p>
+                                <TemplatePreview
+                                    components={selectedTemplate?.components || []}
+                                    variableMappings={variableMappings}
+                                    contactFieldsMap={Object.fromEntries(contactFields.map(f => [f.value, f.label]))}
+                                    mediaUrl={selectedMedia?.s3Url}
+                                />
                             </div>
                         </div>
                         <DialogFooter className="pt-4 border-t mt-auto">
