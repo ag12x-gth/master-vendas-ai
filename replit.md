@@ -29,6 +29,10 @@ Preferred communication style: Simple, everyday language.
 - **Performance Optimizations**: Caching, dynamic imports, and removal of force-dynamic for improved responsiveness.
 - **OAuth Authentication System**: Production-ready OAuth 2.0 with Google and Facebook via NextAuth.js, supporting account linking and multi-tenant compatibility.
 - **Atomic Lua Script Rate Limiting**: Atomic rate limiting implementation using Lua scripts in Redis/EnhancedCache for concurrency safety and performance.
+- **Campaign Pause/Resume System**: Full pause/resume functionality for WhatsApp (Baileys + Meta Cloud) and SMS campaigns with status verification between batches.
+- **Proactive Token Monitoring**: Meta access token expiration monitoring using debug_token API with 7-day warning threshold and visual alerts.
+- **Voice Calls Analytics Dashboard**: Comprehensive analytics system for Vapi voice calls with interactive charts, KPIs, trends, and performance metrics.
+- **Memory Leak Prevention**: Global listener registration flag preventing MaxListenersExceededWarning in Redis/EnhancedCache initialization.
 
 ## External Dependencies
 ### Third-Party APIs
