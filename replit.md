@@ -3,6 +3,14 @@
 ## Overview
 Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control panel with AI automation capabilities. It provides a centralized platform for managing multi-channel campaigns, customer service conversations, contact management (CRM), and AI-driven chatbots using Meta's WhatsApp Business API and Baileys. The project aims to be an all-in-one solution for automated, intelligent communication, offering an intuitive dashboard for businesses, including an AI-powered lead progression system and a Kanban lead management system.
 
+## Recent Changes
+### 2025-11-20: Critical Authentication Bug Fix
+- **Fixed:** Contacts page /contacts returning 401 "Não autorizado" error
+- **Root Cause:** React `cache()` wrapper in `getUserSession()` function was caching stale unauthenticated state
+- **Solution:** Removed `cache()` wrapper from `getUserSession` in `src/app/actions.ts`
+- **Impact:** 28,028 contacts now accessible; CRM fully functional
+- **Documentation:** See `docs/BUG_FIX_CONTACTS_AUTH_20251120.md` for full technical details
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
