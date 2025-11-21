@@ -4,6 +4,14 @@
 Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control panel with AI automation capabilities. It provides a centralized platform for managing multi-channel campaigns, customer service conversations, contact management (CRM), and AI-driven chatbots using Meta's WhatsApp Business API and Baileys. The project aims to be an all-in-one solution for automated, intelligent communication, offering an intuitive dashboard for businesses, including an AI-powered lead progression system and a Kanban lead management system.
 
 ## Recent Changes
+### 2025-11-21: Templates Page Select.Item Empty Value Fix
+- **Radix UI Compliance:** Fixed `<SelectItem value="">` with empty string in category selector - changed to `value="none"`
+- **API Payload Logic:** Updated payload handling to send `null` to API when "none" category is selected
+- **State Initialization:** Adjusted `useEffect` to initialize `categoryId` as "none" instead of empty string
+- **Root Cause:** Radix UI Select component prohibits empty string values in SelectItem (causes runtime error)
+- **Impact:** Templates page now loads without Radix UI validation error, category selection fully functional
+- **Files Modified:** `src/components/templates/template-dialog.tsx`
+
 ### 2025-11-21: Webhooks Page Type System Fix
 - **Type Definition Corrected:** Fixed `Webhook` type to reference correct table `webhookSubscriptions` instead of legacy `webhooks` table
 - **API Response Handling:** Added proper handling for API response format `{data: [], pagination: {}}` vs direct array

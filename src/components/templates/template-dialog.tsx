@@ -100,11 +100,11 @@ export function TemplateDialog({
     if (template) {
       setName(template.name);
       setContent(template.content);
-      setCategoryId(template.categoryId || '');
+      setCategoryId(template.categoryId || 'none');
     } else {
       setName('');
       setContent('');
-      setCategoryId('');
+      setCategoryId('none');
     }
     setShowNewCategory(false);
     setNewCategoryName('');
@@ -195,7 +195,7 @@ export function TemplateDialog({
       const payload = {
         name,
         content,
-        categoryId: categoryId || null,
+        categoryId: categoryId && categoryId !== 'none' ? categoryId : null,
       };
 
       const response = await fetch(
@@ -254,7 +254,7 @@ export function TemplateDialog({
                       <SelectValue placeholder="Selecione uma categoria" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Sem categoria</SelectItem>
+                      <SelectItem value="none">Sem categoria</SelectItem>
                       {categories.map((cat) => (
                         <SelectItem key={cat.id} value={cat.id}>
                           {cat.icon && <span className="mr-1">{cat.icon}</span>}
