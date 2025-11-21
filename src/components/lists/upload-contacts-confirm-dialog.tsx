@@ -102,11 +102,15 @@ export function UploadContactsConfirmDialog({
         </DialogContent>
       </Dialog>
       
-      {showImportDialog && (
-        <ImportContactsDialog onImportCompleted={handleUploadCompleted}>
-          <div className="hidden" />
-        </ImportContactsDialog>
-      )}
+      <ImportContactsDialog 
+        open={showImportDialog} 
+        onOpenChange={(open) => {
+          if (!open) {
+            handleUploadCompleted();
+          }
+        }}
+        onImportCompleted={handleUploadCompleted}
+      />
     </>
   );
 }

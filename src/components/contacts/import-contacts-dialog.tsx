@@ -326,11 +326,15 @@ const SummaryStep = ({ summary }: { summary: ImportSummary | null }): JSX.Elemen
 
 interface ImportContactsDialogProps {
     onImportCompleted?: () => void;
-    children: React.ReactNode;
+    children?: React.ReactNode;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
 }
 
-export function ImportContactsDialog({ onImportCompleted, children }: ImportContactsDialogProps): JSX.Element {
-  const [isOpen, setIsOpen] = useState(false);
+export function ImportContactsDialog({ onImportCompleted, children, open: externalOpen, onOpenChange }: ImportContactsDialogProps): JSX.Element {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setIsOpen = onOpenChange || setInternalOpen;
   const [step, setStep] = useState<ImportStep>('upload');
   const [csvRows, setCsvRows] = useState<Record<string, unknown>[]>([]);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
