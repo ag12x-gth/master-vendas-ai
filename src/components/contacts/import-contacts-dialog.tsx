@@ -425,9 +425,9 @@ export function ImportContactsDialog({ onImportCompleted, children, open: extern
         return;
       }
 
-      const csvData = normalized.map((item: { phone: string; valid: boolean }) => ({
+      const csvData = normalized.map((item: { phone: string; valid: boolean }, index: number) => ({
         phone: item.phone,
-        name: '',
+        name: `Contato ${item.phone.slice(-8)}`,
       }));
 
       if (invalid > 0) {
