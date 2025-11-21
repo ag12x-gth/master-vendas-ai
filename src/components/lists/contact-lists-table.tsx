@@ -41,12 +41,15 @@ import { createToastNotifier } from '@/lib/toast-helper';
 import { Textarea } from '../ui/textarea';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../ui/dropdown-menu';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
+import { UploadContactsConfirmDialog } from './upload-contacts-confirm-dialog';
 
 export function ContactListsTable() {
     const [lists, setLists] = useState<ContactList[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingList, setEditingList] = useState<ContactList | null>(null);
+    const [showUploadConfirm, setShowUploadConfirm] = useState(false);
+    const [newlyCreatedList, setNewlyCreatedList] = useState<ContactList | null>(null);
     const { toast } = useToast();
     const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
@@ -126,7 +129,14 @@ export function ContactListsTable() {
             }
 
             const savedList: ContactList = await response.json();
-            notify.success(`Lista ${isEditing ? 'Atualizada' : 'Criada'}!`, `A lista "${savedList.name}" foi salva.`);
+            
+            if (isEditing) {
+                notify.success('Lista Atualizada!', `A lista "${savedList.name}" foi salva.`);
+            } else {
+                setNewlyCreatedList(savedList);
+                setShowUploadConfirm(true);
+            }
+            
             await fetchLists();
 
         } catch (error) {
@@ -264,6 +274,19 @@ export function ContactListsTable() {
                     </form>
                 </DialogContent>
             </Dialog>
+            
+            {newlyCreatedList && (
+                <UploadContactsConfirmDialog
+                    isOpen={showUploadConfirm}
+                    onClose={() => {
+                        setShowUploadConfirm(false);
+                        setNewlyCreatedList(null);
+                    }}
+                    listName={newlyCreatedList.name}
+                    listId={newlyCreatedList.id}
+                    onUploadCompleted={fetchLists}
+                />
+            )}
         </div>
     );
 }

@@ -24,15 +24,18 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { createToastNotifier } from '@/lib/toast-helper';
-import { Upload, FileDown, Loader2, CheckCircle, UserPlus, UserCheck, UserX, XCircle, Users } from 'lucide-react';
+import { Upload, FileDown, Loader2, CheckCircle, UserPlus, UserCheck, UserX, XCircle, Users, ClipboardPaste } from 'lucide-react';
 import { Progress } from '../ui/progress';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../ui/tabs';
+import { Textarea } from '../ui/textarea';
 import { cn } from '@/lib/utils';
 import Papa from 'papaparse';
 import { MultiSelectCreatable } from '../ui/multi-select-creatable';
 
 type ImportStep = 'upload' | 'mapping' | 'segmentation' | 'processing' | 'summary';
+type UploadMode = 'csv' | 'paste';
 
 type ImportSummary = {
     created: number;
@@ -41,10 +44,14 @@ type ImportSummary = {
     errors: number;
 }
 
-const UploadStep = ({ onFileAccepted }: { onFileAccepted: (file: File) => void }): JSX.Element => {
+const UploadStep = ({ onFileAccepted, onPasteAccepted }: { 
+    onFileAccepted: (file: File) => void;
+    onPasteAccepted: (phones: string) => void;
+}): JSX.Element => {
     const { toast } = useToast();
     const notify = useMemo(() => createToastNotifier(toast), [toast]);
     const [isDragging, setIsDragging] = useState(false);
+    const [pastedPhones, setPastedPhones] = useState('');
 
     const handleFileChange = (files: FileList | null): void => {
         if (files && files.length > 0) {
@@ -81,32 +88,73 @@ const UploadStep = ({ onFileAccepted }: { onFileAccepted: (file: File) => void }
         handleFileChange(e.dataTransfer.files);
     };
 
+    const handlePasteSubmit = (): void => {
+        if (!pastedPhones.trim()) {
+            notify.error('Campo Vazio', 'Por favor, cole pelo menos um número de telefone.');
+            return;
+        }
+        onPasteAccepted(pastedPhones);
+    };
+
     return (
-        <div className="space-y-4">
-             <div
-                onDragOver={onDragOver}
-                onDrop={onDrop}
-                onDragLeave={onDragLeave}
-                className={cn(
-                    "flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors",
-                    isDragging ? "border-primary bg-primary/10" : "border-border"
-                )}
-            >
-                <Upload className="h-10 w-10 text-muted-foreground" />
-                <p className="mt-2 text-sm text-muted-foreground">Arraste e solte o ficheiro CSV aqui</p>
-                <p className="text-xs text-muted-foreground">ou</p>
-                <Button type="button" variant="link" onClick={(): void => document.getElementById('csv-upload')?.click()}>
-                    selecione um ficheiro
+        <Tabs defaultValue="csv" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="csv">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload de Ficheiro
+                </TabsTrigger>
+                <TabsTrigger value="paste">
+                    <ClipboardPaste className="mr-2 h-4 w-4" />
+                    Colar Números
+                </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="csv" className="space-y-4 mt-4">
+                <div
+                    onDragOver={onDragOver}
+                    onDrop={onDrop}
+                    onDragLeave={onDragLeave}
+                    className={cn(
+                        "flex flex-col items-center justify-center w-full p-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors",
+                        isDragging ? "border-primary bg-primary/10" : "border-border"
+                    )}
+                >
+                    <Upload className="h-10 w-10 text-muted-foreground" />
+                    <p className="mt-2 text-sm text-muted-foreground">Arraste e solte o ficheiro CSV aqui</p>
+                    <p className="text-xs text-muted-foreground">ou</p>
+                    <Button type="button" variant="link" onClick={(): void => document.getElementById('csv-upload')?.click()}>
+                        selecione um ficheiro
+                    </Button>
+                    <Input id="csv-upload" type="file" className="hidden" accept=".csv" onChange={(e): void => handleFileChange(e.target.files)} />
+                </div>
+                <Button type="button" variant="link" className="w-full" size="sm" asChild>
+                    <a href="/exemplo-importacao-contatos.csv" download="exemplo-importacao-contatos.csv">
+                        <FileDown className="mr-2 h-4 w-4" />
+                        Baixar ficheiro de exemplo
+                    </a>
                 </Button>
-                <Input id="csv-upload" type="file" className="hidden" accept=".csv" onChange={(e): void => handleFileChange(e.target.files)} />
-            </div>
-            <Button type="button" variant="link" className="w-full" size="sm" asChild>
-                <a href="/exemplo-importacao-contatos.csv" download="exemplo-importacao-contatos.csv">
-                    <FileDown className="mr-2 h-4 w-4" />
-                    Baixar ficheiro de exemplo
-                </a>
-            </Button>
-        </div>
+            </TabsContent>
+            
+            <TabsContent value="paste" className="space-y-4 mt-4">
+                <div className="space-y-3">
+                    <Label htmlFor="phone-paste">Cole os números de telefone (um por linha)</Label>
+                    <Textarea
+                        id="phone-paste"
+                        placeholder="5511955552222&#10;5521987654321&#10;5585912345678"
+                        className="min-h-[200px] font-mono text-sm"
+                        value={pastedPhones}
+                        onChange={(e) => setPastedPhones(e.target.value)}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                        Formato: DDI + DDD + Número (exemplo: 5511955552222)
+                    </p>
+                </div>
+                <Button type="button" onClick={handlePasteSubmit} className="w-full">
+                    <ClipboardPaste className="mr-2 h-4 w-4" />
+                    Processar Números
+                </Button>
+            </TabsContent>
+        </Tabs>
     )
 }
 
@@ -343,6 +391,58 @@ export function ImportContactsDialog({ onImportCompleted, children }: ImportCont
     });
   }
 
+  const handlePasteAccepted = async (phonesText: string): Promise<void> => {
+    const phones = phonesText
+      .split('\n')
+      .map(p => p.trim())
+      .filter(p => p.length > 0);
+    
+    if (phones.length === 0) {
+      notify.error('Nenhum Número Encontrado', 'Por favor, cole pelo menos um número de telefone válido.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/v1/contacts/normalize-phones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phones }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Falha ao processar números.');
+      }
+
+      const { normalized, total, valid, invalid } = await response.json();
+      
+      if (normalized.length === 0) {
+        notify.error('Nenhum Número Válido', 'Não foi possível encontrar números de telefone válidos. Verifique o formato e tente novamente.');
+        return;
+      }
+
+      const csvData = normalized.map((item: { phone: string; valid: boolean }) => ({
+        phone: item.phone,
+        name: '',
+      }));
+
+      if (invalid > 0) {
+        notify.warning(
+          'Alguns Números Ignorados',
+          `${valid} números válidos processados. ${invalid} números foram ignorados por formato inválido.`
+        );
+      }
+
+      setCsvHeaders(['phone', 'name']);
+      setCsvRows(csvData);
+      setTotalRows(csvData.length);
+      setMappings({ phone: 'phone', name: 'name' });
+      setStep('mapping');
+    } catch (error) {
+      notify.error('Erro ao Processar', error instanceof Error ? error.message : 'Não foi possível processar os números.');
+    }
+  }
+
   const startProcessing = async (): Promise<void> => {
     if (!mappings.phone || !mappings.name) {
         notify.error('Mapeamento Incompleto', 'Os campos "Nome" e "Telefone" são obrigatórios.');
@@ -407,7 +507,7 @@ export function ImportContactsDialog({ onImportCompleted, children }: ImportCont
   
   const renderStepContent = (): JSX.Element | null => {
     switch (step) {
-      case 'upload': return <UploadStep onFileAccepted={handleFileAccepted}/>;
+      case 'upload': return <UploadStep onFileAccepted={handleFileAccepted} onPasteAccepted={handlePasteAccepted} />;
       case 'mapping': return <MappingStep csvHeaders={csvHeaders} mappings={mappings} setMappings={setMappings} totalRows={totalRows} />;
       case 'segmentation': return <SegmentationStep onUpdateExistingChange={setUpdateExisting} selectedListIds={selectedListIds} setSelectedListIds={setSelectedListIds} selectedTagIds={selectedTagIds} setSelectedTagIds={setSelectedTagIds} />;
       case 'processing': return <ProcessingStep progress={progress} totalRows={totalRows} />;
