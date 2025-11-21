@@ -4,13 +4,15 @@
 Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control panel with AI automation capabilities. It provides a centralized platform for managing multi-channel campaigns, customer service conversations, contact management (CRM), and AI-driven chatbots using Meta's WhatsApp Business API and Baileys. The project aims to be an all-in-one solution for automated, intelligent communication, offering an intuitive dashboard for businesses, including an AI-powered lead progression system and a Kanban lead management system.
 
 ## Recent Changes
-### 2025-11-21: Template to Campaign Navigation Enhancement
-- **Auto-Navigation:** Clicking "Usar Template" now automatically redirects to Baileys campaign creation page (`/campaigns-baileys`)
-- **Template Persistence:** Selected template data stored in localStorage for seamless transfer between pages
+### 2025-11-21: Template to Campaign Auto-Open Modal Enhancement
+- **Auto-Navigation:** Clicking "Usar Template" redirects to `/campaigns-baileys` with modal pre-opened
+- **Smart Step Positioning:** Modal opens directly at step 2 ("Compor Mensagem"), skipping step 1
+- **Message Pre-fill:** Template content automatically populates the message field
+- **Template Persistence:** Template data stored in localStorage and cleared only when modal closes
 - **Usage Tracking:** Template usage counter incremented before navigation
-- **Clipboard Integration:** Template content copied to clipboard before redirect (maintained existing behavior)
-- **Impact:** Streamlined workflow - users can now create campaigns directly from template selection
-- **Files Modified:** `src/app/(main)/templates/page.tsx`
+- **Clipboard Integration:** Template content copied to clipboard before redirect
+- **Impact:** Streamlined workflow - users go from template selection directly to composing campaign with pre-filled message
+- **Files Modified:** `src/app/(main)/templates/page.tsx`, `src/components/campaigns/create-baileys-campaign-dialog.tsx`
 
 ### 2025-11-21: Templates API Schema Type Mismatch Fix
 - **Database Schema Alignment:** Fixed Drizzle schema definition for `variables` column to match PostgreSQL reality (`text[]` array instead of `jsonb`)

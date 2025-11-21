@@ -101,8 +101,8 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                 if (templateData) {
                     const template = JSON.parse(templateData);
                     setMessageText(template.content || '');
+                    setCurrentStep(1);
                     setIsOpen(true);
-                    localStorage.removeItem('selectedTemplate');
                 }
             } catch (error) {
                 console.error('Error loading template:', error);
@@ -189,6 +189,7 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
         setIsOpen(open);
         if (!open) {
           resetState();
+          localStorage.removeItem('selectedTemplate');
         }
     };
     
