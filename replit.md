@@ -11,7 +11,8 @@ Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control pan
 - **Template Persistence:** Template data stored in localStorage and cleared only when modal closes
 - **Usage Tracking:** Template usage counter incremented before navigation
 - **Clipboard Integration:** Template content copied to clipboard before redirect
-- **Impact:** Streamlined workflow - users go from template selection directly to composing campaign with pre-filled message
+- **Back Button Navigation:** Added visible "Voltar" button in modal footer starting from step 2 for easy navigation between steps
+- **Impact:** Streamlined workflow - users go from template selection directly to composing campaign with pre-filled message, with full navigation control
 - **Files Modified:** `src/app/(main)/templates/page.tsx`, `src/components/campaigns/create-baileys-campaign-dialog.tsx`
 
 ### 2025-11-21: Templates API Schema Type Mismatch Fix
