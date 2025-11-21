@@ -95,6 +95,24 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
     const variableNames = useMemo(() => extractVariables(messageText), [messageText, extractVariables]);
 
     useEffect(() => {
+        const checkForTemplate = () => {
+            try {
+                const templateData = localStorage.getItem('selectedTemplate');
+                if (templateData) {
+                    const template = JSON.parse(templateData);
+                    setMessageText(template.content || '');
+                    setIsOpen(true);
+                    localStorage.removeItem('selectedTemplate');
+                }
+            } catch (error) {
+                console.error('Error loading template:', error);
+            }
+        };
+        
+        checkForTemplate();
+    }, []);
+
+    useEffect(() => {
         if (isOpen) {
             const fetchData = async () => {
                 try {
