@@ -4,6 +4,14 @@
 Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control panel with AI automation capabilities. It provides a centralized platform for managing multi-channel campaigns, customer service conversations, contact management (CRM), and AI-driven chatbots using Meta's WhatsApp Business API and Baileys. The project aims to be an all-in-one solution for automated, intelligent communication, offering an intuitive dashboard for businesses, including an AI-powered lead progression system and a Kanban lead management system.
 
 ## Recent Changes
+### 2025-11-21: Webhooks Page Type System Fix
+- **Type Definition Corrected:** Fixed `Webhook` type to reference correct table `webhookSubscriptions` instead of legacy `webhooks` table
+- **API Response Handling:** Added proper handling for API response format `{data: [], pagination: {}}` vs direct array
+- **Field Names Updated:** Migrated all component references from legacy fields (`eventTriggers`, `isActive`) to new schema (`events`, `active`)
+- **Root Cause:** Component was using type definition pointing to deprecated database table with incompatible field names
+- **Impact:** Webhooks page now loads without `webhooks.map is not a function` error, full CRUD operations functional
+- **Files Modified:** `src/lib/types.ts`, `src/components/settings/webhooks-manager.tsx`
+
 ### 2025-11-21: Replit Object Storage Integration for Media Gallery
 - **Environment Configuration:** Added `NEXT_PUBLIC_BASE_URL` secret for public URL generation in client-side code
 - **Public Route Configuration:** Modified `src/middleware.ts` to bypass authentication for `/objects/*` routes, enabling public access to media files
