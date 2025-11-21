@@ -91,7 +91,8 @@ export async function PATCH(
     
     if (validation.data.content !== undefined) {
       updateData.content = validation.data.content;
-      updateData.variables = extractVariables(validation.data.content);
+      const variables = extractVariables(validation.data.content);
+      updateData.variables = sql`${JSON.stringify(variables)}::jsonb`;
     }
     
     if (validation.data.categoryId !== undefined) {
