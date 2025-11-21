@@ -4,6 +4,33 @@
 Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control panel with AI automation capabilities. It provides a centralized platform for managing multi-channel campaigns, customer service conversations, contact management (CRM), and AI-driven chatbots using Meta's WhatsApp Business API and Baileys. The project aims to be an all-in-one solution for automated, intelligent communication, offering an intuitive dashboard for businesses, including an AI-powered lead progression system and a Kanban lead management system.
 
 ## Recent Changes
+### 2025-11-21: Atendimentos Page Layout Optimization - Complete Fix
+- **Bug #1 (CRITICAL) - Skeleton/Real Inconsistency:** Fixed visual flash (CLS) by aligning skeleton with real layout
+  - Changed InboxSkeleton from CSS Grid to Flexbox matching production layout
+  - Skeleton now uses identical flex proportions as loaded component
+  - **Impact:** Eliminated Cumulative Layout Shift, improved perceived performance
+- **Bug #2 (CRITICAL) - Fixed-Width Layout:** Replaced pixel-based widths with fluid proportions
+  - Removed hard `max-w-[320px]` and `max-w-[340px]` constraints that prevented scaling
+  - Implemented balanced flex proportions: List (20-25%), Chat (55-60%), Sidebar (20%)
+  - Added `min-w-[280px]` to prevent excessive shrinking while maintaining fluidity
+  - **Impact:** Layout now scales proportionally on all resolutions (1366px, 1920px, 2560px+), eliminating disproportionate chat area
+- **Bug #3 (HIGH) - Excessive Padding:** Reduced main container padding from `p-8` to `p-4` on desktop
+  - Recovered 48px horizontal space (from 64px to 32px total padding)
+  - Improved information density for data-intensive application
+  - **Impact:** Better space utilization, more room for conversation list, chat, and details
+- **Bug #5 (HIGH) - ScrollArea Height:** Added `overflow-hidden` to ScrollArea wrapper in ActiveChat
+  - Ensures correct height calculation by browser
+  - Prevents scroll breakage in edge cases (zoom, older browsers)
+  - **Impact:** More stable scrolling behavior across different environments
+- **Bug #4 (NORMAL) - Wrapper Height:** Added explicit `h-full` to InboxView wrapper
+  - Prevents height collapse in edge-case scenarios
+  - Ensures predictable behavior across browser versions
+- **Bug #6 (NORMAL) - ScrollArea Optimization:** Replaced `min-h-0` with `overflow-y-auto` in ConversationList
+  - Simplified and more robust scroll architecture
+  - Removed redundant constraint causing potential conflicts
+- **Files Modified:** `src/components/atendimentos/inbox-view.tsx`, `src/contexts/session-context.tsx`, `src/components/atendimentos/active-chat.tsx`, `src/app/(main)/atendimentos/atendimentos-client.tsx`, `src/components/atendimentos/conversation-list.tsx`
+- **Documentation:** Full technical analysis in `docs/ANALISE_BUGS_LAYOUT_ATENDIMENTOS_20251121.md`, execution plan in `docs/PLANO_EXECUCAO_FIXES_LAYOUT_20251121.md`
+
 ### 2025-11-21: Baileys Campaign Diagnostic Logging and Session Validation
 - **Session Status Validation:** Added `getSessionStatus()` method in SessionManager to check connection state before sending
 - **Pre-Send Validation:** `sendViaBaileys` now verifies session status BEFORE attempting to send messages
