@@ -16,8 +16,8 @@ import { useSession } from '@/contexts/session-context';
 
 
 const InboxSkeleton = () => (
-    <div className="h-full grid grid-cols-1 md:grid-cols-[minmax(320px,_1fr)_2fr_1fr] border rounded-lg overflow-hidden">
-        <div className="h-full border-r p-4 space-y-2 hidden md:flex md:flex-col">
+    <div className="h-full flex flex-row border rounded-lg overflow-hidden">
+        <div className="w-full md:min-w-[280px] md:flex-[0.25] lg:flex-[0.22] xl:flex-[0.20] flex-shrink-0 h-full border-r p-4 space-y-2 hidden md:flex md:flex-col">
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-16 w-full" />
             <Skeleton className="h-16 w-full" />
@@ -30,8 +30,8 @@ const InboxSkeleton = () => (
                 <Skeleton className="h-16 w-full" />
              </div>
         </div>
-        <div className="h-full hidden md:flex items-center justify-center border-r"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
-        <div className="h-full hidden xl:flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+        <div className="flex-[0.6] md:flex-[0.55] xl:flex-[0.60] hidden md:flex items-center justify-center border-r"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+        <div className="flex-[0.20] hidden xl:flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
     </div>
 )
 
@@ -305,7 +305,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
   return (
     <div className="h-full flex flex-row border rounded-lg overflow-hidden">
         {showConversationList && (
-            <div className="w-full md:w-[320px] lg:w-[350px] xl:w-[400px] flex-shrink-0 h-full border-r min-h-0">
+            <div className="w-full md:min-w-[280px] md:flex-[0.25] lg:flex-[0.22] xl:flex-[0.20] flex-shrink-0 h-full border-r min-h-0">
                 <ConversationList 
                     conversations={conversations}
                     currentConversationId={selectedConversation?.id || null}
@@ -316,7 +316,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
       
         {showActiveChat ? (
             selectedConversation ? (
-                 <div className="flex-1 flex flex-col min-h-0 border-r">
+                 <div className="flex-[0.6] md:flex-[0.55] xl:flex-[0.60] flex flex-col min-h-0 border-r">
                     <ActiveChat
                         key={selectedConversation.id}
                         conversation={selectedConversation}
@@ -336,7 +336,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
             )
         ) : null}
 
-       <aside className="hidden xl:flex flex-col w-[340px] flex-shrink-0 h-full bg-card min-h-0">
+       <aside className="hidden xl:flex flex-col flex-[0.20] min-w-[280px] flex-shrink-0 h-full bg-card min-h-0">
          <ContactDetailsPanel contactId={selectedConversation?.contactId} />
        </aside>
     </div>

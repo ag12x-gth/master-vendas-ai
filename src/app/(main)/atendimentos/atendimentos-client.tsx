@@ -15,7 +15,7 @@ export function AtendimentosClient() {
         <PageHeader title="Atendimentos" />
       </div>
       {/* A div flex-1 garante que InboxView ocupe o espaço restante */}
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 h-full">
         <InboxView preselectedConversationId={conversationId} />
       </div>
     </div>

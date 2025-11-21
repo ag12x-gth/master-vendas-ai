@@ -182,7 +182,7 @@ export function ActiveChat({
       </div>
 
       {/* Messages */}
-       <div className="flex-1 min-h-0">
+       <div className="flex-1 min-h-0 overflow-hidden">
         <ScrollArea className="h-full" viewportRef={scrollAreaRef}>
           <div className="p-4 space-y-4">
             {loadingMessages ? (

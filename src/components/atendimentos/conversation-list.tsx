@@ -139,7 +139,7 @@ export function ConversationList({
                     />
                 </div>
             </div>
-            <ScrollArea className="flex-1 min-h-0">
+            <ScrollArea className="flex-1 overflow-y-auto">
                 <div className="p-2 space-y-1">
                     {filteredConversations.length === 0 ? (
                         <div
