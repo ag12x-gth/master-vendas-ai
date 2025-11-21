@@ -614,7 +614,14 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                     <form onSubmit={handleSubmit}>
                         {renderStepContent()}
 
-                        <DialogFooter className="mt-6">
+                        <DialogFooter className="mt-6 flex justify-between">
+                            {currentStep > 0 && (
+                                <Button type="button" variant="outline" onClick={handlePrevStep}>
+                                    <ArrowLeft className="mr-2 h-4 w-4" />
+                                    Voltar
+                                </Button>
+                            )}
+                            <div className="flex-1" />
                             {currentStep < steps.length - 1 ? (
                                 <Button type="button" onClick={handleNextStep}>
                                     Próximo
