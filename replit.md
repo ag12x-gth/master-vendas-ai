@@ -4,6 +4,14 @@
 Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control panel with AI automation capabilities. It provides a centralized platform for managing multi-channel campaigns, customer service conversations, contact management (CRM), and AI-driven chatbots using Meta's WhatsApp Business API and Baileys. The project aims to be an all-in-one solution for automated, intelligent communication, offering an intuitive dashboard for businesses, including an AI-powered lead progression system and a Kanban lead management system.
 
 ## Recent Changes
+### 2025-11-21: Templates API Schema Type Mismatch Fix
+- **Database Schema Alignment:** Fixed Drizzle schema definition for `variables` column to match PostgreSQL reality (`text[]` array instead of `jsonb`)
+- **Schema Correction:** Changed from `jsonb('variables').default([])` to `text('variables').array().notNull().default(sql`'{}'::text[]`)`
+- **API Simplification:** Removed unnecessary SQL casts (`::jsonb`) in POST/PATCH endpoints - now uses direct array assignment
+- **Root Cause:** Type mismatch between Drizzle ORM schema (jsonb) and actual PostgreSQL column (text[]) preventing template creation
+- **Impact:** Template creation now works correctly, variables stored as PostgreSQL text array as intended
+- **Files Modified:** `src/lib/db/schema.ts`, `src/app/api/v1/templates/route.ts`, `src/app/api/v1/templates/[id]/route.ts`
+
 ### 2025-11-21: Templates Page Select.Item Empty Value Fix
 - **Radix UI Compliance:** Fixed `<SelectItem value="">` with empty string in category selector - changed to `value="none"`
 - **API Payload Logic:** Updated payload handling to send `null` to API when "none" category is selected
