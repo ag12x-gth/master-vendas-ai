@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         
         const fileType = getFileType(file.type);
         const fileExtension = file.name.split('.').pop() || 'bin';
-        const finalKeyPath = `zapmaster/${companyId}/media/${fileId}.${fileExtension}`;
+        const finalKeyPath = `${companyId}/media/${fileId}.${fileExtension}`;
         
         const fileBuffer = Buffer.from(await file.arrayBuffer());
         const s3Url = await uploadFileToS3(finalKeyPath, fileBuffer, file.type);
