@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
         name,
         content,
         categoryId: categoryId || null,
-        variables: variables as any,
+        variables,
         isPredefined: false,
         active: true,
         usageCount: 0,
