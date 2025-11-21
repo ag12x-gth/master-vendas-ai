@@ -99,7 +99,7 @@ export function WebhooksManager(): JSX.Element {
         const res = await fetch('/api/v1/webhooks');
         if (!res.ok) throw new Error('Falha ao carregar webhooks.');
         const data = await res.json();
-        setWebhooks(data);
+        setWebhooks(Array.isArray(data) ? data : (data.data || []));
     } catch(error) {
         notify.error('Erro', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
     } finally {
@@ -122,7 +122,7 @@ export function WebhooksManager(): JSX.Element {
     const webhookData = {
         name: formData.get('name') as string,
         url: formData.get('url') as string,
-        eventTriggers: [formData.get('event') as string],
+        events: [formData.get('event') as string],
     };
 
     const isEditing = !!editingWebhook;
@@ -152,15 +152,15 @@ export function WebhooksManager(): JSX.Element {
     }
   };
 
-  const handleToggleActive = async (webhookId: string, isActive: boolean): Promise<void> => {
+  const handleToggleActive = async (webhookId: string, active: boolean): Promise<void> => {
     const originalWebhooks = [...webhooks];
-    setWebhooks(webhooks.map(wh => wh.id === webhookId ? {...wh, isActive} : wh));
+    setWebhooks(webhooks.map(wh => wh.id === webhookId ? {...wh, active} : wh));
 
     try {
         const response = await fetch(`/api/v1/webhooks/${webhookId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ isActive })
+            body: JSON.stringify({ active })
         });
         if (!response.ok) throw new Error('Falha ao atualizar o status.');
     } catch(error) {
@@ -228,10 +228,10 @@ export function WebhooksManager(): JSX.Element {
                   webhooks.map((webhook) => (
                     <TableRow key={webhook.id}>
                         <TableCell className="font-medium">{webhook.name}</TableCell>
-                        <TableCell>{webhook.eventTriggers?.[0] ? (eventLabels[webhook.eventTriggers[0]] || webhook.eventTriggers[0]) : 'Evento não configurado'}</TableCell>
+                        <TableCell>{webhook.events?.[0] ? (eventLabels[webhook.events[0]] || webhook.events[0]) : 'Evento não configurado'}</TableCell>
                         <TableCell className="font-mono text-xs">{maskUrl(webhook.url)}</TableCell>
                         <TableCell>
-                        <Switch checked={webhook.isActive} onCheckedChange={(checked) => handleToggleActive(webhook.id, checked)} />
+                        <Switch checked={webhook.active} onCheckedChange={(checked) => handleToggleActive(webhook.id, checked)} />
                         </TableCell>
                         <TableCell className="text-right">
                         <DropdownMenu>
@@ -295,7 +295,7 @@ export function WebhooksManager(): JSX.Element {
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="webhook-event">Evento Gatilho</Label>
-                        <Select name="event" defaultValue={editingWebhook?.eventTriggers?.[0] || 'contact.created'}>
+                        <Select name="event" defaultValue={editingWebhook?.events?.[0] || 'contact.created'}>
                             <SelectTrigger id="webhook-event">
                                 <SelectValue placeholder="Selecione um evento" />
                             </SelectTrigger>
