@@ -873,6 +873,14 @@ class BaileysSessionManager {
     return session;
   }
 
+  getSessionStatus(connectionId: string): 'connecting' | 'connected' | 'disconnected' | 'qr' | 'failed' | null {
+    const session = this.sessions.get(connectionId);
+    if (!session) {
+      return null;
+    }
+    return session.status;
+  }
+
   getEventEmitter(connectionId: string): EventEmitter | undefined {
     console.log(`[SessionManager] Getting emitter for ${connectionId}. Total sessions in map:`, this.sessions.size);
     console.log(`[SessionManager] Session IDs in map:`, Array.from(this.sessions.keys()));

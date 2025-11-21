@@ -243,10 +243,25 @@ async function sendViaBaileys(
     variableMappings: Record<string, { type: 'dynamic' | 'fixed'; value: string }>
 ): Promise<CampaignMessageResult> {
     if (!baileysSessionManager) {
+        console.error('[Campaign-Baileys] SessionManager do Baileys não está disponível');
         return {
             success: false,
             contactId: contact.id,
             error: 'SessionManager do Baileys não está disponível',
+        };
+    }
+    
+    // NOVO: Verificar status da sessão ANTES de enviar
+    const sessionStatus = baileysSessionManager.getSessionStatus(connectionId);
+    console.log(`[Campaign-Baileys] Preparando envio | ConnectionID: ${connectionId} | Status: ${sessionStatus || 'NOT_FOUND'} | Contato: ${contact.phone}`);
+    
+    if (!sessionStatus || sessionStatus !== 'connected') {
+        const errorMsg = sessionStatus ? `Sessão ${sessionStatus} - não está conectada` : 'Sessão não encontrada no SessionManager';
+        console.error(`[Campaign-Baileys] ERRO: ${errorMsg} | ConnectionID: ${connectionId}`);
+        return {
+            success: false,
+            contactId: contact.id,
+            error: errorMsg,
         };
     }
     
@@ -275,6 +290,8 @@ async function sendViaBaileys(
         messageText = messageText.replace(placeholder, text);
     }
     
+    console.log(`[Campaign-Baileys] Texto final da mensagem: "${messageText.substring(0, 100)}${messageText.length > 100 ? '...' : ''}"`);
+    
     try {
         // Envolve com retry logic para erros transientes
         const messageId = await withRetry(async () => {
@@ -286,19 +303,22 @@ async function sendViaBaileys(
         });
         
         if (messageId) {
+            console.log(`[Campaign-Baileys] ✅ Mensagem enviada com sucesso | Contato: ${contact.phone} | MessageID: ${messageId}`);
             return {
                 success: true,
                 contactId: contact.id,
                 providerMessageId: messageId,
             };
         } else {
+            console.error(`[Campaign-Baileys] ❌ Baileys retornou null | Contato: ${contact.phone} | ConnectionID: ${connectionId}`);
             return {
                 success: false,
                 contactId: contact.id,
-                error: 'Baileys retornou null - possível sessão desconectada',
+                error: 'Baileys retornou null - sessão pode ter caído durante o envio',
             };
         }
     } catch (error) {
+        console.error(`[Campaign-Baileys] ❌ Exceção ao enviar | Contato: ${contact.phone} | Erro: ${(error as Error).message}`);
         return {
             success: false,
             contactId: contact.id,
