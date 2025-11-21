@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 import {
   Card,
@@ -69,6 +70,7 @@ interface Template {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function TemplatesPage() {
+  const router = useRouter();
   const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -197,12 +199,21 @@ export default function TemplatesPage() {
 
       await navigator.clipboard.writeText(template.content);
 
+      localStorage.setItem('selectedTemplate', JSON.stringify({
+        id: template.id,
+        name: template.name,
+        content: template.content,
+        variables: template.variables,
+      }));
+
       toast({
         title: 'Template Copiado!',
         description: 'O conteúdo do template foi copiado para a área de transferência.',
       });
 
       mutateTemplates();
+
+      router.push('/campaigns-baileys');
     } catch (error) {
       toast({
         variant: 'destructive',
