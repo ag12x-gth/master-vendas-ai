@@ -44,7 +44,7 @@ function clearSessionCookies(response: NextResponse) {
 export async function middleware(req: NextRequest): Promise<NextResponse> {
   const { pathname } = req.nextUrl
   
-  if (pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname.includes('/favicon.ico')) {
+  if (pathname.startsWith('/_next') || pathname.startsWith('/api') || pathname.startsWith('/objects') || pathname.includes('/favicon.ico')) {
     return NextResponse.next();
   }
   

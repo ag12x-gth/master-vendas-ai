@@ -4,6 +4,14 @@
 Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control panel with AI automation capabilities. It provides a centralized platform for managing multi-channel campaigns, customer service conversations, contact management (CRM), and AI-driven chatbots using Meta's WhatsApp Business API and Baileys. The project aims to be an all-in-one solution for automated, intelligent communication, offering an intuitive dashboard for businesses, including an AI-powered lead progression system and a Kanban lead management system.
 
 ## Recent Changes
+### 2025-11-21: Replit Object Storage Integration for Media Gallery
+- **Environment Configuration:** Added `NEXT_PUBLIC_BASE_URL` secret for public URL generation in client-side code
+- **Public Route Configuration:** Modified `src/middleware.ts` to bypass authentication for `/objects/*` routes, enabling public access to media files
+- **Database Cleanup:** Removed 14 legacy media asset records (created before Object Storage migration) that no longer exist in storage
+- **Storage Architecture:** Confirmed file path structure - uploads saved to `/bucket/zapmaster/companyId/media/fileId.ext`, served via `/objects/companyId/media/fileId.ext`
+- **Impact:** Media gallery now fully functional with Replit Object Storage, all new uploads display correctly
+- **Files Modified:** `src/middleware.ts`
+
 ### 2025-11-20: Contacts Page Critical Fixes (Data Retrieval + Layout + Pagination)
 - **Bug #1 - Empty Contact List:** Fixed `db.execute()` result handling - Drizzle returns array directly, not `{rows: []}` object
   - **Root Cause:** Code assumed incorrect return type from `db.execute()`
