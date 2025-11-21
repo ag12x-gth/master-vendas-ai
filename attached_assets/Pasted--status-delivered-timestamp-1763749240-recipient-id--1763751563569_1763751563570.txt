@@ -1,0 +1,1038 @@
+ "status": "delivered",
+                "timestamp": "1763749240",
+                "recipient_id": "5511999069119",
+                "conversation": {
+                  "id": "dac275b37968951cc38303a830e40fa3",
+                  "origin": {
+                    "type": "service"
+                  }
+                },
+                "pricing": {
+                  "billable": false,
+                  "pricing_model": "PMP",
+                  "category": "service",
+                  "type": "free_customer_service"
+                }
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
+✅ [Meta Webhook] 2025-11-21T18:20:41.443Z - Webhook processado com sucesso
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 200 in 122ms
+[Automation|INFO|Conv:7b636f8a-3cd5-46ca-94ba-8cd96159eaa1|Rule:N/A] Mensagem processada com sucesso pela IA { processedMessageId: '360faef4-19f4-4e03-9e6a-cd7cffed01aa' }
+✅ [Meta Webhook] Processamento completo para Gledston
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[WebhookDispatcher] Starting background worker (60s interval)
+[Conversations Status] ⚡ Total response time: 30ms (cached: false)
+ GET /api/v1/conversations/status 200 in 174ms
+ GET /api/v1/notifications?limit=20 200 in 258ms
+ GET /api/v1/notifications?limit=20 200 in 215ms
+ GET /api/v1/notifications?limit=20 200 in 192ms
+[Conversations Status] ⚡ Total response time: 36ms (cached: false)
+ GET /api/v1/conversations/status 200 in 113ms
+[Conversations Status] ⚡ Query executed in 32ms
+[Conversations Status] ⚡ Total response time: 63ms (cached: false)
+ GET /api/v1/conversations/status 200 in 111ms
+[Conversations Status] ⚡ Total response time: 38ms (cached: false)
+ GET /api/v1/conversations/status 200 in 110ms
+ GET /api/v1/notifications?limit=20 200 in 168ms
+ GET /api/v1/campaigns/trigger 200 in 98ms
+[Conversations Status] ⚡ Query executed in 27ms
+[Conversations Status] ⚡ Total response time: 56ms (cached: false)
+ GET /api/v1/conversations/status 200 in 110ms
+[Conversations Status] ⚡ Query executed in 28ms
+[Conversations Status] ⚡ Total response time: 73ms (cached: false)
+ GET /api/v1/conversations/status 200 in 136ms
+ GET /api/v1/connections/health 200 in 742ms
+[Conversations Status] ⚡ Total response time: 28ms (cached: false)
+ GET /api/v1/conversations/status 200 in 100ms
+ GET /api/v1/notifications?limit=20 200 in 165ms
+[Conversations Status] ⚡ Query executed in 30ms
+[Conversations Status] ⚡ Total response time: 64ms (cached: false)
+ GET /api/v1/conversations/status 200 in 268ms
+[Conversations Status] ⚡ Total response time: 35ms (cached: false)
+ GET /api/v1/conversations/status 200 in 108ms
+[Conversations Status] ⚡ Query executed in 29ms
+[Conversations Status] ⚡ Total response time: 65ms (cached: false)
+ GET /api/v1/conversations/status 200 in 142ms
+ GET /api/v1/notifications?limit=20 200 in 166ms
+[Conversations Status] ⚡ Total response time: 28ms (cached: false)
+ GET /api/v1/conversations/status 200 in 76ms
+[Conversations Status] ⚡ Query executed in 26ms
+[Conversations Status] ⚡ Total response time: 56ms (cached: false)
+ GET /api/v1/conversations/status 200 in 98ms
+[Conversations Status] ⚡ Total response time: 28ms (cached: false)
+ GET /api/v1/conversations/status 200 in 92ms
+[Conversations Status] ⚡ Query executed in 31ms
+[Conversations Status] ⚡ Total response time: 64ms (cached: false)
+ GET /api/v1/conversations/status 200 in 162ms
+ GET /api/v1/notifications?limit=20 200 in 182ms
+ GET /api/v1/notifications?limit=20 200 in 199ms
+ GET /api/v1/notifications?limit=20 200 in 201ms
+[Conversations Status] ⚡ Total response time: 34ms (cached: false)
+ GET /api/v1/conversations/status 200 in 93ms
+[Conversations Status] ⚡ Query executed in 29ms
+[Conversations Status] ⚡ Total response time: 62ms (cached: false)
+ GET /api/v1/conversations/status 200 in 140ms
+ ○ Compiling / ...
+ ✓ Compiled / in 5.4s (5814 modules)
+ ✓ Compiled in 1ms (3711 modules)
+ ✓ Compiled in 0ms (3711 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[WebhookDispatcher] Starting background worker (60s interval)
+ GET /api/v1/campaigns/trigger 200 in 2060ms
+ ✓ Compiled in 1ms (3711 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 107ms
+[Conversations Status] ⚡ Total response time: 331ms (cached: false)
+ GET /api/v1/conversations/status 200 in 7601ms
+ GET / 307 in 8855ms
+ GET /api/v1/notifications?limit=20 200 in 6045ms
+ ✓ Compiled in 1ms (3711 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ✓ Compiled in 1ms (3711 modules)
+ ✓ Compiled in 1ms (3711 modules)
+ ✓ Compiled in 4ms (3711 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 78ms
+[Conversations Status] ⚡ Total response time: 453ms (cached: false)
+ GET /api/v1/conversations/status 200 in 4549ms
+ ✓ Compiled in 1ms (3711 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /dashboard 200 in 5541ms
+ ✓ Compiled in 1ms (3711 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ✓ Compiled in 1ms (3711 modules)
+ GET /api/v1/connections/health 200 in 5959ms
+ ✓ Compiled in 1ms (3711 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 36ms
+[Conversations Status] ⚡ Total response time: 116ms (cached: false)
+ GET /api/v1/conversations/status 200 in 4909ms
+[Conversations Status] ⚡ Query executed in 48ms
+[Conversations Status] ⚡ Total response time: 126ms (cached: false)
+ GET /api/v1/conversations/status 200 in 4746ms
+ GET /api/v1/notifications?limit=20 200 in 4788ms
+ ✓ Compiled in 0ms (3711 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ✓ Compiled /api/v1/dashboard/stats in 1ms (3711 modules)
+ ✓ Compiled /api/v1/dashboard/charts in 1ms (3718 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/connections/health 200 in 6575ms
+ ✓ Compiled in 1ms (3756 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 39ms
+[Conversations Status] ⚡ Total response time: 158ms (cached: false)
+ GET /api/v1/conversations/status 200 in 7549ms
+[Conversations Status] ⚡ Query executed in 43ms
+[Conversations Status] ⚡ Total response time: 160ms (cached: false)
+ GET /api/v1/conversations/status 200 in 7547ms
+ ✓ Compiled in 1ms (3756 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/notifications?limit=20 200 in 8665ms
+ GET /api/v1/notifications?limit=20 200 in 8377ms
+ ✓ Compiled in 3ms (3756 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/dashboard/stats?startDate=2025-10-23T03%3A00%3A00.000Z&endDate=2025-11-21T18%3A22%3A11.739Z 200 in 10261ms
+ ✓ Compiled in 1ms (3756 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/dashboard/charts?type=attendance&startDate=2025-10-23T03%3A00%3A00.000Z&endDate=2025-11-21T18%3A22%3A11.739Z 200 in 8864ms
+ GET /api/v1/campaigns 200 in 9084ms
+ ✓ Compiled in 0ms (3756 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 131ms
+[Conversations Status] ⚡ Total response time: 897ms (cached: false)
+ GET /api/v1/conversations/status 200 in 5980ms
+ GET /api/v1/connections/health 200 in 6994ms
+ ✓ Compiled /api/v1/ia/metrics in 1ms (3756 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ✓ Compiled in 0ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/dashboard/stats?startDate=2025-10-23T03%3A00%3A00.000Z&endDate=2025-11-21T18%3A22%3A11.739Z 200 in 5994ms
+ ✓ Compiled in 0ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/campaigns 200 in 5945ms
+ GET /api/v1/dashboard/charts?type=attendance&startDate=2025-10-23T03%3A00%3A00.000Z&endDate=2025-11-21T18%3A22%3A11.739Z 200 in 5989ms
+ ✓ Compiled in 1ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 39ms
+[Conversations Status] ⚡ Total response time: 123ms (cached: false)
+ GET /api/v1/conversations/status 200 in 5029ms
+ GET /api/v1/notifications?limit=20 200 in 5320ms
+ ✓ Compiled in 1ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/ia/metrics 200 in 6072ms
+ ✓ Compiled in 1ms (3759 modules)
+ ✓ Compiled in 1ms (3759 modules)
+ ✓ Compiled in 1ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 40ms
+[Conversations Status] ⚡ Total response time: 121ms (cached: false)
+ GET /api/v1/conversations/status 200 in 4097ms
+ ✓ Compiled in 1ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ✓ Compiled in 1ms (3759 modules)
+ GET /api/v1/ia/metrics 200 in 4272ms
+ ✓ Compiled in 1ms (3759 modules)
+ ✓ Compiled in 0ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 63ms
+[Conversations Status] ⚡ Total response time: 214ms (cached: false)
+ GET /api/v1/conversations/status 200 in 3687ms
+ ✓ Compiled in 1ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ✓ Compiled in 3ms (3759 modules)
+ ✓ Compiled in 1ms (3759 modules)
+ ✓ Compiled in 0ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 87ms
+[Conversations Status] ⚡ Total response time: 198ms (cached: false)
+ GET /api/v1/conversations/status 200 in 3711ms
+ ✓ Compiled in 1ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ✓ Compiled in 1ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 57ms
+[Conversations Status] ⚡ Total response time: 205ms (cached: false)
+ GET /api/v1/conversations/status 200 in 3290ms
+ GET /api/v1/notifications?limit=20 200 in 3357ms
+ ✓ Compiled in 0ms (3759 modules)
+ ✓ Compiled in 1ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 61ms
+[Conversations Status] ⚡ Total response time: 160ms (cached: false)
+ GET /api/v1/conversations/status 200 in 4858ms
+ GET /api/v1/notifications?limit=20 200 in 5220ms
+ GET /api/v1/notifications?limit=20 200 in 5092ms
+ ✓ Compiled in 1ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ✓ Compiled in 0ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/notifications?limit=20 200 in 4123ms
+ ✓ Compiled in 0ms (3759 modules)
+ ✓ Compiled in 0ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 37ms
+[Conversations Status] ⚡ Total response time: 151ms (cached: false)
+ GET /api/v1/conversations/status 200 in 4409ms
+ ✓ Compiled in 1ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ✓ Compiled in 1ms (3759 modules)
+ ✓ Compiled in 1ms (3759 modules)
+ ✓ Compiled in 1ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 62ms
+[Conversations Status] ⚡ Total response time: 157ms (cached: false)
+ GET /api/v1/conversations/status 200 in 3986ms
+ ✓ Compiled in 14ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ✓ Compiled in 0ms (3759 modules)
+ ✓ Compiled in 0ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/notifications?limit=20 200 in 4459ms
+ ✓ Compiled in 0ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 40ms
+[Conversations Status] ⚡ Total response time: 111ms (cached: false)
+ GET /api/v1/conversations/status 200 in 4569ms
+ ✓ Compiled in 1ms (3759 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[WebhookDispatcher] Starting background worker (60s interval)
+ GET /api/v1/campaigns/trigger 200 in 3716ms
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 28ms
+[Conversations Status] ⚡ Total response time: 64ms (cached: false)
+ GET /api/v1/conversations/status 200 in 1713ms
+[Conversations Status] ⚡ Total response time: 33ms (cached: false)
+ GET /api/v1/conversations/status 200 in 607ms
+[Conversations Status] ⚡ Query executed in 29ms
+[Conversations Status] ⚡ Total response time: 59ms (cached: false)
+ GET /api/v1/conversations/status 200 in 144ms
+ GET /api/v1/notifications?limit=20 200 in 221ms
+ GET /api/v1/notifications?limit=20 200 in 175ms
+[Conversations Status] ⚡ Total response time: 32ms (cached: false)
+ GET /api/v1/conversations/status 200 in 91ms
+[Conversations Status] ⚡ Query executed in 27ms
+[Conversations Status] ⚡ Total response time: 56ms (cached: false)
+ GET /api/v1/conversations/status 200 in 120ms
+💾 Persisted 0 cache entries to disk
+[Conversations Status] ⚡ Total response time: 31ms (cached: false)
+ GET /api/v1/conversations/status 200 in 124ms
+ GET /api/v1/notifications?limit=20 200 in 198ms
+[Conversations Status] ⚡ Query executed in 31ms
+[Conversations Status] ⚡ Total response time: 65ms (cached: false)
+ GET /api/v1/conversations/status 200 in 156ms
+ GET /api/v1/connections/health 200 in 576ms
+ ○ Compiling /api/webhooks/meta/[slug] ...
+ ✓ Compiled /api/webhooks/meta/[slug] in 1637ms (3717 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[WebhookDispatcher] Starting background worker (60s interval)
+🔔 [Meta Webhook] 2025-11-21T18:23:36.539Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+🔔 [Meta Webhook] 2025-11-21T18:23:36.541Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+🔔 [Meta Webhook] 2025-11-21T18:23:36.542Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+🔔 [Meta Webhook] 2025-11-21T18:23:36.543Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+🔔 [Meta Webhook] 2025-11-21T18:23:36.544Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+🔔 [Meta Webhook] 2025-11-21T18:23:36.557Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [Meta Webhook] Conexão ativa: 5865_Antonio_Roseli_BM (Phone ID: 391262387407327)
+✅ [Meta Webhook] Assinatura HMAC validada
+📦 [Meta Webhook] Payload recebido: {
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "399691246563833",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "556237715865",
+              "phone_number_id": "391262387407327"
+            },
+            "statuses": [
+              {
+                "id": "wamid.HBgNNTUxMTk5OTA2OTExORUCABEYEjZBNkYzNTIyNzE1NzAwMTJBQgA=",
+                "status": "read",
+                "timestamp": "1763749412",
+                "recipient_id": "5511999069119",
+                "conversation": {
+                  "id": "dfd09972cc912aef19fa27acdc137a2f",
+                  "origin": {
+                    "type": "service"
+                  }
+                },
+                "pricing": {
+                  "billable": false,
+                  "pricing_model": "PMP",
+                  "category": "service",
+                  "type": "free_customer_service"
+                }
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
+✅ [Meta Webhook] 2025-11-21T18:23:36.543Z - Webhook processado com sucesso
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 200 in 3066ms
+✅ [Meta Webhook] Conexão ativa: 5865_Antonio_Roseli_BM (Phone ID: 391262387407327)
+✅ [Meta Webhook] Assinatura HMAC validada
+📦 [Meta Webhook] Payload recebido: {
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "399691246563833",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "556237715865",
+              "phone_number_id": "391262387407327"
+            },
+            "statuses": [
+              {
+                "id": "wamid.HBgNNTUxMTk5OTA2OTExORUCABEYEkIwOUMzMEFDRUIxQTNBOTQ5OAA=",
+                "status": "read",
+                "timestamp": "1763749412",
+                "recipient_id": "5511999069119",
+                "conversation": {
+                  "id": "1ad8e8efbbebd8889d06f19e896c94cd",
+                  "origin": {
+                    "type": "service"
+                  }
+                },
+                "pricing": {
+                  "billable": false,
+                  "pricing_model": "PMP",
+                  "category": "service",
+                  "type": "free_customer_service"
+                }
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
+✅ [Meta Webhook] 2025-11-21T18:23:36.544Z - Webhook processado com sucesso
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 200 in 3066ms
+✅ [Meta Webhook] Conexão ativa: 5865_Antonio_Roseli_BM (Phone ID: 391262387407327)
+✅ [Meta Webhook] Assinatura HMAC validada
+📦 [Meta Webhook] Payload recebido: {
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "399691246563833",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "556237715865",
+              "phone_number_id": "391262387407327"
+            },
+            "statuses": [
+              {
+                "id": "wamid.HBgNNTUxMTk5OTA2OTExORUCABEYEkU4RTI5QkRDNDU4MjI0OTI5MwA=",
+                "status": "read",
+                "timestamp": "1763749412",
+                "recipient_id": "5511999069119",
+                "conversation": {
+                  "id": "349ba6d73a1eaaed9da9c3c5c3911770",
+                  "origin": {
+                    "type": "service"
+                  }
+                },
+                "pricing": {
+                  "billable": false,
+                  "pricing_model": "PMP",
+                  "category": "service",
+                  "type": "free_customer_service"
+                }
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
+✅ [Meta Webhook] 2025-11-21T18:23:36.542Z - Webhook processado com sucesso
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 200 in 3124ms
+✅ [Meta Webhook] Conexão ativa: 5865_Antonio_Roseli_BM (Phone ID: 391262387407327)
+✅ [Meta Webhook] Assinatura HMAC validada
+📦 [Meta Webhook] Payload recebido: {
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "399691246563833",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "556237715865",
+              "phone_number_id": "391262387407327"
+            },
+            "statuses": [
+              {
+                "id": "wamid.HBgNNTUxMTk5OTA2OTExORUCABEYEkFGQzhBM0U4NUMzRTBDNEIzNAA=",
+                "status": "read",
+                "timestamp": "1763749412",
+                "recipient_id": "5511999069119",
+                "conversation": {
+                  "id": "effe4df0a422a4575ca77d5a0fbf217f",
+                  "origin": {
+                    "type": "service"
+                  }
+                },
+                "pricing": {
+                  "billable": false,
+                  "pricing_model": "PMP",
+                  "category": "service",
+                  "type": "free_customer_service"
+                }
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
+✅ [Meta Webhook] 2025-11-21T18:23:36.541Z - Webhook processado com sucesso
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 200 in 3225ms
+✅ [Meta Webhook] Conexão ativa: 5865_Antonio_Roseli_BM (Phone ID: 391262387407327)
+✅ [Meta Webhook] Assinatura HMAC validada
+📦 [Meta Webhook] Payload recebido: {
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "399691246563833",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "556237715865",
+              "phone_number_id": "391262387407327"
+            },
+            "statuses": [
+              {
+                "id": "wamid.HBgNNTUxMTk5OTA2OTExORUCABEYEjhCQjkyMjI4OEQ4RjYwNDg2MgA=",
+                "status": "read",
+                "timestamp": "1763749412",
+                "recipient_id": "5511999069119",
+                "conversation": {
+                  "id": "dac275b37968951cc38303a830e40fa3",
+                  "origin": {
+                    "type": "service"
+                  }
+                },
+                "pricing": {
+                  "billable": false,
+                  "pricing_model": "PMP",
+                  "category": "service",
+                  "type": "free_customer_service"
+                }
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
+✅ [Meta Webhook] 2025-11-21T18:23:36.557Z - Webhook processado com sucesso
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 200 in 2917ms
+[Conversations Status] ⚡ Query executed in 50ms
+[Conversations Status] ⚡ Total response time: 85ms (cached: false)
+ GET /api/v1/conversations/status 200 in 1657ms
+✅ [Meta Webhook] Conexão ativa: 5865_Antonio_Roseli_BM (Phone ID: 391262387407327)
+✅ [Meta Webhook] Assinatura HMAC validada
+📦 [Meta Webhook] Payload recebido: {
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "399691246563833",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "556237715865",
+              "phone_number_id": "391262387407327"
+            },
+            "statuses": [
+              {
+                "id": "wamid.HBgNNTUxMTk5OTA2OTExORUCABEYEjY3QzMzQzkyNDk1RkU0MTM0OAA=",
+                "status": "read",
+                "timestamp": "1763749412",
+                "recipient_id": "5511999069119",
+                "conversation": {
+                  "id": "528446b131e1b91dce6b9e9f2ece1b56",
+                  "origin": {
+                    "type": "service"
+                  }
+                },
+                "pricing": {
+                  "billable": false,
+                  "pricing_model": "PMP",
+                  "category": "service",
+                  "type": "free_customer_service"
+                }
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
+✅ [Meta Webhook] 2025-11-21T18:23:36.539Z - Webhook processado com sucesso
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 200 in 3408ms
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[WebhookDispatcher] Starting background worker (60s interval)
+[Conversations Status] ⚡ Total response time: 451ms (cached: false)
+ GET /api/v1/conversations/status 200 in 1531ms
+ ✓ Compiled in 9.7s (5829 modules)
+ ✓ Compiled in 5.3s (5829 modules)
+ ✓ Compiled in 1ms (3712 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 34ms
+[Conversations Status] ⚡ Total response time: 259ms (cached: false)
+ GET /api/v1/conversations/status 200 in 14243ms
+[Conversations Status] ⚡ Query executed in 47ms
+[Conversations Status] ⚡ Total response time: 274ms (cached: false)
+ GET /api/v1/conversations/status 200 in 12871ms
+ GET /api/v1/notifications?limit=20 200 in 14297ms
+ GET /api/v1/notifications?limit=20 200 in 13456ms
+ GET /api/v1/notifications?limit=20 200 in 14294ms
+[Conversations Status] ⚡ Total response time: 61ms (cached: false)
+ GET /api/v1/conversations/status 200 in 267ms
+ GET /api/v1/connections/health 200 in 10506ms
+ GET /api/v1/notifications?limit=20 200 in 445ms
+ GET /api/v1/connections/health 200 in 736ms
+[WebhookDispatcher] Starting background worker (60s interval)
+ GET /api/v1/campaigns/trigger 200 in 223ms
+ GET /api/v1/connections/health 200 in 707ms
+ GET /api/v1/connections/health 200 in 699ms
+ GET /api/v1/connections/health 200 in 751ms
+ GET /api/v1/connections/health 200 in 566ms
+[Conversations Status] ⚡ Query executed in 45ms
+[Conversations Status] ⚡ Total response time: 92ms (cached: false)
+ GET /api/v1/conversations/status 200 in 237ms
+ GET /api/v1/connections/health 200 in 643ms
+[Conversations Status] ⚡ Total response time: 31ms (cached: false)
+ GET /api/v1/conversations/status 200 in 93ms
+ GET /api/v1/connections/health 200 in 891ms
+ GET /api/v1/connections/health 200 in 672ms
+ GET /api/v1/notifications?limit=20 200 in 190ms
+ ✓ Compiled in 8.3s (5829 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled in 1ms (3712 modules)
+ ✓ Compiled in 1ms (3712 modules)
+ ✓ Compiled in 0ms (3712 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 124ms
+[Conversations Status] ⚡ Total response time: 492ms (cached: false)
+ GET /api/v1/conversations/status 200 in 7153ms
+[Conversations Status] ⚡ Query executed in 281ms
+[Conversations Status] ⚡ Total response time: 753ms (cached: false)
+ GET /api/v1/conversations/status 200 in 6879ms
+ GET /api/v1/notifications?limit=20 200 in 4603ms
+ GET /api/v1/notifications?limit=20 200 in 3722ms
+ GET /atendimentos 200 in 3156ms
+ ✓ Compiled in 2.8s (5829 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/connections/health 200 in 8581ms
+ GET /dashboard 200 in 7544ms
+ ✓ Compiled in 0ms (3712 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 69ms
+[Conversations Status] ⚡ Total response time: 208ms (cached: false)
+ GET /api/v1/conversations/status 200 in 8291ms
+ GET /dashboard 200 in 4184ms
+ ○ Compiling /favicon.ico ...
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled /favicon.ico in 2s (3741 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /favicon.ico 200 in 3612ms
+[Conversations Status] ⚡ Query executed in 150ms
+[Conversations Status] ⚡ Total response time: 318ms (cached: false)
+ GET /api/v1/conversations/status 200 in 3640ms
+ GET /api/v1/notifications?limit=20 200 in 5504ms
+ GET /api/v1/connections/health 200 in 6580ms
+ ○ Compiling /api/v1/dashboard/stats ...
+ GET /atendimentos 200 in 7338ms
+[Conversations Status] ⚡ Query executed in 69ms
+[Conversations Status] ⚡ Total response time: 120ms (cached: false)
+ GET /api/v1/connections/health 200 in 5855ms
+ GET /api/v1/notifications?limit=20 200 in 2045ms
+ GET /api/v1/connections/health 200 in 2653ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled /api/v1/campaigns in 14s (5903 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /api/v1/connections/health 200 in 9704ms
+ ✓ Compiled in 1ms (3786 modules)
+ ✓ Compiled /api/v1/ia/metrics in 0ms (3783 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /favicon.ico 200 in 9477ms
+ GET /api/v1/dashboard/charts?type=attendance&startDate=2025-10-23T03%3A00%3A00.000Z&endDate=2025-11-21T18%3A24%3A28.549Z 200 in 9804ms
+ GET /api/v1/notifications?limit=20 200 in 9359ms
+ GET /api/v1/campaigns 200 in 9334ms
+ GET /api/v1/notifications?limit=20 200 in 3689ms
+ GET /api/v1/dashboard/stats?startDate=2025-10-23T03%3A00%3A00.000Z&endDate=2025-11-21T18%3A24%3A37.605Z 200 in 8045ms
+ GET /api/v1/dashboard/stats?startDate=2025-10-23T03%3A00%3A00.000Z&endDate=2025-11-21T18%3A24%3A28.549Z 200 in 17920ms
+ GET /api/v1/connections/health 200 in 10208ms
+ ✓ Compiled in 1ms (3786 modules)
+ ✓ Compiled in 7ms (3786 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /atendimentos?conversationId=0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77 200 in 6434ms
+ GET /api/v1/notifications?limit=20 200 in 6462ms
+ GET /api/v1/connections/health 200 in 6685ms
+ ✓ Compiled in 1ms (3786 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /api/v1/campaigns 200 in 3671ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled in 1ms (3786 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/dashboard/charts?type=attendance&startDate=2025-10-23T03%3A00%3A00.000Z&endDate=2025-11-21T18%3A24%3A37.605Z 200 in 5525ms
+ GET /api/v1/dashboard/charts?type=attendance&startDate=2025-10-23T03%3A00%3A00.000Z&endDate=2025-11-21T18%3A24%3A28.549Z 200 in 5027ms
+ GET /api/v1/ia/metrics 200 in 7914ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /api/v1/connections/health 200 in 5695ms
+ GET /api/v1/connections/health 200 in 5799ms
+ ✓ Compiled in 2ms (3786 modules)
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled in 0ms (3786 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /atendimentos?conversationId=0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77 200 in 5733ms
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled in 1ms (3786 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /api/v1/dashboard/stats?startDate=2025-10-23T03%3A00%3A00.000Z&endDate=2025-11-21T18%3A24%3A37.605Z 200 in 6158ms
+ GET /api/v1/dashboard/stats?startDate=2025-10-23T03%3A00%3A00.000Z&endDate=2025-11-21T18%3A24%3A28.549Z 200 in 4887ms
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/dashboard/charts?type=attendance&startDate=2025-10-23T03%3A00%3A00.000Z&endDate=2025-11-21T18%3A24%3A37.605Z 200 in 5767ms
+ GET /atendimentos?conversationId=0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77 200 in 2731ms
+ GET /api/v1/notifications?limit=20 200 in 2601ms
+ GET /api/v1/connections/health 200 in 5615ms
+ GET /api/v1/ia/metrics 200 in 6047ms
+[WebhookDispatcher] Starting background worker (60s interval)
+ GET /api/v1/campaigns/trigger 200 in 345ms
+ GET /atendimentos?conversationId=0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77 200 in 245ms
+ GET /api/v1/connections/health 200 in 1014ms
+ ○ Compiling /api/v1/message-templates ...
+ ✓ Compiled /api/v1/message-templates in 1204ms (3788 modules)
+ ✓ Compiled in 0ms (3790 modules)
+ ✓ Compiled in 0ms (3790 modules)
+ ✓ Compiled in 1ms (3790 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /atendimentos?conversationId=0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77 200 in 4842ms
+ GET /api/v1/campaigns 200 in 4597ms
+ GET /api/v1/notifications?limit=20 200 in 4167ms
+ GET /api/v1/notifications?limit=20 200 in 4641ms
+[Conversations API] ⚡ Fetch completed in 327ms (query: 279ms) | Rows: 943/943 | Limit: 10000 | Offset: 0
+ GET /api/v1/conversations?limit=0 200 in 5224ms
+ ✓ Compiled in 1ms (3790 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/message-templates 200 in 6415ms
+ GET /api/v1/ia/metrics 200 in 5703ms
+ GET /api/v1/connections/health 200 in 5728ms
+ ✓ Compiled /api/v1/conversations/[conversationId]/messages in 1ms (3790 modules)
+ ✓ Compiled in 1ms (3793 modules)
+ ✓ Compiled in 1ms (3793 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /atendimentos?conversationId=0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77 200 in 7958ms
+ GET /api/v1/campaigns 200 in 8139ms
+[Conversations API] ⚡ Fetch completed in 397ms (query: 309ms) | Rows: 943/943 | Limit: 10000 | Offset: 0
+ GET /api/v1/conversations?limit=0 200 in 7505ms
+ ✓ Compiled in 1ms (3793 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/message-templates 200 in 8017ms
+[Conversations Status] ⚡ Query executed in 42ms
+[Conversations Status] ⚡ Total response time: 205ms (cached: false)
+ GET /api/v1/conversations/status 200 in 8009ms
+ GET /api/v1/notifications?limit=20 200 in 6847ms
+ GET /api/v1/notifications?limit=20 200 in 5049ms
+ GET /api/v1/ia/metrics 200 in 7816ms
+ ✓ Compiled in 3ms (3793 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/conversations/0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77/messages 200 in 8573ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Baileys] SessionManager instance created and stored globally
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ ✓ Compiled in 0ms (3793 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ✓ Compiled /api/v1/contacts/[contactId] in 1ms (3793 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /atendimentos?conversationId=0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77 200 in 8323ms
+ ✓ Compiled in 1ms (3795 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 38ms
+[Conversations Status] ⚡ Total response time: 201ms (cached: false)
+ GET /api/v1/conversations/status 200 in 11451ms
+ ✓ Compiled in 1ms (3795 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/conversations/0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77/messages 200 in 11414ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Baileys] SessionManager instance created and stored globally
+ ✓ Compiled in 0ms (3795 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ ✓ Compiled in 0ms (3795 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /atendimentos?conversationId=0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77 200 in 12517ms
+ GET /api/v1/contacts/cf39296b-60c1-400a-867e-1437fbf37f04 200 in 15870ms
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ ✓ Compiled in 1ms (3795 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/notifications?limit=20 200 in 13689ms
+ ✓ Compiled in 0ms (3795 modules)
+ ✓ Compiled in 3ms (3795 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/notifications?limit=20 200 in 4691ms
+ GET /api/v1/notifications?limit=20 200 in 12368ms
+ ✓ Compiled in 21ms (3795 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/message-templates 200 in 11153ms
+ GET /atendimentos?conversationId=0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77 200 in 11889ms
+[Conversations API] ⚡ Fetch completed in 624ms (query: 513ms) | Rows: 943/943 | Limit: 10000 | Offset: 0
+ GET /api/v1/conversations?limit=0 200 in 11850ms
+ GET /api/v1/connections/health 200 in 12560ms
+ ✓ Compiled in 0ms (3795 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/contacts/cf39296b-60c1-400a-867e-1437fbf37f04 200 in 10353ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ✓ Compiled in 3ms (3795 modules)
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ ✓ Compiled in 1ms (3795 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/notifications?limit=20 200 in 11561ms
+ GET /api/v1/notifications?limit=20 200 in 6112ms
+ ✓ Compiled in 1ms (3795 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/message-templates 200 in 8823ms
+ GET /atendimentos?conversationId=0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77 200 in 10596ms
+[Conversations API] ⚡ Fetch completed in 1108ms (query: 1027ms) | Rows: 943/943 | Limit: 10000 | Offset: 0
+ GET /api/v1/conversations?limit=0 200 in 9627ms
+ ✓ Compiled in 0ms (3795 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/connections/health 200 in 10733ms
+ ✓ Compiled in 1ms (3725 modules)
+ ✓ Compiled in 0ms (3725 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 42ms
+[Conversations Status] ⚡ Total response time: 161ms (cached: false)
+ GET /api/v1/conversations/status 200 in 9409ms
+ ✓ Compiled in 1ms (3725 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[WebhookDispatcher] Starting background worker (60s interval)
+ GET /api/v1/campaigns/trigger 200 in 8123ms
+ GET /api/v1/conversations/0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77/messages 200 in 8444ms
+ GET /atendimentos?conversationId=0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77 200 in 8475ms
+ GET /api/v1/notifications?limit=20 200 in 7356ms
+ GET /api/v1/notifications?limit=20 200 in 8412ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Baileys] SessionManager instance created and stored globally
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ ✓ Compiled in 8ms (3725 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/contacts/cf39296b-60c1-400a-867e-1437fbf37f04 200 in 10347ms
+ GET /api/v1/contacts/cf39296b-60c1-400a-867e-1437fbf37f04 200 in 8818ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ✓ Compiled in 1ms (3725 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ ✓ Compiled /api/v1/ia/personas in 1ms (3725 modules)
+ ✓ Compiled in 1ms (3728 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Conversations Status] ⚡ Query executed in 215ms
+[Conversations Status] ⚡ Total response time: 365ms (cached: false)
+ GET /api/v1/conversations/status 200 in 6825ms
+ GET /api/v1/conversations/0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77/messages 200 in 6172ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Baileys] SessionManager instance created and stored globally
+ GET /api/v1/notifications?limit=20 200 in 8212ms
+ GET /api/v1/notifications?limit=20 200 in 5925ms
+ GET /api/v1/notifications?limit=20 200 in 9216ms
+ GET /atendimentos?conversationId=0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77 200 in 8490ms
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ ✓ Compiled in 12s (5845 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/contacts/cf39296b-60c1-400a-867e-1437fbf37f04 200 in 16965ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ ✓ Compiled in 8s (5845 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/ia/personas 200 in 23681ms
+ GET /api/v1/ia/personas 200 in 3887ms
+ GET /api/v1/notifications?limit=20 200 in 7454ms
+ GET /api/v1/contacts/cf39296b-60c1-400a-867e-1437fbf37f04 200 in 8787ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /atendimentos 200 in 9557ms
+ ○ Compiling /api/webhooks/meta/[slug] ...
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ ✓ Compiled /api/v1/conversations/[conversationId] in 4s (3731 modules)
+ ✓ Compiled in 0ms (3733 modules)
+ ✓ Compiled in 1ms (3726 modules)
+ ✓ Compiled in 0ms (3726 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[WebhookDispatcher] Starting background worker (60s interval)
+🔔 [Meta Webhook] 2025-11-21T18:26:49.155Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [Meta Webhook] Conexão ativa: 5865_Antonio_Roseli_BM (Phone ID: 391262387407327)
+✅ [Meta Webhook] Assinatura HMAC validada
+📦 [Meta Webhook] Payload recebido: {
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "399691246563833",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "556237715865",
+              "phone_number_id": "391262387407327"
+            },
+            "contacts": [
+              {
+                "profile": {
+                  "name": "Gledston"
+                },
+                "wa_id": "5511999069119"
+              }
+            ],
+            "messages": [
+              {
+                "from": "5511999069119",
+                "id": "wamid.HBgNNTUxMTk5OTA2OTExORUCABIYIEFDNEE3NjcyQUU3MDYxRkI2Qzc0RDRCOUQ4MkE0MjVDAA==",
+                "timestamp": "1763749597",
+                "text": {
+                  "body": ".crescer com estrategia de narca"
+                },
+                "type": "text"
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
+📨 [Meta Webhook] Nova mensagem de Gledston (+5511999069119): ".crescer com estrategia de narca"
+✅ [Meta Webhook] 2025-11-21T18:26:49.155Z - Webhook processado com sucesso
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 200 in 11069ms
+ GET /api/v1/notifications?limit=20 200 in 10345ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+✅ [Meta Webhook] Conexão encontrada: 5865_Antonio_Roseli_BM
+✅ [Meta Webhook] Contato existente encontrado: Gledston (ID: a8970a06-e029-43cf-b1bf-f9fc74b03454)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/contacts/cf39296b-60c1-400a-867e-1437fbf37f04 200 in 11229ms
+ GET /atendimentos 200 in 10960ms
+✅ [Meta Webhook] Conversa existente atualizada (ID: 7b636f8a-3cd5-46ca-94ba-8cd96159eaa1)
+✅ [Meta Webhook] Mensagem salva no banco (ID: e2dd4275-8beb-4155-8e81-91f747cb9aa5) na conversa 7b636f8a-3cd5-46ca-94ba-8cd96159eaa1
+[Webhook] Dispatching message_received for message e2dd4275-8beb-4155-8e81-91f747cb9aa5
+[WebhookDispatcher] Starting background worker (60s interval)
+[WebhookDispatcher] No active subscriptions for event message_received in company 682b91ea-15ee-42da-8855-70309b237008
+🤖 [Meta Webhook] Disparando automações para conversa 7b636f8a-3cd5-46ca-94ba-8cd96159eaa1
+[Automation Engine] Gatilho recebido para a conversa 7b636f8a-3cd5-46ca-94ba-8cd96159eaa1 e mensagem e2dd4275-8beb-4155-8e81-91f747cb9aa5
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+[Automation|INFO|Conv:7b636f8a-3cd5-46ca-94ba-8cd96159eaa1|Rule:N/A] Contato sem lead ativo no Kanban. Seguindo hierarquia de fallback... {}
+[Automation|INFO|Conv:7b636f8a-3cd5-46ca-94ba-8cd96159eaa1|Rule:N/A] ✅ [Prioridade 3] Usando agente padrão da conexão WhatsApp {}
+[Automation|INFO|Conv:7b636f8a-3cd5-46ca-94ba-8cd96159eaa1|Rule:N/A] Conversa roteada para o Agente de IA (Persona ID: 0560d541-dad6-47d7-ab40-17415c2ecc83). {}
+[Automation|INFO|Conv:7b636f8a-3cd5-46ca-94ba-8cd96159eaa1|Rule:N/A] Usando persona: Antônio EDN Atendimento (Provider: OPENAI, Model: gpt-4o-mini) {}
+[Automation|INFO|Conv:7b636f8a-3cd5-46ca-94ba-8cd96159eaa1|Rule:N/A] 🕒 Delay humanizado: 74s (demais respostas, range: 38-98s) {}
+ ✓ Compiled in 1ms (3726 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/conversations/c51f27fa-7d9e-47c7-b9a3-0323422f17b8 200 in 15111ms
+ GET /api/v1/connections/health 200 in 11476ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ ✓ Compiled in 1ms (3726 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+[Conversations API] ⚡ Fetch completed in 211ms (query: 171ms) | Rows: 943/943 | Limit: 10000 | Offset: 0
+ GET /api/v1/conversations?limit=0 200 in 10398ms
+ ✓ Compiled in 0ms (3726 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/message-templates 200 in 14034ms
+ ✓ Compiled /api/v1/conversations/[conversationId]/effective-persona in 1ms (3726 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/notifications?limit=20 200 in 14796ms
+ ✓ Compiled in 1ms (3757 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/conversations/c51f27fa-7d9e-47c7-b9a3-0323422f17b8 200 in 17418ms
+ GET /api/v1/ia/personas 200 in 21864ms
+ GET /api/v1/contacts/cf39296b-60c1-400a-867e-1437fbf37f04 200 in 23076ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ ✓ Compiled in 1ms (3757 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/notifications?limit=20 200 in 19695ms
+ GET /api/v1/notifications?limit=20 200 in 22460ms
+ GET /api/v1/connections/health 200 in 23564ms
+ ✓ Compiled in 1ms (3757 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[WebhookDispatcher] Starting background worker (60s interval)
+ GET /api/v1/campaigns/trigger 200 in 22061ms
+ GET /api/v1/message-templates 200 in 23299ms
+[Conversations API] ⚡ Fetch completed in 218ms (query: 159ms) | Rows: 943/943 | Limit: 10000 | Offset: 0
+ GET /api/v1/conversations?limit=0 200 in 12148ms
+[Conversations API] ⚡ Fetch completed in 271ms (query: 203ms) | Rows: 943/943 | Limit: 10000 | Offset: 0
+ GET /api/v1/conversations?limit=0 200 in 23491ms
+ ✓ Compiled in 0ms (3757 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /favicon.ico 200 in 27239ms
+[Conversations Status] ⚡ Query executed in 387ms
+[Conversations Status] ⚡ Total response time: 1171ms (cached: false)
+ GET /api/v1/conversations/status 200 in 23244ms
+[Conversations Status] ⚡ Query executed in 439ms
+[Conversations Status] ⚡ Total response time: 1214ms (cached: false)
+ GET /api/v1/conversations/status 200 in 10738ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
+ GET /api/v1/conversations/c51f27fa-7d9e-47c7-b9a3-0323422f17b8/effective-persona 200 in 26840ms
+ GET /api/v1/connections/health 200 in 23182ms
+ ✓ Compiled in 1ms (3757 modules)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+ GET /api/v1/message-templates 200 in 17662ms
+ GET /api/v1/conversations/0dcfa0d0-8df9-42bd-bd18-53f6aea1ac77/messages 200 in 17227ms
+📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)
+📂 Loaded 0 cached items from disk
+✅ Enhanced Cache initialized (Replit optimized)
+⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.
+[Baileys] SessionManager instance created and stored globally
+💾 Persisted 0 cache entries to disk
+💤 Cache shutdown complete
