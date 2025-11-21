@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
         name,
         content,
         categoryId: categoryId || null,
-        variables: sql`${JSON.stringify(variables)}::jsonb`,
+        variables,
         isPredefined: false,
         active: true,
         usageCount: 0,

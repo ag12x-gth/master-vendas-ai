@@ -890,7 +890,7 @@ export const customMessageTemplates = pgTable('custom_message_templates', {
   categoryId: text('category_id').references(() => customTemplateCategories.id, { onDelete: 'set null' }),
   name: varchar('name', { length: 255 }).notNull(),
   content: text('content').notNull(),
-  variables: jsonb('variables').default([]),
+  variables: text('variables').array().notNull().default(sql`'{}'::text[]`),
   isPredefined: boolean('is_predefined').notNull().default(false),
   active: boolean('active').notNull().default(true),
   usageCount: integer('usage_count').notNull().default(0),
