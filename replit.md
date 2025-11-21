@@ -4,6 +4,15 @@
 Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control panel with AI automation capabilities. It provides a centralized platform for managing multi-channel campaigns, customer service conversations, contact management (CRM), and AI-driven chatbots using Meta's WhatsApp Business API and Baileys. The project aims to be an all-in-one solution for automated, intelligent communication, offering an intuitive dashboard for businesses, including an AI-powered lead progression system and a Kanban lead management system.
 
 ## Recent Changes
+### 2025-11-21: Baileys Campaign Diagnostic Logging and Session Validation
+- **Session Status Validation:** Added `getSessionStatus()` method in SessionManager to check connection state before sending
+- **Pre-Send Validation:** `sendViaBaileys` now verifies session status BEFORE attempting to send messages
+- **Detailed Logging:** Comprehensive logs at each stage: preparation, status check, message content (truncated), success/failure
+- **Error Categorization:** Specific error messages for different failure modes (session not found, disconnected, send error)
+- **Root Cause Prevention:** Early exit with clear error message when session is unavailable, preventing "Baileys retornou null" generic errors
+- **Impact:** Campaign failures now provide actionable diagnostic information in logs for faster troubleshooting
+- **Files Modified:** `src/lib/campaign-sender.ts`, `src/services/baileys-session-manager.ts`
+
 ### 2025-11-21: Template to Campaign Auto-Open Modal Enhancement
 - **Auto-Navigation:** Clicking "Usar Template" redirects to `/campaigns-baileys` with modal pre-opened
 - **Smart Step Positioning:** Modal opens directly at step 2 ("Compor Mensagem"), skipping step 1
