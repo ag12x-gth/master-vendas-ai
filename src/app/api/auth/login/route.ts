@@ -8,6 +8,7 @@ import { eq } from 'drizzle-orm';
 import { SignJWT } from 'jose';
 import { z } from 'zod';
 import { compare } from 'bcryptjs';
+import { withRateLimit } from '@/middleware/rate-limit.middleware';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido.'),
@@ -22,7 +23,7 @@ const getJwtSecretKey = () => {
     return new TextEncoder().encode(secret);
 };
 
-export async function POST(request: NextRequest) {
+async function handler(request: NextRequest) {
     try {
         const body = await request.json();
         const parsed = loginSchema.safeParse(body);
@@ -91,3 +92,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Erro interno do servidor.', details: errorMessage }, { status: 500 });
     }
 }
+
+// Apply rate limiting to the POST handler
+export const POST = withRateLimit(handler);

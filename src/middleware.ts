@@ -41,6 +41,7 @@ function clearSessionCookies(response: NextResponse) {
     return response;
 }
 
+
 export async function middleware(req: NextRequest): Promise<NextResponse> {
   const { pathname } = req.nextUrl
   
