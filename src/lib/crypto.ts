@@ -6,21 +6,49 @@ const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16;
 const AUTH_TAG_LENGTH = 16;
 
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+// Singleton pattern to ensure key is only hashed once
+class EncryptionKeyManager {
+  private static instance: EncryptionKeyManager;
+  private key: Buffer;
+  private hasLoggedWarning = false;
 
-if (!ENCRYPTION_KEY) {
-  throw new Error('ENCRYPTION_KEY must be set in environment variables.');
+  private constructor() {
+    const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+
+    if (!ENCRYPTION_KEY) {
+      throw new Error('ENCRYPTION_KEY must be set in environment variables.');
+    }
+
+    // Ensure key is exactly 32 bytes by hashing if needed
+    if (ENCRYPTION_KEY.length === 32) {
+      this.key = Buffer.from(ENCRYPTION_KEY, 'utf-8');
+    } else {
+      // Hash the key to get exactly 32 bytes
+      this.key = crypto.createHash('sha256').update(ENCRYPTION_KEY).digest();
+      
+      // Log warning only once
+      if (!this.hasLoggedWarning) {
+        console.log('⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).');
+        this.hasLoggedWarning = true;
+      }
+    }
+  }
+
+  public static getInstance(): EncryptionKeyManager {
+    if (!EncryptionKeyManager.instance) {
+      EncryptionKeyManager.instance = new EncryptionKeyManager();
+    }
+    return EncryptionKeyManager.instance;
+  }
+
+  public getKey(): Buffer {
+    return this.key;
+  }
 }
 
-// Ensure key is exactly 32 bytes by hashing if needed
-let key: Buffer;
-if (ENCRYPTION_KEY.length === 32) {
-  key = Buffer.from(ENCRYPTION_KEY, 'utf-8');
-} else {
-  // Hash the key to get exactly 32 bytes
-  key = crypto.createHash('sha256').update(ENCRYPTION_KEY).digest();
-  console.log('⚠️ ENCRYPTION_KEY was hashed to 32 bytes for compatibility.');
-}
+// Get the key using singleton pattern
+const keyManager = EncryptionKeyManager.getInstance();
+const key = keyManager.getKey();
 
 export function encrypt(text: string): string {
   if (!text) {
