@@ -5,6 +5,10 @@ import { eq, and, desc, sql, or, like, isNull } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { z } from 'zod';
 
+// Pagination limit constants
+const MAX_LIMIT = 50; // Maximum records per request to prevent performance issues
+const DEFAULT_LIMIT = 20;
+
 const createTemplateSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(255),
   content: z.string().min(1, 'Conteúdo é obrigatório'),
@@ -35,7 +39,9 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams;
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '20');
+    // Enforce maximum limit to prevent performance issues
+    const requestedLimit = parseInt(searchParams.get('limit') || String(DEFAULT_LIMIT));
+    const limit = Math.min(requestedLimit, MAX_LIMIT);
     const search = searchParams.get('search') || '';
     const categoryId = searchParams.get('categoryId') || '';
     const offset = (page - 1) * limit;

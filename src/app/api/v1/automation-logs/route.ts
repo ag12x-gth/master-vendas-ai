@@ -5,6 +5,10 @@ import { db } from '@/lib/db';
 import { automationLogs, automationRules } from '@/lib/db/schema';
 import { eq, and, gte, lte, desc, ilike } from 'drizzle-orm';
 
+// Pagination limit constants
+const MAX_LIMIT = 50; // Maximum records per request to prevent performance issues
+const DEFAULT_LIMIT = 50;
+
 interface AutomationLogFilters {
   level?: 'INFO' | 'WARN' | 'ERROR';
   ruleId?: string;
@@ -24,6 +28,10 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
+    // Enforce maximum limit to prevent performance issues
+    const requestedLimit = parseInt(searchParams.get('limit') || String(DEFAULT_LIMIT));
+    const safeLimit = Math.min(requestedLimit, MAX_LIMIT);
+    
     const filters: AutomationLogFilters = {
       level: searchParams.get('level') as 'INFO' | 'WARN' | 'ERROR' | undefined,
       ruleId: searchParams.get('ruleId') || undefined,
@@ -31,7 +39,7 @@ export async function GET(request: NextRequest) {
       endDate: searchParams.get('endDate') || undefined,
       search: searchParams.get('search') || undefined,
       page: parseInt(searchParams.get('page') || '1'),
-      limit: parseInt(searchParams.get('limit') || '50'),
+      limit: safeLimit,
     };
 
     // Construir condições de filtro

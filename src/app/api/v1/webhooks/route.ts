@@ -6,6 +6,10 @@ import { getCompanyIdFromSession } from '@/app/actions';
 import crypto from 'crypto';
 import { z } from 'zod';
 
+// Pagination limit constants
+const MAX_LIMIT = 50; // Maximum records per request to prevent performance issues
+const DEFAULT_LIMIT = 10;
+
 const webhookEventTypes = [
   'conversation_created',
   'conversation_updated',
@@ -34,7 +38,9 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams;
     const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    // Enforce maximum limit to prevent performance issues
+    const requestedLimit = parseInt(searchParams.get('limit') || String(DEFAULT_LIMIT));
+    const limit = Math.min(requestedLimit, MAX_LIMIT);
     const search = searchParams.get('search') || '';
     const offset = (page - 1) * limit;
 

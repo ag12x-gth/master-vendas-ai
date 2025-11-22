@@ -11,6 +11,10 @@ import { sanitizePhone, canonicalizeBrazilPhone } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
+// Pagination limit constants
+const MAX_LIMIT = 50; // Maximum records per request to prevent performance issues
+const DEFAULT_LIMIT = 10;
+
 const contactCreateSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').trim(),
   phone: z.string().min(10, 'Telefone inválido').trim(),
@@ -65,7 +69,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         const companyId = await getCompanyIdFromSession();
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page') || '1', 10);
-        const limit = parseInt(searchParams.get('limit') || '10', 10);
+        // Enforce maximum limit to prevent performance issues
+        const requestedLimit = parseInt(searchParams.get('limit') || String(DEFAULT_LIMIT), 10);
+        const limit = Math.min(requestedLimit, MAX_LIMIT);
         const search = searchParams.get('search');
         const sortBy = searchParams.get('sortBy') || 'createdAt';
         const sortOrder = searchParams.get('sortOrder') || 'desc';
