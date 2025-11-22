@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import IORedis from 'ioredis';
 import fs from 'fs';
 import path from 'path';
 import { 
@@ -7,7 +7,7 @@ import {
   cacheMemoryUsage,
 } from './metrics';
 
-// Enhanced cache implementation for production use without external Redis
+// Enhanced cache implementation for fallback when Redis is unavailable
 class EnhancedCache {
   private data: Map<string, { value: any; expireAt?: number }> = new Map();
   private metrics = { hits: 0, misses: 0, sets: 0, deletes: 0 };
@@ -16,16 +16,16 @@ class EnhancedCache {
   private saveInterval: NodeJS.Timeout | null = null;
   private statsInterval: NodeJS.Timeout | null = null;
   private maxSize = 10000; // Maximum number of keys
-  private debugMode = process.env.CACHE_DEBUG === 'true' || true; // Enable debug by default
+  private debugMode = process.env.CACHE_DEBUG === 'true';
   private lastReportTime = Date.now();
 
   constructor() {
     this.initializeCache();
     this.startCleanupTask();
     this.startAutoSave();
-    this.startStatsReporting();
-    console.log('✅ Enhanced Cache initialized (Replit optimized with debug mode)');
-    console.log(`📊 Cache Debug Mode: ${this.debugMode ? 'ENABLED' : 'DISABLED'}`);
+    if (this.debugMode) {
+      this.startStatsReporting();
+    }
   }
 
   // Initialize cache and load persisted data
@@ -41,11 +41,9 @@ class EnhancedCache {
             this.data.set(key, item);
           }
         });
-        
-        console.log(`📂 Loaded ${this.data.size} cached items from disk`);
       }
     } catch (error) {
-      console.warn('⚠️ Could not load cache from disk:', error);
+      // Silently continue if cache can't be loaded
     }
     
     // Ensure cache directory exists
@@ -59,24 +57,21 @@ class EnhancedCache {
   private startCleanupTask() {
     this.cleanupInterval = setInterval(() => {
       this.cleanupExpired();
-    }, 60000); // Every minute
+    }, 60000);
   }
 
   // Start auto-save task (every 5 minutes)
   private startAutoSave() {
     this.saveInterval = setInterval(() => {
       this.persistToDisk();
-    }, 300000); // Every 5 minutes
+    }, 300000);
   }
 
   // Start stats reporting task (every minute)
   private startStatsReporting() {
     this.statsInterval = setInterval(() => {
       this.reportStats();
-    }, 60000); // Every minute
-    
-    // Also report stats immediately for monitoring
-    setTimeout(() => this.reportStats(), 5000); // Report after 5 seconds of startup
+    }, 60000);
   }
 
   // Report cache statistics
@@ -84,27 +79,20 @@ class EnhancedCache {
     const total = this.metrics.hits + this.metrics.misses;
     const hitRate = total > 0 ? ((this.metrics.hits / total) * 100).toFixed(2) : '0.00';
     const cacheSizeValue = this.data.size;
-    const timeElapsed = Math.floor((Date.now() - this.lastReportTime) / 1000);
     
     // Update Prometheus metrics
     cacheSize.set({ cache_type: 'memory' }, cacheSizeValue);
     
-    // Estimate memory usage (rough estimation)
+    // Estimate memory usage
     let memoryUsage = 0;
     for (const [key, item] of this.data.entries()) {
-      memoryUsage += key.length * 2; // UTF-16 characters
-      memoryUsage += JSON.stringify(item).length * 2; // Rough estimation
+      memoryUsage += key.length * 2;
+      memoryUsage += JSON.stringify(item).length * 2;
     }
     cacheMemoryUsage.set({ cache_type: 'memory' }, memoryUsage);
     
-    console.log(`📊 [CACHE STATS] Hit Rate: ${hitRate}% | Hits: ${this.metrics.hits} | Misses: ${this.metrics.misses} | Sets: ${this.metrics.sets} | Deletes: ${this.metrics.deletes} | Keys: ${cacheSizeValue} | Time: ${timeElapsed}s`);
-    
-    // Reset time for next interval
-    this.lastReportTime = Date.now();
-    
-    // Alert if hit rate is too low after warmup period
-    if (total > 100 && parseFloat(hitRate) < 30) {
-      console.warn(`⚠️ [CACHE WARNING] Low hit rate detected: ${hitRate}%`);
+    if (this.debugMode) {
+      console.log(`📊 [InMemory Cache Stats] Hit Rate: ${hitRate}% | Keys: ${cacheSizeValue}`);
     }
   }
 
@@ -119,19 +107,14 @@ class EnhancedCache {
         cleaned++;
       }
     }
-    
-    if (cleaned > 0) {
-      console.log(`🧹 Cleaned ${cleaned} expired cache entries`);
-    }
   }
 
   // Persist cache to disk
   private persistToDisk() {
     try {
       const dataObject: Record<string, any> = {};
-      
-      // Only persist non-expired items
       const now = Date.now();
+      
       for (const [key, item] of this.data.entries()) {
         if (!item.expireAt || item.expireAt > now) {
           dataObject[key] = item;
@@ -139,17 +122,15 @@ class EnhancedCache {
       }
       
       fs.writeFileSync(this.persistPath, JSON.stringify(dataObject, null, 2));
-      console.log(`💾 Persisted ${Object.keys(dataObject).length} cache entries to disk`);
     } catch (error) {
-      console.error('❌ Failed to persist cache:', error);
+      // Silently continue if cache can't be persisted
     }
   }
 
   // Check if cache size limit is reached
   private checkSizeLimit() {
     if (this.data.size >= this.maxSize) {
-      // Remove oldest entries (simple FIFO)
-      const toRemove = Math.floor(this.maxSize * 0.1); // Remove 10%
+      const toRemove = Math.floor(this.maxSize * 0.1);
       const keys = Array.from(this.data.keys());
       for (let i = 0; i < toRemove && i < keys.length; i++) {
         const key = keys[i];
@@ -157,8 +138,12 @@ class EnhancedCache {
           this.data.delete(key);
         }
       }
-      console.log(`⚠️ Cache size limit reached, removed ${toRemove} oldest entries`);
     }
+  }
+
+  // Get cache metrics
+  getMetrics() {
+    return { ...this.metrics, size: this.data.size };
   }
 
   // Redis-compatible methods
@@ -168,31 +153,19 @@ class EnhancedCache {
     if (!item) {
       this.metrics.misses++;
       recordCacheOperation('miss', 'memory');
-      if (this.debugMode) {
-        console.log(`📊 [CACHE MISS] Key: ${key} - Not found in cache`);
-      }
       return null;
     }
     
-    // Check expiration
     if (item.expireAt && item.expireAt <= Date.now()) {
       this.data.delete(key);
       this.metrics.misses++;
       recordCacheOperation('miss', 'memory');
-      if (this.debugMode) {
-        console.log(`📊 [CACHE MISS] Key: ${key} - Expired, removed from cache`);
-      }
       return null;
     }
     
     this.metrics.hits++;
     recordCacheOperation('hit', 'memory');
-    if (this.debugMode) {
-      const ttl = item.expireAt ? Math.floor((item.expireAt - Date.now()) / 1000) : -1;
-      console.log(`📊 [CACHE HIT] Key: ${key} - TTL: ${ttl}s`);
-    }
     
-    // Return string representation for Redis compatibility
     if (typeof item.value === 'object') {
       return JSON.stringify(item.value);
     }
@@ -204,36 +177,26 @@ class EnhancedCache {
     this.checkSizeLimit();
     
     let expireAt: number | undefined;
-    let ttlSeconds = 300; // Default TTL 5 minutes
     
-    // Handle Redis SET modes (EX = seconds, PX = milliseconds)
     if (mode === 'EX' && duration) {
       expireAt = Date.now() + (duration * 1000);
-      ttlSeconds = duration;
     } else if (mode === 'PX' && duration) {
       expireAt = Date.now() + duration;
-      ttlSeconds = Math.floor(duration / 1000);
     } else if (typeof mode === 'number') {
-      // Direct TTL in seconds (common pattern)
       expireAt = Date.now() + (mode * 1000);
-      ttlSeconds = mode;
     } else {
-      // Apply default TTL if not specified
-      expireAt = Date.now() + (ttlSeconds * 1000);
+      expireAt = Date.now() + 300000; // Default 5 minutes
     }
     
     this.data.set(key, { value, expireAt });
     this.metrics.sets++;
     recordCacheOperation('set', 'memory');
     
-    if (this.debugMode) {
-      const valuePreview = typeof value === 'object' 
-        ? `[Object with ${Object.keys(value).length} keys]`
-        : String(value).substring(0, 50);
-      console.log(`📊 [CACHE SET] Key: ${key} - TTL: ${ttlSeconds}s - Value: ${valuePreview}`);
-    }
-    
     return 'OK';
+  }
+
+  async setex(key: string, seconds: number, value: string | Buffer | number): Promise<string> {
+    return this.set(key, value, 'EX', seconds);
   }
 
   async del(key: string | string[]): Promise<number> {
@@ -268,7 +231,6 @@ class EnhancedCache {
     const item = this.data.get(key);
     if (!item) return 0;
     
-    // Check expiration
     if (item.expireAt && item.expireAt <= Date.now()) {
       this.data.delete(key);
       return 0;
@@ -287,8 +249,8 @@ class EnhancedCache {
 
   async ttl(key: string): Promise<number> {
     const item = this.data.get(key);
-    if (!item) return -2; // Key doesn't exist
-    if (!item.expireAt) return -1; // No expiration
+    if (!item) return -2;
+    if (!item.expireAt) return -1;
     
     const ttl = Math.floor((item.expireAt - Date.now()) / 1000);
     return ttl > 0 ? ttl : -2;
@@ -298,13 +260,11 @@ class EnhancedCache {
     const now = Date.now();
     const allKeys = Array.from(this.data.keys());
     
-    // Filter expired keys
     const validKeys = allKeys.filter(key => {
       const item = this.data.get(key);
       return item && (!item.expireAt || item.expireAt > now);
     });
     
-    // Simple pattern matching (supports * wildcard)
     if (pattern === '*') return validKeys;
     
     const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
@@ -314,7 +274,6 @@ class EnhancedCache {
   async flushall(): Promise<string> {
     this.data.clear();
     this.metrics = { hits: 0, misses: 0, sets: 0, deletes: 0 };
-    console.log('🗑️ Cache flushed');
     return 'OK';
   }
 
@@ -322,53 +281,43 @@ class EnhancedCache {
     return 'PONG';
   }
 
-  // Redis List methods for campaign queue management
+  // Redis List methods
   async lpush(key: string, ...values: any[]): Promise<number> {
     const item = this.data.get(key);
-    const list = item?.value ? [...item.value] : []; // Clone to avoid mutation
+    const list = item?.value ? [...item.value] : [];
     
     if (item && !Array.isArray(item.value)) {
       throw new Error(`Key ${key} is not a list`);
     }
     
-    // Redis LPUSH: elements are inserted one by one at head
-    // LPUSH mylist a b c results in [c, b, a, ...existing]
     for (const value of values) {
       list.unshift(value);
     }
     
     this.data.set(key, { value: list, expireAt: item?.expireAt });
-    
     return list.length;
   }
 
   async rpush(key: string, ...values: any[]): Promise<number> {
     const item = this.data.get(key);
-    const list = item?.value ? [...item.value] : []; // Clone to avoid mutation
+    const list = item?.value ? [...item.value] : [];
     
     if (item && !Array.isArray(item.value)) {
       throw new Error(`Key ${key} is not a list`);
     }
     
-    // Push to the right (end) of the list
     list.push(...values);
     this.data.set(key, { value: list, expireAt: item?.expireAt });
-    
     return list.length;
   }
 
   async lrange(key: string, start: number, stop: number): Promise<string[]> {
     const item = this.data.get(key);
-    
     if (!item) return [];
     
     const list = item.value;
+    if (!Array.isArray(list)) return [];
     
-    if (!Array.isArray(list)) {
-      return [];
-    }
-    
-    // Handle negative indices like Redis does
     const len = list.length;
     const actualStart = start < 0 ? Math.max(0, len + start) : start;
     const actualStop = stop < 0 ? len + stop + 1 : stop + 1;
@@ -378,28 +327,20 @@ class EnhancedCache {
 
   async llen(key: string): Promise<number> {
     const item = this.data.get(key);
-    
     if (!item) return 0;
     
     const list = item.value;
-    
-    if (!Array.isArray(list)) {
-      return 0;
-    }
+    if (!Array.isArray(list)) return 0;
     
     return list.length;
   }
 
   async lpop(key: string, count?: number): Promise<string | string[] | null> {
     const item = this.data.get(key);
-    
     if (!item) return null;
     
     const list = item.value;
-    
-    if (!Array.isArray(list) || list.length === 0) {
-      return null;
-    }
+    if (!Array.isArray(list) || list.length === 0) return null;
     
     if (count && count > 1) {
       const popped = list.splice(0, Math.min(count, list.length));
@@ -409,20 +350,15 @@ class EnhancedCache {
     
     const popped = list.shift();
     this.data.set(key, { value: list, expireAt: item.expireAt });
-    
     return popped ? String(popped) : null;
   }
 
   async rpop(key: string, count?: number): Promise<string | string[] | null> {
     const item = this.data.get(key);
-    
     if (!item) return null;
     
     const list = item.value;
-    
-    if (!Array.isArray(list) || list.length === 0) {
-      return null;
-    }
+    if (!Array.isArray(list) || list.length === 0) return null;
     
     if (count && count > 1) {
       const popped = list.splice(-Math.min(count, list.length));
@@ -432,13 +368,10 @@ class EnhancedCache {
     
     const popped = list.pop();
     this.data.set(key, { value: list, expireAt: item.expireAt });
-    
     return popped ? String(popped) : null;
   }
 
   async brpop(key: string | string[], timeout: number): Promise<[string, string] | null> {
-    // For simplified implementation, we'll just do a regular rpop
-    // In production, this would need proper blocking behavior
     const keys = Array.isArray(key) ? key : [key];
     
     for (const k of keys) {
@@ -453,8 +386,6 @@ class EnhancedCache {
   }
 
   async blpop(key: string | string[], timeout: number): Promise<[string, string] | null> {
-    // For simplified implementation, we'll just do a regular lpop
-    // In production, this would need proper blocking behavior
     const keys = Array.isArray(key) ? key : [key];
     
     for (const k of keys) {
@@ -468,335 +399,506 @@ class EnhancedCache {
     return null;
   }
 
-  // Redis Sorted Set (ZSET) methods for metrics and rate limiting
+  // Redis Sorted Set methods
   async zadd(key: string, score: number, member: string): Promise<number> {
     const item = this.data.get(key);
     const zset = item?.value ? new Map(item.value) : new Map<string, number>();
     
-    if (item && !(item.value instanceof Map)) {
+    if (item && !(item.value instanceof Map || Array.isArray(item.value))) {
       throw new Error(`Key ${key} is not a sorted set`);
     }
     
-    // Add or update member with score
     const isNew = !zset.has(member);
     zset.set(member, score);
     
-    this.data.set(key, { value: zset, expireAt: item?.expireAt });
+    this.data.set(key, { 
+      value: Array.from(zset.entries()),
+      expireAt: item?.expireAt 
+    });
     
-    return isNew ? 1 : 0; // Return 1 if new member, 0 if updated
-  }
-
-  async zrem(key: string, member: string): Promise<number> {
-    const item = this.data.get(key);
-    
-    if (!item || !(item.value instanceof Map)) {
-      return 0;
-    }
-    
-    const zset = item.value;
-    const deleted = zset.delete(member) ? 1 : 0;
-    
-    this.data.set(key, { value: zset, expireAt: item.expireAt });
-    
-    return deleted;
+    return isNew ? 1 : 0;
   }
 
   async zcard(key: string): Promise<number> {
     const item = this.data.get(key);
-    
-    if (!item || !(item.value instanceof Map)) {
-      return 0;
-    }
-    
-    return item.value.size;
+    if (!item || !Array.isArray(item.value)) return 0;
+    return item.value.length;
   }
 
-  async zrange(key: string, start: number, stop: number): Promise<string[]> {
+  async zremrangebyscore(key: string, min: number | string, max: number | string): Promise<number> {
     const item = this.data.get(key);
+    if (!item || !Array.isArray(item.value)) return 0;
     
-    if (!item || !(item.value instanceof Map)) {
-      return [];
-    }
-    
-    const zset = item.value;
-    
-    // Sort by score (ascending)
-    const sorted = Array.from(zset.entries())
-      .sort((a, b) => a[1] - b[1])
-      .map(([member]) => member);
-    
-    // Handle negative indices like Redis does
-    const len = sorted.length;
-    const actualStart = start < 0 ? Math.max(0, len + start) : start;
-    const actualStop = stop < 0 ? len + stop + 1 : stop + 1;
-    
-    return sorted.slice(actualStart, actualStop);
-  }
-
-  async zremrangebyscore(key: string, min: number, max: number): Promise<number> {
-    const item = this.data.get(key);
-    
-    if (!item || !(item.value instanceof Map)) {
-      return 0;
-    }
-    
-    const zset = item.value;
+    const zset = new Map<string, number>(item.value);
     let removed = 0;
     
-    // Remove members with score between min and max
     for (const [member, score] of zset.entries()) {
-      if (score >= min && score <= max) {
+      if (score >= Number(min) && score <= Number(max)) {
         zset.delete(member);
         removed++;
       }
     }
     
-    this.data.set(key, { value: zset, expireAt: item.expireAt });
+    if (removed > 0) {
+      this.data.set(key, {
+        value: Array.from(zset.entries()),
+        expireAt: item.expireAt
+      });
+    }
     
     return removed;
   }
 
-  // Pipeline support for atomic operations
-  pipeline() {
-    const commands: Array<{ method: string; args: any[] }> = [];
-    
-    const pipelineObj = {
-      zadd: (key: string, score: number, member: string) => {
-        commands.push({ method: 'zadd', args: [key, score, member] });
-        return pipelineObj;
-      },
-      zrem: (key: string, member: string) => {
-        commands.push({ method: 'zrem', args: [key, member] });
-        return pipelineObj;
-      },
-      zcard: (key: string) => {
-        commands.push({ method: 'zcard', args: [key] });
-        return pipelineObj;
-      },
-      zremrangebyscore: (key: string, min: number, max: number) => {
-        commands.push({ method: 'zremrangebyscore', args: [key, min, max] });
-        return pipelineObj;
-      },
-      incr: (key: string) => {
-        commands.push({ method: 'incr', args: [key] });
-        return pipelineObj;
-      },
-      expire: (key: string, seconds: number) => {
-        commands.push({ method: 'expire', args: [key, seconds] });
-        return pipelineObj;
-      },
-      exec: async () => {
-        const results: Array<[Error | null, any]> = [];
-        
-        for (const cmd of commands) {
-          try {
-            let result: any;
-            
-            if (cmd.method === 'zadd') {
-              const [key, score, member] = cmd.args as [string, number, string];
-              result = await this.zadd(key, score, member);
-            } else if (cmd.method === 'zrem') {
-              const [key, member] = cmd.args as [string, string];
-              result = await this.zrem(key, member);
-            } else if (cmd.method === 'zcard') {
-              const [key] = cmd.args as [string];
-              result = await this.zcard(key);
-            } else if (cmd.method === 'zremrangebyscore') {
-              const [key, min, max] = cmd.args as [string, number, number];
-              result = await this.zremrangebyscore(key, min, max);
-            } else if (cmd.method === 'incr') {
-              const [key] = cmd.args as [string];
-              result = await this.incr(key);
-            } else if (cmd.method === 'expire') {
-              const [key, seconds] = cmd.args as [string, number];
-              result = await this.expire(key, seconds);
-            }
-            
-            results.push([null, result]);
-          } catch (error) {
-            results.push([error as Error, null]);
-          }
-        }
-        
-        return results;
-      }
-    };
-    
-    return pipelineObj;
-  }
-
-  // Increment counter (for metrics)
-  async incr(key: string): Promise<number> {
-    const item = this.data.get(key);
-    const currentValue = item?.value ? parseInt(String(item.value)) : 0;
-    const newValue = currentValue + 1;
-    
-    this.data.set(key, { value: newValue, expireAt: item?.expireAt });
-    
-    return newValue;
-  }
-
-  // Lua script evaluation for atomic operations
-  async eval(script: string, numKeys: number, ...args: string[]): Promise<number> {
-    // Extract keys and arguments
-    const keys = args.slice(0, numKeys);
-    const argv = args.slice(numKeys);
-    
-    // Parse the sliding window Lua script
-    // This is a specialized implementation for rate limiting
-    if (script.includes('ZREMRANGEBYSCORE') && script.includes('ZCARD')) {
-      const key = keys[0];
-      if (!key) return 0;
-      
-      const now = parseInt(argv[0] || '0');
-      const windowMs = parseInt(argv[1] || '0');
-      const limit = parseInt(argv[2] || '0');
-      const ttl = parseInt(argv[3] || '0');
-      const member = argv[4] || '';
-      
+  // Lua script support for in-memory (simulated)
+  async eval(script: string, numKeys: number, ...args: string[]): Promise<any> {
+    // For in-memory cache, we'll simulate the Lua script behavior
+    // This is specifically for the rate limiting script
+    if (script.includes('ZREMRANGEBYSCORE') && script.includes('ZCARD') && script.includes('ZADD')) {
+      // This is the rate limiting script
+      const key = args[0];
+      const now = parseInt(args[1]);
+      const windowMs = parseInt(args[2]);
+      const limit = parseInt(args[3]);
+      const ttlSeconds = parseInt(args[4]);
+      const member = args[5];
       const windowStart = now - windowMs;
       
-      // Get or create sorted set - NO CLONING, mutate in place
-      const item = this.data.get(key);
-      let zset: Map<string, number>;
+      // Remove expired entries
+      await this.zremrangebyscore(key, 0, windowStart);
       
-      if (item?.value instanceof Map) {
-        zset = item.value; // Use existing Map directly (no clone)
-      } else {
-        zset = new Map<string, number>();
-      }
+      // Count current entries
+      const count = await this.zcard(key);
       
-      // Remove expired entries IN PLACE (critical for sliding window)
-      for (const [m, score] of Array.from(zset.entries())) {
-        if (score <= windowStart) {
-          zset.delete(m);
-        }
-      }
-      
-      // Always persist the cleaned set (even when blocked)
-      // This ensures expired timestamps are removed
-      this.data.set(key, { value: zset, expireAt: item?.expireAt });
-      
-      // Count current entries AFTER cleanup
-      const count = zset.size;
-      
-      // Check limit
+      // Check if limit exceeded
       if (count >= limit) {
-        return 0; // Blocked - but cleanup was already persisted
+        return 0;
       }
       
-      // Add new member
-      zset.set(member, now);
+      // Add new entry
+      await this.zadd(key, now, member);
       
-      // Set expiration ONLY on successful increment (mirrors Redis behavior)
-      const expireAt = Date.now() + (ttl * 1000);
-      this.data.set(key, { value: zset, expireAt });
+      // Set expiry
+      await this.expire(key, ttlSeconds);
       
-      return 1; // Allowed
+      return 1;
     }
     
-    // Fallback for unknown scripts
+    // For other scripts, return a default value
     return 0;
   }
 
-  // Get cache metrics
-  getMetrics() {
-    const hitRate = this.metrics.hits + this.metrics.misses > 0
-      ? (this.metrics.hits / (this.metrics.hits + this.metrics.misses) * 100).toFixed(2)
-      : '0';
-      
-    return {
-      size: this.data.size,
-      hits: this.metrics.hits,
-      misses: this.metrics.misses,
-      sets: this.metrics.sets,
-      deletes: this.metrics.deletes,
-      hitRate: `${hitRate}%`,
-      maxSize: this.maxSize
-    };
+  // Additional Redis methods
+  async incr(key: string): Promise<number> {
+    const item = this.data.get(key);
+    let value = 0;
+    
+    if (item) {
+      value = parseInt(String(item.value)) || 0;
+    }
+    
+    value++;
+    this.data.set(key, { value, expireAt: item?.expireAt });
+    return value;
   }
 
-  // Event handler compatibility
-  on(_event: string, _handler: (...args: any[]) => void) {
-    // Mock event handler for compatibility
-    return this;
+  async decr(key: string): Promise<number> {
+    const item = this.data.get(key);
+    let value = 0;
+    
+    if (item) {
+      value = parseInt(String(item.value)) || 0;
+    }
+    
+    value--;
+    this.data.set(key, { value, expireAt: item?.expireAt });
+    return value;
   }
 
-  // Cleanup on process exit
+  async mget(...keys: string[]): Promise<(string | null)[]> {
+    return Promise.all(keys.map(key => this.get(key)));
+  }
+
+  async mset(...args: string[]): Promise<string> {
+    for (let i = 0; i < args.length; i += 2) {
+      const key = args[i];
+      const value = args[i + 1];
+      if (key && value !== undefined) {
+        await this.set(key, value);
+      }
+    }
+    return 'OK';
+  }
+
+  async quit(): Promise<string> {
+    this.destroy();
+    return 'OK';
+  }
+
+  // Cleanup method
   destroy() {
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval);
-    }
-    if (this.saveInterval) {
-      clearInterval(this.saveInterval);
-    }
+    if (this.cleanupInterval) clearInterval(this.cleanupInterval);
+    if (this.saveInterval) clearInterval(this.saveInterval);
+    if (this.statsInterval) clearInterval(this.statsInterval);
     this.persistToDisk();
-    console.log('💤 Cache shutdown complete');
   }
 }
 
-// Global singleton key for Enhanced Cache
+// Hybrid Redis Client - tries real Redis first, falls back to in-memory
+class HybridRedisClient {
+  private client: IORedis | EnhancedCache | null = null;
+  private isUsingRedis: boolean = false;
+  private connectionStatus: 'connecting' | 'connected' | 'failed' = 'connecting';
+  private initPromise: Promise<void>;
+
+  constructor() {
+    // Initialize asynchronously
+    this.initPromise = this.initialize();
+  }
+
+  private async initialize(): Promise<void> {
+    // Try to connect to real Redis first
+    const redisUrl = process.env.REDIS_URL;
+    const redisHost = process.env.REDIS_HOST || 'localhost';
+    const redisPort = parseInt(process.env.REDIS_PORT || '6379');
+    const redisPassword = process.env.REDIS_PASSWORD;
+
+    try {
+      let redisClient: IORedis;
+      
+      if (redisUrl) {
+        redisClient = new IORedis(redisUrl, {
+          maxRetriesPerRequest: 3,
+          enableOfflineQueue: false,
+          connectTimeout: 5000,
+          retryStrategy: (times) => {
+            if (times > 3) return null;
+            return Math.min(times * 100, 1000);
+          },
+          lazyConnect: false,
+        });
+      } else {
+        redisClient = new IORedis({
+          host: redisHost,
+          port: redisPort,
+          password: redisPassword,
+          maxRetriesPerRequest: 3,
+          enableOfflineQueue: false,
+          connectTimeout: 5000,
+          retryStrategy: (times) => {
+            if (times > 3) return null;
+            return Math.min(times * 100, 1000);
+          },
+          lazyConnect: false,
+        });
+      }
+
+      // Test connection with ping
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Redis connection timeout'));
+        }, 5000);
+
+        redisClient.ping((err) => {
+          clearTimeout(timeout);
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
+
+      // Connection successful
+      this.client = redisClient;
+      this.isUsingRedis = true;
+      this.connectionStatus = 'connected';
+      console.log('✅ Redis connected successfully - Using distributed Redis cache');
+      console.log(`📡 Redis connection: ${redisUrl || `${redisHost}:${redisPort}`}`);
+
+      // Set up error handler for future errors
+      redisClient.on('error', (error) => {
+        // Log errors but don't fall back once connected
+        console.error('Redis error:', error.message);
+      });
+
+    } catch (error) {
+      // Redis connection failed, fall back to in-memory
+      this.connectionStatus = 'failed';
+      console.warn('⚠️ Redis connection failed, falling back to in-memory cache:', error instanceof Error ? error.message : String(error));
+      console.warn('📝 Note: In-memory cache is for development only. Redis is required for production.');
+      
+      // Clean up failed Redis connection if it exists
+      if (this.client instanceof IORedis) {
+        this.client.disconnect();
+      }
+      
+      this.client = new EnhancedCache();
+      this.isUsingRedis = false;
+    }
+  }
+
+  // Ensure initialization is complete before operations
+  private async ensureInitialized(): Promise<void> {
+    await this.initPromise;
+    if (!this.client) {
+      throw new Error('Redis client initialization failed');
+    }
+  }
+
+  // Proxy all Redis methods to the underlying client
+  async get(key: string): Promise<string | null> {
+    await this.ensureInitialized();
+    return this.client!.get(key);
+  }
+
+  async set(key: string, value: any, mode?: string, duration?: number): Promise<string> {
+    await this.ensureInitialized();
+    
+    if (this.isUsingRedis && this.client instanceof IORedis) {
+      // Use Redis SET with proper arguments
+      if (mode === 'EX' && duration) {
+        return this.client.set(key, value, 'EX', duration);
+      } else if (mode === 'PX' && duration) {
+        return this.client.set(key, value, 'PX', duration);
+      } else if (typeof mode === 'number') {
+        return this.client.setex(key, mode, value);
+      }
+      return this.client.set(key, value);
+    }
+    // Use EnhancedCache implementation
+    return (this.client as EnhancedCache).set(key, value, mode, duration);
+  }
+
+  async setex(key: string, seconds: number, value: string | Buffer | number): Promise<string> {
+    await this.ensureInitialized();
+    
+    if (this.isUsingRedis && this.client instanceof IORedis) {
+      return this.client.setex(key, seconds, value);
+    }
+    return (this.client as EnhancedCache).setex(key, seconds, value);
+  }
+
+  async del(key: string | string[]): Promise<number> {
+    await this.ensureInitialized();
+    return this.client!.del(key);
+  }
+
+  async exists(key: string | string[]): Promise<number> {
+    await this.ensureInitialized();
+    return this.client!.exists(key);
+  }
+
+  async expire(key: string, seconds: number): Promise<number> {
+    await this.ensureInitialized();
+    return this.client!.expire(key, seconds);
+  }
+
+  async ttl(key: string): Promise<number> {
+    await this.ensureInitialized();
+    return this.client!.ttl(key);
+  }
+
+  async keys(pattern: string = '*'): Promise<string[]> {
+    await this.ensureInitialized();
+    return this.client!.keys(pattern);
+  }
+
+  async flushall(): Promise<string> {
+    await this.ensureInitialized();
+    return this.client!.flushall();
+  }
+
+  async ping(): Promise<string> {
+    await this.ensureInitialized();
+    return this.client!.ping();
+  }
+
+  // List methods
+  async lpush(key: string, ...values: any[]): Promise<number> {
+    await this.ensureInitialized();
+    return this.client!.lpush(key, ...values);
+  }
+
+  async rpush(key: string, ...values: any[]): Promise<number> {
+    await this.ensureInitialized();
+    return this.client!.rpush(key, ...values);
+  }
+
+  async lrange(key: string, start: number, stop: number): Promise<string[]> {
+    await this.ensureInitialized();
+    return this.client!.lrange(key, start, stop);
+  }
+
+  async llen(key: string): Promise<number> {
+    await this.ensureInitialized();
+    return this.client!.llen(key);
+  }
+
+  async lpop(key: string, count?: number): Promise<string | string[] | null> {
+    await this.ensureInitialized();
+    
+    if (this.isUsingRedis && this.client instanceof IORedis) {
+      if (count && count > 1) {
+        return this.client.lpop(key, count);
+      }
+      return this.client.lpop(key);
+    }
+    return (this.client as EnhancedCache).lpop(key, count);
+  }
+
+  async rpop(key: string, count?: number): Promise<string | string[] | null> {
+    await this.ensureInitialized();
+    
+    if (this.isUsingRedis && this.client instanceof IORedis) {
+      if (count && count > 1) {
+        return this.client.rpop(key, count);
+      }
+      return this.client.rpop(key);
+    }
+    return (this.client as EnhancedCache).rpop(key, count);
+  }
+
+  async brpop(key: string | string[], timeout: number): Promise<[string, string] | null> {
+    await this.ensureInitialized();
+    return this.client!.brpop(key, timeout);
+  }
+
+  async blpop(key: string | string[], timeout: number): Promise<[string, string] | null> {
+    await this.ensureInitialized();
+    return this.client!.blpop(key, timeout);
+  }
+
+  // Sorted set methods
+  async zadd(key: string, score: number, member: string): Promise<number> {
+    await this.ensureInitialized();
+    
+    if (this.isUsingRedis && this.client instanceof IORedis) {
+      return this.client.zadd(key, score, member);
+    }
+    return (this.client as EnhancedCache).zadd(key, score, member);
+  }
+
+  async zcard(key: string): Promise<number> {
+    await this.ensureInitialized();
+    
+    if (this.isUsingRedis && this.client instanceof IORedis) {
+      return this.client.zcard(key);
+    }
+    return (this.client as EnhancedCache).zcard(key);
+  }
+
+  async zremrangebyscore(key: string, min: number | string, max: number | string): Promise<number> {
+    await this.ensureInitialized();
+    
+    if (this.isUsingRedis && this.client instanceof IORedis) {
+      return this.client.zremrangebyscore(key, min, max);
+    }
+    return (this.client as EnhancedCache).zremrangebyscore(key, min, max);
+  }
+
+  // Lua script evaluation (critical for rate limiting)
+  async eval(script: string, numKeys: number, ...args: string[]): Promise<any> {
+    await this.ensureInitialized();
+    return this.client!.eval(script, numKeys, ...args);
+  }
+
+  // Additional methods
+  async incr(key: string): Promise<number> {
+    await this.ensureInitialized();
+    
+    if (this.isUsingRedis && this.client instanceof IORedis) {
+      return this.client.incr(key);
+    }
+    return (this.client as EnhancedCache).incr(key);
+  }
+
+  async decr(key: string): Promise<number> {
+    await this.ensureInitialized();
+    
+    if (this.isUsingRedis && this.client instanceof IORedis) {
+      return this.client.decr(key);
+    }
+    return (this.client as EnhancedCache).decr(key);
+  }
+
+  async mget(...keys: string[]): Promise<(string | null)[]> {
+    await this.ensureInitialized();
+    
+    if (this.isUsingRedis && this.client instanceof IORedis) {
+      return this.client.mget(...keys);
+    }
+    return (this.client as EnhancedCache).mget(...keys);
+  }
+
+  async mset(...args: string[]): Promise<string> {
+    await this.ensureInitialized();
+    
+    if (this.isUsingRedis && this.client instanceof IORedis) {
+      return this.client.mset(...args);
+    }
+    return (this.client as EnhancedCache).mset(...args);
+  }
+
+  // Get connection status
+  isRedisConnected(): boolean {
+    return this.isUsingRedis;
+  }
+
+  // Get cache metrics (only for in-memory)
+  getCacheMetrics() {
+    if (this.client instanceof EnhancedCache) {
+      return this.client.getMetrics();
+    }
+    return null;
+  }
+
+  // Cleanup
+  async quit(): Promise<string> {
+    await this.ensureInitialized();
+    
+    if (this.client instanceof IORedis) {
+      await this.client.quit();
+    } else if (this.client instanceof EnhancedCache) {
+      return this.client.quit();
+    }
+    return 'OK';
+  }
+}
+
+// Global singleton for the hybrid Redis client
 declare global {
   // eslint-disable-next-line no-var
-  var __enhancedCacheInstance: EnhancedCache | undefined;
-  // eslint-disable-next-line no-var
-  var __redisClient: any;
-  // eslint-disable-next-line no-var
-  var __processListenersRegistered: boolean | undefined;
+  var __hybridRedisClient: HybridRedisClient | undefined;
 }
 
-// Create Redis client or enhanced cache based on environment
-let redis: any;
+// Create or reuse the singleton instance
+let redis: HybridRedisClient;
 
-if (process.env.REDIS_URL) {
-  // Use real Redis if URL is provided  
-  if (!global.__redisClient) {
-    redis = new Redis(process.env.REDIS_URL);
-    redis.on('error', (err: any) => console.error('Redis Client Error', err));
-    redis.on('connect', () => console.log('✅ Connected to external Redis'));
-    global.__redisClient = redis;
-  } else {
-    redis = global.__redisClient;
-  }
+if (!global.__hybridRedisClient) {
+  redis = new HybridRedisClient();
+  global.__hybridRedisClient = redis;
 } else {
-  // Use enhanced cache for production without external Redis (SINGLETON)
-  if (!global.__enhancedCacheInstance) {
-    console.log('📦 Using Replit Enhanced Cache (production-ready in-memory + disk persistence)');
-    redis = new EnhancedCache();
-    global.__enhancedCacheInstance = redis;
-  } else {
-    redis = global.__enhancedCacheInstance;
-  }
-  
-  // Register process listeners only once (prevents MaxListenersExceededWarning)
-  if (!global.__processListenersRegistered) {
-    // Graceful shutdown handlers
-    process.on('SIGINT', () => {
-      if (global.__enhancedCacheInstance) {
-        global.__enhancedCacheInstance.destroy();
-        global.__enhancedCacheInstance = undefined;
-      }
-      process.exit(0);
-    });
-    
-    process.on('SIGTERM', () => {
-      if (global.__enhancedCacheInstance) {
-        global.__enhancedCacheInstance.destroy();
-        global.__enhancedCacheInstance = undefined;
-      }
-      process.exit(0);
-    });
-    
-    global.__processListenersRegistered = true;
-  }
+  redis = global.__hybridRedisClient;
 }
 
 // Export cache metrics function for monitoring
 export function getCacheMetrics() {
-  if (redis instanceof EnhancedCache) {
-    return redis.getMetrics();
-  }
-  return null;
+  return redis.getCacheMetrics();
 }
 
+// Graceful shutdown handlers
+if (typeof process !== 'undefined') {
+  const shutdownHandler = async () => {
+    await redis.quit();
+    process.exit(0);
+  };
+
+  process.once('SIGINT', shutdownHandler);
+  process.once('SIGTERM', shutdownHandler);
+}
+
+// Export as default for compatibility
 export default redis;
+
+// Also export the client instance for named imports
+export { redis };
