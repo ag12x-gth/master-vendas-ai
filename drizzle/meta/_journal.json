@@ -15,6 +15,13 @@
       "when": 1730804400000,
       "tag": "0001_performance_indexes",
       "breakpoints": false
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1763849986589,
+      "tag": "0002_long_chronomancer",
+      "breakpoints": true
     }
   ]
 }

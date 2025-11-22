@@ -1117,6 +1117,177 @@ export const cadenceEnrollmentsRelations = relations(cadenceEnrollments, ({ one,
   events: many(cadenceEvents),
 }));
 
+// ==============================
+// ALERT SYSTEM TABLES
+// ==============================
+
+export const alertSeverityEnum = pgEnum('alert_severity', [
+  'CRITICAL',
+  'HIGH',
+  'MEDIUM',
+  'LOW',
+]);
+
+export const alertStatusEnum = pgEnum('alert_status', [
+  'active',
+  'acknowledged',
+  'resolved',
+  'suppressed',
+  'expired',
+]);
+
+export const alertChannelEnum = pgEnum('alert_channel', [
+  'console',
+  'database',
+  'webhook',
+  'in_app',
+  'email',
+]);
+
+export const alertTypeEnum = pgEnum('alert_type', [
+  'high_memory_usage',
+  'cache_failure',
+  'database_pool_exhausted',
+  'rate_limit_breach',
+  'queue_failure',
+  'auth_failures_spike',
+  'response_time_degradation',
+  'custom',
+]);
+
+export const alerts = pgTable('alerts', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  companyId: text('company_id').references(() => companies.id, { onDelete: 'cascade' }),
+  alertType: alertTypeEnum('alert_type').notNull(),
+  severity: alertSeverityEnum('severity').notNull(),
+  status: alertStatusEnum('status').notNull().default('active'),
+  title: varchar('title', { length: 255 }).notNull(),
+  message: text('message').notNull(),
+  metric: varchar('metric', { length: 255 }),
+  threshold: decimal('threshold', { precision: 10, scale: 2 }),
+  currentValue: decimal('current_value', { precision: 10, scale: 2 }),
+  context: jsonb('context').$type<Record<string, any>>(),
+  fingerprint: varchar('fingerprint', { length: 255 }).notNull(), // For deduplication
+  occurrenceCount: integer('occurrence_count').default(1).notNull(),
+  firstOccurredAt: timestamp('first_occurred_at').defaultNow().notNull(),
+  lastOccurredAt: timestamp('last_occurred_at').defaultNow().notNull(),
+  acknowledgedAt: timestamp('acknowledged_at'),
+  acknowledgedBy: text('acknowledged_by').references(() => users.id, { onDelete: 'set null' }),
+  resolvedAt: timestamp('resolved_at'),
+  resolvedBy: text('resolved_by').references(() => users.id, { onDelete: 'set null' }),
+  expiresAt: timestamp('expires_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+}, (table) => ({
+  fingerprintIdx: sql`CREATE INDEX IF NOT EXISTS alerts_fingerprint_idx ON ${table} (fingerprint)`,
+  statusIdx: sql`CREATE INDEX IF NOT EXISTS alerts_status_idx ON ${table} (status)`,
+  severityIdx: sql`CREATE INDEX IF NOT EXISTS alerts_severity_idx ON ${table} (severity)`,
+  companyStatusIdx: sql`CREATE INDEX IF NOT EXISTS alerts_company_status_idx ON ${table} (company_id, status) WHERE status = 'active'`,
+}));
+
+export const alertRules = pgTable('alert_rules', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  companyId: text('company_id').references(() => companies.id, { onDelete: 'cascade' }),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  alertType: alertTypeEnum('alert_type').notNull(),
+  severity: alertSeverityEnum('severity').notNull(),
+  metric: varchar('metric', { length: 255 }).notNull(),
+  condition: varchar('condition', { length: 50 }).notNull(), // 'gt', 'lt', 'eq', 'gte', 'lte'
+  threshold: decimal('threshold', { precision: 10, scale: 2 }).notNull(),
+  windowSeconds: integer('window_seconds').default(300).notNull(), // 5 minutes default
+  aggregation: varchar('aggregation', { length: 50 }).default('avg'), // 'avg', 'max', 'min', 'sum', 'count'
+  channels: alertChannelEnum('channels').array().notNull(),
+  webhookUrls: text('webhook_urls').array(),
+  cooldownSeconds: integer('cooldown_seconds').default(3600).notNull(), // 1 hour default
+  isEnabled: boolean('is_enabled').default(true).notNull(),
+  metadata: jsonb('metadata').$type<Record<string, any>>(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+}, (table) => ({
+  nameCompanyUnique: unique('alert_rules_name_company_unique').on(table.name, table.companyId),
+  enabledIdx: sql`CREATE INDEX IF NOT EXISTS alert_rules_enabled_idx ON ${table} (is_enabled) WHERE is_enabled = true`,
+}));
+
+export const alertNotifications = pgTable('alert_notifications', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  alertId: text('alert_id').notNull().references(() => alerts.id, { onDelete: 'cascade' }),
+  ruleId: text('rule_id').references(() => alertRules.id, { onDelete: 'set null' }),
+  channel: alertChannelEnum('channel').notNull(),
+  recipient: text('recipient'), // email, webhook URL, user ID, etc.
+  status: varchar('status', { length: 50 }).notNull().default('pending'), // 'pending', 'sent', 'failed'
+  attemptCount: integer('attempt_count').default(0).notNull(),
+  sentAt: timestamp('sent_at'),
+  failureReason: text('failure_reason'),
+  response: jsonb('response').$type<Record<string, any>>(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  alertChannelIdx: sql`CREATE INDEX IF NOT EXISTS alert_notifications_alert_channel_idx ON ${table} (alert_id, channel)`,
+  statusIdx: sql`CREATE INDEX IF NOT EXISTS alert_notifications_status_idx ON ${table} (status)`,
+}));
+
+export const alertSettings = pgTable('alert_settings', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }).unique(),
+  memoryThreshold: decimal('memory_threshold', { precision: 5, scale: 2 }).default('90.00'), // percentage
+  responseTimeP95Threshold: integer('response_time_p95_threshold').default(1000), // milliseconds
+  rateLimit429Threshold: integer('rate_limit_429_threshold').default(100), // per minute
+  authFailureThreshold: integer('auth_failure_threshold').default(10), // per 5 minutes
+  queueFailureThreshold: integer('queue_failure_threshold').default(5), // per minute
+  dbPoolThreshold: decimal('db_pool_threshold', { precision: 5, scale: 2 }).default('90.00'), // percentage
+  alertRetentionDays: integer('alert_retention_days').default(30),
+  enabledChannels: alertChannelEnum('enabled_channels').array().default(sql`'{database,console}'::alert_channel[]`),
+  defaultWebhookUrl: text('default_webhook_url'),
+  emailRecipients: text('email_recipients').array(),
+  suppressionRules: jsonb('suppression_rules').$type<Record<string, any>>(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+});
+
+// Relations for alerts
+export const alertsRelations = relations(alerts, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [alerts.companyId],
+    references: [companies.id],
+  }),
+  acknowledgedByUser: one(users, {
+    fields: [alerts.acknowledgedBy],
+    references: [users.id],
+    relationName: 'acknowledgedAlerts',
+  }),
+  resolvedByUser: one(users, {
+    fields: [alerts.resolvedBy],
+    references: [users.id],
+    relationName: 'resolvedAlerts',
+  }),
+  notifications: many(alertNotifications),
+}));
+
+export const alertRulesRelations = relations(alertRules, ({ one }) => ({
+  company: one(companies, {
+    fields: [alertRules.companyId],
+    references: [companies.id],
+  }),
+}));
+
+export const alertNotificationsRelations = relations(alertNotifications, ({ one }) => ({
+  alert: one(alerts, {
+    fields: [alertNotifications.alertId],
+    references: [alerts.id],
+  }),
+  rule: one(alertRules, {
+    fields: [alertNotifications.ruleId],
+    references: [alertRules.id],
+  }),
+}));
+
+export const alertSettingsRelations = relations(alertSettings, ({ one }) => ({
+  company: one(companies, {
+    fields: [alertSettings.companyId],
+    references: [companies.id],
+  }),
+}));
+
 export const cadenceEventsRelations = relations(cadenceEvents, ({ one }) => ({
   enrollment: one(cadenceEnrollments, {
     fields: [cadenceEvents.enrollmentId],
