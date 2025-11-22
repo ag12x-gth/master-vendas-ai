@@ -3,101 +3,6 @@
 ## Overview
 Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control panel with AI automation capabilities. It provides a centralized platform for managing multi-channel campaigns, customer service conversations, contact management (CRM), and AI-driven chatbots using Meta's WhatsApp Business API and Baileys. The project aims to be an all-in-one solution for automated, intelligent communication, offering an intuitive dashboard for businesses, including an AI-powered lead progression system and a Kanban lead management system.
 
-## Recent Changes
-### 2025-11-21: Atendimentos Page Layout Optimization - Complete Fix
-- **Bug #1 (CRITICAL) - Skeleton/Real Inconsistency:** Fixed visual flash (CLS) by aligning skeleton with real layout
-  - Changed InboxSkeleton from CSS Grid to Flexbox matching production layout
-  - Skeleton now uses identical flex proportions as loaded component
-  - **Impact:** Eliminated Cumulative Layout Shift, improved perceived performance
-- **Bug #2 (CRITICAL) - Fixed-Width Layout:** Replaced pixel-based widths with fluid proportions
-  - Removed hard `max-w-[320px]` and `max-w-[340px]` constraints that prevented scaling
-  - Implemented balanced flex proportions: List (20-25%), Chat (55-60%), Sidebar (20%)
-  - Added `min-w-[280px]` to prevent excessive shrinking while maintaining fluidity
-  - **Impact:** Layout now scales proportionally on all resolutions (1366px, 1920px, 2560px+), eliminating disproportionate chat area
-- **Bug #3 (HIGH) - Excessive Padding:** Reduced main container padding from `p-8` to `p-4` on desktop
-  - Recovered 48px horizontal space (from 64px to 32px total padding)
-  - Improved information density for data-intensive application
-  - **Impact:** Better space utilization, more room for conversation list, chat, and details
-- **Bug #5 (HIGH) - ScrollArea Height:** Added `overflow-hidden` to ScrollArea wrapper in ActiveChat
-  - Ensures correct height calculation by browser
-  - Prevents scroll breakage in edge cases (zoom, older browsers)
-  - **Impact:** More stable scrolling behavior across different environments
-- **Bug #4 (NORMAL) - Wrapper Height:** Added explicit `h-full` to InboxView wrapper
-  - Prevents height collapse in edge-case scenarios
-  - Ensures predictable behavior across browser versions
-- **Bug #6 (NORMAL) - ScrollArea Optimization:** Replaced `min-h-0` with `overflow-y-auto` in ConversationList
-  - Simplified and more robust scroll architecture
-  - Removed redundant constraint causing potential conflicts
-- **Files Modified:** `src/components/atendimentos/inbox-view.tsx`, `src/contexts/session-context.tsx`, `src/components/atendimentos/active-chat.tsx`, `src/app/(main)/atendimentos/atendimentos-client.tsx`, `src/components/atendimentos/conversation-list.tsx`
-- **Documentation:** Full technical analysis in `docs/ANALISE_BUGS_LAYOUT_ATENDIMENTOS_20251121.md`, execution plan in `docs/PLANO_EXECUCAO_FIXES_LAYOUT_20251121.md`
-
-### 2025-11-21: Baileys Campaign Diagnostic Logging and Session Validation
-- **Session Status Validation:** Added `getSessionStatus()` method in SessionManager to check connection state before sending
-- **Pre-Send Validation:** `sendViaBaileys` now verifies session status BEFORE attempting to send messages
-- **Detailed Logging:** Comprehensive logs at each stage: preparation, status check, message content (truncated), success/failure
-- **Error Categorization:** Specific error messages for different failure modes (session not found, disconnected, send error)
-- **Root Cause Prevention:** Early exit with clear error message when session is unavailable, preventing "Baileys retornou null" generic errors
-- **Impact:** Campaign failures now provide actionable diagnostic information in logs for faster troubleshooting
-- **Files Modified:** `src/lib/campaign-sender.ts`, `src/services/baileys-session-manager.ts`
-
-### 2025-11-21: Template to Campaign Auto-Open Modal Enhancement
-- **Auto-Navigation:** Clicking "Usar Template" redirects to `/campaigns-baileys` with modal pre-opened
-- **Smart Step Positioning:** Modal opens directly at step 2 ("Compor Mensagem"), skipping step 1
-- **Message Pre-fill:** Template content automatically populates the message field
-- **Template Persistence:** Template data stored in localStorage and cleared only when modal closes
-- **Usage Tracking:** Template usage counter incremented before navigation
-- **Clipboard Integration:** Template content copied to clipboard before redirect
-- **Back Button Navigation:** Added visible "Voltar" button in modal footer starting from step 2 for easy navigation between steps
-- **Impact:** Streamlined workflow - users go from template selection directly to composing campaign with pre-filled message, with full navigation control
-- **Files Modified:** `src/app/(main)/templates/page.tsx`, `src/components/campaigns/create-baileys-campaign-dialog.tsx`
-
-### 2025-11-21: Templates API Schema Type Mismatch Fix
-- **Database Schema Alignment:** Fixed Drizzle schema definition for `variables` column to match PostgreSQL reality (`text[]` array instead of `jsonb`)
-- **Schema Correction:** Changed from `jsonb('variables').default([])` to `text('variables').array().notNull().default(sql`'{}'::text[]`)`
-- **API Simplification:** Removed unnecessary SQL casts (`::jsonb`) in POST/PATCH endpoints - now uses direct array assignment
-- **Root Cause:** Type mismatch between Drizzle ORM schema (jsonb) and actual PostgreSQL column (text[]) preventing template creation
-- **Impact:** Template creation now works correctly, variables stored as PostgreSQL text array as intended
-- **Files Modified:** `src/lib/db/schema.ts`, `src/app/api/v1/templates/route.ts`, `src/app/api/v1/templates/[id]/route.ts`
-
-### 2025-11-21: Templates Page Select.Item Empty Value Fix
-- **Radix UI Compliance:** Fixed `<SelectItem value="">` with empty string in category selector - changed to `value="none"`
-- **API Payload Logic:** Updated payload handling to send `null` to API when "none" category is selected
-- **State Initialization:** Adjusted `useEffect` to initialize `categoryId` as "none" instead of empty string
-- **Root Cause:** Radix UI Select component prohibits empty string values in SelectItem (causes runtime error)
-- **Impact:** Templates page now loads without Radix UI validation error, category selection fully functional
-- **Files Modified:** `src/components/templates/template-dialog.tsx`
-
-### 2025-11-21: Webhooks Page Type System Fix
-- **Type Definition Corrected:** Fixed `Webhook` type to reference correct table `webhookSubscriptions` instead of legacy `webhooks` table
-- **API Response Handling:** Added proper handling for API response format `{data: [], pagination: {}}` vs direct array
-- **Field Names Updated:** Migrated all component references from legacy fields (`eventTriggers`, `isActive`) to new schema (`events`, `active`)
-- **Root Cause:** Component was using type definition pointing to deprecated database table with incompatible field names
-- **Impact:** Webhooks page now loads without `webhooks.map is not a function` error, full CRUD operations functional
-- **Files Modified:** `src/lib/types.ts`, `src/components/settings/webhooks-manager.tsx`
-
-### 2025-11-21: Replit Object Storage Integration for Media Gallery
-- **Environment Configuration:** Added `NEXT_PUBLIC_BASE_URL` secret for public URL generation in client-side code
-- **Public Route Configuration:** Modified `src/middleware.ts` to bypass authentication for `/objects/*` routes, enabling public access to media files
-- **Database Cleanup:** Removed 14 legacy media asset records (created before Object Storage migration) that no longer exist in storage
-- **Storage Architecture:** Confirmed file path structure - uploads saved to `/bucket/zapmaster/companyId/media/fileId.ext`, served via `/objects/companyId/media/fileId.ext`
-- **Impact:** Media gallery now fully functional with Replit Object Storage, all new uploads display correctly
-- **Files Modified:** `src/middleware.ts`
-
-### 2025-11-20: Contacts Page Critical Fixes (Data Retrieval + Layout + Pagination)
-- **Bug #1 - Empty Contact List:** Fixed `db.execute()` result handling - Drizzle returns array directly, not `{rows: []}` object
-  - **Root Cause:** Code assumed incorrect return type from `db.execute()`
-  - **Solution:** Proper `Array.isArray()` validation in `src/app/api/v1/contacts/route.ts`
-  - **Impact:** 22,782 contacts now visible (was showing empty list)
-- **Bug #2 - Layout Broken:** Fixed excessive mobile padding cutting off table content
-  - **Root Cause:** 80px bottom padding (`pb-20`) on mobile layout
-  - **Solution:** Reduced to 24px (`pb-6`) and added responsive wrapper
-  - **Files:** `src/contexts/session-context.tsx`, `src/app/(main)/contacts/page.tsx`
-- **Bug #3 - Incorrect Pagination:** Fixed query misalignment between count and data queries
-  - **Root Cause:** Count query used Drizzle ORM, data query used raw SQL with different filter logic
-  - **Solution:** Aligned both queries to use identical SQL raw logic with `COUNT(DISTINCT c.id)`
-  - **Impact:** Pagination now accurate with filters (tags/lists), no more empty pages
-- **Prevention:** Added validation logging and comprehensive documentation in `docs/BUG_FIX_CONTACTS_AUTH_20251120.md`
-
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
@@ -112,22 +17,20 @@ Preferred communication style: Simple, everyday language.
 - **Dual WhatsApp Connection Strategy**: Supports both Meta API and local Baileys (QR code) connections with a hybrid messaging system.
 - **Real-time Communication**: Socket.IO for instant updates.
 - **AI Personas and Automation Engine**: Persona-based design with OpenAI provider and RAG capabilities via a vector database. Includes AI-powered automatic lead progression and humanized AI response delays.
-- **Campaign Queue Management**: Custom queue system with rate limiting and retry logic, including a dedicated Baileys mass campaign system and an automated cadence (drip campaign) system.
+- **Campaign Management**: Custom queue system with rate limiting, retry logic, dedicated Baileys mass campaign system, and automated cadence (drip campaign) system. Includes full pause/resume functionality for campaigns.
 - **Encryption**: AES-256-GCM for sensitive data at rest.
 - **Multi-tenant Architecture**: Company-based tenant model ensuring data isolation.
 - **Webhook System**: Meta Webhooks with signature verification and a production-ready custom webhooks integration with HMAC SHA256 and exponential retry logic.
 - **Kanban Lead Management System**: Interactive Kanban board with full CRUD operations and drag-and-drop functionality.
-- **Analytics Dashboard System**: Comprehensive real-time analytics with KPI metrics, time-series charts, and funnel visualization.
+- **Analytics Dashboard System**: Comprehensive real-time analytics with KPI metrics, time-series charts, funnel visualization, and voice call analytics.
 - **Template Management System**: Full CRUD interface for message templates with dynamic variable support.
 - **UI/UX Component Library**: Reusable ShadCN-based components, including skeleton loaders, empty states, server-side pagination, debounced search inputs, and a centralized toast notification helper.
 - **Progressive Web App (PWA)**: Mobile-first PWA implementation with offline support, app manifest, and standalone display mode.
-- **Performance Optimizations**: Caching, dynamic imports, and removal of force-dynamic for improved responsiveness.
+- **Performance Optimizations**: Caching, dynamic imports, Redis cache optimization, 245 PostgreSQL indexes, BullMQ for queuing, rate limiting middleware, and Prometheus metrics with alerting.
 - **OAuth Authentication System**: Production-ready OAuth 2.0 with Google and Facebook via NextAuth.js, supporting account linking and multi-tenant compatibility.
-- **Atomic Lua Script Rate Limiting**: Atomic rate limiting implementation using Lua scripts in Redis/EnhancedCache for concurrency safety and performance.
-- **Campaign Pause/Resume System**: Full pause/resume functionality for WhatsApp (Baileys + Meta Cloud) and SMS campaigns with status verification between batches.
-- **Proactive Token Monitoring**: Meta access token expiration monitoring using debug_token API with 7-day warning threshold and visual alerts.
-- **Voice Calls Analytics Dashboard**: Comprehensive analytics system for Vapi voice calls with interactive charts, KPIs, trends, and performance metrics.
-- **Memory Leak Prevention**: Global listener registration flag preventing MaxListenersExceededWarning in Redis/EnhancedCache initialization.
+- **Atomic Lua Script Rate Limiting**: Atomic rate limiting implementation using Lua scripts in Redis/EnhancedCache.
+- **Proactive Token Monitoring**: Meta access token expiration monitoring.
+- **Memory Leak Prevention**: Global listener registration flag.
 
 ## External Dependencies
 ### Third-Party APIs
