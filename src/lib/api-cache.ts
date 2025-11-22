@@ -77,13 +77,22 @@ export async function getCachedOrFetch<T>(
   fetcher: () => Promise<T>,
   ttl: number = 30000 // 30 segundos padrão
 ): Promise<T> {
+  const startTime = Date.now();
   const cached = apiCache.get<T>(key);
+  
   if (cached !== null) {
+    const fetchTime = Date.now() - startTime;
+    console.log(`📊 [API CACHE HIT] Key: ${key} - Fetch time: ${fetchTime}ms`);
     return cached;
   }
 
+  console.log(`📊 [API CACHE MISS] Key: ${key} - Fetching from source...`);
   const data = await fetcher();
   apiCache.set(key, data, ttl);
+  
+  const totalTime = Date.now() - startTime;
+  console.log(`📊 [API CACHE SET] Key: ${key} - TTL: ${ttl}ms - Total time: ${totalTime}ms`);
+  
   return data;
 }
 

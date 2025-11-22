@@ -9,13 +9,18 @@ class EnhancedCache {
   private persistPath = '/tmp/cache/redis-cache.json';
   private cleanupInterval: NodeJS.Timeout | null = null;
   private saveInterval: NodeJS.Timeout | null = null;
+  private statsInterval: NodeJS.Timeout | null = null;
   private maxSize = 10000; // Maximum number of keys
+  private debugMode = process.env.CACHE_DEBUG === 'true' || true; // Enable debug by default
+  private lastReportTime = Date.now();
 
   constructor() {
     this.initializeCache();
     this.startCleanupTask();
     this.startAutoSave();
-    console.log('✅ Enhanced Cache initialized (Replit optimized)');
+    this.startStatsReporting();
+    console.log('✅ Enhanced Cache initialized (Replit optimized with debug mode)');
+    console.log(`📊 Cache Debug Mode: ${this.debugMode ? 'ENABLED' : 'DISABLED'}`);
   }
 
   // Initialize cache and load persisted data
@@ -57,6 +62,34 @@ class EnhancedCache {
     this.saveInterval = setInterval(() => {
       this.persistToDisk();
     }, 300000); // Every 5 minutes
+  }
+
+  // Start stats reporting task (every minute)
+  private startStatsReporting() {
+    this.statsInterval = setInterval(() => {
+      this.reportStats();
+    }, 60000); // Every minute
+    
+    // Also report stats immediately for monitoring
+    setTimeout(() => this.reportStats(), 5000); // Report after 5 seconds of startup
+  }
+
+  // Report cache statistics
+  private reportStats() {
+    const total = this.metrics.hits + this.metrics.misses;
+    const hitRate = total > 0 ? ((this.metrics.hits / total) * 100).toFixed(2) : '0.00';
+    const cacheSize = this.data.size;
+    const timeElapsed = Math.floor((Date.now() - this.lastReportTime) / 1000);
+    
+    console.log(`📊 [CACHE STATS] Hit Rate: ${hitRate}% | Hits: ${this.metrics.hits} | Misses: ${this.metrics.misses} | Sets: ${this.metrics.sets} | Deletes: ${this.metrics.deletes} | Keys: ${cacheSize} | Time: ${timeElapsed}s`);
+    
+    // Reset time for next interval
+    this.lastReportTime = Date.now();
+    
+    // Alert if hit rate is too low after warmup period
+    if (total > 100 && parseFloat(hitRate) < 30) {
+      console.warn(`⚠️ [CACHE WARNING] Low hit rate detected: ${hitRate}%`);
+    }
   }
 
   // Clean up expired keys
@@ -118,6 +151,9 @@ class EnhancedCache {
     
     if (!item) {
       this.metrics.misses++;
+      if (this.debugMode) {
+        console.log(`📊 [CACHE MISS] Key: ${key} - Not found in cache`);
+      }
       return null;
     }
     
@@ -125,10 +161,17 @@ class EnhancedCache {
     if (item.expireAt && item.expireAt <= Date.now()) {
       this.data.delete(key);
       this.metrics.misses++;
+      if (this.debugMode) {
+        console.log(`📊 [CACHE MISS] Key: ${key} - Expired, removed from cache`);
+      }
       return null;
     }
     
     this.metrics.hits++;
+    if (this.debugMode) {
+      const ttl = item.expireAt ? Math.floor((item.expireAt - Date.now()) / 1000) : -1;
+      console.log(`📊 [CACHE HIT] Key: ${key} - TTL: ${ttl}s`);
+    }
     
     // Return string representation for Redis compatibility
     if (typeof item.value === 'object') {
@@ -142,19 +185,33 @@ class EnhancedCache {
     this.checkSizeLimit();
     
     let expireAt: number | undefined;
+    let ttlSeconds = 300; // Default TTL 5 minutes
     
     // Handle Redis SET modes (EX = seconds, PX = milliseconds)
     if (mode === 'EX' && duration) {
       expireAt = Date.now() + (duration * 1000);
+      ttlSeconds = duration;
     } else if (mode === 'PX' && duration) {
       expireAt = Date.now() + duration;
+      ttlSeconds = Math.floor(duration / 1000);
     } else if (typeof mode === 'number') {
       // Direct TTL in seconds (common pattern)
       expireAt = Date.now() + (mode * 1000);
+      ttlSeconds = mode;
+    } else {
+      // Apply default TTL if not specified
+      expireAt = Date.now() + (ttlSeconds * 1000);
     }
     
     this.data.set(key, { value, expireAt });
     this.metrics.sets++;
+    
+    if (this.debugMode) {
+      const valuePreview = typeof value === 'object' 
+        ? `[Object with ${Object.keys(value).length} keys]`
+        : String(value).substring(0, 50);
+      console.log(`📊 [CACHE SET] Key: ${key} - TTL: ${ttlSeconds}s - Value: ${valuePreview}`);
+    }
     
     return 'OK';
   }
