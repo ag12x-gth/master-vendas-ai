@@ -55,7 +55,7 @@ export function getRedisConnection(): Redis {
       console.log('🔌 Redis connection closed');
     });
 
-    redisConnection.on('reconnecting', (delay) => {
+    redisConnection.on('reconnecting', (delay: number) => {
       console.log(`🔄 Redis reconnecting in ${delay}ms...`);
     });
   }

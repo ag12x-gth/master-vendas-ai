@@ -450,17 +450,17 @@ class EnhancedCache {
   }
 
   // Lua script support for in-memory (simulated)
-  async eval(script: string, numKeys: number, ...args: string[]): Promise<any> {
+  async eval(script: string, numKeys: number, ...args: (string | undefined)[]): Promise<any> {
     // For in-memory cache, we'll simulate the Lua script behavior
     // This is specifically for the rate limiting script
     if (script.includes('ZREMRANGEBYSCORE') && script.includes('ZCARD') && script.includes('ZADD')) {
       // This is the rate limiting script
-      const key = args[0];
-      const now = parseInt(args[1]);
-      const windowMs = parseInt(args[2]);
-      const limit = parseInt(args[3]);
-      const ttlSeconds = parseInt(args[4]);
-      const member = args[5];
+      const key = args[0] || '';
+      const now = parseInt(args[1] || '0');
+      const windowMs = parseInt(args[2] || '0');
+      const limit = parseInt(args[3] || '0');
+      const ttlSeconds = parseInt(args[4] || '0');
+      const member = args[5] || '';
       const windowStart = now - windowMs;
       
       // Remove expired entries
@@ -680,12 +680,12 @@ class HybridRedisClient {
 
   async del(key: string | string[]): Promise<number> {
     await this.ensureInitialized();
-    return this.client!.del(key);
+    return this.client!.del(key as any);
   }
 
   async exists(key: string | string[]): Promise<number> {
     await this.ensureInitialized();
-    return this.client!.exists(key);
+    return this.client!.exists(key as any);
   }
 
   async expire(key: string, seconds: number): Promise<number> {
@@ -760,12 +760,12 @@ class HybridRedisClient {
 
   async brpop(key: string | string[], timeout: number): Promise<[string, string] | null> {
     await this.ensureInitialized();
-    return this.client!.brpop(key, timeout);
+    return this.client!.brpop(key as any, timeout);
   }
 
   async blpop(key: string | string[], timeout: number): Promise<[string, string] | null> {
     await this.ensureInitialized();
-    return this.client!.blpop(key, timeout);
+    return this.client!.blpop(key as any, timeout);
   }
 
   // Sorted set methods
