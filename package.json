@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 5000 --hostname 0.0.0.0",
-    "dev:server": "tsx watch server.js",
+    "dev:server": "NODE_OPTIONS='--max-old-space-size=2048 --expose-gc' tsx watch server.js",
     "dev:safe": "bash scripts/auto-fix-server.sh && npm run dev:server",
     "dev:clean": "set NODE_OPTIONS=--no-deprecation && next dev -p 5000 --hostname 0.0.0.0",
     "build": "next build",

@@ -4,6 +4,55 @@ const next = require('next');
 const { Server } = require('socket.io');
 const path = require('path');
 
+// Memory optimization: Enable garbage collection monitoring
+if (global.gc) {
+  console.log('🧹 Garbage collection exposed, enabling aggressive memory management');
+  
+  // Force garbage collection every 30 seconds
+  setInterval(() => {
+    const beforeMem = process.memoryUsage();
+    global.gc();
+    const afterMem = process.memoryUsage();
+    
+    const freed = {
+      heapUsed: ((beforeMem.heapUsed - afterMem.heapUsed) / 1024 / 1024).toFixed(2),
+      external: ((beforeMem.external - afterMem.external) / 1024 / 1024).toFixed(2),
+      total: ((beforeMem.rss - afterMem.rss) / 1024 / 1024).toFixed(2)
+    };
+    
+    if (parseFloat(freed.heapUsed) > 0) {
+      console.log(`🧹 [GC] Freed ${freed.heapUsed}MB heap, ${freed.external}MB external, ${freed.total}MB total`);
+    }
+  }, 30000); // Every 30 seconds
+  
+  // Force GC when memory usage is high (>80%)
+  setInterval(() => {
+    const mem = process.memoryUsage();
+    const heapPercentage = (mem.heapUsed / mem.heapTotal) * 100;
+    
+    if (heapPercentage > 80) {
+      console.warn(`⚠️ [Memory] High heap usage: ${heapPercentage.toFixed(2)}%, forcing GC`);
+      global.gc();
+    }
+  }, 10000); // Check every 10 seconds
+} else {
+  console.warn('⚠️ Garbage collection not exposed. Run with --expose-gc flag for better memory management');
+}
+
+// Log memory usage every minute
+setInterval(() => {
+  const mem = process.memoryUsage();
+  const stats = {
+    rss: (mem.rss / 1024 / 1024).toFixed(2),
+    heapUsed: (mem.heapUsed / 1024 / 1024).toFixed(2),
+    heapTotal: (mem.heapTotal / 1024 / 1024).toFixed(2),
+    external: (mem.external / 1024 / 1024).toFixed(2),
+    heapPercentage: ((mem.heapUsed / mem.heapTotal) * 100).toFixed(2)
+  };
+  
+  console.log(`📊 [Memory Stats] RSS: ${stats.rss}MB | Heap: ${stats.heapUsed}/${stats.heapTotal}MB (${stats.heapPercentage}%) | External: ${stats.external}MB`);
+}, 60000); // Every minute
+
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = '0.0.0.0';
 const port = process.env.PORT || 5000;
