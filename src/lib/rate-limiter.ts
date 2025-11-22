@@ -1,4 +1,5 @@
 import redis from './redis';
+import { recordRateLimitCheck } from './metrics';
 
 interface RateLimitResult {
   allowed: boolean;
@@ -95,6 +96,12 @@ export async function checkRateLimits(
     checkSlidingWindowLimit(userKey, USER_LIMIT, 60),
   ]);
 
+  // Record company rate limit check
+  recordRateLimitCheck('company', companyId, companyAllowed);
+  
+  // Record user rate limit check  
+  recordRateLimitCheck('user', userId, userAllowed);
+
   if (!userAllowed) {
     return {
       allowed: false,
@@ -122,6 +129,9 @@ export async function checkIpRateLimit(
 ): Promise<RateLimitResult> {
   const ipKey = `rate_limit:ip:${ipAddress}`;
   const allowed = await checkSlidingWindowLimit(ipKey, IP_LIMIT, 60);
+  
+  // Record IP rate limit check
+  recordRateLimitCheck('ip', ipAddress, allowed);
 
   if (!allowed) {
     return {
@@ -142,6 +152,9 @@ export async function checkAuthRateLimit(
 ): Promise<RateLimitResult> {
   const authKey = `rate_limit:auth:${ipAddress}`;
   const allowed = await checkSlidingWindowLimit(authKey, AUTH_LIMIT, 900); // 900s = 15 min
+  
+  // Record auth rate limit check
+  recordRateLimitCheck('auth', ipAddress, allowed);
 
   if (!allowed) {
     return {

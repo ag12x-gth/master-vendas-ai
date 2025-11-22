@@ -1,6 +1,11 @@
 import Redis from 'ioredis';
 import fs from 'fs';
 import path from 'path';
+import { 
+  recordCacheOperation,
+  cacheSize,
+  cacheMemoryUsage,
+} from './metrics';
 
 // Enhanced cache implementation for production use without external Redis
 class EnhancedCache {
@@ -78,10 +83,21 @@ class EnhancedCache {
   private reportStats() {
     const total = this.metrics.hits + this.metrics.misses;
     const hitRate = total > 0 ? ((this.metrics.hits / total) * 100).toFixed(2) : '0.00';
-    const cacheSize = this.data.size;
+    const cacheSizeValue = this.data.size;
     const timeElapsed = Math.floor((Date.now() - this.lastReportTime) / 1000);
     
-    console.log(`📊 [CACHE STATS] Hit Rate: ${hitRate}% | Hits: ${this.metrics.hits} | Misses: ${this.metrics.misses} | Sets: ${this.metrics.sets} | Deletes: ${this.metrics.deletes} | Keys: ${cacheSize} | Time: ${timeElapsed}s`);
+    // Update Prometheus metrics
+    cacheSize.set({ cache_type: 'memory' }, cacheSizeValue);
+    
+    // Estimate memory usage (rough estimation)
+    let memoryUsage = 0;
+    for (const [key, item] of this.data.entries()) {
+      memoryUsage += key.length * 2; // UTF-16 characters
+      memoryUsage += JSON.stringify(item).length * 2; // Rough estimation
+    }
+    cacheMemoryUsage.set({ cache_type: 'memory' }, memoryUsage);
+    
+    console.log(`📊 [CACHE STATS] Hit Rate: ${hitRate}% | Hits: ${this.metrics.hits} | Misses: ${this.metrics.misses} | Sets: ${this.metrics.sets} | Deletes: ${this.metrics.deletes} | Keys: ${cacheSizeValue} | Time: ${timeElapsed}s`);
     
     // Reset time for next interval
     this.lastReportTime = Date.now();
@@ -151,6 +167,7 @@ class EnhancedCache {
     
     if (!item) {
       this.metrics.misses++;
+      recordCacheOperation('miss', 'memory');
       if (this.debugMode) {
         console.log(`📊 [CACHE MISS] Key: ${key} - Not found in cache`);
       }
@@ -161,6 +178,7 @@ class EnhancedCache {
     if (item.expireAt && item.expireAt <= Date.now()) {
       this.data.delete(key);
       this.metrics.misses++;
+      recordCacheOperation('miss', 'memory');
       if (this.debugMode) {
         console.log(`📊 [CACHE MISS] Key: ${key} - Expired, removed from cache`);
       }
@@ -168,6 +186,7 @@ class EnhancedCache {
     }
     
     this.metrics.hits++;
+    recordCacheOperation('hit', 'memory');
     if (this.debugMode) {
       const ttl = item.expireAt ? Math.floor((item.expireAt - Date.now()) / 1000) : -1;
       console.log(`📊 [CACHE HIT] Key: ${key} - TTL: ${ttl}s`);
@@ -205,6 +224,7 @@ class EnhancedCache {
     
     this.data.set(key, { value, expireAt });
     this.metrics.sets++;
+    recordCacheOperation('set', 'memory');
     
     if (this.debugMode) {
       const valuePreview = typeof value === 'object' 
@@ -220,14 +240,20 @@ class EnhancedCache {
     if (Array.isArray(key)) {
       let deleted = 0;
       key.forEach(k => {
-        if (this.data.delete(k)) deleted++;
+        if (this.data.delete(k)) {
+          deleted++;
+          recordCacheOperation('del', 'memory');
+        }
       });
       this.metrics.deletes += deleted;
       return deleted;
     }
     
     const result = this.data.delete(key) ? 1 : 0;
-    if (result) this.metrics.deletes++;
+    if (result) {
+      this.metrics.deletes++;
+      recordCacheOperation('del', 'memory');
+    }
     return result;
   }
 
