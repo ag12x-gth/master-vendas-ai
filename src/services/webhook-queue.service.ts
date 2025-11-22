@@ -21,77 +21,163 @@ interface JobResult {
   timestamp: string;
 }
 
+interface InMemoryJob {
+  id: string;
+  data: WebhookJobData;
+  attempts: number;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  createdAt: number;
+  processAt: number;
+  lastError?: string;
+}
+
 /**
- * REAL BullMQ implementation for webhook queue processing
- * This replaces the fake in-memory implementation with proper Redis-backed queuing
+ * Hybrid webhook queue implementation with BullMQ (when Redis available) or in-memory fallback
  */
 export class WebhookQueueService {
-  private queue: Queue<WebhookJobData>;
+  private queue: Queue<WebhookJobData> | null = null;
   private worker: Worker<WebhookJobData, JobResult> | null = null;
-  private queueEvents: QueueEvents;
+  private queueEvents: QueueEvents | null = null;
   private readonly queueName = 'webhook-queue';
   private readonly CONCURRENCY = 10;
   private readonly MAX_RETRIES = 3;
   private isShuttingDown = false;
   private metricsInterval: NodeJS.Timeout | null = null;
+  private useBullMQ = false;
+  private hasLoggedFallbackWarning = false;
+  
+  // In-memory fallback when Redis not available
+  private inMemoryJobs: Map<string, InMemoryJob> = new Map();
+  private inMemoryProcessing = new Set<string>();
+  private inMemoryInterval: NodeJS.Timeout | null = null;
+  private inMemoryMetrics = {
+    processed: 0,
+    failed: 0,
+    retried: 0,
+    completed: 0,
+    active: 0,
+    waiting: 0,
+  };
   
   constructor() {
-    // Initialize BullMQ Queue with Redis connection
-    const connection = createRedisConnection();
+    // Check if BullMQ should be enabled and Redis is available
+    const enableBullMQ = process.env.ENABLE_BULLMQ_QUEUE === 'true';
     
+    if (enableBullMQ) {
+      try {
+        // Try to initialize BullMQ with Redis
+        const connection = createRedisConnection();
+        
+        // Test the connection with a simple ping
+        connection.ping().then(() => {
+          this.initializeBullMQ(connection);
+          this.useBullMQ = true;
+          console.log('✅ [WebhookQueue] BullMQ service initialized with Redis-backed queue');
+        }).catch((error) => {
+          // Redis connection failed, fall back to in-memory
+          if (!this.hasLoggedFallbackWarning) {
+            console.warn('⚠️ [WebhookQueue] Redis connection failed, falling back to in-memory queue:', error.message);
+            console.warn('⚠️ [WebhookQueue] Note: In-memory queue will lose jobs on restart. Redis is required for production.');
+            this.hasLoggedFallbackWarning = true;
+          }
+          this.initializeInMemoryQueue();
+        });
+      } catch (error) {
+        // Failed to create Redis connection, fall back to in-memory
+        if (!this.hasLoggedFallbackWarning) {
+          console.warn('⚠️ [WebhookQueue] Could not initialize Redis, using in-memory queue for development');
+          console.warn('⚠️ [WebhookQueue] Note: In-memory queue will lose jobs on restart. Redis is required for production.');
+          this.hasLoggedFallbackWarning = true;
+        }
+        this.initializeInMemoryQueue();
+      }
+    } else {
+      // BullMQ disabled, use in-memory queue
+      if (!this.hasLoggedFallbackWarning) {
+        console.log('📋 [WebhookQueue] BullMQ disabled, using in-memory queue');
+        console.log('📋 [WebhookQueue] To enable BullMQ, set ENABLE_BULLMQ_QUEUE=true and configure Redis');
+        this.hasLoggedFallbackWarning = true;
+      }
+      this.initializeInMemoryQueue();
+    }
+    
+    // Setup graceful shutdown
+    this.setupGracefulShutdown();
+  }
+
+  /**
+   * Initialize BullMQ with Redis
+   */
+  private initializeBullMQ(connection: any) {
     this.queue = new Queue<WebhookJobData>(this.queueName, {
       connection,
       defaultJobOptions: {
         attempts: this.MAX_RETRIES,
         backoff: {
           type: 'exponential',
-          delay: 2000, // Start with 2 seconds
+          delay: 2000,
         },
         removeOnComplete: {
-          age: 3600, // Keep completed jobs for 1 hour
-          count: 100, // Keep last 100 completed jobs
+          age: 3600,
+          count: 100,
         },
         removeOnFail: {
-          age: 86400, // Keep failed jobs for 24 hours
-          count: 500, // Keep last 500 failed jobs
+          age: 86400,
+          count: 500,
         },
       },
     });
 
     // Initialize QueueEvents for monitoring
     this.queueEvents = new QueueEvents(this.queueName, {
-      connection: createRedisConnection(), // Separate connection for events
+      connection: createRedisConnection(),
     });
 
     // Start the worker
-    this.startWorker();
+    this.startBullMQWorker();
     
     // Start metrics reporting
     this.startMetricsReporter();
-    
-    // Setup graceful shutdown
-    this.setupGracefulShutdown();
+  }
 
-    console.log('✅ [WebhookQueue] REAL BullMQ service initialized with Redis-backed queue');
-    console.log(`✅ [WebhookQueue] Queue name: ${this.queueName}, Concurrency: ${this.CONCURRENCY}`);
+  /**
+   * Initialize in-memory queue fallback
+   */
+  private initializeInMemoryQueue() {
+    this.useBullMQ = false;
+    
+    // Start processing interval for in-memory queue
+    this.inMemoryInterval = setInterval(() => {
+      this.processInMemoryQueue();
+    }, 1000); // Process queue every second
+
+    // Allow Node to exit if this is the only timer
+    if (this.inMemoryInterval?.unref) {
+      this.inMemoryInterval.unref();
+    }
+    
+    // Start metrics reporting for in-memory queue
+    this.startMetricsReporter();
   }
 
   /**
    * Start the BullMQ Worker to process jobs
    */
-  private startWorker() {
+  private startBullMQWorker() {
+    if (!this.queue) return;
+
     this.worker = new Worker<WebhookJobData, JobResult>(
       this.queueName,
       async (job: Job<WebhookJobData>) => {
-        return await this.processJob(job);
+        return await this.processBullMQJob(job);
       },
       {
-        connection: createRedisConnection(), // Separate connection for worker
+        connection: createRedisConnection(),
         concurrency: this.CONCURRENCY,
         autorun: true,
-        lockDuration: 30000, // 30 seconds lock duration
-        stalledInterval: 30000, // Check for stalled jobs every 30 seconds
-        maxStalledCount: 2, // Max times a job can be marked as stalled
+        lockDuration: 30000,
+        stalledInterval: 30000,
+        maxStalledCount: 2,
       }
     );
 
@@ -127,24 +213,21 @@ export class WebhookQueueService {
   }
 
   /**
-   * Process a webhook job
+   * Process a BullMQ webhook job
    */
-  private async processJob(job: Job<WebhookJobData>): Promise<JobResult> {
+  private async processBullMQJob(job: Job<WebhookJobData>): Promise<JobResult> {
     const startTime = Date.now();
     const { data } = job;
 
     try {
-      // Update job progress
       await job.updateProgress(10);
 
       console.log(
         `🔄 [WebhookQueue] Processing webhook ${job.id} for ${data.subscriptionName} (${data.payload.eventType})`
       );
 
-      // Send the webhook
       const result = await this.sendWebhook(data);
       
-      // Update job progress
       await job.updateProgress(100);
 
       // Update database status to delivered
@@ -168,7 +251,6 @@ export class WebhookQueueService {
       const processingTime = Date.now() - startTime;
       const errorMessage = error instanceof Error ? error.message : String(error);
 
-      // Log the failure
       await job.log(`Failed to send webhook: ${errorMessage}`);
 
       // If this is the last attempt, update database status to failed
@@ -210,36 +292,186 @@ export class WebhookQueueService {
         );
       }
 
-      // Throw error to trigger BullMQ retry mechanism
       throw error;
     }
   }
 
   /**
-   * Add a webhook to the queue
+   * Process in-memory queue
    */
-  async addWebhook(data: WebhookJobData): Promise<{ id: string }> {
-    try {
-      const job = await this.queue.add(
-        `webhook-${data.subscriptionName}-${data.payload.eventType}`,
-        data,
-        {
-          priority: data.payload.eventType === 'message_received' ? 1 : 0, // Higher priority for messages
-          delay: data.processAt ? data.processAt - Date.now() : 0,
-        }
-      );
+  private async processInMemoryQueue() {
+    const now = Date.now();
+    const pendingJobs = Array.from(this.inMemoryJobs.values())
+      .filter(job => 
+        job.status === 'pending' && 
+        job.processAt <= now &&
+        !this.inMemoryProcessing.has(job.id)
+      )
+      .slice(0, this.CONCURRENCY - this.inMemoryProcessing.size);
 
-      console.log(
-        `📋 [WebhookQueue] Queued webhook job ${job.id} for ${data.subscriptionName} (${data.payload.eventType})`
-      );
-
-      return { id: job.id || `webhook-${Date.now()}` };
-    } catch (error) {
-      console.error('[WebhookQueue] Error adding webhook to queue:', error);
-      throw error;
+    for (const job of pendingJobs) {
+      if (this.inMemoryProcessing.size >= this.CONCURRENCY) break;
+      
+      this.inMemoryProcessing.add(job.id);
+      this.inMemoryMetrics.active++;
+      this.inMemoryMetrics.waiting--;
+      
+      // Process job asynchronously
+      this.processInMemoryJob(job).catch(error => {
+        console.error(`Error processing in-memory job ${job.id}:`, error);
+      });
     }
   }
 
+  /**
+   * Process a single in-memory job
+   */
+  private async processInMemoryJob(job: InMemoryJob): Promise<void> {
+    const startTime = Date.now();
+    
+    try {
+      job.status = 'processing';
+      job.attempts++;
+
+      console.log(
+        `🔄 [InMemoryQueue] Processing webhook ${job.id} for ${job.data.subscriptionName} (attempt ${job.attempts}/${this.MAX_RETRIES})`
+      );
+
+      const result = await this.sendWebhook(job.data);
+      
+      // Update database status to delivered
+      if (job.data.webhookId) {
+        const { webhookDispatcher } = await import('./webhook-dispatcher.service');
+        await webhookDispatcher.updateWebhookStatus(
+          job.data.webhookId,
+          'delivered',
+          result,
+          null
+        );
+      }
+
+      // Mark as completed
+      job.status = 'completed';
+      this.inMemoryMetrics.completed++;
+      this.inMemoryMetrics.processed++;
+      this.inMemoryMetrics.active--;
+
+      const processingTime = Date.now() - startTime;
+      console.log(
+        `✅ [InMemoryQueue] Successfully sent webhook ${job.id} to ${job.data.url} (${processingTime}ms)`
+      );
+
+      // Remove from jobs map after success
+      this.inMemoryJobs.delete(job.id);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      job.lastError = errorMessage;
+      this.inMemoryMetrics.active--;
+
+      if (job.attempts >= this.MAX_RETRIES) {
+        // Failed permanently
+        job.status = 'failed';
+        this.inMemoryMetrics.failed++;
+        
+        if (job.data.webhookId) {
+          const { webhookDispatcher } = await import('./webhook-dispatcher.service');
+          await webhookDispatcher.updateWebhookStatus(
+            job.data.webhookId,
+            'failed',
+            {
+              error: errorMessage,
+              attempt: job.attempts,
+            },
+            null
+          );
+        }
+        
+        console.error(
+          `❌ [InMemoryQueue] Job ${job.id} failed permanently after ${job.attempts} attempts`
+        );
+        
+        // Remove from jobs map after permanent failure
+        this.inMemoryJobs.delete(job.id);
+      } else {
+        // Retry with backoff
+        job.status = 'pending';
+        job.processAt = Date.now() + this.getRetryDelay(job.attempts);
+        this.inMemoryMetrics.retried++;
+        this.inMemoryMetrics.waiting++;
+        
+        if (job.data.webhookId) {
+          const { webhookDispatcher } = await import('./webhook-dispatcher.service');
+          await webhookDispatcher.updateWebhookStatus(
+            job.data.webhookId,
+            'retrying',
+            {
+              error: errorMessage,
+              attempt: job.attempts,
+            },
+            new Date(job.processAt)
+          );
+        }
+        
+        console.log(
+          `⚠️ [InMemoryQueue] Job ${job.id} failed (attempt ${job.attempts}), will retry in ${(job.processAt - Date.now()) / 1000}s`
+        );
+      }
+    } finally {
+      this.inMemoryProcessing.delete(job.id);
+    }
+  }
+
+  /**
+   * Add a webhook to the queue (works for both BullMQ and in-memory)
+   */
+  async addWebhook(data: WebhookJobData): Promise<{ id: string }> {
+    if (this.useBullMQ && this.queue) {
+      // Use BullMQ
+      try {
+        const job = await this.queue.add(
+          `webhook-${data.subscriptionName}-${data.payload.eventType}`,
+          data,
+          {
+            priority: data.payload.eventType === 'message_received' ? 1 : 0,
+            delay: data.processAt ? data.processAt - Date.now() : 0,
+          }
+        );
+
+        console.log(
+          `📋 [WebhookQueue] Queued webhook job ${job.id} for ${data.subscriptionName} (${data.payload.eventType})`
+        );
+
+        return { id: job.id || `webhook-${Date.now()}` };
+      } catch (error) {
+        console.error('[WebhookQueue] Error adding webhook to BullMQ:', error);
+        throw error;
+      }
+    } else {
+      // Use in-memory queue
+      const jobId = `inmem-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const job: InMemoryJob = {
+        id: jobId,
+        data,
+        attempts: 0,
+        status: 'pending',
+        createdAt: Date.now(),
+        processAt: data.processAt || Date.now(),
+      };
+
+      this.inMemoryJobs.set(jobId, job);
+      this.inMemoryMetrics.waiting++;
+
+      console.log(
+        `📋 [InMemoryQueue] Queued webhook job ${jobId} for ${data.subscriptionName} (${data.payload.eventType})`
+      );
+
+      return { id: jobId };
+    }
+  }
+
+  /**
+   * Send webhook HTTP request
+   */
   private async sendWebhook(data: WebhookJobData): Promise<JobResult> {
     const { url, secret, payload } = data;
     const payloadString = JSON.stringify(payload);
@@ -291,9 +523,10 @@ export class WebhookQueueService {
     }
   }
 
-
+  /**
+   * Get retry delay with exponential backoff
+   */
   private getRetryDelay(attemptNumber: number): number {
-    // Exponential backoff: 2s, 4s, 8s, 16s, 32s, 64s...
     const baseDelay = 2000; // 2 seconds
     const maxDelay = 64000; // 64 seconds max
     const delay = Math.min(baseDelay * Math.pow(2, attemptNumber), maxDelay);
@@ -301,40 +534,53 @@ export class WebhookQueueService {
   }
 
   /**
-   * Get queue metrics using BullMQ's built-in methods
+   * Get queue metrics (works for both BullMQ and in-memory)
    */
   async getQueueMetrics() {
-    try {
-      const [waiting, active, completed, failed, delayed, paused] = await Promise.all([
-        this.queue.getWaitingCount(),
-        this.queue.getActiveCount(),
-        this.queue.getCompletedCount(),
-        this.queue.getFailedCount(),
-        this.queue.getDelayedCount(),
-        this.queue.getPausedCount(),
-      ]);
+    if (this.useBullMQ && this.queue) {
+      // BullMQ metrics
+      try {
+        const [waiting, active, completed, failed, delayed] = await Promise.all([
+          this.queue.getWaitingCount(),
+          this.queue.getActiveCount(),
+          this.queue.getCompletedCount(),
+          this.queue.getFailedCount(),
+          this.queue.getDelayedCount(),
+        ]);
 
-      const metrics = {
-        waiting,
-        active,
-        completed,
-        failed,
-        delayed,
-        paused,
-        total: waiting + active + delayed + paused,
-      };
+        const metrics = {
+          waiting,
+          active,
+          completed,
+          failed,
+          delayed,
+          paused: 0,
+          total: waiting + active + delayed,
+        };
 
-      return metrics;
-    } catch (error) {
-      console.error('[WebhookQueue] Error getting queue metrics:', error);
+        return metrics;
+      } catch (error) {
+        console.error('[WebhookQueue] Error getting BullMQ metrics:', error);
+        return {
+          waiting: 0,
+          active: 0,
+          completed: 0,
+          failed: 0,
+          delayed: 0,
+          paused: 0,
+          total: 0,
+        };
+      }
+    } else {
+      // In-memory metrics
       return {
-        waiting: 0,
-        active: 0,
-        completed: 0,
-        failed: 0,
+        waiting: this.inMemoryMetrics.waiting,
+        active: this.inMemoryMetrics.active,
+        completed: this.inMemoryMetrics.completed,
+        failed: this.inMemoryMetrics.failed,
         delayed: 0,
         paused: 0,
-        total: 0,
+        total: this.inMemoryMetrics.waiting + this.inMemoryMetrics.active,
       };
     }
   }
@@ -363,23 +609,29 @@ export class WebhookQueueService {
   private async reportMetrics() {
     try {
       const metrics = await this.getQueueMetrics();
-      const jobCounts = await this.queue.getJobCounts();
+      const queueType = this.useBullMQ ? 'BullMQ' : 'InMemory';
       
-      console.log('📊 [WebhookQueue] BullMQ Metrics Report:');
+      console.log(`📊 [WebhookQueue] ${queueType} Metrics Report:`);
       console.log(`  - Waiting: ${metrics.waiting}`);
       console.log(`  - Active: ${metrics.active}`);
       console.log(`  - Delayed: ${metrics.delayed}`);
       console.log(`  - Completed: ${metrics.completed}`);
       console.log(`  - Failed: ${metrics.failed}`);
-      console.log(`  - Paused: ${metrics.paused}`);
       console.log(`  - Total in Queue: ${metrics.total}`);
       
-      // Additional job counts from BullMQ
-      if (jobCounts) {
-        console.log('📊 [WebhookQueue] Job Counts:');
-        Object.entries(jobCounts).forEach(([status, count]) => {
-          console.log(`  - ${status}: ${count}`);
-        });
+      if (this.useBullMQ && this.queue) {
+        // Additional job counts from BullMQ
+        try {
+          const jobCounts = await this.queue.getJobCounts();
+          if (jobCounts) {
+            console.log('📊 [WebhookQueue] Job Counts:');
+            Object.entries(jobCounts).forEach(([status, count]) => {
+              console.log(`  - ${status}: ${count}`);
+            });
+          }
+        } catch (error) {
+          // Ignore errors getting job counts
+        }
       }
     } catch (error) {
       console.error('[WebhookQueue] Error reporting metrics:', error);
@@ -387,25 +639,38 @@ export class WebhookQueueService {
   }
 
   /**
-   * Pause the queue
+   * Pause the queue (BullMQ only)
    */
   async pauseQueue(): Promise<void> {
-    await this.queue.pause();
-    console.log('⏸️ [WebhookQueue] Queue paused');
+    if (this.queue) {
+      await this.queue.pause();
+      console.log('⏸️ [WebhookQueue] Queue paused');
+    } else {
+      console.log('⏸️ [WebhookQueue] In-memory queue does not support pausing');
+    }
   }
 
   /**
-   * Resume the queue
+   * Resume the queue (BullMQ only)
    */
   async resumeQueue(): Promise<void> {
-    await this.queue.resume();
-    console.log('▶️ [WebhookQueue] Queue resumed');
+    if (this.queue) {
+      await this.queue.resume();
+      console.log('▶️ [WebhookQueue] Queue resumed');
+    } else {
+      console.log('▶️ [WebhookQueue] In-memory queue does not support resuming');
+    }
   }
 
   /**
-   * Retry failed jobs from dead letter queue
+   * Retry failed jobs from dead letter queue (BullMQ only)
    */
   async retryDeadLetterJobs(limit: number = 10): Promise<number> {
+    if (!this.queue) {
+      console.log('[WebhookQueue] Dead letter retry not supported in in-memory mode');
+      return 0;
+    }
+
     try {
       const failedJobs = await this.queue.getFailed(0, limit);
       let retriedCount = 0;
@@ -424,15 +689,31 @@ export class WebhookQueueService {
   }
 
   /**
-   * Clean completed and failed jobs
+   * Clean completed and failed jobs (BullMQ only)
    */
   async cleanOldJobs(grace: number = 3600000): Promise<void> {
+    if (!this.queue) {
+      // For in-memory, just clear old completed/failed jobs
+      const cutoff = Date.now() - grace;
+      let removed = 0;
+      
+      for (const [id, job] of this.inMemoryJobs.entries()) {
+        if ((job.status === 'completed' || job.status === 'failed') && job.createdAt < cutoff) {
+          this.inMemoryJobs.delete(id);
+          removed++;
+        }
+      }
+      
+      if (removed > 0) {
+        console.log(`🧹 [InMemoryQueue] Removed ${removed} old jobs`);
+      }
+      return;
+    }
+
     try {
-      // Clean completed jobs older than grace period
       const completedRemoved = await this.queue.clean(grace, 1000, 'completed');
       console.log(`🧹 [WebhookQueue] Removed ${completedRemoved.length} old completed jobs`);
 
-      // Clean failed jobs older than 7 days
       const failedRemoved = await this.queue.clean(7 * 24 * 3600000, 1000, 'failed');
       console.log(`🧹 [WebhookQueue] Removed ${failedRemoved.length} old failed jobs`);
     } catch (error) {
@@ -451,24 +732,48 @@ export class WebhookQueueService {
       console.log('🛑 [WebhookQueue] Initiating graceful shutdown...');
 
       try {
-        // Stop accepting new jobs
-        await this.queue.pause();
-
         // Clear intervals
         if (this.metricsInterval) {
           clearInterval(this.metricsInterval);
         }
-
-        // Close worker
-        if (this.worker) {
-          await this.worker.close();
+        
+        if (this.inMemoryInterval) {
+          clearInterval(this.inMemoryInterval);
         }
 
-        // Close queue events
-        await this.queueEvents.close();
+        if (this.useBullMQ) {
+          // Stop accepting new jobs
+          if (this.queue) {
+            await this.queue.pause();
+          }
 
-        // Close queue
-        await this.queue.close();
+          // Close worker
+          if (this.worker) {
+            await this.worker.close();
+          }
+
+          // Close queue events
+          if (this.queueEvents) {
+            await this.queueEvents.close();
+          }
+
+          // Close queue
+          if (this.queue) {
+            await this.queue.close();
+          }
+        } else {
+          // Wait for in-memory processing to complete
+          const maxWait = 5000; // 5 seconds max
+          const startTime = Date.now();
+          
+          while (this.inMemoryProcessing.size > 0 && Date.now() - startTime < maxWait) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+          
+          if (this.inMemoryProcessing.size > 0) {
+            console.warn(`⚠️ [WebhookQueue] ${this.inMemoryProcessing.size} jobs still processing after shutdown timeout`);
+          }
+        }
 
         console.log('✅ [WebhookQueue] Graceful shutdown complete');
       } catch (error) {
@@ -485,19 +790,27 @@ export class WebhookQueueService {
    * Get queue status
    */
   async getQueueStatus(): Promise<{ isPaused: boolean; isReady: boolean }> {
-    try {
-      const isPaused = await this.queue.isPaused();
-      const isReady = await this.worker?.isRunning() || false;
+    if (this.useBullMQ && this.queue && this.worker) {
+      try {
+        const isPaused = await this.queue.isPaused();
+        const isReady = await this.worker.isRunning();
 
-      return {
-        isPaused,
-        isReady,
-      };
-    } catch (error) {
-      console.error('[WebhookQueue] Error getting queue status:', error);
+        return {
+          isPaused,
+          isReady,
+        };
+      } catch (error) {
+        console.error('[WebhookQueue] Error getting queue status:', error);
+        return {
+          isPaused: false,
+          isReady: false,
+        };
+      }
+    } else {
+      // In-memory queue is always ready and never paused
       return {
         isPaused: false,
-        isReady: false,
+        isReady: !this.isShuttingDown,
       };
     }
   }
