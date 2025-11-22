@@ -6,7 +6,36 @@ const nextConfig = {
     cpus: 1,
   },
   
+  // Otimizações de produção
+  reactStrictMode: process.env.NODE_ENV === 'development',
+  poweredByHeader: false,
+  compress: true,
+  
+  // Desabilitar recursos de desenvolvimento em produção
+  productionBrowserSourceMaps: false,
+  
+  // Otimização de compilação
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+  
   webpack: (config, { dev, isServer }) => {
+    // Desabilitar hot reload em produção
+    if (!dev) {
+      config.watchOptions = {
+        ignored: /node_modules/,
+        poll: false,
+      };
+      
+      // Desabilitar source maps em produção (exceto para servidor)
+      if (!isServer) {
+        config.devtool = false;
+      }
+    }
+    
+    // Otimizações de produção do cliente
     if (!dev && !isServer) {
       config.optimization = {
         ...config.optimization,
