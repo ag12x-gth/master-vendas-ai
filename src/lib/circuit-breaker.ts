@@ -1,6 +1,6 @@
 // src/lib/circuit-breaker.ts
 
-export type Provider = 'openai' | 'google' | 'meta' | 'sms_witi' | 'sms_seven' | 'vapi';
+export type Provider = 'openai' | 'google' | 'meta' | 'sms_witi' | 'sms_seven' | 'vapi' | 'hume';
 
 type State = {
   openUntil?: number; // epoch ms
@@ -14,6 +14,7 @@ const state: Record<Provider, State> = {
   sms_witi: {},
   sms_seven: {},
   vapi: {},
+  hume: {},
 };
 
 // Janela padrão de meia-vida do breaker (pode ajustar via env)
