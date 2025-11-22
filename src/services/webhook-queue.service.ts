@@ -1,5 +1,7 @@
+import { Queue, Worker, QueueEvents, Job } from 'bullmq';
 import crypto from 'crypto';
 import { WebhookPayload } from './webhook-dispatcher.service';
+import { createRedisConnection } from '@/lib/redis-connection';
 
 interface WebhookJobData {
   webhookId: string;
@@ -13,231 +15,229 @@ interface WebhookJobData {
   processAt?: number;
 }
 
-interface WebhookMetrics {
-  totalProcessed: number;
-  totalSuccess: number;
-  totalFailed: number;
-  totalRetries: number;
-  totalInDeadLetter: number;
-  lastProcessedAt?: Date;
-  avgProcessingTime: number;
-}
-
 interface JobResult {
   status: number;
   body: string;
   timestamp: string;
 }
 
-// Simple in-memory queue implementation for Replit environment
+/**
+ * REAL BullMQ implementation for webhook queue processing
+ * This replaces the fake in-memory implementation with proper Redis-backed queuing
+ */
 export class WebhookQueueService {
-  private queue: Map<string, WebhookJobData> = new Map();
-  private deadLetterQueue: Map<string, WebhookJobData & { originalError: string }> = new Map();
-  private processing: Map<string, boolean> = new Map();
-  private workerInterval: NodeJS.Timeout | null = null;
-  private metricsInterval: NodeJS.Timeout | null = null;
-  private isPaused = false;
-  
-  private metrics: WebhookMetrics = {
-    totalProcessed: 0,
-    totalSuccess: 0,
-    totalFailed: 0,
-    totalRetries: 0,
-    totalInDeadLetter: 0,
-    avgProcessingTime: 0,
-  };
-  
-  private processingTimes: number[] = [];
-  private readonly MAX_PROCESSING_TIME_SAMPLES = 100;
-  private readonly MAX_RETRIES = 3;
+  private queue: Queue<WebhookJobData>;
+  private worker: Worker<WebhookJobData, JobResult> | null = null;
+  private queueEvents: QueueEvents;
+  private readonly queueName = 'webhook-queue';
   private readonly CONCURRENCY = 10;
-  private readonly WORKER_INTERVAL_MS = 1000; // Check queue every second
-
+  private readonly MAX_RETRIES = 3;
+  private isShuttingDown = false;
+  private metricsInterval: NodeJS.Timeout | null = null;
+  
   constructor() {
+    // Initialize BullMQ Queue with Redis connection
+    const connection = createRedisConnection();
+    
+    this.queue = new Queue<WebhookJobData>(this.queueName, {
+      connection,
+      defaultJobOptions: {
+        attempts: this.MAX_RETRIES,
+        backoff: {
+          type: 'exponential',
+          delay: 2000, // Start with 2 seconds
+        },
+        removeOnComplete: {
+          age: 3600, // Keep completed jobs for 1 hour
+          count: 100, // Keep last 100 completed jobs
+        },
+        removeOnFail: {
+          age: 86400, // Keep failed jobs for 24 hours
+          count: 500, // Keep last 500 failed jobs
+        },
+      },
+    });
+
+    // Initialize QueueEvents for monitoring
+    this.queueEvents = new QueueEvents(this.queueName, {
+      connection: createRedisConnection(), // Separate connection for events
+    });
+
+    // Start the worker
     this.startWorker();
+    
+    // Start metrics reporting
     this.startMetricsReporter();
-    console.log('✅ [WebhookQueue] Service initialized with in-memory queue (Replit optimized)');
+    
+    // Setup graceful shutdown
+    this.setupGracefulShutdown();
+
+    console.log('✅ [WebhookQueue] REAL BullMQ service initialized with Redis-backed queue');
+    console.log(`✅ [WebhookQueue] Queue name: ${this.queueName}, Concurrency: ${this.CONCURRENCY}`);
   }
 
+  /**
+   * Start the BullMQ Worker to process jobs
+   */
   private startWorker() {
-    if (this.workerInterval) {
-      return;
-    }
-
-    this.workerInterval = setInterval(async () => {
-      if (this.isPaused) {
-        return;
+    this.worker = new Worker<WebhookJobData, JobResult>(
+      this.queueName,
+      async (job: Job<WebhookJobData>) => {
+        return await this.processJob(job);
+      },
+      {
+        connection: createRedisConnection(), // Separate connection for worker
+        concurrency: this.CONCURRENCY,
+        autorun: true,
+        lockDuration: 30000, // 30 seconds lock duration
+        stalledInterval: 30000, // Check for stalled jobs every 30 seconds
+        maxStalledCount: 2, // Max times a job can be marked as stalled
       }
-
-      await this.processQueue();
-    }, this.WORKER_INTERVAL_MS);
-
-    // Allow Node to exit if this is the only timer
-    if (this.workerInterval.unref) {
-      this.workerInterval.unref();
-    }
-
-    console.log(`✅ [WebhookQueue] Worker started with concurrency: ${this.CONCURRENCY}`);
-  }
-
-  private async processQueue() {
-    const now = Date.now();
-    const currentlyProcessing = this.processing.size;
-    
-    if (currentlyProcessing >= this.CONCURRENCY) {
-      return; // At max concurrency
-    }
-
-    const availableSlots = this.CONCURRENCY - currentlyProcessing;
-    const jobsToProcess: Array<[string, WebhookJobData]> = [];
-
-    // Find jobs that are ready to process
-    for (const [jobId, job] of this.queue.entries()) {
-      if (jobsToProcess.length >= availableSlots) {
-        break;
-      }
-
-      if (this.processing.has(jobId)) {
-        continue; // Already processing
-      }
-
-      const processAt = job.processAt || job.createdAt || 0;
-      if (processAt <= now) {
-        jobsToProcess.push([jobId, job]);
-        this.processing.set(jobId, true);
-      }
-    }
-
-    // Process jobs in parallel
-    const promises = jobsToProcess.map(([jobId, job]) =>
-      this.processJob(jobId, job).finally(() => {
-        this.processing.delete(jobId);
-      })
     );
 
-    await Promise.allSettled(promises);
+    // Worker event handlers
+    this.worker.on('completed', (job) => {
+      console.log(
+        `✅ [WebhookQueue] Job ${job.id} completed successfully for ${job.data.subscriptionName}`
+      );
+    });
+
+    this.worker.on('failed', (job, err) => {
+      console.error(
+        `❌ [WebhookQueue] Job ${job?.id} failed after ${job?.attemptsMade} attempts:`,
+        err.message
+      );
+    });
+
+    this.worker.on('active', (job) => {
+      console.log(
+        `🔄 [WebhookQueue] Processing job ${job.id} (attempt ${job.attemptsMade}/${this.MAX_RETRIES})`
+      );
+    });
+
+    this.worker.on('stalled', (jobId) => {
+      console.warn(`⚠️ [WebhookQueue] Job ${jobId} has stalled and will be retried`);
+    });
+
+    this.worker.on('error', (err) => {
+      console.error('❌ [WebhookQueue] Worker error:', err);
+    });
+
+    console.log(`✅ [WebhookQueue] BullMQ Worker started with concurrency: ${this.CONCURRENCY}`);
   }
 
-  private async processJob(jobId: string, job: WebhookJobData) {
+  /**
+   * Process a webhook job
+   */
+  private async processJob(job: Job<WebhookJobData>): Promise<JobResult> {
     const startTime = Date.now();
-    const attempts = (job.attempts || 0) + 1;
-    
-    console.log(
-      `🔄 [WebhookQueue] Processing webhook ${jobId} (attempt ${attempts}/${this.MAX_RETRIES})`
-    );
+    const { data } = job;
 
     try {
-      const result = await this.sendWebhook(job);
+      // Update job progress
+      await job.updateProgress(10);
+
+      console.log(
+        `🔄 [WebhookQueue] Processing webhook ${job.id} for ${data.subscriptionName} (${data.payload.eventType})`
+      );
+
+      // Send the webhook
+      const result = await this.sendWebhook(data);
       
+      // Update job progress
+      await job.updateProgress(100);
+
       // Update database status to delivered
-      if (job.webhookId) {
+      if (data.webhookId) {
         const { webhookDispatcher } = await import('./webhook-dispatcher.service');
         await webhookDispatcher.updateWebhookStatus(
-          job.webhookId,
+          data.webhookId,
           'delivered',
           result,
           null
         );
       }
 
-      // Remove from queue on success
-      this.queue.delete(jobId);
-      
       const processingTime = Date.now() - startTime;
-      this.updateProcessingTime(processingTime);
-      this.metrics.totalProcessed++;
-      this.metrics.totalSuccess++;
-      this.metrics.lastProcessedAt = new Date();
-
       console.log(
-        `✅ [WebhookQueue] Successfully sent webhook ${jobId} to ${job.url} (${processingTime}ms)`
+        `✅ [WebhookQueue] Successfully sent webhook ${job.id} to ${data.url} (${processingTime}ms)`
       );
 
       return result;
     } catch (error) {
       const processingTime = Date.now() - startTime;
-      this.metrics.totalProcessed++;
-      
-      job.attempts = attempts;
-      
-      if (attempts >= this.MAX_RETRIES) {
-        // Move to dead letter queue
-        this.moveToDeadLetter(jobId, job, error);
-        this.queue.delete(jobId);
-        this.metrics.totalFailed++;
+      const errorMessage = error instanceof Error ? error.message : String(error);
 
-        // Update database status to failed
-        if (job.webhookId) {
+      // Log the failure
+      await job.log(`Failed to send webhook: ${errorMessage}`);
+
+      // If this is the last attempt, update database status to failed
+      if (job.attemptsMade >= this.MAX_RETRIES - 1) {
+        if (data.webhookId) {
           const { webhookDispatcher } = await import('./webhook-dispatcher.service');
           await webhookDispatcher.updateWebhookStatus(
-            job.webhookId,
+            data.webhookId,
             'failed',
             {
-              error: error instanceof Error ? error.message : String(error),
-              attempt: attempts,
+              error: errorMessage,
+              attempt: job.attemptsMade + 1,
             },
             null
           );
         }
+        
+        console.error(
+          `❌ [WebhookQueue] Job ${job.id} failed permanently after ${job.attemptsMade + 1} attempts (${processingTime}ms)`
+        );
       } else {
-        // Schedule retry with exponential backoff
-        const retryDelay = this.getRetryDelay(attempts);
-        job.processAt = Date.now() + retryDelay;
-        this.metrics.totalRetries++;
-
-        // Update database status to retrying
-        if (job.webhookId) {
+        // Update status to retrying
+        if (data.webhookId) {
           const { webhookDispatcher } = await import('./webhook-dispatcher.service');
+          const nextRetryTime = new Date(Date.now() + this.getRetryDelay(job.attemptsMade + 1));
           await webhookDispatcher.updateWebhookStatus(
-            job.webhookId,
+            data.webhookId,
             'retrying',
             {
-              error: error instanceof Error ? error.message : String(error),
-              attempt: attempts,
+              error: errorMessage,
+              attempt: job.attemptsMade + 1,
             },
-            new Date(job.processAt)
+            nextRetryTime
           );
         }
-
+        
         console.log(
-          `⚠️ [WebhookQueue] Webhook ${jobId} failed (attempt ${attempts}), retrying in ${retryDelay}ms`
+          `⚠️ [WebhookQueue] Job ${job.id} failed (attempt ${job.attemptsMade + 1}), will retry (${processingTime}ms)`
         );
       }
 
-      console.error(
-        `❌ [WebhookQueue] Failed to send webhook ${jobId} (attempt ${attempts}, ${processingTime}ms):`,
-        error
-      );
-
+      // Throw error to trigger BullMQ retry mechanism
       throw error;
     }
   }
 
+  /**
+   * Add a webhook to the queue
+   */
   async addWebhook(data: WebhookJobData): Promise<{ id: string }> {
     try {
-      const jobId = this.generateJobId();
-      const job: WebhookJobData = {
-        ...data,
-        attempts: 0,
-        createdAt: Date.now(),
-        processAt: Date.now(), // Process immediately
-      };
-
-      this.queue.set(jobId, job);
-
-      console.log(
-        `📋 [WebhookQueue] Queued webhook ${jobId} for ${data.subscriptionName} (${data.payload.eventType})`
+      const job = await this.queue.add(
+        `webhook-${data.subscriptionName}-${data.payload.eventType}`,
+        data,
+        {
+          priority: data.payload.eventType === 'message_received' ? 1 : 0, // Higher priority for messages
+          delay: data.processAt ? data.processAt - Date.now() : 0,
+        }
       );
 
-      return { id: jobId };
+      console.log(
+        `📋 [WebhookQueue] Queued webhook job ${job.id} for ${data.subscriptionName} (${data.payload.eventType})`
+      );
+
+      return { id: job.id || `webhook-${Date.now()}` };
     } catch (error) {
       console.error('[WebhookQueue] Error adding webhook to queue:', error);
       throw error;
     }
-  }
-
-  private generateJobId(): string {
-    return `webhook-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   private async sendWebhook(data: WebhookJobData): Promise<JobResult> {
@@ -291,19 +291,6 @@ export class WebhookQueueService {
     }
   }
 
-  private moveToDeadLetter(jobId: string, job: WebhookJobData, error: unknown) {
-    const deadLetterJob = {
-      ...job,
-      originalError: error instanceof Error ? error.message : String(error),
-    };
-
-    this.deadLetterQueue.set(jobId, deadLetterJob);
-    this.metrics.totalInDeadLetter++;
-
-    console.log(
-      `☠️ [WebhookQueue] Moved webhook ${jobId} to dead letter queue after ${job.attempts} attempts`
-    );
-  }
 
   private getRetryDelay(attemptNumber: number): number {
     // Exponential backoff: 2s, 4s, 8s, 16s, 32s, 64s...
@@ -313,148 +300,205 @@ export class WebhookQueueService {
     return delay;
   }
 
-  private updateProcessingTime(time: number) {
-    this.processingTimes.push(time);
-    
-    if (this.processingTimes.length > this.MAX_PROCESSING_TIME_SAMPLES) {
-      this.processingTimes.shift();
-    }
+  /**
+   * Get queue metrics using BullMQ's built-in methods
+   */
+  async getQueueMetrics() {
+    try {
+      const [waiting, active, completed, failed, delayed, paused] = await Promise.all([
+        this.queue.getWaitingCount(),
+        this.queue.getActiveCount(),
+        this.queue.getCompletedCount(),
+        this.queue.getFailedCount(),
+        this.queue.getDelayedCount(),
+        this.queue.getPausedCount(),
+      ]);
 
-    const sum = this.processingTimes.reduce((acc, val) => acc + val, 0);
-    this.metrics.avgProcessingTime = Math.round(sum / this.processingTimes.length);
+      const metrics = {
+        waiting,
+        active,
+        completed,
+        failed,
+        delayed,
+        paused,
+        total: waiting + active + delayed + paused,
+      };
+
+      return metrics;
+    } catch (error) {
+      console.error('[WebhookQueue] Error getting queue metrics:', error);
+      return {
+        waiting: 0,
+        active: 0,
+        completed: 0,
+        failed: 0,
+        delayed: 0,
+        paused: 0,
+        total: 0,
+      };
+    }
   }
 
+  /**
+   * Start metrics reporting
+   */
   private startMetricsReporter() {
-    this.metricsInterval = setInterval(() => {
-      this.reportMetrics();
-    }, 60000); // Report every minute
+    // Report metrics every minute
+    this.metricsInterval = setInterval(async () => {
+      await this.reportMetrics();
+    }, 60000);
+
+    // Also report immediately after 5 seconds
+    setTimeout(() => this.reportMetrics(), 5000);
 
     // Allow Node to exit if this is the only timer
     if (this.metricsInterval?.unref) {
       this.metricsInterval.unref();
     }
-
-    // Also report immediately after 5 seconds
-    setTimeout(() => this.reportMetrics(), 5000);
   }
 
-  private reportMetrics() {
-    const queueMetrics = this.getQueueMetricsSync();
-    
-    console.log('📊 [WebhookQueue] Metrics Report:');
-    console.log(`  - Active: ${queueMetrics.active}`);
-    console.log(`  - Waiting: ${queueMetrics.waiting}`);
-    console.log(`  - Delayed: ${queueMetrics.delayed}`);
-    console.log(`  - Failed: ${queueMetrics.failed}`);
-    console.log(`  - Completed: ${queueMetrics.completed}`);
-    console.log(`  - Total Processed: ${this.metrics.totalProcessed}`);
-    console.log(`  - Success Rate: ${this.getSuccessRate()}%`);
-    console.log(`  - Total Retries: ${this.metrics.totalRetries}`);
-    console.log(`  - Dead Letter Queue: ${this.metrics.totalInDeadLetter}`);
-    console.log(`  - Avg Processing Time: ${this.metrics.avgProcessingTime}ms`);
-    
-    if (this.metrics.lastProcessedAt) {
-      console.log(`  - Last Processed: ${this.metrics.lastProcessedAt.toISOString()}`);
-    }
-  }
-
-  private getQueueMetricsSync() {
-    const now = Date.now();
-    let waiting = 0;
-    let delayed = 0;
-
-    for (const job of this.queue.values()) {
-      const processAt = job.processAt || job.createdAt || 0;
-      if (processAt > now) {
-        delayed++;
-      } else {
-        waiting++;
+  /**
+   * Report queue metrics
+   */
+  private async reportMetrics() {
+    try {
+      const metrics = await this.getQueueMetrics();
+      const jobCounts = await this.queue.getJobCounts();
+      
+      console.log('📊 [WebhookQueue] BullMQ Metrics Report:');
+      console.log(`  - Waiting: ${metrics.waiting}`);
+      console.log(`  - Active: ${metrics.active}`);
+      console.log(`  - Delayed: ${metrics.delayed}`);
+      console.log(`  - Completed: ${metrics.completed}`);
+      console.log(`  - Failed: ${metrics.failed}`);
+      console.log(`  - Paused: ${metrics.paused}`);
+      console.log(`  - Total in Queue: ${metrics.total}`);
+      
+      // Additional job counts from BullMQ
+      if (jobCounts) {
+        console.log('📊 [WebhookQueue] Job Counts:');
+        Object.entries(jobCounts).forEach(([status, count]) => {
+          console.log(`  - ${status}: ${count}`);
+        });
       }
+    } catch (error) {
+      console.error('[WebhookQueue] Error reporting metrics:', error);
     }
-
-    return {
-      waiting,
-      active: this.processing.size,
-      delayed,
-      failed: this.deadLetterQueue.size,
-      completed: this.metrics.totalSuccess,
-    };
   }
 
-  async getQueueMetrics() {
-    return this.getQueueMetricsSync();
-  }
-
-  private getSuccessRate(): string {
-    if (this.metrics.totalProcessed === 0) {
-      return '0.00';
-    }
-
-    const rate = (this.metrics.totalSuccess / this.metrics.totalProcessed) * 100;
-    return rate.toFixed(2);
-  }
-
-  async pauseQueue() {
-    this.isPaused = true;
+  /**
+   * Pause the queue
+   */
+  async pauseQueue(): Promise<void> {
+    await this.queue.pause();
     console.log('⏸️ [WebhookQueue] Queue paused');
   }
 
-  async resumeQueue() {
-    this.isPaused = false;
+  /**
+   * Resume the queue
+   */
+  async resumeQueue(): Promise<void> {
+    await this.queue.resume();
     console.log('▶️ [WebhookQueue] Queue resumed');
   }
 
-  async cleanup() {
-    if (this.workerInterval) {
-      clearInterval(this.workerInterval);
-      this.workerInterval = null;
-    }
-
-    if (this.metricsInterval) {
-      clearInterval(this.metricsInterval);
-      this.metricsInterval = null;
-    }
-
-    this.queue.clear();
-    this.deadLetterQueue.clear();
-    this.processing.clear();
-
-    console.log('🧹 [WebhookQueue] Service cleaned up');
-  }
-
+  /**
+   * Retry failed jobs from dead letter queue
+   */
   async retryDeadLetterJobs(limit: number = 10): Promise<number> {
     try {
-      const jobs = Array.from(this.deadLetterQueue.entries()).slice(0, limit);
+      const failedJobs = await this.queue.getFailed(0, limit);
       let retriedCount = 0;
 
-      for (const [jobId, job] of jobs) {
-        const { originalError, ...webhookData } = job;
-        
-        // Reset attempts and add back to queue
-        await this.addWebhook({
-          ...webhookData,
-          retryCount: (webhookData.retryCount || 0) + 1,
-          attempts: 0, // Reset attempts for retry
-        });
-
-        this.deadLetterQueue.delete(jobId);
+      for (const job of failedJobs) {
+        await job.retry();
         retriedCount++;
-
-        console.log(
-          `🔄 [WebhookQueue] Retrying dead letter job ${jobId} (original error: ${originalError})`
-        );
       }
 
-      this.metrics.totalInDeadLetter = Math.max(0, this.metrics.totalInDeadLetter - retriedCount);
-
-      console.log(
-        `✅ [WebhookQueue] Retried ${retriedCount} jobs from dead letter queue`
-      );
-
+      console.log(`🔄 [WebhookQueue] Retried ${retriedCount} failed jobs`);
       return retriedCount;
     } catch (error) {
-      console.error('[WebhookQueue] Error retrying dead letter jobs:', error);
-      throw error;
+      console.error('[WebhookQueue] Error retrying failed jobs:', error);
+      return 0;
+    }
+  }
+
+  /**
+   * Clean completed and failed jobs
+   */
+  async cleanOldJobs(grace: number = 3600000): Promise<void> {
+    try {
+      // Clean completed jobs older than grace period
+      const completedRemoved = await this.queue.clean(grace, 1000, 'completed');
+      console.log(`🧹 [WebhookQueue] Removed ${completedRemoved.length} old completed jobs`);
+
+      // Clean failed jobs older than 7 days
+      const failedRemoved = await this.queue.clean(7 * 24 * 3600000, 1000, 'failed');
+      console.log(`🧹 [WebhookQueue] Removed ${failedRemoved.length} old failed jobs`);
+    } catch (error) {
+      console.error('[WebhookQueue] Error cleaning old jobs:', error);
+    }
+  }
+
+  /**
+   * Setup graceful shutdown
+   */
+  private setupGracefulShutdown() {
+    const shutdownHandler = async () => {
+      if (this.isShuttingDown) return;
+      this.isShuttingDown = true;
+
+      console.log('🛑 [WebhookQueue] Initiating graceful shutdown...');
+
+      try {
+        // Stop accepting new jobs
+        await this.queue.pause();
+
+        // Clear intervals
+        if (this.metricsInterval) {
+          clearInterval(this.metricsInterval);
+        }
+
+        // Close worker
+        if (this.worker) {
+          await this.worker.close();
+        }
+
+        // Close queue events
+        await this.queueEvents.close();
+
+        // Close queue
+        await this.queue.close();
+
+        console.log('✅ [WebhookQueue] Graceful shutdown complete');
+      } catch (error) {
+        console.error('❌ [WebhookQueue] Error during shutdown:', error);
+      }
+    };
+
+    // Handle different shutdown signals
+    process.on('SIGTERM', shutdownHandler);
+    process.on('SIGINT', shutdownHandler);
+  }
+
+  /**
+   * Get queue status
+   */
+  async getQueueStatus(): Promise<{ isPaused: boolean; isReady: boolean }> {
+    try {
+      const isPaused = await this.queue.isPaused();
+      const isReady = await this.worker?.isRunning() || false;
+
+      return {
+        isPaused,
+        isReady,
+      };
+    } catch (error) {
+      console.error('[WebhookQueue] Error getting queue status:', error);
+      return {
+        isPaused: false,
+        isReady: false,
+      };
     }
   }
 }
