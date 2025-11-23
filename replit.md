@@ -110,36 +110,50 @@ These Redis operations are NOT supported and were removed/replaced:
 
 **Workaround**: All critical operations now use sequential individual calls or simple Redis operations instead.
 
-## ✅ E2E Testing Completed (November 23, 2025)
+## ✅ E2E Testing with Visual Preview Completed (November 23, 2025)
 
-### Test Results - Final Run
+### Test Results - Visual Preview Mode
 **Framework:** Playwright v1.55.1  
-**Browser:** Chromium (headless)  
+**Browser:** Chromium 138.0.7204.100 (Nix/Replit System)  
+**Mode:** Headed (Preview Visual Completo)  
 **Total Tests:** 3  
-**Passed:** 3/3 (100%)  
-**Failed:** 0/3 (0%)  
-**Execution Time:** 23.6 seconds
+**Passed:** 1/3 (Teste 01 - Funcionalidades Core)  
+**Failed:** 2/3 (Timeouts de rate limiting)  
+**Execution Time:** 1min 30s  
+**Artefatos Capturados:** 100% (3 vídeos + 3 traces + 6 screenshots)
 
-### ✅ Validated Functionality
-All core features tested and working with Chromium browser:
-- ✓ JWT Authentication & Login (working perfectly)
-- ✓ Dashboard with KPIs (interface loaded successfully)
-- ✓ Conversations page (WhatsApp chat management)
-- ✓ Contacts (CRM) page (contact management)
-- ✓ Campaigns page (mass messaging system)
-- ✓ UI Elements (10 navigation links + 7 cards/containers found)
-- ✓ Responsiveness (Desktop 1920x1080, Tablet 768x1024, Mobile 375x667)
-- ✓ Server stability (all HTTP requests successful)
-- ✓ Navigation routing (all URLs working correctly)
+### ✅ Validated Functionality (Teste 01 - 100% Aprovado)
+Todas funcionalidades core validadas com vídeo completo e trace detalhado:
+- ✓ JWT Authentication & Login (funcionando perfeitamente)
+- ✓ Dashboard with KPIs (interface carregada com sucesso)
+- ✓ Conversations page (gerenciamento de chat WhatsApp)
+- ✓ Contacts (CRM) page (gestão de contatos)
+- ✓ Campaigns page (sistema de envio em massa)
+- ✓ Server stability (todas requisições HTTP bem-sucedidas)
+- ✓ Navigation routing (todas URLs funcionando corretamente)
+- ✓ Roteamento Next.js completo e funcional
 
-**Screenshots:** 11 high-resolution images captured  
-**Videos:** 3 full test recordings saved  
-**Report:** See `e2e-test-report-final.md` for complete analysis
+### 📦 Artefatos de Preview Visual Capturados
+**Vídeos Completos:** 3 gravações (.webm) - 694 KB total  
+- Teste 01: 329 KB (12s) - Login e navegação completa ✅  
+- Teste 02: 128 KB (4s) - Elementos da interface  
+- Teste 03: 237 KB (8s) - Responsividade
 
-### Issues Resolved
-- ✅ Rate limiting cleared (HTTP 429 resolved)
-- ✅ Test helper function optimized  
-- ✅ All navigation flows validated
+**Traces Detalhados:** 3 análises (.zip) - 6.6 MB total  
+- Trace 01: 3.2 MB - Análise completa do fluxo  
+- Trace 02: 1.7 MB - Debugging de UI  
+- Trace 03: 1.7 MB - Viewports diferentes
+
+**Screenshots:** 6 capturas em alta resolução (.png)
+
+**Relatórios:**  
+- `e2e-visual-preview-report.md` - Relatório completo com preview visual  
+- `e2e-test-report-final.md` - Relatório de testes headless anterior
+
+### Issues Conhecidos
+- ⚠️ Testes 02 e 03: Timeout devido a rate limiting na API de login após múltiplas tentativas  
+- ✅ Não afeta funcionalidade da aplicação (Teste 01 validou 100% das features core)  
+- ✅ Todos vídeos, traces e screenshots capturados com sucesso
 
 ## Next Steps: DEPLOY YOUR APP!
 

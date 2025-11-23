@@ -16,12 +16,24 @@ export default defineConfig({
     trace: 'on',
     screenshot: 'on',
     video: 'on',
-    headless: true,
+    headless: process.env.HEADED ? false : true,
+    launchOptions: {
+      executablePath: '/nix/store/qa9cnw4v5xkxyip6mb9kxqfq1z4x2dx1-chromium-138.0.7204.100/bin/chromium',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+      ],
+    },
   },
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1920, height: 1080 },
+      },
     },
   ],
   timeout: 60000,
