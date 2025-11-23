@@ -721,7 +721,7 @@ export default function TemplatesV2Page() {
           templates={templates.map(convertMessageTemplateToTemplate) as any[]}
           isLoading={loading}
           onBack={() => setShowCampaignDialog(false)}
-          initialTemplate={selectedTemplateForCampaign}
+          initialTemplate={convertMessageTemplateToTemplate(selectedTemplateForCampaign)}
         />
       )}
     </div>
