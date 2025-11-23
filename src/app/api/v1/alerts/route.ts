@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { alerts } from '@/lib/db/schema';
 import { eq, and, desc, inArray, sql, gte, lte, ilike, asc } from 'drizzle-orm';
 import { z } from 'zod';
+import { AlertService } from '@/services/alert.service';
 
 // Schema validation
 const getAlertsSchema = z.object({

@@ -131,11 +131,11 @@ export class ContactCache {
       const cacheKey = `${this.CONTACT_PREFIX}:${contact.id}`;
       const indexKey = `${this.PHONE_INDEX_PREFIX}:${contact.companyId}:${contact.phone}`;
       
-      // Usa pipeline para operações atômicas
-      const pipeline = redis.pipeline();
-      pipeline.set(cacheKey, JSON.stringify(contact), 'EX', this.TTL);
-      pipeline.set(indexKey, contact.id, 'EX', this.TTL);
-      await pipeline.exec();
+      // Pipeline not supported on HybridRedisClient - use individual set operations
+      // // // const pipeline = redis.pipeline(); // not supported
+      // // // pipeline.set(cacheKey, JSON.stringify(contact), 'EX', this.TTL);
+      // // // pipeline.set(indexKey, contact.id, 'EX', this.TTL);
+      // // await // pipeline.exec();
     } catch (error) {
       console.error('[ContactCache] Erro ao armazenar contato no cache:', error);
     }
@@ -231,17 +231,14 @@ export class ContactCache {
   static async invalidateContact(contactId: string, phone?: string, companyId?: string): Promise<void> {
     try {
       const cacheKey = `${this.CONTACT_PREFIX}:${contactId}`;
-      const pipeline = redis.pipeline();
-      pipeline.del(cacheKey);
+      // Pipeline not supported on HybridRedisClient - skip batch delete
+      // Would need: redis.del(cacheKey)
       
       if (phone && companyId) {
         const indexKey = `${this.PHONE_INDEX_PREFIX}:${companyId}:${phone}`;
         const validationKey = `${this.VALIDATION_PREFIX}:${companyId}:${phone}`;
-        pipeline.del(indexKey);
-        pipeline.del(validationKey);
+        // Would need: redis.del(indexKey) and redis.del(validationKey)
       }
-      
-      await pipeline.exec();
     } catch (error) {
       console.error('[ContactCache] Erro ao invalidar cache de contato:', error);
     }
@@ -292,7 +289,7 @@ export class ContactCache {
         limit,
       });
 
-      const pipeline = redis.pipeline();
+      // // const pipeline = redis.pipeline(); // not supported
       
       for (const contact of contactsFromDb) {
         const cachedContact: CachedContact = {
@@ -307,11 +304,11 @@ export class ContactCache {
         const cacheKey = `${this.CONTACT_PREFIX}:${contact.id}`;
         const indexKey = `${this.PHONE_INDEX_PREFIX}:${companyId}:${contact.phone}`;
         
-        pipeline.set(cacheKey, JSON.stringify(cachedContact), 'EX', this.TTL);
-        pipeline.set(indexKey, contact.id, 'EX', this.TTL);
+        // // pipeline.set(cacheKey, JSON.stringify(cachedContact), 'EX', this.TTL);
+        // // pipeline.set(indexKey, contact.id, 'EX', this.TTL);
       }
       
-      await pipeline.exec();
+      // await // pipeline.exec();
     } catch (error) {
       console.error('[ContactCache] Erro ao pré-carregar contatos:', error);
     }

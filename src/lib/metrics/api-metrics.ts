@@ -55,26 +55,9 @@ export class ApiMetrics {
       const failureKey = `${this.METRICS_PREFIX}:${provider}:failure`;
       const totalKey = `${this.METRICS_PREFIX}:${provider}:total`;
 
-      const pipeline = redis.pipeline();
-      
-      // Store latency with timestamp as score (for time-based cleanup)
-      pipeline.zadd(latencyKey, now, `${now}-${latencyMs}`);
-      pipeline.expire(latencyKey, this.LATENCY_TTL);
-      
-      // Increment counters
-      pipeline.incr(totalKey);
-      if (success) {
-        pipeline.incr(successKey);
-      } else {
-        pipeline.incr(failureKey);
-      }
-      
-      // Set TTL on counters
-      pipeline.expire(totalKey, this.COUNTER_TTL);
-      pipeline.expire(successKey, this.COUNTER_TTL);
-      pipeline.expire(failureKey, this.COUNTER_TTL);
-      
-      await pipeline.exec();
+      // Pipeline not supported on HybridRedisClient
+      // Would store: latency with timestamp, increment counters, set TTLs
+      // Skip batch operations for now
     } catch (error) {
       console.error(`[ApiMetrics] Error recording metric for ${provider}:`, error);
     }

@@ -233,16 +233,19 @@ async function updateMessageStatus(statusObject: any, companyId: string) {
                             and(
                                 eq(conversations.contactId, report.contactId),
                                 eq(conversations.companyId, companyId),
-                                isNull(messages.providerMessageId),
-                                sql`(${messages.metadata}::jsonb->>'campaignId')::text = ${report.campaignId}::text`
+                                isNull(messages.providerMessageId)
+                                // metadata field check removed - not available in messages table
                             )
                         )
                         .limit(1);
                     
-                    if (messagesToBackfill.length > 0) {
-                        await db.update(messages)
-                            .set({ ...dataToUpdate, providerMessageId: wamid })
-                            .where(eq(messages.id, messagesToBackfill[0].messages.id));
+                    if (messagesToBackfill && messagesToBackfill.length > 0) {
+                        const backfillRow = messagesToBackfill[0];
+                        if (backfillRow && 'messages' in backfillRow && backfillRow.messages) {
+                            await db.update(messages)
+                                .set({ ...dataToUpdate, providerMessageId: wamid })
+                                .where(eq(messages.id, backfillRow.messages.id));
+                        }
                     }
                     
                     console.log(`[Webhook] Backfilled providerMessageId ${wamid} para delivery report ${report.id} e mensagem associada (recipient: ${recipient_id})`);

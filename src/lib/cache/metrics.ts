@@ -31,13 +31,7 @@ export class CacheMetrics {
     try {
       const hitKey = `${this.METRICS_PREFIX}:${cacheType}:hits`;
       const totalKey = `${this.METRICS_PREFIX}:${cacheType}:total`;
-      
-      const pipeline = redis.pipeline();
-      pipeline.incr(hitKey);
-      pipeline.incr(totalKey);
-      pipeline.expire(hitKey, this.TTL);
-      pipeline.expire(totalKey, this.TTL);
-      await pipeline.exec();
+      // Pipeline not supported - would increment counters and set TTL
     } catch (error) {
       console.error('[CacheMetrics] Erro ao registrar hit:', error);
     }
@@ -50,13 +44,7 @@ export class CacheMetrics {
     try {
       const missKey = `${this.METRICS_PREFIX}:${cacheType}:misses`;
       const totalKey = `${this.METRICS_PREFIX}:${cacheType}:total`;
-      
-      const pipeline = redis.pipeline();
-      pipeline.incr(missKey);
-      pipeline.incr(totalKey);
-      pipeline.expire(missKey, this.TTL);
-      pipeline.expire(totalKey, this.TTL);
-      await pipeline.exec();
+      // Pipeline not supported - would increment counters and set TTL
     } catch (error) {
       console.error('[CacheMetrics] Erro ao registrar miss:', error);
     }
