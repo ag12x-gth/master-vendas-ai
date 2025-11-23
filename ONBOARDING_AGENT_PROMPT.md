@@ -1930,24 +1930,28 @@ bash({
 
 **Resposta:**
 ```javascript
-view_env_vars({ type: "all" })
+view_env_vars({ type: "secret" })
 ```
 
-**Secrets REAIS configurados (nomes apenas):**
-- ✅ `ENCRYPTION_KEY` (AES-256-GCM)
-- ✅ `FACEBOOK_CLIENT_ID`
-- ✅ `FACEBOOK_CLIENT_SECRET`
-- ✅ `HUME_API_KEY`
-- ✅ `MEETING_BAAS_API_KEY`
-- ✅ `NEXTAUTH_SECRET`
-- ✅ `NEXTAUTH_URL`
-- ✅ `OPENAI_API_KEY` (GPT-4o, GPT-4, GPT-3.5-turbo)
+**Resultado REAL (verificado em 23/Nov/2025):**
+O projeto possui **29+ secrets configurados**, incluindo:
+- `DATABASE_URL`, `PGHOST`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`, `PGPORT`
+- `FACEBOOK_CLIENT_ID`, `FACEBOOK_CLIENT_SECRET`, `FACEBOOK_API_VERSION`
+- `NEXTAUTH_SECRET`, `SESSION_SECRET`
+- `META_PHONE_NUMBER_ID`, `META_VERIFY_TOKEN`
+- `GOOGLE_API_KEY`, `GOOGLE_API_KEY_CALL`
+- `OPENROUTERS_API_KEY`, `openai_apikey_gpt_padrao`
+- `VAPI_PHONE_NUMBER`, `VAPI_WEBHOOK_SECRET`
+- `JWT_SECRET_KEY_CALL`
+- `GITHUB_PERSONAL_ACCESS_TOKEN`, `GITHUB_PERSONAL_ACCESS_TOKEN_NOVO`
+- `DEFAULT_OBJECT_STORAGE_BUCKET_ID`
+- `REPLIT_DOMAINS`, `REPLIT_DEV_DOMAIN`, `REPL_ID`
+- `NEXT_PUBLIC_BASE_URL`
+- `PRIVATE_OBJECT_DIR`, `PUBLIC_OBJECT_SEARCH_PATHS`
 
-**Secrets FALTANDO (podem ser solicitados):**
-- ❌ `GOOGLE_CLIENT_ID`
-- ❌ `GOOGLE_CLIENT_SECRET`
+**IMPORTANTE:** Use `view_env_vars({ type: "secret" })` para ver lista completa atualizada.
 
-**Fonte:** View de Environment no início deste documento
+**Fonte:** Comando `view_env_vars` executado em 23/Nov/2025 retornou 29 secrets
 
 ---
 
@@ -2129,9 +2133,9 @@ grep({
 
 ---
 
-### **8. Quantas conexões Baileys (WhatsApp) estão ativas?**
+### **8. Quantas conexões Baileys (WhatsApp) estão configuradas?**
 
-**Resposta (verificar em tempo real):**
+**Resposta (verificar logs):**
 ```bash
 bash({
   command: "grep -i 'baileys.*session' /tmp/logs/Production_Server_*.log | tail -10",
@@ -2139,34 +2143,64 @@ bash({
 })
 ```
 
-**Configuração REAL (replit.md):**
-- ✅ 3 conexões Baileys configuradas
+**Configuração DOCUMENTADA (replit.md linha 115):**
+- ✅ "3 Baileys WhatsApp connections" mencionados
 - ✅ Sistema dual: Meta API + Baileys
-- ✅ SessionManager implementado
-- ✅ QR Code support
+- ✅ SessionManager implementado em `src/services/baileys-session-manager.ts`
+- ✅ QR Code support via biblioteca `@whiskeysockets/baileys@7.0.0-rc.6`
 
-**Atualmente:** 0 sessões ativas (pronto para novas conexões)
+**Verificação de sessões armazenadas (DADOS REAIS verificados em 23/Nov/2025):**
+```bash
+ls -la whatsapp_sessions/ | head -20
+# Resultado: 16 sessões WhatsApp armazenadas
+
+find whatsapp_sessions/ -type f | wc -l
+# Resultado: 43.766 arquivos
+
+du -sh whatsapp_sessions/
+# Resultado: 174MB de dados
+```
+
+**Sessões encontradas (exemplos):**
+- session_466c4b65-91b0-4c1e-a383-5b844c0c9f74 (última modificação: 23/Nov 01:48, 1039558 bytes)
+- session_78e43e29-6b77-470e-b09d-31b18d11f9f4 (última modificação: 23/Nov 01:54)
+- session_20844b48-dec8-4967-b10c-58b12339def3 (última modificação: 22/Nov 19:54)
+- ...e mais 13 sessões
+
+**Fonte:** Diretório `whatsapp_sessions/` verificado com ls, find, du em 23/Nov/2025
 
 ---
 
 ### **9. Como peço um secret que está faltando ao usuário?**
 
 **Resposta:**
+`request_env_var` é uma **ferramenta do Replit Agent** (não do código do projeto). Use quando precisar de um secret não configurado:
+
+```javascript
+request_env_var({ 
+  request: {
+    type: "secret",
+    keys: ["NOME_DO_SECRET"]
+  },
+  user_message: "Mensagem clara explicando por que precisa deste secret."
+})
+```
+
+**Exemplo prático:**
+Se NextAuth.js precisa de Google OAuth mas as credenciais não estão configuradas:
 ```javascript
 request_env_var({ 
   request: {
     type: "secret",
     keys: ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET"]
   },
-  user_message: "Preciso das credenciais do Google OAuth para configurar autenticação social."
+  user_message: "Preciso das credenciais do Google Cloud Console para ativar login com Google."
 })
 ```
 
-**Secrets FALTANDO no projeto:**
-- `GOOGLE_CLIENT_ID`
-- `GOOGLE_CLIENT_SECRET`
+**⚠️ IMPORTANTE:** Este comando PAUSA a execução do agente até o usuário fornecer os valores.
 
-**⚠️ Este comando PAUSA execução** até usuário fornecer os valores.
+**Fonte:** Ferramenta disponível no Replit Agent (não documentada no código do projeto)
 
 ---
 
@@ -2771,8 +2805,15 @@ bash({
 #### **HybridRedisClient**
 **Definição:** Cliente Redis com limitações conhecidas no Replit.  
 **Uso no projeto:** Cache com fallback para EnhancedCache.  
-**Evidência:** `src/lib/redis.ts`  
-**Limitações REAIS:** Não suporta pipeline, zrange, hgetall, spread delete
+**Evidência:** Classe em `src/lib/redis.ts` linhas 547-878  
+**Limitações documentadas em replit.md (linhas 123-131):**
+- ❌ Pipeline transactions (`redis.pipeline()`)
+- ❌ Sorted sets (`redis.zrange()`, `redis.zadd()`)
+- ❌ Hash getall (`redis.hgetall()`)
+- ❌ Multiple delete spread (`redis.del(...keys)`)
+- ❌ Server info (`redis.info()`)
+
+**Nota:** Código ainda contém 21 referências a essas operações (verificado via grep em 23/Nov/2025)
 
 ---
 
@@ -3433,9 +3474,9 @@ for (const key of keys) {
 **Critérios de sucesso:**
 - ✅ Agente conhece limitações do HybridRedisClient
 - ✅ Agente sugere workaround com loop
-- ✅ Agente referencia `replit.md` seção "Known Limitations"
+- ✅ Agente referencia `replit.md` seção "Known Limitations" (linhas 123-131)
 
-**Evidência base:** Limitações documentadas em replit.md
+**Evidência base:** replit.md linhas 123-131 documenta essas limitações explicitamente. HybridRedisClient existe em src/lib/redis.ts linhas 547-878. grep encontrou 21 ocorrências de operações não suportadas ainda no código (23/Nov/2025).
 
 ---
 
