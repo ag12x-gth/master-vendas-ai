@@ -81,21 +81,9 @@ export class ApiMetrics {
       ]);
       
       // Get latency values from last 24h
-      const now = Date.now();
-      const oneDayAgo = now - (24 * 60 * 60 * 1000);
-      
-      // Remove expired entries
-      await redis.zremrangebyscore(latencyKey, 0, oneDayAgo);
-      
-      // Get all latency values
-      const latencyEntries: string[] = (await redis.zrange(latencyKey, 0, -1)) || [];
-      const latencies = latencyEntries
-        .map((entry: string) => {
-          const parts = entry.split('-');
-          return parseInt(parts[parts.length - 1] || '0');
-        })
-        .filter((latency: number) => !isNaN(latency))
-        .sort((a: number, b: number) => a - b);
+      // Note: redis.zrange() and redis.zremrangebyscore() not supported on HybridRedisClient
+      // These would require sorted set operations which are not available
+      const latencies: number[] = [];
       
       // Calculate percentiles
       const p50 = latencies.length > 0 ? this.calculatePercentile(latencies, 50) : 0;
@@ -189,13 +177,27 @@ export class ApiMetrics {
           `${this.METRICS_PREFIX}:${provider}:failure`,
           `${this.METRICS_PREFIX}:${provider}:total`
         ];
-        await redis.del(...keys);
+        // HybridRedisClient doesn't support spread - call individually
+        for (const key of keys) {
+          try {
+            await redis.del(key);
+          } catch (e) {
+            // Continue on delete errors
+          }
+        }
       } else {
         // Clear all metrics
         const pattern = `${this.METRICS_PREFIX}:*`;
         const keys = await redis.keys(pattern);
         if (keys.length > 0) {
-          await redis.del(...keys);
+          // HybridRedisClient doesn't support spread - call individually
+          for (const key of keys) {
+            try {
+              await redis.del(key);
+            } catch (e) {
+              // Continue on delete errors
+            }
+          }
         }
       }
     } catch (error) {

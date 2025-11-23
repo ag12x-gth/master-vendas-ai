@@ -2,7 +2,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { campaigns, connections, smsGateways, smsDeliveryReports, templates as templateSchema, whatsappDeliveryReports, messageTemplates } from '@/lib/db/schema';
+import { campaigns, connections, smsGateways, smsDeliveryReports, templates as templateSchema, whatsappDeliveryReports } from '@/lib/db/schema';
 import { eq, and, sql, or } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 

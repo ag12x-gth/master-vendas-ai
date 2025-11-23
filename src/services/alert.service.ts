@@ -6,23 +6,9 @@ import {
   alertRules, 
   alertNotifications,
   alertSettings,
-  alertSeverityEnum,
-  alertStatusEnum,
-  alertChannelEnum,
-  alertTypeEnum
+  users
 } from '@/lib/db/schema';
-import { eq, and, gte, lte, sql, desc, or, inArray, isNull, ne } from 'drizzle-orm';
-import { 
-  httpRequestDuration,
-  httpRequestCounter,
-  dbConnectionPool,
-  cacheHits,
-  cacheMisses,
-  queueSize,
-  rateLimitRejections,
-  authMetrics,
-  conversationMetrics
-} from '@/lib/metrics';
+import { eq, and, gte, lte, sql, desc, inArray } from 'drizzle-orm';
 import redis from '@/lib/redis';
 import crypto from 'crypto';
 import { UserNotificationsService } from '@/lib/notifications/user-notifications.service';
@@ -400,8 +386,8 @@ export class AlertService {
     // Get all admin users for the company
     const adminUsers = await db.query.users.findMany({
       where: and(
-        eq(db.schema.users.companyId, alert.companyId),
-        inArray(db.schema.users.role, ['admin', 'superadmin'] as any)
+        eq(users.companyId, alert.companyId),
+        inArray(users.role, ['admin', 'superadmin'] as any)
       ),
     });
     

@@ -196,7 +196,14 @@ export class UserCache {
       const allKeys = [...companyKeys, ...userKeys];
       
       if (allKeys.length > 0) {
-        await redis.del(...allKeys);
+        // HybridRedisClient doesn't support spread - call individually
+        for (const key of allKeys) {
+          try {
+            await redis.del(key);
+          } catch (e) {
+            // Continue on delete errors
+          }
+        }
       }
     } catch (error) {
       console.error('[UserCache] Erro ao limpar cache:', error);

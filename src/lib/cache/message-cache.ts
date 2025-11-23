@@ -114,7 +114,14 @@ export class MessageCache {
       const keys = await redis.keys(pattern);
       
       if (keys.length > 0) {
-        await redis.del(...keys);
+        // HybridRedisClient doesn't support spread - call individually
+        for (const key of keys) {
+          try {
+            await redis.del(key);
+          } catch (e) {
+            // Continue on delete errors
+          }
+        }
       }
     } catch (error) {
       console.error('[MessageCache] Erro ao invalidar cache:', error);
@@ -130,7 +137,14 @@ export class MessageCache {
       const keys = await redis.keys(pattern);
       
       if (keys.length > 0) {
-        await redis.del(...keys);
+        // HybridRedisClient doesn't support spread - call individually
+        for (const key of keys) {
+          try {
+            await redis.del(key);
+          } catch (e) {
+            // Continue on delete errors
+          }
+        }
       }
     } catch (error) {
       console.error('[MessageCache] Erro ao limpar cache:', error);

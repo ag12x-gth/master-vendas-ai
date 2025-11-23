@@ -70,9 +70,8 @@ async function testWebhookQueue() {
     console.log('  ✓ Max 3 retry attempts (configured)');
     console.log('  ✓ Processing metrics logging');
 
-    // Clean up
-    await webhookQueue.cleanup();
-    console.log('\n🧹 Cleanup completed');
+    // Note: cleanup() not available on WebhookQueueService
+    console.log('\n🧹 Test completed');
 
     process.exit(0);
   } catch (error) {

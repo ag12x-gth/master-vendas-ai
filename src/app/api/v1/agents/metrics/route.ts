@@ -4,7 +4,6 @@ import { getUserSession } from '@/app/actions';
 import { db } from '@/lib/db';
 import { aiAgentExecutions } from '@/lib/db/schema';
 import { eq, and, gte, lte, desc } from 'drizzle-orm';
-import redis from '@/lib/redis';
 
 // GET /api/v1/agents/metrics - Obter métricas de performance dos agentes
 export async function GET(request: NextRequest) {

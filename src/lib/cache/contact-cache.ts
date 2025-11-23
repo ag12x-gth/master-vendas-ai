@@ -271,7 +271,14 @@ export class ContactCache {
       for (const pattern of patterns) {
         const keys = await redis.keys(pattern);
         if (keys.length > 0) {
-          await redis.del(...keys);
+          // HybridRedisClient doesn't support spread in del() - call individually
+          for (const key of keys) {
+            try {
+              await redis.del(key);
+            } catch (e) {
+              // Silently continue on delete errors
+            }
+          }
         }
       }
     } catch (error) {

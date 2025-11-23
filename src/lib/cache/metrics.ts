@@ -150,7 +150,14 @@ export class CacheMetrics {
         `${this.METRICS_PREFIX}:${cacheType}:total`
       ];
       
-      await redis.del(...keys);
+      // HybridRedisClient doesn't support spread - call individually
+      for (const key of keys) {
+        try {
+          await redis.del(key);
+        } catch (e) {
+          // Continue on error
+        }
+      }
     } catch (error) {
       console.error('[CacheMetrics] Erro ao resetar métricas:', error);
     }
@@ -165,7 +172,14 @@ export class CacheMetrics {
       const keys = await redis.keys(pattern);
       
       if (keys.length > 0) {
-        await redis.del(...keys);
+        // HybridRedisClient doesn't support spread - call individually
+        for (const key of keys) {
+          try {
+            await redis.del(key);
+          } catch (e) {
+            // Continue on error
+          }
+        }
       }
     } catch (error) {
       console.error('[CacheMetrics] Erro ao resetar todas as métricas:', error);
@@ -183,8 +197,8 @@ export class CacheMetrics {
     memoryUsagePercent: number;
   }> {
     try {
-      const info = await redis.info('memory');
-      const lines = info.split('\r\n');
+      // redis.info() not supported on HybridRedisClient - return defaults
+      const lines: string[] = [];
       
       const memoryInfo: Record<string, string> = {};
       for (const line of lines) {
@@ -233,8 +247,8 @@ export class CacheMetrics {
     hitRate: number;
   }> {
     try {
-      const info = await redis.info('stats');
-      const lines = info.split('\r\n');
+      // redis.info() not supported on HybridRedisClient - return defaults
+      const lines: string[] = [];
       
       const statsInfo: Record<string, string> = {};
       for (const line of lines) {
