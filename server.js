@@ -57,25 +57,12 @@ const dev = process.env.NODE_ENV !== 'production';
 const hostname = '0.0.0.0';
 const port = process.env.PORT || 5000;
 
-// Configurações de produção para desabilitar hot reload
+// Simplified configuration without overriding conf
 const nextConfig = {
   dev,
   hostname,
   port,
-  // Desabilitar hot reload e fast refresh em produção
-  ...(process.env.NODE_ENV === 'production' && {
-    quiet: true, // Reduz logs desnecessários
-    conf: {
-      distDir: '.next',
-      // Desabilitar watcher em produção
-      webpackDevMiddleware: {
-        watchOptions: {
-          ignored: /.*/,
-          poll: false,
-        },
-      },
-    },
-  }),
+  quiet: !dev, // Reduce logs in production
 };
 
 const app = next(nextConfig);
