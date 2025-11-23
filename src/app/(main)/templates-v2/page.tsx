@@ -45,10 +45,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import {
-  Search,
   Plus,
   MoreHorizontal,
-  Send,
   RefreshCw,
   Trash2,
   Eye,
@@ -61,13 +59,7 @@ import { CreateWhatsappCampaignDialog } from '@/components/campaigns/create-what
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-interface Connection {
-  id: string;
-  config_name: string;
-  connectionType: string;
-  wabaId?: string;
-}
+import { Connection } from '@/lib/types';
 
 interface MessageTemplate {
   id: string;
