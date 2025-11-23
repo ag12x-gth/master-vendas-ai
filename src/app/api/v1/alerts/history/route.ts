@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
         offset: params.offset,
         hasMore: params.offset + params.limit < totalCount,
       },
-      statistics: {
+      statistics: statistics ? {
         ...statistics,
         avgResolutionTimeMinutes: statistics.avgResolutionTime 
           ? Math.round(statistics.avgResolutionTime / 60) 
@@ -137,6 +137,12 @@ export async function GET(request: NextRequest) {
           ? Math.round(statistics.avgAcknowledgmentTime / 60)
           : null,
         topAlertTypes,
+      } : {
+        avgResolutionTime: null,
+        avgAcknowledgmentTime: null,
+        avgResolutionTimeMinutes: null,
+        avgAcknowledgmentTimeMinutes: null,
+        topAlertTypes: [],
       },
     });
   } catch (error) {

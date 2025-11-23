@@ -4,7 +4,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import { getCompanyIdFromSession, getUserIdFromSession } from '@/app/actions';
 import { db } from '@/lib/db';
 import { alerts } from '@/lib/db/schema';
-import { eq, and, desc, inArray } from 'drizzle-orm';
+import { eq, and, desc, inArray, sql, gte, lte, ilike, asc } from 'drizzle-orm';
 import { z } from 'zod';
 
 // Schema validation
