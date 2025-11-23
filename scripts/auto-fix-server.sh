@@ -3,7 +3,7 @@
 # Auto-Fix Server Script - Resolve conflitos de porta automaticamente
 # Este script é executado antes do servidor iniciar
 
-PORT=${PORT:-5000}
+PORT=${PORT:-8080}
 
 echo "🔧 Auto-Fix Server - Iniciando verificações..."
 
