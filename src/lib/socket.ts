@@ -44,7 +44,7 @@ export function initializeSocketIO(server: HTTPServer): SocketIOServer {
     cors: {
       origin: process.env.NODE_ENV === 'production' 
         ? [process.env.NEXT_PUBLIC_BASE_URL || '']
-        : ['http://localhost:5000', 'http://localhost:3000', 'http://0.0.0.0:5000'],
+        : ['http://localhost:8080', 'http://localhost:3000', 'http://0.0.0.0:8080'],
       methods: ['GET', 'POST'],
       credentials: true,
     },

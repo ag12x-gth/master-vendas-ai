@@ -11,5 +11,5 @@ export function getBaseUrl(): string {
     return window.location.origin;
   }
   
-  return 'http://localhost:5000';
+  return 'http://localhost:8080';
 }

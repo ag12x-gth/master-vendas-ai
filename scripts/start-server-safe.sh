@@ -5,7 +5,7 @@
 
 set -e  # Exit on error
 
-PORT=${PORT:-5000}
+PORT=${PORT:-8080}
 MAX_RETRIES=3
 RETRY_COUNT=0
 

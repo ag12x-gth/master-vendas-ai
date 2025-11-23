@@ -66,7 +66,7 @@ async function main() {
           createdAt: new Date(),
         });
         
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000';
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8080';
         const resetLink = `${baseUrl}/reset-password?token=${token}`;
         
         // Enviar email

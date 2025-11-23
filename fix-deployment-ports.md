@@ -44,7 +44,7 @@ As inicializações pesadas (Baileys, Campaign Processor, Cadence Scheduler) est
 **VOCÊ PRECISA EDITAR MANUALMENTE O ARQUIVO `.replit`:**
 
 1. Abra o arquivo `.replit` no editor do Replit
-2. **DELETE todas as seções `[[ports]]` EXCETO a porta 5000:**
+2. **DELETE todas as seções `[[ports]]` EXCETO a porta 8080:**
 
 ```toml
 # ANTES (INCORRETO - múltiplas portas):
@@ -64,7 +64,7 @@ externalPort = 80
 
 # DEPOIS (CORRETO - apenas 1 porta):
 [[ports]]
-localPort = 5000
+localPort = 8080
 externalPort = 80
 ```
 

@@ -181,9 +181,11 @@ The deployment is failing health checks
 Delete all `[[ports]]` sections EXCEPT:
 ```toml
 [[ports]]
-localPort = 5000
+localPort = 8080
 externalPort = 80
 ```
+
+**Note:** Application was migrated from port 5000 to port 8080 per user request.
 
 Current `.replit` has 13 external ports defined. VM/Autoscale deployments only support 1 external port.
 
@@ -193,6 +195,7 @@ Current `.replit` has 13 external ports defined. VM/Autoscale deployments only s
 - ✅ Socket.IO: initialized ✓
 - ✅ Baileys: ready ✓
 - ✅ Schedulers: active ✓
+- ✅ **Server Port: 8080** (migrated from 5000)
 
 ### 🚀 Deploy Instructions (After Fixing .replit)
 

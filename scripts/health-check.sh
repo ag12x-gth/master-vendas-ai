@@ -3,7 +3,7 @@
 # Health Check & Auto-Recovery System
 # Monitora o servidor e corrige problemas automaticamente
 
-PORT=${PORT:-5000}
+PORT=${PORT:-8080}
 CHECK_INTERVAL=30  # Verificar a cada 30 segundos
 
 echo "🏥 Health Check System - Iniciado"
