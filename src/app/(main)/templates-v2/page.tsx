@@ -53,6 +53,8 @@ import {
   Loader2,
   MessageSquare,
   Megaphone,
+  Search,
+  Send,
 } from 'lucide-react';
 import { TemplateBuilder } from '@/components/message-templates/template-builder';
 import { CreateWhatsappCampaignDialog } from '@/components/campaigns/create-whatsapp-campaign-dialog';

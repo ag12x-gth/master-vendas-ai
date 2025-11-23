@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     let conversationId: string;
-    let isNewConversation = false;
+    let _isNewConversation = false;
 
     if (existingConversation) {
       conversationId = existingConversation.id;
@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
       }
       
       conversationId = newConversations[0].id;
-      isNewConversation = true;
+      _isNewConversation = true;
 
       try {
         const [contact] = await db.select().from(contacts).where(eq(contacts.id, contactId)).limit(1);

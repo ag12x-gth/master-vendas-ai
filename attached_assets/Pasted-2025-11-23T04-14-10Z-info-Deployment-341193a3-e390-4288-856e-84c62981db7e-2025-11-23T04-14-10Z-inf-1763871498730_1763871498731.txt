@@ -1,0 +1,108 @@
+2025-11-23T04:14:10Z info: Deployment: 341193a3-e390-4288-856e-84c62981db7e
+2025-11-23T04:14:10Z info: Running Security Scan
+2025-11-23T04:14:25Z info: Security Scan Complete
+2025-11-23T04:14:25Z info: Connecting to builder
+2025-11-23T04:14:25Z info: Builder connected
+2025-11-23T04:14:26Z info: Installing packages
+2025-11-23T04:14:26Z info: Starting Build
+
+> nextn@2.4.1 build:prod
+> next build
+
+
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.com/vercel/next.js/issues
+
+  ▲ Next.js 14.2.33
+
+  - Environments: .env
+
+    · cpus
+
+   Creating an optimized production build ...
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+
+ ✓ Compiled successfully
+
+   Linting and checking validity of types ...
+
+
+Failed to compile.
+
+./src/app/(main)/integrations/zapier/page.tsx
+125:9  Warning: 'webhookEndpoint' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/(main)/templates/page.tsx
+101:40  Warning: 'categoriesError' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/(main)/templates-v2/page.tsx
+368:14  Error: 'Search' is not defined.  react/jsx-no-undef
+464:24  Error: 'Send' is not defined.  react/jsx-no-undef
+545:30  Error: 'Send' is not defined.  react/jsx-no-undef
+
+./src/app/(main)/voice-calls/page.tsx
+10:10  Warning: 'Phone' is defined but never used.  unused-imports/no-unused-imports
+25:10  Warning: 'loadingContacts' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/(marketing)/login/page.tsx
+10:72  Warning: 'Mail' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/admin/send-password-reset/route.ts
+195:27  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/metrics/route.ts
+82:28  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/alerts/history/route.ts
+5:8  Warning: 'AlertService' is defined but never used.  unused-imports/no-unused-imports
+8:40  Warning: 'inArray' is defined but never used.  unused-imports/no-unused-imports
+9:10  Warning: 'z' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/v1/alerts/route.ts
+7:18  Warning: 'alertSettings' is defined but never used.  unused-imports/no-unused-imports
+8:34  Warning: 'gte' is defined but never used.  unused-imports/no-unused-imports
+8:39  Warning: 'lte' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/v1/alerts/settings/route.ts
+12:27  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/cadences/route.ts
+29:27  Warning: 'req' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/campaigns/[campaignId]/route.ts
+5:121  Warning: 'messageTemplates' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/v1/campaigns/route.ts
+50:28  Warning: 'page' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/contacts/route.ts
+6:10  Warning: 'and' is defined but never used.  unused-imports/no-unused-imports
+6:15  Warning: 'count' is defined but never used.  unused-imports/no-unused-imports
+6:22  Warning: 'eq' is defined but never used.  unused-imports/no-unused-imports
+6:26  Warning: 'ilike' is defined but never used.  unused-imports/no-unused-imports
+6:33  Warning: 'or' is defined but never used.  unused-imports/no-unused-imports
+6:42  Warning: 'inArray' is defined but never used.  unused-imports/no-unused-imports
+6:51  Warning: 'SQL' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/v1/metrics/api-performance/route.ts
+11:27  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/templates/categories/route.ts
+14:27  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/webhook/whatsmeow/route.ts
+163:7  Warning: 'isNewConversation' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/analytics/kpi-card.tsx
+28:9  Warning: 'getTrendColor' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/campaigns/TemplatePreview.tsx
+3:10  Warning: 'useMemo' is defined but never used.  unused-imports/no-unused-imports
+6:10  Warning: 'Button' is defined but never used.  unused-imports/no-unused-imports
+130:17  Warning: Using `<img>
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.6.3
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.3
+npm notice To update run: npm install -g npm@11.6.3
+npm notice
+

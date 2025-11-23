@@ -11,7 +11,7 @@ const createCategorySchema = z.object({
   icon: z.string().max(50).optional().nullable(),
 });
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();
     if (!companyId) {

@@ -9,7 +9,7 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
 // GET /api/v1/alerts/settings - Get alert settings
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();
     const userId = await getUserIdFromSession();
@@ -108,7 +108,11 @@ export async function PUT(request: NextRequest) {
     }
     
     // Update settings
-    const success = await AlertService.updateAlertSettings(companyId, validatedData);
+    const sanitizedData = {
+      ...validatedData,
+      defaultWebhookUrl: validatedData.defaultWebhookUrl || undefined,
+    };
+    const success = await AlertService.updateAlertSettings(companyId, sanitizedData);
     
     if (!success) {
       return NextResponse.json(
@@ -132,10 +136,10 @@ export async function PUT(request: NextRequest) {
         dbPoolThreshold: parseFloat(settings.dbPoolThreshold || '90'),
         alertRetentionDays: settings.alertRetentionDays,
         enabledChannels: settings.enabledChannels,
-        defaultWebhookUrl: settings.defaultWebhookUrl,
+        defaultWebhookUrl: settings.defaultWebhookUrl ?? undefined,
         emailRecipients: settings.emailRecipients,
         updatedAt: settings.updatedAt,
-      } : validatedData,
+      } : sanitizedData,
       message: 'Configurações atualizadas com sucesso',
     });
   } catch (error) {

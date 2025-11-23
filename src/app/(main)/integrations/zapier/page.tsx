@@ -122,7 +122,7 @@ export default function ZapierIntegrationPage() {
   const router = useRouter();
   const [selectedEvent, setSelectedEvent] = useState('message_received');
 
-  const webhookEndpoint = typeof window !== 'undefined'
+  const _webhookEndpoint = typeof window !== 'undefined'
     ? `${window.location.origin}/api/webhooks/your-webhook-id`
     : 'https://your-domain.com/api/webhooks/your-webhook-id';
 

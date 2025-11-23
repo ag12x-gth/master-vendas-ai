@@ -26,7 +26,7 @@ const createCadenceSchema = z.object({
  * GET /api/v1/cadences
  * Lista todas as cadências da empresa
  */
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();
 

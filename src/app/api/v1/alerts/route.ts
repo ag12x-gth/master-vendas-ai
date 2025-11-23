@@ -2,10 +2,9 @@
 
 import { NextResponse, NextRequest } from 'next/server';
 import { getCompanyIdFromSession, getUserIdFromSession } from '@/app/actions';
-import AlertService from '@/services/alert.service';
 import { db } from '@/lib/db';
-import { alerts, alertSettings } from '@/lib/db/schema';
-import { eq, and, desc, inArray, gte, lte, sql } from 'drizzle-orm';
+import { alerts } from '@/lib/db/schema';
+import { eq, and, desc, inArray } from 'drizzle-orm';
 import { z } from 'zod';
 
 // Schema validation

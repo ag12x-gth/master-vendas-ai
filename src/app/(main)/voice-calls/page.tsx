@@ -7,7 +7,7 @@ import { CallHistoryTable } from '@/components/vapi-voice/CallHistoryTable';
 import { BulkCallDialog } from '@/components/vapi-voice/BulkCallDialog';
 import { VoiceCallsAnalytics } from '@/components/vapi-voice/VoiceCallsAnalytics';
 import { useVapiCalls } from '@/hooks/useVapiCalls';
-import { Phone, PhoneCall, History, BarChart3 } from 'lucide-react';
+import { PhoneCall, History, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -22,7 +22,7 @@ export default function VoiceCallsPage() {
   const { metrics, loading } = useVapiCalls(true);
   const [showBulkDialog, setShowBulkDialog] = useState(false);
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [loadingContacts, setLoadingContacts] = useState(false);
+  const [_loadingContacts, setLoadingContacts] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {

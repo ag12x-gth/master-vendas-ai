@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
 /**
  * Health check for metrics endpoint
  */
-export async function HEAD(request: NextRequest) {
+export async function HEAD(_request: NextRequest) {
   return new NextResponse(null, {
     status: 200,
     headers: {

@@ -47,7 +47,7 @@ async function fetchCampaignsData(params: {
     gatewayId: string | null;
     offset: number;
 }) {
-        const { companyId, page, limit, channel, connectionId, templateId, gatewayId, offset } = params;
+        const { companyId, page: _page, limit, channel, connectionId, templateId, gatewayId, offset } = params;
 
         // Subqueries for WhatsApp
         const sentWhatsappSubquery = db.select({ value: sql<number>`count(*)::int` }).from(whatsappDeliveryReports).where(eq(whatsappDeliveryReports.campaignId, campaigns.id));

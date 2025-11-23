@@ -2,11 +2,9 @@
 
 import { NextResponse, NextRequest } from 'next/server';
 import { getCompanyIdFromSession, getUserIdFromSession } from '@/app/actions';
-import AlertService from '@/services/alert.service';
 import { db } from '@/lib/db';
 import { alerts } from '@/lib/db/schema';
-import { eq, and, desc, gte, lte, sql, inArray } from 'drizzle-orm';
-import { z } from 'zod';
+import { eq, desc, gte, lte, and, sql } from 'drizzle-orm';
 
 // GET /api/v1/alerts/history - Get alert history
 export async function GET(request: NextRequest) {

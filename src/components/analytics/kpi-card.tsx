@@ -25,11 +25,6 @@ export function KPICard({
   loading = false,
   className,
 }: KPICardProps) {
-  const getTrendColor = () => {
-    if (!trend) return '';
-    return trend === 'up' ? 'text-green-600' : 'text-red-600';
-  };
-
   const getTrendBadgeVariant = () => {
     if (!trend) return 'secondary';
     return trend === 'up' ? 'default' : 'destructive';

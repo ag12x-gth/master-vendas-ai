@@ -8,7 +8,7 @@ import { getUserSession } from '@/app/actions';
  * Returns latency and throughput metrics for external API providers
  * Includes P50, P95, P99, avg latency, throughput, and error rates
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const session = await getUserSession();
     

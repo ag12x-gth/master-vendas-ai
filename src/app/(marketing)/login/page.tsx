@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
-import { BotMessageSquare, Eye, EyeOff, Loader2, AlertTriangle, Quote, Mail } from 'lucide-react';
+import { BotMessageSquare, Eye, EyeOff, Loader2, AlertTriangle, Quote } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { ThemeToggle } from '@/components/landing/theme-toggle';

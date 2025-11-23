@@ -98,7 +98,7 @@ export default function TemplatesPage() {
     }
   );
 
-  const { data: categoriesData, error: categoriesError, isLoading: categoriesLoading, mutate: mutateCategories } = useSWR<{
+  const { data: categoriesData, error: _categoriesError, isLoading: categoriesLoading, mutate: mutateCategories } = useSWR<{
     data: TemplateCategory[];
   }>(
     '/api/v1/templates/categories',
