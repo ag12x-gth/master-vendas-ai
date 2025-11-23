@@ -5691,7 +5691,627 @@ grep -rn "analytics" src/app/api/v1/ | wc -l
 
 ---
 
+---
+
+## 🚨 SEÇÃO 9: GUIA DE EMERGÊNCIA - PROBLEMAS CRÍTICOS RESOLVIDOS
+
+**TODOS os problemas abaixo SÃO REAIS e foram enfrentados durante o desenvolvimento.**
+
+**Documentação verificada**:
+- `HEALTH_CHECK_FIX.md` - Health check failures
+- `BUILD_FIX_INSTRUCTIONS.md` - Build errors
+- `BAILEYS_CONNECTION_HEALTH_FIX.md` - Baileys connection issues
+- `DEPLOYMENT_VALIDATION_REPORT.md` - Deployment validation
+- `server.js` - Error handling
+
+---
+
+### 🔴 EMERGÊNCIA #1: HEALTH CHECK FAILURE (DEPLOYMENT BLOCKER)
+
+**Status Histórico**: ❌ **FALHOU** → ✅ **RESOLVIDO**  
+**Severidade**: CRÍTICA (Bloqueia deployment)  
+**Data do Incidente**: 23 de Novembro de 2025
+
+#### Sintoma Real Observado
+
+```
+The deployment is failing health checks
+```
+
+**Fonte**: `HEALTH_CHECK_FIX.md` linha 11-14
+
+#### Root Cause Analysis (Verificado)
+
+**Problema**: Server só iniciava APÓS Next.js preparar (~30 segundos), causando timeout nos health checks.
+
+**Evidência do código ANTES** (Fonte: `HEALTH_CHECK_FIX.md` linha 16):
+```javascript
+// ❌ INCORRETO: Next.js prepara ANTES do server listen
+app.prepare().then(() => {
+  server.listen(port);  // Demora 30+ segundos!
+});
+```
+
+**Consequência Real Observada**:
+- Health checks esperavam < 1000ms
+- Server respondia em 30000ms+
+- Deploy rejeitado automaticamente
+
+#### Solução Implementada e Validada
+
+**Arquitetura Server-First** (Fonte: `server.js` linha 74-125):
+
+```javascript
+// Fonte: server.js linha 74-80
+// CRITICAL: Create HTTP server first (no Socket.IO yet)
+const server = createServer((req, res) => {
+  const { url } = req;
+  
+  // CRITICAL: Health check endpoints ALWAYS respond immediately (even if Next.js not ready)
+  if (url === '/health' || url === '/_health') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      status: 'healthy',
+      nextReady: nextReady,
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    }));
+    return;
+  }
+  
+  // For other routes, wait for Next.js
+  if (!nextReady) {
+    res.writeHead(503, { 'Content-Type': 'text/html' });
+    res.end('<html><body><h1>Loading...</h1></body></html>');
+    return;
+  }
+  
+  // Serve Next.js
+  handle(req, res, parsedUrl);
+});
+
+// Linha 125: Server is now LISTENING - health checks will work!
+server.listen(port, hostname, () => {
+  console.log(`✅ Server LISTENING on http://${hostname}:${port}`);
+});
+```
+
+**Startup Sequence Validado** (Fonte: `HEALTH_CHECK_FIX.md` linhas 78-82):
+
+```
+1. 0s:    ✅ Server listening (health checks work)
+2. ~5s:   ✅ Next.js ready
+3. ~10s:  ✅ Baileys initialized
+4. ~15s:  ✅ All schedulers active
+```
+
+#### Performance Validada
+
+**10 Testes Consecutivos** (Fonte: `DEPLOYMENT_VALIDATION_REPORT.md` linhas 27-45):
+
+| Request | Response Time | HTTP Status | Result |
+|---------|--------------|-------------|--------|
+| 1 | 80ms | 200 | ✅ PASS |
+| 2 | 79ms | 200 | ✅ PASS |
+| 3 | 70ms | 200 | ✅ PASS |
+| 4 | 79ms | 200 | ✅ PASS |
+| 5 | 96ms | 200 | ✅ PASS |
+| 6 | 71ms | 200 | ✅ PASS |
+| 7 | 83ms | 200 | ✅ PASS |
+| 8 | 93ms | 200 | ✅ PASS |
+| 9 | 99ms | 200 | ✅ PASS |
+| 10 | 99ms | 200 | ✅ PASS |
+
+**Estatísticas**:
+- Mínimo: 70ms
+- Máximo: 99ms
+- Média: 84.9ms
+- Taxa de sucesso: 100%
+- **Threshold: < 1000ms ✅**
+
+#### E2E Tests (Playwright)
+
+**Fonte**: `DEPLOYMENT_VALIDATION_REPORT.md` linhas 64-83
+
+```
+[1/2] Quick Health Check › health endpoint responds fast
+  Response time: 351ms
+  ✅ PASSED
+
+[2/2] Quick Health Check › root endpoint works
+  ✅ PASSED
+
+Result: 2 passed (2.2s)
+```
+
+#### Como Diagnosticar se Acontecer Novamente
+
+```bash
+# 1. Testar health check manualmente
+curl http://localhost:8080/health
+
+# Esperado: resposta em < 100ms
+# Se demorar > 1000ms, problema retornou
+
+# 2. Verificar logs de startup
+npm run start:prod | grep "Server LISTENING"
+
+# Esperado: mensagem aparece IMEDIATAMENTE
+# Se demorar > 5s, health checks falharão
+
+# 3. Testar E2E
+npx playwright test tests/e2e/quick-health-test.spec.ts
+
+# Esperado: 2/2 passed
+```
+
+#### Comandos de Correção
+
+```bash
+# Se o problema retornar:
+
+# 1. Verificar que server.js está correto
+grep -n "CRITICAL.*Health check" server.js
+# Deve mostrar linha 80 com comentário sobre health checks
+
+# 2. Garantir que server.listen() vem ANTES de app.prepare()
+grep -A5 "server.listen" server.js | head -10
+
+# 3. Rebuild e testar
+npm run build
+npm run start:prod
+curl http://localhost:8080/health
+```
+
+---
+
+### 🔴 EMERGÊNCIA #2: BUILD ERRORS - DYNAMIC SERVER USAGE
+
+**Status Histórico**: ❌ **131 ERROS** → ✅ **RESOLVIDO**  
+**Severidade**: ALTA (Bloqueia build de produção)  
+**Data do Incidente**: 23 de Novembro de 2025
+
+#### Sintoma Real Observado
+
+**Fonte**: `BUILD_FIX_INSTRUCTIONS.md` linhas 13-15
+
+```
+Error: Page "/api/auth/oauth-callback/route" is using `cookies()` which is a dynamic server API
+Error: Page "/api/v1/contacts/route" is using `headers()` which is a dynamic server API
+Error: Page "/api/v1/campaigns/route" is using `searchParams` which is a dynamic server API
+
+(15+ routes with "Dynamic server usage" errors)
+```
+
+#### Root Cause Analysis
+
+**Problema**: Next.js tentava pré-renderizar rotas de API que usam funções dinâmicas (`cookies()`, `headers()`, `searchParams`).
+
+**Por que isso acontece**:
+- Next.js 14 otimiza rotas por padrão (static rendering)
+- APIs que usam `cookies()` ou `headers()` não podem ser pré-renderizadas
+- Sem configuração explícita, build falha
+
+#### Solução Implementada
+
+**Adicionado em 131 arquivos** (Fonte: `BUILD_FIX_INSTRUCTIONS.md` linhas 17-26):
+
+```typescript
+// Arquivo: src/app/api/auth/oauth-callback/route.ts (exemplo)
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authConfig } from '@/lib/auth.config';
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';  // ✅ ADICIONADO
+
+export async function GET(request: NextRequest) {
+  const session = await getServerSession(authConfig); // Usa cookies()
+  // ...
+}
+```
+
+**Estatísticas da Correção** (Fonte: linhas 23-26):
+
+```
+Arquivos Corrigidos: 131 rotas de API
+Já Tinham: 32 rotas
+Total Processado: 163 rotas
+Erros: 3 (arquivos especiais sem função export)
+```
+
+#### Como Diagnosticar
+
+```bash
+# 1. Tentar build
+npm run build 2>&1 | grep "Dynamic server usage"
+
+# Se houver erros, listarão as rotas problemáticas
+
+# 2. Verificar quantas rotas têm a configuração
+grep -r "export const dynamic.*force-dynamic" src/app/api/ | wc -l
+
+# Esperado: 163+ (todas as rotas de API)
+```
+
+#### Comandos de Correção
+
+```bash
+# Se encontrar nova rota sem a configuração:
+
+# 1. Identificar arquivo problemático
+npm run build 2>&1 | grep "Dynamic server usage" | head -1
+
+# 2. Adicionar no topo do arquivo (depois dos imports)
+echo 'export const dynamic = "force-dynamic";' >> src/app/api/ROTA_PROBLEMA/route.ts
+
+# 3. Rebuild
+npm run build
+```
+
+---
+
+### 🔴 EMERGÊNCIA #3: BAILEYS CONNECTION HEALTH ERROR
+
+**Status Histórico**: ⚠️ **FALSE POSITIVE** → ✅ **RESOLVIDO**  
+**Severidade**: MÉDIA (UI mostrando erro incorreto)  
+**Data do Incidente**: Novembro de 2025
+
+#### Sintoma Real Observado
+
+**Fonte**: `BAILEYS_CONNECTION_HEALTH_FIX.md` linhas 5-6
+
+```
+Dashboard mostrando erro: "Falha ao descriptografar o token de acesso"
+Para conexões Baileys ATIVAS e FUNCIONANDO normalmente
+```
+
+#### Root Cause Analysis
+
+**Problema**: Health check endpoint tentava descriptografar `accessToken` de TODAS as conexões, incluindo Baileys.
+
+**Por que Baileys não tem accessToken** (Fonte: linhas 9-11):
+
+```
+Conexões Baileys NÃO USAM accessToken porque utilizam autenticação via QR Code.
+O campo access_token no banco de dados é NULL para Baileys.
+NULL é NORMAL e ESPERADO para esse tipo de conexão.
+```
+
+**Evidência no Banco de Dados** (Fonte: linhas 26-34):
+
+```sql
+-- Conexão "Grapfy" - Baileys funcionando corretamente
+id: 11d7b10a-94fd-43fe-9bea-073e9bd38aa5
+config_name: Grapfy
+connection_type: baileys    ← Tipo Baileys
+access_token: NULL          ← NULL é NORMAL para Baileys
+is_active: true
+status: connected           ← Funcionando!
+```
+
+**Código ANTES** (Fonte: linhas 14-23):
+
+```typescript
+// ❌ INCORRETO - Tentava descriptografar token de TODAS as conexões
+if (connection.isActive) {
+  const accessToken = decrypt(connection.accessToken); // NULL para Baileys!
+  if (!accessToken) {
+    health.status = 'error';
+    health.errorMessage = 'Falha ao desencriptar o token de acesso';
+  }
+}
+```
+
+#### Solução Implementada
+
+**Arquivo**: `src/app/api/v1/connections/health/route.ts`
+
+**Diferenciação por Tipo** (Fonte: `BAILEYS_CONNECTION_HEALTH_FIX.md` linhas 44-77):
+
+```typescript
+// ✅ CORRETO - Verifica tipo de conexão antes de validar token
+if (connection.connectionType === 'baileys' || !connection.connectionType) {
+  // Baileys connection - considerada saudável se ativa
+  health.status = 'healthy';
+} else {
+  // Meta API connection - verificar token
+  if (!connection.accessToken) {
+    health.status = 'error';
+    health.errorMessage = 'Token de acesso não configurado';
+  } else {
+    const accessToken = decrypt(connection.accessToken);
+    if (!accessToken) {
+      health.status = 'error';
+      health.errorMessage = 'Falha ao desencriptar o token de acesso';
+    } else {
+      // Testar token com API do Facebook
+      const response = await fetch(
+        `https://graph.facebook.com/${FACEBOOK_API_VERSION}/${connection.phoneNumberId}`,
+        {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        }
+      );
+      
+      if (!response.ok) {
+        health.status = 'expired';
+        health.errorMessage = 'Token de acesso inválido ou expirado';
+      }
+    }
+  }
+}
+```
+
+**Resultado Esperado** (Fonte: linhas 113-123):
+
+```
+Conexões Baileys:
+- ✅ Status: healthy (se ativa)
+- ✅ Sem erros no dashboard
+- ✅ Não tenta descriptografar token (não existe)
+
+Conexões Meta Cloud API:
+- ✅ Verifica token normalmente
+- ✅ Testa com API do Facebook
+- ✅ Detecta tokens expirados/inválidos
+```
+
+#### Como Diagnosticar
+
+```bash
+# 1. Verificar tipos de conexão no banco
+psql $DATABASE_URL -c "SELECT config_name, connection_type, access_token IS NOT NULL as has_token, is_active, status FROM connections;"
+
+# Esperado:
+# - Baileys: connection_type='baileys', has_token=false
+# - Meta API: connection_type='meta_api', has_token=true
+
+# 2. Testar health check endpoint
+curl http://localhost:8080/api/v1/connections/health
+
+# Esperado: Baileys com status='healthy', Meta API verificado
+```
+
+#### Comandos de Correção
+
+```bash
+# Se o erro retornar:
+
+# 1. Verificar se route.ts tem diferenciação por tipo
+grep -A10 "connectionType.*baileys" src/app/api/v1/connections/health/route.ts
+
+# Deve mostrar: if (connection.connectionType === 'baileys')
+
+# 2. Verificar query incluindo connectionType
+grep "connectionType:" src/app/api/v1/connections/health/route.ts
+
+# Deve ter: connectionType: connections.connectionType
+```
+
+---
+
+### 🔴 EMERGÊNCIA #4: REDIS CONNECTION ERRORS DURING BUILD
+
+**Status Histórico**: ⚠️ **EXPECTED** → ✅ **NOT A PROBLEM**  
+**Severidade**: BAIXA (Warning, não erro)  
+**Data de Esclarecimento**: 23 de Novembro de 2025
+
+#### Sintoma Real Observado
+
+**Fonte**: `BUILD_FIX_INSTRUCTIONS.md` linhas 75-78
+
+```
+[ioredis] Error: connect ECONNREFUSED 127.0.0.1:6379
+```
+
+#### Por que isso NÃO é um Problema
+
+**Explicação** (Fonte: linhas 80-85):
+
+```
+Durante o BUILD, não há Redis disponível.
+O código já tem FALLBACK AUTOMÁTICO para in-memory cache.
+Em PRODUÇÃO, o HybridRedisClient conecta corretamente ao Redis do Replit.
+```
+
+**Código com Fallback** (Fonte: linhas 87-94):
+
+```typescript
+// src/lib/cache/hybrid-redis.ts
+// Já implementado: fallback automático
+if (!redisAvailable) {
+  console.warn('⚠️ Redis not available, using in-memory cache');
+  return inMemoryCache;
+}
+```
+
+#### Quando Redis ESTÁ Disponível
+
+- ✅ **Produção (Replit VM)**: Redis conecta automaticamente
+- ✅ **Desenvolvimento**: Se Redis instalado localmente
+- ⚠️ **Build Time**: Redis não disponível → usa in-memory (NORMAL)
+
+#### HybridRedisClient - Operações NÃO Suportadas
+
+**Fonte**: `replit.md` linhas 127-131
+
+```
+These Redis operations are NOT supported and were removed/replaced:
+- Pipeline transactions (redis.pipeline())
+- Server info commands (redis.info())
+- Sorted set operations (redis.zrange(), redis.zadd(), etc.)
+- Multiple key delete with spread (redis.del(...keys))
+- Hash getall (redis.hgetall())
+
+Workaround: All critical operations now use sequential individual calls
+```
+
+#### Como Verificar
+
+```bash
+# 1. Verificar se fallback está funcionando
+npm run build 2>&1 | grep "Redis not available"
+
+# Esperado: mensagem de warning (não erro)
+
+# 2. Em produção, verificar conexão Redis
+curl http://localhost:8080/api/v1/cache/metrics
+
+# Esperado: redisConnected: true (em produção)
+```
+
+---
+
+### 🔴 EMERGÊNCIA #5: PORT CONFIGURATION FOR DEPLOYMENT
+
+**Status Histórico**: ⚠️ **MISCONFIGURED** → ⚠️ **REQUIRES MANUAL FIX**  
+**Severidade**: CRÍTICA (Bloqueia deployment VM/Autoscale)  
+**Data de Identificação**: 23 de Novembro de 2025
+
+#### Sintoma Real
+
+**Fonte**: `BUILD_FIX_INSTRUCTIONS.md` linhas 45-48
+
+```
+Deploy VM/Autoscale requer apenas 1 porta externa.
+Configuração atual no .replit tem 13 portas configuradas.
+```
+
+#### Root Cause
+
+**Problema**: Arquivo `.replit` tem múltiplas portas externas, mas VM/Autoscale só suporta 1.
+
+**Status Atual** (Fonte: linhas 50-54):
+
+```toml
+[[ports]]
+localPort = 8080
+externalPort = 8080  ❌ Deve ser 80 para deploy
+```
+
+#### Solução Manual Requerida
+
+**Correção Necessária** (Fonte: linhas 56-61):
+
+```toml
+[[ports]]
+localPort = 8080
+externalPort = 80  ✅ Para deploy em produção
+```
+
+**Por que Manual** (Fonte: linha 69):
+```
+Agente não pode editar .replit diretamente por segurança
+```
+
+#### Passos de Correção
+
+**Fonte**: `BUILD_FIX_INSTRUCTIONS.md` linhas 63-67
+
+```
+1. Abra o arquivo .replit no editor
+2. Localize a linha externalPort = 8080
+3. Mude para externalPort = 80
+4. Salve o arquivo
+5. Remova TODAS as outras seções [[ports]] (deixe apenas 1)
+```
+
+#### Validação
+
+```bash
+# 1. Verificar configuração de porta
+grep -A2 "\[\[ports\]\]" .replit | head -6
+
+# Esperado: apenas 1 seção [[ports]]
+# localPort = 8080
+# externalPort = 80
+
+# 2. Contar quantas portas estão configuradas
+grep -c "\[\[ports\]\]" .replit
+
+# Esperado: 1 (apenas uma porta)
+```
+
+---
+
+## 📋 RESUMO DAS EMERGÊNCIAS REAIS
+
+| # | Problema | Severidade | Status | Arquivo Evidência |
+|---|----------|-----------|--------|------------------|
+| 1 | Health Check Failure | CRÍTICA | ✅ RESOLVIDO | HEALTH_CHECK_FIX.md |
+| 2 | Build Errors (Dynamic Server) | ALTA | ✅ RESOLVIDO | BUILD_FIX_INSTRUCTIONS.md |
+| 3 | Baileys Token Error | MÉDIA | ✅ RESOLVIDO | BAILEYS_CONNECTION_HEALTH_FIX.md |
+| 4 | Redis Connection Warnings | BAIXA | ✅ NOT A PROBLEM | BUILD_FIX_INSTRUCTIONS.md |
+| 5 | Port Configuration | CRÍTICA | ⚠️ MANUAL FIX | fix-deployment-ports.md |
+
+---
+
+## 🛠️ FERRAMENTAS DE DIAGNÓSTICO RÁPIDO
+
+### Health Check (< 1 min)
+
+```bash
+# Testar todos os endpoints críticos
+curl -w "\nTime: %{time_total}s\n" http://localhost:8080/health
+curl http://localhost:8080/api/v1/connections/health
+curl http://localhost:8080/api/v1/cache/metrics
+```
+
+**Esperado**:
+- `/health`: < 100ms, status: healthy
+- `/connections/health`: Baileys=healthy, Meta=verified
+- `/cache/metrics`: redisConnected: true
+
+### Build Validation (2-3 min)
+
+```bash
+# Build completo
+npm run build 2>&1 | tee build.log
+
+# Verificar erros críticos
+grep -i "error" build.log | grep -v "warn"
+
+# Esperado: 0 errors
+```
+
+### Server Startup (30s)
+
+```bash
+# Iniciar produção
+npm run start:prod 2>&1 | tee server.log &
+
+# Monitorar startup sequence
+tail -f server.log | grep -E "LISTENING|ready|initialized"
+
+# Esperado (em ordem):
+# ✅ Server LISTENING
+# ✅ Next.js ready!
+# ✅ Baileys initialized
+# ✅ Schedulers ready
+```
+
+---
+
+## ✅ VALIDAÇÃO COMPLETA
+
+**Todos os 5 problemas acima foram REAIS, documentados, e resolvidos:**
+
+1. ✅ **Health Check**: Resolvido com Server-First Architecture
+2. ✅ **Build Errors**: 131 rotas corrigidas com `dynamic = 'force-dynamic'`
+3. ✅ **Baileys Error**: Health check diferencia Meta API vs Baileys
+4. ✅ **Redis Warnings**: Fallback automático funcionando
+5. ⚠️ **Port Config**: Requer correção manual do `.replit`
+
+**Evidências**:
+- 8 arquivos de documentação de problemas
+- Logs reais de errors
+- Comandos de validação testados
+- Performance metrics validados
+
+---
+
 **Criado por**: Replit Agent (Agente Anterior)  
 **Data**: 23 de Novembro de 2025  
-**Versão**: 1.6 - Contexto + Segurança + Evidências + Comandos + Fluxogramas + Métricas + Casos de Uso  
+**Versão**: 1.7 - Contexto + Segurança + Evidências + Comandos + Fluxogramas + Métricas + Casos de Uso + Emergências  
 **Status**: ✅ PRONTO PARA TRANSFERÊNCIA
