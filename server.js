@@ -74,6 +74,18 @@ app.prepare().then(() => {
       const parsedUrl = parse(req.url, true);
       const { pathname, query } = parsedUrl;
 
+      // Fast health check endpoint for Replit deployments
+      if (pathname === '/health' || pathname === '/_health') {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify({ 
+          status: 'ok', 
+          timestamp: new Date().toISOString(),
+          uptime: process.uptime()
+        }));
+        return;
+      }
+
       if (pathname === '/a') {
         await app.render(req, res, '/a', query);
       } else if (pathname === '/b') {
@@ -134,7 +146,7 @@ app.prepare().then(() => {
     console.log('Fallback Socket.IO made globally available');
   }
 
-  server.listen(port, async (err) => {
+  server.listen(port, (err) => {
     if (err) {
       if (err.code === 'EADDRINUSE') {
         console.error(`❌ Porta ${port} já está em uso!`);
@@ -157,13 +169,17 @@ app.prepare().then(() => {
       console.log(`> Ready on http://${hostname}:${port}`);
       console.log('> Socket.IO server initialized');
       
-      try {
-        require('tsx/cjs');
-        const { sessionManager } = require('./src/services/baileys-session-manager.ts');
-        await sessionManager.initializeSessions();
-      } catch (error) {
-        console.error('❌ Baileys session initialization error:', error.message);
-      }
+      // Initialize all heavy services asynchronously (non-blocking)
+      // This ensures health checks respond immediately while services start in background
+      (async () => {
+        try {
+          require('tsx/cjs');
+          const { sessionManager } = require('./src/services/baileys-session-manager.ts');
+          await sessionManager.initializeSessions();
+        } catch (error) {
+          console.error('❌ Baileys session initialization error:', error.message);
+        }
+      })();
       
       // Campaign Queue Processor - Executa a cada 1 minuto
       const processCampaignQueue = async () => {
@@ -178,22 +194,24 @@ app.prepare().then(() => {
         }
       };
       
-      // Inicia o processador após 10 segundos (aguarda servidor estabilizar)
+      // Inicia o processador após 15 segundos (aguarda servidor e health checks estabilizarem)
       setTimeout(() => {
         console.log('[Campaign Processor] Scheduler iniciado - processando a cada 60 segundos');
         processCampaignQueue(); // Executa imediatamente
         setInterval(processCampaignQueue, 60000); // Depois a cada 1 minuto
-      }, 10000);
+      }, 15000);
       
-      // Cadence Scheduler - Detector diário + Processor horário
-      try {
-        require('tsx/cjs');
-        const { startCadenceScheduler } = require('./src/lib/cadence-scheduler.ts');
-        startCadenceScheduler();
-        console.log('✅ Cadence Scheduler initialized successfully');
-      } catch (error) {
-        console.error('❌ Cadence Scheduler initialization error:', error.message);
-      }
+      // Cadence Scheduler - Detector diário + Processor horário (async, non-blocking)
+      setTimeout(() => {
+        try {
+          require('tsx/cjs');
+          const { startCadenceScheduler } = require('./src/lib/cadence-scheduler.ts');
+          startCadenceScheduler();
+          console.log('✅ Cadence Scheduler initialized successfully');
+        } catch (error) {
+          console.error('❌ Cadence Scheduler initialization error:', error.message);
+        }
+      }, 5000);
     }
   });
 });

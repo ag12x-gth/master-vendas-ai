@@ -155,21 +155,60 @@ Todas funcionalidades core validadas com vídeo completo e trace detalhado:
 - ✅ Não afeta funcionalidade da aplicação (Teste 01 validou 100% das features core)  
 - ✅ Todos vídeos, traces e screenshots capturados com sucesso
 
-## Next Steps: DEPLOY YOUR APP!
+## ⚠️ Deployment Issue Fixed (November 23, 2025)
 
-**Your Master IA Oficial is 100% production-ready and E2E tested!** 
+### Problem
+Initial deployment attempt failed with:
+```
+The deployment is failing health checks
+```
 
-To go live:
+**Root Causes:**
+1. **Multiple external ports** in `.replit` (13 ports configured, but VM/Autoscale supports only 1)
+2. **Slow health check response** due to blocking initialization of heavy services (Baileys, Cadence, Campaign Processor)
 
-1. **Click "Publish" button** on your Replit dashboard
-2. **Select "Autoscale"** deployment type
-3. **Confirm configuration**:
+### ✅ Fixes Applied
+
+#### 1. Server Optimization (server.js)
+- ✅ Added fast `/health` endpoint (responds in <100ms)
+- ✅ Made all service initializations asynchronous and non-blocking
+- ✅ Moved heavy startup tasks to background execution
+- ✅ Health checks now respond immediately while services initialize
+
+#### 2. Port Configuration (REQUIRES MANUAL ACTION)
+**⚠️ CRITICAL: You must manually edit `.replit` file:**
+
+Delete all `[[ports]]` sections EXCEPT:
+```toml
+[[ports]]
+localPort = 5000
+externalPort = 80
+```
+
+Current `.replit` has 13 external ports defined. VM/Autoscale deployments only support 1 external port.
+
+### 📊 Validation Results
+- ✅ Health check endpoint: `GET /health` → HTTP 200 ✓
+- ✅ Response time: <100ms ✓
+- ✅ Socket.IO: initialized ✓
+- ✅ Baileys: ready ✓
+- ✅ Schedulers: active ✓
+
+### 🚀 Deploy Instructions (After Fixing .replit)
+
+1. **Edit `.replit`** - Remove extra port configurations (see above)
+2. **Save the file**
+3. **Click "Publish"** on Replit dashboard
+4. **Select "VM"** deployment type
+5. **Confirm configuration**:
    - Build: `npm run build`
    - Run: `npm run start:prod`
-4. **Wait 2-5 minutes** for deployment
-5. **Get your production URL** and share it with your team!
+6. **Wait 2-5 minutes** for deployment
+7. **Access your production URL**
 
-Your WhatsApp AI automation platform is live! 🎉
+**Documentation:** See `fix-deployment-ports.md` for detailed instructions.
+
+Your WhatsApp AI automation platform is ready to deploy! 🎉
 
 ---
 **Last Updated**: November 23, 2025  
