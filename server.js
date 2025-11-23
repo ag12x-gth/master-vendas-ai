@@ -77,8 +77,8 @@ const server = createServer(async (req, res) => {
     const parsedUrl = parse(req.url, true);
     const { pathname, query } = parsedUrl;
 
-    // CRITICAL: Health check ALWAYS responds immediately (even if Next.js not ready)
-    if (pathname === '/health' || pathname === '/_health' || pathname === '/') {
+    // CRITICAL: Health check endpoints ALWAYS respond immediately (even if Next.js not ready)
+    if (pathname === '/health' || pathname === '/_health') {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -91,10 +91,11 @@ const server = createServer(async (req, res) => {
       return;
     }
 
-    // If Next.js not ready yet, return loading page
+    // If Next.js not ready yet, return loading page (including for root)
     if (!nextReady) {
       res.statusCode = 503;
       res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.end('<html><body><h1>Starting...</h1><p>Server is initializing, please wait.</p></body></html>');
       return;
     }
@@ -123,7 +124,7 @@ server.listen(port, hostname, (err) => {
   
   // Server is now LISTENING - health checks will work!
   console.log(`✅ Server LISTENING on http://${hostname}:${port}`);
-  console.log('✅ Health endpoint ready: GET / or /health');
+  console.log('✅ Health endpoints ready: GET /health or /_health');
   
   // STEP 2: Initialize Socket.IO (after server is listening)
   let io;

@@ -17,11 +17,27 @@ test.describe('Quick Health Check', () => {
     expect(body.status).toBe('healthy');
   });
   
-  test('root endpoint works', async ({ request }) => {
-    const response = await request.get(`${BASE_URL}/`);
-    expect(response.status()).toBe(200);
+  test('root endpoint serves Next.js (not health JSON)', async ({ request }) => {
+    const response = await request.get(`${BASE_URL}/`, {
+      maxRedirects: 0
+    });
     
-    const body = await response.json();
-    expect(body.status).toBe('healthy');
+    const status = response.status();
+    console.log(`Root endpoint: HTTP ${status}`);
+    
+    // Should be redirect or HTML page (not JSON health response)
+    expect([200, 307, 308]).toContain(status);
+    
+    // If it's a redirect, we're good (Next.js is serving)
+    if (status === 307 || status === 308) {
+      const location = response.headers()['location'] || '';
+      console.log(`✅ Next.js redirecting to: ${location}`);
+      expect(location.length).toBeGreaterThan(0);
+    } else {
+      // If 200, should be HTML not JSON
+      const contentType = response.headers()['content-type'] || '';
+      expect(contentType).toContain('text/html');
+      console.log(`✅ Next.js serving HTML - Content-Type: ${contentType}`);
+    }
   });
 });
