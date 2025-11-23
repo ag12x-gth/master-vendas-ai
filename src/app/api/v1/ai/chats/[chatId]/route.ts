@@ -1,7 +1,4 @@
-
 // src/app/api/v1/ai/chats/[chatId]/route.ts
-'use server';
-
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { aiChats } from '@/lib/db/schema';

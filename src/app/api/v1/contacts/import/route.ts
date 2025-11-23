@@ -1,4 +1,3 @@
-'use server';
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { contacts, contactsToContactLists, contactsToTags } from '@/lib/db/schema';

@@ -1,6 +1,4 @@
 // src/app/api/auth/resend-verification/route.ts
-'use server';
-
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { users, emailVerificationTokens } from '@/lib/db/schema';

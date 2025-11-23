@@ -1,6 +1,4 @@
 // src/app/api/auth/register/route.ts
-'use server';
-
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { users, companies, emailVerificationTokens } from '@/lib/db/schema';

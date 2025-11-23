@@ -1,6 +1,5 @@
 
 // src/app/api/v1/conversations/start/route.ts
-'use server';
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';

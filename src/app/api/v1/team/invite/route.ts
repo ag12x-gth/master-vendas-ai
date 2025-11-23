@@ -1,5 +1,4 @@
 // src/app/api/v1/team/invite/route.ts
-'use server';
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db, users, emailVerificationTokens } from '@/lib/db';

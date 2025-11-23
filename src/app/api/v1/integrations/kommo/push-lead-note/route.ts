@@ -1,5 +1,4 @@
 // src/app/api/v1/integrations/kommo/push-lead-note/route.ts
-'use server';
 
 import { NextResponse, type NextRequest } from 'next/server';
 

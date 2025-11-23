@@ -1,5 +1,4 @@
 // src/app/api/v1/integrations/kommo/push-contact/route.ts
-'use server';
 
 import { NextResponse, type NextRequest } from 'next/server';
 

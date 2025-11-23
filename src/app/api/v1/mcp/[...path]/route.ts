@@ -1,5 +1,4 @@
 // src/app/api/v1/mcp/[...path]/route.ts
-'use server';
 
 import { NextResponse, type NextRequest } from 'next/server';
 

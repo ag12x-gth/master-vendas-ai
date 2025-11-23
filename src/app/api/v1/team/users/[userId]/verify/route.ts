@@ -1,5 +1,4 @@
 // src/app/api/v1/team/users/[userId]/verify/route.ts
-'use server';
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db, users } from '@/lib/db';
