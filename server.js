@@ -71,7 +71,7 @@ const handle = app.getRequestHandler();
 // Track if Next.js is ready
 let nextReady = false;
 
-// Start server IMMEDIATELY - don't wait for Next.js to be ready
+// CRITICAL: Create HTTP server first (no Socket.IO yet)
 const server = createServer(async (req, res) => {
   try {
     const parsedUrl = parse(req.url, true);
@@ -114,129 +114,105 @@ const server = createServer(async (req, res) => {
   }
 });
 
-// Initialize Socket.IO service
-let io;
-try {
-  // Use tsx/cjs to enable TypeScript imports in Node.js
-  require('tsx/cjs');
-  const { initializeSocketIO } = require('./src/lib/socket.ts');
-  // Pass the server and get the Socket.IO instance back
-  io = initializeSocketIO(server);
-  // Make Socket.IO globally available
-  global.io = io;
-  console.log('Socket.IO service initialized and made globally available');
-} catch (error) {
-  console.log('Socket.IO initialization error:', error.message);
-  console.log('Using fallback Socket.IO setup...');
-  
-  // Fallback: Create basic Socket.IO setup if the full service fails
-  const { Server } = require('socket.io');
-  io = new Server(server, {
-    cors: {
-      origin: process.env.NODE_ENV === 'production' 
-        ? [process.env.NEXT_PUBLIC_BASE_URL || '']
-        : ['http://localhost:8080', 'http://localhost:3000', 'http://0.0.0.0:8080'],
-      methods: ['GET', 'POST'],
-      credentials: true,
-    },
-    transports: ['websocket', 'polling'],
-  });
-  
-  io.on('connection', (socket) => {
-    console.log('Client connected:', socket.id);
-
-    socket.on('join_meeting', (meetingId) => {
-      socket.join(`meeting:${meetingId}`);
-      console.log(`Socket ${socket.id} joined meeting: ${meetingId}`);
-    });
-
-    socket.on('disconnect', () => {
-      console.log('Client disconnected:', socket.id);
-    });
-  });
-
-  // Make fallback Socket.IO globally available too
-  global.io = io;
-  console.log('Fallback Socket.IO made globally available');
-}
-
-// Start server IMMEDIATELY (before Next.js prepares)
-server.listen(port, (err) => {
+// STEP 1: Start server IMMEDIATELY (NOTHING BEFORE THIS)
+server.listen(port, hostname, (err) => {
   if (err) {
-    if (err.code === 'EADDRINUSE') {
-      console.error(`❌ Porta ${port} já está em uso!`);
-      console.log('🔧 Tentando auto-fix...');
-      
-      const { exec } = require('child_process');
-      exec('bash scripts/auto-fix-server.sh', (error, stdout, stderr) => {
-        if (error) {
-          console.error('Auto-fix falhou:', error);
-          process.exit(1);
-        }
-        console.log(stdout);
-        console.log('✅ Auto-fix concluído. Reinicie o servidor.');
-        process.exit(0);
-      });
-    } else {
-      throw err;
-    }
-  } else {
-    console.log(`> Server listening on http://${hostname}:${port}`);
-    console.log('> Health checks will respond immediately');
-    console.log('> Next.js preparing in background...');
+    console.error(`❌ Failed to start server:`, err.message);
+    process.exit(1);
+  }
+  
+  // Server is now LISTENING - health checks will work!
+  console.log(`✅ Server LISTENING on http://${hostname}:${port}`);
+  console.log('✅ Health endpoint ready: GET / or /health');
+  
+  // STEP 2: Initialize Socket.IO (after server is listening)
+  let io;
+  try {
+    require('tsx/cjs');
+    const { initializeSocketIO } = require('./src/lib/socket.ts');
+    io = initializeSocketIO(server);
+    global.io = io;
+    console.log('✅ Socket.IO initialized');
+  } catch (error) {
+    console.log('⚠️ Socket.IO initialization failed, using fallback');
+    const { Server } = require('socket.io');
+    io = new Server(server, {
+      cors: {
+        origin: process.env.NODE_ENV === 'production' 
+          ? [process.env.NEXT_PUBLIC_BASE_URL || '']
+          : ['http://localhost:8080', 'http://localhost:3000', 'http://0.0.0.0:8080'],
+        methods: ['GET', 'POST'],
+        credentials: true,
+      },
+      transports: ['websocket', 'polling'],
+    });
     
-    // Prepare Next.js in background (non-blocking for health checks)
-    app.prepare().then(() => {
-      nextReady = true;
-      console.log('> Next.js ready!');
-      console.log('> Socket.IO server initialized');
-      
-      // Initialize all heavy services asynchronously (non-blocking)
-      // This ensures health checks respond immediately while services start in background
-      (async () => {
-        try {
-          require('tsx/cjs');
-          const { sessionManager } = require('./src/services/baileys-session-manager.ts');
-          await sessionManager.initializeSessions();
-        } catch (error) {
-          console.error('❌ Baileys session initialization error:', error.message);
-        }
-      })();
-      
-      // Campaign Queue Processor - Executa a cada 1 minuto
+    io.on('connection', (socket) => {
+      console.log('Client connected:', socket.id);
+      socket.on('join_meeting', (meetingId) => {
+        socket.join(`meeting:${meetingId}`);
+      });
+      socket.on('disconnect', () => {
+        console.log('Client disconnected:', socket.id);
+      });
+    });
+    
+    global.io = io;
+    console.log('✅ Fallback Socket.IO initialized');
+  }
+  
+  // STEP 3: Prepare Next.js in background
+  console.log('🔄 Preparing Next.js in background...');
+  
+  app.prepare().then(() => {
+    nextReady = true;
+    console.log('✅ Next.js ready!');
+    
+    // STEP 4: Initialize heavy services (after Next.js is ready)
+    (async () => {
+      try {
+        require('tsx/cjs');
+        const { sessionManager } = require('./src/services/baileys-session-manager.ts');
+        await sessionManager.initializeSessions();
+        console.log('✅ Baileys initialized');
+      } catch (error) {
+        console.error('❌ Baileys error:', error.message);
+      }
+    })();
+    
+    // STEP 5: Start schedulers (delayed for stability)
+    setTimeout(() => {
+      try {
+        require('tsx/cjs');
+        const { startCadenceScheduler } = require('./src/lib/cadence-scheduler.ts');
+        startCadenceScheduler();
+        console.log('✅ Cadence Scheduler ready');
+      } catch (error) {
+        console.error('❌ Cadence Scheduler error:', error.message);
+      }
+    }, 5000);
+    
+    // STEP 6: Start campaign processor (delayed for stability)
+    setTimeout(() => {
       const processCampaignQueue = async () => {
         try {
           const response = await fetch(`http://localhost:${port}/api/v1/campaigns/trigger`);
           const data = await response.json();
           if (data.processed > 0) {
-            console.log(`[Campaign Processor] ${data.processed} campanhas processadas às ${data.now}`);
+            console.log(`[Campaign Processor] ${data.processed} processed`);
           }
         } catch (error) {
-          console.error('[Campaign Processor] Erro:', error.message);
+          // Silent failure - don't spam logs
         }
       };
       
-      // Inicia o processador após 15 segundos (aguarda servidor e health checks estabilizarem)
-      setTimeout(() => {
-        console.log('[Campaign Processor] Scheduler iniciado - processando a cada 60 segundos');
-        processCampaignQueue(); // Executa imediatamente
-        setInterval(processCampaignQueue, 60000); // Depois a cada 1 minuto
-      }, 15000);
-      
-      // Cadence Scheduler - Detector diário + Processor horário (async, non-blocking)
-      setTimeout(() => {
-        try {
-          require('tsx/cjs');
-          const { startCadenceScheduler } = require('./src/lib/cadence-scheduler.ts');
-          startCadenceScheduler();
-          console.log('✅ Cadence Scheduler initialized successfully');
-        } catch (error) {
-          console.error('❌ Cadence Scheduler initialization error:', error.message);
-        }
-      }, 5000);
-    }).catch(err => {
-      console.error('❌ Next.js preparation failed:', err);
-      process.exit(1);
-    });
-  }
+      console.log('✅ Campaign Processor ready');
+      processCampaignQueue(); // Execute once
+      setInterval(processCampaignQueue, 60000); // Then every 60s
+    }, 15000);
+    
+  }).catch(err => {
+    console.error('❌ Next.js preparation failed:', err);
+    process.exit(1);
+  });
 });
