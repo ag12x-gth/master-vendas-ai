@@ -39,7 +39,7 @@ ESTADO ATUAL DO SERVIDOR:
 ✅ Health checks: Passando (< 100ms)
 ✅ Next.js: Servindo rotas corretamente
 ✅ Socket.IO: Operacional
-✅ Baileys: 0 sessões ativas (pronto para conexões)
+✅ Baileys: 16 sessões armazenadas em whatsapp_sessions/ (43.766 arquivos, 174MB - verificado 23/Nov/2025)
 ✅ Schedulers: Cadence scheduler ativo
 ✅ Testes E2E: 2/2 aprovados com Playwright
 
