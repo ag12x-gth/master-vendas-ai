@@ -5,6 +5,10 @@ import { db } from '@/lib/db';
 import { aiPersonas, personaPromptSections } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: { personaId: string; sectionId: string } }

@@ -5,6 +5,10 @@ import { db } from '@/lib/db';
 import { companies, connections } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);

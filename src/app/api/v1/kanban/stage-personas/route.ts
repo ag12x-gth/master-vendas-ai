@@ -12,6 +12,10 @@ const stagePersonaCreateSchema = z.object({
   passivePersonaId: z.string().uuid('ID do agente passivo inválido').nullable().optional(),
 });
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getUserSession();

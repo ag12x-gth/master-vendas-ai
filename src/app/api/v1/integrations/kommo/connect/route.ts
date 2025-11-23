@@ -14,6 +14,10 @@ const connectSchema = z.object({
   authType: z.enum(['oauth', 'token']),
 });
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
     let integrationId: string | null = null;
     try {

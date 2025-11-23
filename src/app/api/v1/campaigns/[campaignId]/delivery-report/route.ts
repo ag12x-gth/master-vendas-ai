@@ -6,6 +6,10 @@ import { campaigns, whatsappDeliveryReports, smsDeliveryReports, contacts } from
 import { eq, and, desc } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest, { params }: { params: { campaignId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

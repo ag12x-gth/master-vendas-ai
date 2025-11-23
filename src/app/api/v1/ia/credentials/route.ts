@@ -15,6 +15,10 @@ const credentialSchema = z.object({
   apiKey: z.string().min(1, 'A chave de API é obrigatória.'),
 });
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(_request: NextRequest) {
     try {
         const companyId = await getCompanyIdFromSession();

@@ -25,6 +25,10 @@ const whatsappCampaignSchema = z.object({
   mediaAssetId: z.string().uuid('Asset de mídia inválido').optional().nullable(),
 });
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
         const companyId = await getCompanyIdFromSession();

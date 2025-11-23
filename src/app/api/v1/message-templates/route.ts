@@ -5,6 +5,10 @@ import { messageTemplates, connections } from '@/lib/db/schema';
 import { eq, and, or, like, desc } from 'drizzle-orm';
 import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const { user } = await getUserSession();
   if (!user || !user.companyId) {

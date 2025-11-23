@@ -5,6 +5,10 @@ import {
   getSchedulerStatus,
 } from '@/lib/notifications/report-scheduler';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST() {
   try {
     startReportScheduler();

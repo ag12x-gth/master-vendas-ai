@@ -13,6 +13,10 @@ const getJwtSecretKey = () => {
     return new TextEncoder().encode(secret);
 };
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function DELETE(request: NextRequest, { params }: { params: { userId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

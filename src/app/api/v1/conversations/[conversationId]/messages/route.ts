@@ -43,6 +43,10 @@ async function canSendFreeFormMessage(conversationId: string): Promise<boolean> 
     return new Date(lastUserMessage.sentAt) > twentyFourHoursAgo;
 }
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(_request: NextRequest, { params }: { params: { conversationId: string } }): Promise<NextResponse> {
     try {
         const { conversationId } = params;

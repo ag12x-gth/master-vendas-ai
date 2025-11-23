@@ -14,6 +14,10 @@ const routingUpdateSchema = z.array(z.object({
     personaId: z.string().uuid().or(z.literal('manual')).nullable(),
 }));
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
     try {
         const companyId = await getCompanyIdFromSession();

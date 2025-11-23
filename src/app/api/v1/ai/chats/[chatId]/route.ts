@@ -13,6 +13,10 @@ const chatUpdateSchema = z.object({
   title: z.string().min(1, 'O título é obrigatório.'),
 });
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function PUT(request: NextRequest, { params }: { params: { chatId: string } }) {
     try {
         const session = await getUserSession();

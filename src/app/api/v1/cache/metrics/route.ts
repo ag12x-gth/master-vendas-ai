@@ -3,6 +3,10 @@ import { NextResponse } from 'next/server';
 import { getUserSession } from '@/app/actions';
 import { CacheMetrics } from '@/lib/cache/metrics';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export const runtime = 'nodejs';
 
 const responseHeaders = {

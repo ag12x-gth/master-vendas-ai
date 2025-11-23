@@ -16,6 +16,10 @@ const gatewayUpdateSchema = z.object({
 
 
 // PUT /api/v1/sms-gateways/[gatewayId]
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function PUT(request: NextRequest, { params }: { params: { gatewayId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

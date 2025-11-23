@@ -24,6 +24,10 @@ const createExpirationDate = (hours: number): Date => {
   return date;
 };
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
     try {
         const companyId = await getCompanyIdFromSession();

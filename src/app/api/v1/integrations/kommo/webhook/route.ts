@@ -1,6 +1,10 @@
 // src/app/api/v1/integrations/kommo/webhook/route.ts
 import { NextResponse, type NextRequest } from 'next/server';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const payload = await request.json();

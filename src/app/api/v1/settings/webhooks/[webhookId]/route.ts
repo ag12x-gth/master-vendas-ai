@@ -17,6 +17,10 @@ const webhookUpdateSchema = z.object({
 
 
 // PUT /api/v1/settings/webhooks/[webhookId] - Update a webhook
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function PUT(request: NextRequest, { params }: { params: { webhookId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

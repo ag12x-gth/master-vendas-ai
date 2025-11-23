@@ -15,6 +15,10 @@ const SMS_CAMPAIGN_QUEUE = 'sms_campaign_queue';
 /**
  * Endpoint para forçar o envio de UMA campanha específica.
  */
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest, { params }: { params: { campaignId: string } }) {
     const { campaignId } = params;
     

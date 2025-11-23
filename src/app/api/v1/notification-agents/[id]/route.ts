@@ -24,6 +24,10 @@ const updateAgentSchema = z.object({
   groupJids: z.array(z.string()).optional(),
 });
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }

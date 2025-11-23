@@ -8,6 +8,10 @@ import { getUserSession } from '@/app/actions';
 import { eq, desc } from 'drizzle-orm';
 
 // GET /api/v1/ai/chats - List all AI chats for the user
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(_request: NextRequest) {
     try {
         const session = await getUserSession();

@@ -17,6 +17,10 @@ import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
 import { UserNotificationsService } from '@/lib/notifications/user-notifications.service';
 
 // GET /api/webhooks/meta/[slug] - Used for Facebook Webhook Verification
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
     const { searchParams } = new URL(request.url);
     const mode = searchParams.get('hub.mode');

@@ -43,5 +43,9 @@ async function handler(request: NextRequest) {
 }
 
 // Apply rate limiting
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export const GET = withRateLimit(handler);
 export const POST = withRateLimit(handler);

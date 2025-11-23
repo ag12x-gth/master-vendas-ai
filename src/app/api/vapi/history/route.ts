@@ -4,6 +4,10 @@ import { db } from '@/lib/db';
 import { vapiCalls } from '@/lib/db/schema';
 import { eq, and, gte, lte, desc, sql, or, ilike } from 'drizzle-orm';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getUserSession();

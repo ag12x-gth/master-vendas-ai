@@ -5,6 +5,10 @@ import { eq, and, sql, desc, like, or } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 
 // GET - Listar todos os agentes de notificação
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();

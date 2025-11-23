@@ -27,6 +27,10 @@ const ruleUpdateSchema = z.object({
 
 
 // PUT /api/v1/automations/[ruleId]
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function PUT(request: NextRequest, { params }: { params: { ruleId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

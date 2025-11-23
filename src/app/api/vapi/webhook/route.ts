@@ -49,6 +49,10 @@ async function verifyVapiSignature(request: NextRequest, body: string): Promise<
   return isValid;
 }
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     // Allow test mode via query parameter (for Vapi validation)

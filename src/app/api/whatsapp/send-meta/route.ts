@@ -8,6 +8,10 @@ interface SendMetaRequest {
   templateParams?: string[];
 }
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const { to, message, type = 'text', templateName, templateParams }: SendMetaRequest = await request.json();

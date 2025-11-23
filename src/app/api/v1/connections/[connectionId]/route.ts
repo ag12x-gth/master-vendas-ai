@@ -19,6 +19,10 @@ const connectionUpdateSchema = z.object({
 });
 
 // GET /api/v1/connections/[connectionId] - Get single connection details for editing
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest, { params }: { params: { connectionId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

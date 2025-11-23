@@ -13,6 +13,10 @@ import { uploadFileToS3 } from '@/lib/s3';
 import { v4 as uuidv4 } from 'uuid';
 
 // GET /api/webhooks/meta/[slug] - Used for Facebook Webhook Verification
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
     const { searchParams } = new URL(request.url);
     const mode = searchParams.get('hub.mode');

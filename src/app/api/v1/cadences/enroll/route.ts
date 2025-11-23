@@ -17,6 +17,10 @@ const enrollSchema = z.object({
  * POST /api/v1/cadences/enroll
  * Matricula manualmente um contato em uma cadência
  */
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();

@@ -5,6 +5,10 @@ import { eq } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { sessionManager as baileysSessionManager } from '@/services/baileys-session-manager';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }

@@ -7,6 +7,10 @@ import { alerts } from '@/lib/db/schema';
 import { eq, desc, gte, lte, and, sql } from 'drizzle-orm';
 
 // GET /api/v1/alerts/history - Get alert history
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();

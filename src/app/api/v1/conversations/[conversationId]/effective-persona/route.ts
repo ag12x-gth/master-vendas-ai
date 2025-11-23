@@ -4,6 +4,10 @@ import { conversations, kanbanLeads, kanbanStagePersonas, aiPersonas } from '@/l
 import { eq, and, isNull } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { conversationId: string } }

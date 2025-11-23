@@ -6,6 +6,10 @@ import { db, users } from '@/lib/db';
 import { eq, and } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest, { params }: { params: { userId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

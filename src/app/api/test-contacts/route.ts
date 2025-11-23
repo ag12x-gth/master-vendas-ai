@@ -3,6 +3,10 @@ import { db } from '@/lib/db';
 import { contacts, companies, aiChats, users } from '@/lib/db/schema';
 import { isNull, sql } from 'drizzle-orm';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     // Teste básico de conexão

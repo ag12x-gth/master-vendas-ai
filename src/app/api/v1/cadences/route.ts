@@ -26,6 +26,10 @@ const createCadenceSchema = z.object({
  * GET /api/v1/cadences
  * Lista todas as cadências da empresa
  */
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(_req: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();

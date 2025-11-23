@@ -21,6 +21,10 @@ interface ConnectionHealth {
   tokenExpiresIn?: number; // dias até expiração
 }
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(_request: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();

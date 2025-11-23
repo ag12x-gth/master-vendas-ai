@@ -12,6 +12,10 @@ const resetPasswordSchema = z.object({
   password: z.string().min(8, 'A nova senha deve ter pelo menos 8 caracteres.'),
 });
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest, { params }: { params: { userId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

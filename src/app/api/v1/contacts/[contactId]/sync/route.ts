@@ -29,6 +29,10 @@ async function _getProfileFromMeta(_waId: string, _accessToken: string) {
 }
 
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(_request: NextRequest, _params: { params: { contactId: string } }) {
     // Retornando um erro claro indicando que a funcionalidade foi descontinuada.
      return NextResponse.json({ 

@@ -9,6 +9,10 @@ import { eq, and } from 'drizzle-orm';
  * GET /api/v1/cadences/[id]/stats
  * Obtém estatísticas de uma cadência
  */
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }

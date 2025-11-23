@@ -92,6 +92,10 @@ async function sendResetEmailViaReplit(
   }
 }
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     // Verificar se é uma requisição autorizada (apenas para admin)

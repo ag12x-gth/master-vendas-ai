@@ -21,6 +21,10 @@ async function getAppAccessToken(appId: string, appSecret: string): Promise<stri
     return data.access_token;
 }
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest, { params }: { params: { connectionId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

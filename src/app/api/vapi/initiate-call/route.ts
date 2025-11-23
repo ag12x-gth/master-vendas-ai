@@ -8,6 +8,10 @@ interface InitiateCallRequest {
   conversationId?: string;
 }
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const { phoneNumber, customerName, context, conversationId }: InitiateCallRequest = await request.json();

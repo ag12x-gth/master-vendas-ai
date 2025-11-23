@@ -15,6 +15,10 @@ const tagUpdateSchema = z.object({
 });
 
 // PUT /api/v1/tags/[tagId] - Update a tag
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function PUT(request: NextRequest, { params }: { params: { tagId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

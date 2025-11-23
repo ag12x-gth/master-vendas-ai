@@ -58,6 +58,10 @@ async function getMediaData(assetId: string, connectionId: string, wabaId: strin
 }
 
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
         const companyId = await getCompanyIdFromSession();

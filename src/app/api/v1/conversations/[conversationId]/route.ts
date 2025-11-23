@@ -8,6 +8,10 @@ import { eq, and } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 
 // GET /api/v1/conversations/[conversationId] -> Retrieve a conversation
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest, { params }: { params: { conversationId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

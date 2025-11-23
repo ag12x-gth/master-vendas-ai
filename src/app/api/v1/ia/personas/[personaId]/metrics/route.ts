@@ -6,6 +6,10 @@ import { and, eq, count, sql, desc, gte, inArray } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { subDays } from 'date-fns';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: { personaId: string } }

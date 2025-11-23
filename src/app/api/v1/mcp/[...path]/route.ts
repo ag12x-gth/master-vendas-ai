@@ -9,6 +9,10 @@ const EXTERNAL_VALIDATION_API_URL = 'https://multidesk-master-ia-agentes.vs1kre.
  * Rota de proxy para validar um servidor MCP através de uma API externa.
  * Recebe a URL do MCP do cliente, envia para a API de validação externa e retorna a resposta.
  */
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json();

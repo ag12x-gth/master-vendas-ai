@@ -4,6 +4,10 @@ import { SignJWT } from 'jose';
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY_CALL;
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         if (!JWT_SECRET_KEY) {

@@ -12,6 +12,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { MessageCache } from '@/lib/cache/message-cache';
 
 // Garante que a rota sempre use o runtime do Node.js, necessário para Redis, DB, etc.
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export const runtime = 'nodejs';
 
 const messagePostSchema = z.object({

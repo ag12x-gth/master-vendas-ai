@@ -7,6 +7,10 @@ import { getCompanyIdFromSession } from '@/app/actions';
 import { deleteFileFromS3 } from '@/lib/s3';
 
 // DELETE /api/v1/media/[mediaId] - Delete media asset
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function DELETE(request: NextRequest, { params }: { params: { mediaId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

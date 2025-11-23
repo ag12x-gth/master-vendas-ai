@@ -25,6 +25,10 @@ const updateWebhookSchema = z.object({
   active: z.boolean().optional(),
 });
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { webhookId: string } }

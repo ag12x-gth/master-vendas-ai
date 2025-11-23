@@ -4,6 +4,10 @@ import { vapiCalls } from '@/lib/db/schema';
 import { sql, and, gte, lte, desc } from 'drizzle-orm';
 import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;

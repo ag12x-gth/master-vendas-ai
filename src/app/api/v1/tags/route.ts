@@ -14,6 +14,10 @@ const tagSchema = z.object({
 });
 
 // GET /api/v1/tags - List tags
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
     try {
         const companyId = await getCompanyIdFromSession();

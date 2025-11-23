@@ -4,6 +4,10 @@ import { analyticsService } from '@/services/analytics.service';
 import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 import { differenceInDays } from 'date-fns';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const { user, error } = await getUserSession();

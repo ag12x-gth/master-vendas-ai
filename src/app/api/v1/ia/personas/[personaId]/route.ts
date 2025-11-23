@@ -45,6 +45,10 @@ const personaUpdateSchema = z.object({
 );
 
 // GET /api/v1/ia/personas/[personaId] - Fetch a single agent
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(_request: NextRequest, { params }: { params: { personaId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

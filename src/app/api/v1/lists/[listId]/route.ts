@@ -16,6 +16,10 @@ const listUpdateSchema = z.object({
 
 
 // PUT /api/v1/lists/[listId] - Update a contact list
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function PUT(request: NextRequest, { params }: { params: { listId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

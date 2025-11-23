@@ -8,6 +8,10 @@ import { getUserSession } from '@/app/actions';
  * Returns latency and throughput metrics for external API providers
  * Includes P50, P95, P99, avg latency, throughput, and error rates
  */
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(_request: NextRequest) {
   try {
     const session = await getUserSession();

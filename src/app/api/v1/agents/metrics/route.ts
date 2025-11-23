@@ -6,6 +6,10 @@ import { aiAgentExecutions } from '@/lib/db/schema';
 import { eq, and, gte, lte, desc } from 'drizzle-orm';
 
 // GET /api/v1/agents/metrics - Obter métricas de performance dos agentes
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const { user } = await getUserSession();

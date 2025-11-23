@@ -7,6 +7,10 @@ import { getCompanyIdFromSession } from '@/app/actions';
 import { subDays } from 'date-fns';
 import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(_request: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();

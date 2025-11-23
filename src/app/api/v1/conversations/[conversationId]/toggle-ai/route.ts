@@ -12,6 +12,10 @@ const toggleAiSchema = z.object({
   aiActive: z.boolean(),
 });
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest, { params }: { params: { conversationId: string } }) {
   try {
     const companyId = await getCompanyIdFromSession();

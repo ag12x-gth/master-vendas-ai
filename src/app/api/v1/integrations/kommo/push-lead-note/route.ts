@@ -3,6 +3,10 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(_request: NextRequest) {
   // TODO: Implementar lógica para adicionar uma nota a um lead na Kommo
   if (process.env.NODE_ENV !== 'production') console.debug('Received request to push lead note to Kommo');

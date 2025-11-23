@@ -12,6 +12,10 @@ const sendMessageSchema = z.object({
   message: z.string().min(1, 'Mensagem não pode estar vazia'),
 });
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();

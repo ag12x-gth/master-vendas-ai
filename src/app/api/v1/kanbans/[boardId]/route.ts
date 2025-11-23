@@ -21,6 +21,10 @@ const boardUpdateSchema = z.object({
 
 
 // GET /api/v1/kanbans/[boardId]
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest, { params }: { params: { boardId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

@@ -16,6 +16,10 @@ const requestSchema = z.object({
 });
 
 // POST /api/v1/media/[mediaId]/handle - Get or refresh Meta media handle
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest, { params }: { params: { mediaId: string } }) {
     try {
         const companyId = await getCompanyIdFromSession();

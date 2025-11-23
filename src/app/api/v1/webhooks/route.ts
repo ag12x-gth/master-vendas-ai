@@ -29,6 +29,10 @@ const createWebhookSchema = z.object({
   events: z.array(z.enum(webhookEventTypes)).min(1, 'Pelo menos um evento é necessário'),
 });
 
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();

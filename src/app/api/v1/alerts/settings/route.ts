@@ -9,6 +9,10 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
 // GET /api/v1/alerts/settings - Get alert settings
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function GET(_request: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();

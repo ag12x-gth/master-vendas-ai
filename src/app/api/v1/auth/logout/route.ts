@@ -6,6 +6,10 @@ import { NextResponse } from 'next/server';
  * Rota para logout do usuário
  * Remove os cookies de sessão e invalida a sessão atual
  */
+
+// Force dynamic rendering for this API route
+export const dynamic = 'force-dynamic';
+
 export async function POST() {
     try {
         const response = NextResponse.json({ 
