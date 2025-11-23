@@ -18,25 +18,9 @@ export async function GET() {
         responsePayload.env = getActiveAIProviders();
 
         const redisPing = await redis.ping();
-        let usedMemory = 'N/A';
-        let hitRate = 'N/A';
-        
-        if (redisPing === 'PONG') {
-            const redisInfo = await redis.info();
-            usedMemory = redisInfo.match(/used_memory_human:([\d.]+.)/)?.[1] || 'N/A';
-            const hitRateMatch = redisInfo.match(/keyspace_hits:(\d+)/);
-            const missRateMatch = redisInfo.match(/keyspace_misses:(\d+)/);
-            if (hitRateMatch && missRateMatch) {
-                const hits = hitRateMatch?.[1] ? parseInt(hitRateMatch[1]!, 10) : 0;
-                const misses = missRateMatch?.[1] ? parseInt(missRateMatch[1]!, 10) : 0;
-                const total = hits + misses;
-                hitRate = total > 0 ? `${((hits / total) * 100).toFixed(2)}%` : '0.00%';
-            }
-        }
         responsePayload.redis = {
             connected: redisPing === 'PONG',
-            usedMemory,
-            hitRate,
+            status: redisPing === 'PONG' ? 'healthy' : 'unhealthy',
         };
 
         if (provider && modelName) {

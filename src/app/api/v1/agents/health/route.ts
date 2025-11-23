@@ -172,10 +172,8 @@ async function testRedisHealth(): Promise<{
       return { status: 'down', responseTime };
     }
     
-    // Obter informações de memória
-    const info = await redis.info('memory');
-    const memoryMatch = info.match(/used_memory_human:([^\r\n]+)/);
-    const memoryUsage = memoryMatch ? memoryMatch[1] : 'N/A';
+    // Check Redis memory usage  
+    const memoryUsage = 'N/A'; // redis.info not available on HybridRedisClient
     
     return {
       status: responseTime < 500 ? 'operational' : 'degraded',

@@ -61,7 +61,7 @@ import { CreateWhatsappCampaignDialog } from '@/components/campaigns/create-what
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Connection } from '@/lib/types';
+import { Connection, Template } from '@/lib/types';
 
 interface MessageTemplate {
   id: string;
@@ -310,7 +310,7 @@ export default function TemplatesV2Page() {
     setShowViewDialog(true);
   };
 
-  const convertMessageTemplateToTemplate = (template: MessageTemplate) => {
+  const convertMessageTemplateToTemplate = (template: MessageTemplate): Template => {
     const bodyComponent = Array.isArray(template.components) 
       ? template.components.find((c: any) => c.type === 'BODY')
       : null;
@@ -326,7 +326,7 @@ export default function TemplatesV2Page() {
       connection: matchingConnection,
       body: bodyComponent?.text || '',
       headerType: (headerComponent?.format as 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | null) || null,
-    };
+    } as Template;
   };
 
   const handleCreateCampaign = (template: MessageTemplate) => {
