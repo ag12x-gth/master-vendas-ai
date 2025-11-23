@@ -1133,7 +1133,794 @@ Posso prosseguir com a correção?"
 
 ---
 
+## 🖥️ COMANDOS E ACESSO PRÁTICO - GUIA OPERACIONAL COMPLETO
+
+### 📚 SEÇÃO PARA MÁXIMA EFICIÊNCIA E EXCELÊNCIA TÉCNICA
+
+Esta seção contém **comandos reais** e **procedimentos empíricos** para acessar informações, validar configurações e trabalhar efetivamente no projeto Master IA Oficial usando as ferramentas do Replit.
+
+---
+
+### 🔐 1. VERIFICAÇÃO DE SECRETS E ENVIRONMENT VARIABLES
+
+**Tool Oficial do Replit: `view_env_vars`**
+
+#### ✅ Comando 1: Ver TODOS os Secrets e Env Vars (Recomendado)
+```javascript
+view_env_vars({ type: "all" })
+```
+**Retorna:**
+- Lista de NOMES de secrets (sem valores)
+- Lista de env vars com valores (não-sensíveis)
+- Status de configuração de cada um
+
+**Output Esperado:**
+```json
+{
+  "secrets": {
+    "OPENAI_API_KEY": "configured",
+    "ENCRYPTION_KEY": "configured",
+    "NEXTAUTH_SECRET": "configured",
+    ...
+  },
+  "env_vars": {
+    "development": { "NODE_ENV": "development", ... },
+    "production": { "NODE_ENV": "production", ... },
+    "shared": { "PORT": "8080", ... }
+  }
+}
+```
+
+#### ✅ Comando 2: Verificar Secrets Específicos (Sem Valores)
+```javascript
+view_env_vars({ 
+  type: "secret",
+  keys: ["OPENAI_API_KEY", "ENCRYPTION_KEY", "NEXTAUTH_SECRET"]
+})
+```
+**Retorna:** Status de cada secret (exists/not_exists)
+
+#### ✅ Comando 3: Verificar Env Vars de um Ambiente
+```javascript
+view_env_vars({ 
+  type: "env",
+  environment: "production"
+})
+```
+**Retorna:** Env vars de produção + shared
+
+#### ❌ NUNCA Execute Comandos Bash Diretos:
+```bash
+# NUNCA faça isso:
+echo $OPENAI_API_KEY
+printenv | grep SECRET
+cat .env
+node -e "console.log(process.env.OPENAI_API_KEY)"
+```
+
+**Por quê?** Esses comandos expõem valores de secrets no output, violando segurança.
+
+---
+
+### 📄 2. ACESSO À DOCUMENTAÇÃO INTERNA DO PROJETO
+
+**Arquivos Críticos para Ler:**
+
+#### ✅ Comando 1: Ler Documentação Mestre (PRIMEIRO PASSO)
+```javascript
+read({ file_path: "replit.md" })
+```
+**Contém:**
+- Overview completo do projeto
+- Arquitetura e decisões técnicas
+- Histórico de mudanças recentes
+- Preferências do usuário
+- Estado atual do sistema
+
+#### ✅ Comando 2: Ler Status de Deployment
+```javascript
+read({ file_path: "DEPLOYMENT_READY.md" })
+read({ file_path: "HEALTH_CHECK_FIX.md" })
+read({ file_path: "DEPLOYMENT_VALIDATION_REPORT.md" })
+```
+
+#### ✅ Comando 3: Ler Configurações do Projeto
+```javascript
+read({ file_path: "package.json" })
+read({ file_path: "server.js" })
+read({ file_path: ".replit" })
+```
+
+#### ✅ Comando 4: Buscar Informações Específicas no Codebase
+```javascript
+search_codebase({ 
+  query: "Como funciona o sistema de Personas de IA?"
+})
+
+search_codebase({ 
+  query: "Onde está implementado o SessionManager do Baileys?"
+})
+
+search_codebase({ 
+  query: "Como funciona a autenticação com NextAuth.js?"
+})
+```
+**Retorna:** Resposta contextual + trechos de código relevantes
+
+#### ✅ Comando 5: Buscar Arquivos por Padrão
+```javascript
+glob({ pattern: "**/*.ts", path: "src" })
+glob({ pattern: "**/schema.ts" })
+glob({ pattern: "**/*config*.js" })
+```
+
+---
+
+### 🗄️ 3. ACESSO AO DATABASE (PostgreSQL)
+
+**Tool Oficial: `execute_sql_tool` (SOMENTE DEVELOPMENT)**
+
+#### ✅ Comando 1: Ver Estrutura de Tabelas (Seguro)
+```javascript
+execute_sql_tool({ 
+  sql_query: `
+    SELECT table_name 
+    FROM information_schema.tables 
+    WHERE table_schema = 'public'
+    ORDER BY table_name;
+  `,
+  environment: "development"
+})
+```
+**Retorna:** Lista de todas as tabelas
+
+#### ✅ Comando 2: Ver Schema de uma Tabela Específica
+```javascript
+execute_sql_tool({ 
+  sql_query: `
+    SELECT column_name, data_type, is_nullable, column_default
+    FROM information_schema.columns
+    WHERE table_name = 'users'
+    ORDER BY ordinal_position;
+  `,
+  environment: "development"
+})
+```
+**Retorna:** Estrutura completa da tabela (sem dados)
+
+#### ✅ Comando 3: Contar Registros (Sem Expor Dados)
+```javascript
+execute_sql_tool({ 
+  sql_query: "SELECT COUNT(*) as total FROM contacts;",
+  environment: "development"
+})
+```
+**Retorna:** Número total de contatos (sem mostrar dados)
+
+#### ✅ Comando 4: Ver Índices (Performance)
+```javascript
+execute_sql_tool({ 
+  sql_query: `
+    SELECT indexname, indexdef 
+    FROM pg_indexes 
+    WHERE tablename = 'messages'
+    ORDER BY indexname;
+  `,
+  environment: "development"
+})
+```
+**Retorna:** Todos os índices da tabela messages
+
+#### ❌ NUNCA Faça Queries de Dados Reais:
+```sql
+-- NUNCA execute:
+SELECT * FROM users;
+SELECT email, phone FROM contacts;
+SELECT message_content FROM messages;
+SELECT * FROM campaigns WHERE status = 'active';
+```
+
+**Por quê?** Expõe dados de usuários reais (LGPD/GDPR violation)
+
+#### ✅ Alternativa Segura: Criar Dados MOCK
+```javascript
+execute_sql_tool({ 
+  sql_query: `
+    SELECT 
+      'user_' || generate_series(1,5) as id,
+      'usuario' || generate_series(1,5) || '@example.com' as email,
+      'Usuário ' || generate_series(1,5) as name;
+  `,
+  environment: "development"
+})
+```
+**Retorna:** Dados fictícios para demonstração
+
+---
+
+### 🔌 4. VERIFICAÇÃO DE INTEGRAÇÕES REPLIT
+
+**Tool Oficial: `search_integrations` e `use_integration`**
+
+#### ✅ Comando 1: Buscar Integrações Disponíveis
+```javascript
+search_integrations({ query: "object storage" })
+search_integrations({ query: "email" })
+search_integrations({ query: "authentication" })
+search_integrations({ query: "database" })
+```
+
+#### ✅ Comando 2: Ver Detalhes de uma Integração
+```javascript
+use_integration({ 
+  integration_id: "javascript_object_storage==1.0.0",
+  operation: "view"
+})
+```
+**Retorna:** Documentação completa da integração
+
+#### ✅ Comando 3: Verificar Status de Integrações Configuradas
+```javascript
+// Informação disponível na seção de Environment:
+// - javascript_object_storage==1.0.0 (NEEDS SETUP)
+// - replitmail==1.0.0 (NEEDS SETUP)
+```
+
+---
+
+### 💻 5. COMANDOS BASH LEGÍTIMOS E SEGUROS
+
+**Tool: `bash`**
+
+#### ✅ Comando 1: Validar Health Checks (CRÍTICO)
+```bash
+bash({
+  command: "curl -s -w '\\nHTTP: %{http_code}\\nTime: %{time_total}s\\n' http://localhost:8080/health",
+  timeout: 5000,
+  description: "Test health endpoint response time"
+})
+```
+**Output Esperado:**
+```json
+{"status":"healthy","nextReady":true,"timestamp":"...","uptime":...}
+HTTP: 200
+Time: 0.08s
+```
+
+#### ✅ Comando 2: Verificar Servidor Rodando
+```bash
+bash({
+  command: "ps aux | grep 'node server.js' | grep -v grep",
+  timeout: 3000,
+  description: "Check if server is running"
+})
+```
+
+#### ✅ Comando 3: Validar Build
+```bash
+bash({
+  command: "npm run build 2>&1 | tail -50",
+  timeout: 120000,
+  description: "Build project and show last 50 lines"
+})
+```
+
+#### ✅ Comando 4: Executar Testes E2E
+```bash
+bash({
+  command: "npx playwright test tests/e2e/quick-health-test.spec.ts --reporter=line",
+  timeout: 60000,
+  description: "Run E2E health check tests"
+})
+```
+
+#### ✅ Comando 5: Verificar Versões de Dependências
+```bash
+bash({
+  command: "npm list --depth=0 | head -30",
+  timeout: 5000,
+  description: "List installed packages"
+})
+```
+
+#### ✅ Comando 6: Ver Logs do Servidor (Sem Dados Sensíveis)
+```bash
+bash({
+  command: "tail -50 /tmp/logs/Production_Server_*.log | grep -v 'phone\\|email\\|password\\|token'",
+  timeout: 3000,
+  description: "View server logs without sensitive data"
+})
+```
+
+#### ✅ Comando 7: Verificar Uso de Memória
+```bash
+bash({
+  command: "free -h && echo '' && ps aux --sort=-%mem | head -10",
+  timeout: 3000,
+  description: "Check memory usage"
+})
+```
+
+#### ✅ Comando 8: Database Push (Migrations)
+```bash
+bash({
+  command: "npm run db:push --force 2>&1 | tail -30",
+  timeout: 30000,
+  description: "Push schema changes to database"
+})
+```
+
+---
+
+### 📊 6. LOGS E DEBUGGING
+
+**Tool: `refresh_all_logs`**
+
+#### ✅ Comando 1: Atualizar Todos os Logs
+```javascript
+refresh_all_logs()
+```
+**Retorna:**
+- Logs de workflows (Production Server)
+- Logs do browser console
+- Arquivos salvos em /tmp/logs/
+- Preview dos logs (pode estar truncado)
+
+#### ✅ Comando 2: Ler Log Completo
+```javascript
+read({ 
+  file_path: "/tmp/logs/Production_Server_20251123_183041_874.log",
+  limit: 100
+})
+```
+
+#### ✅ Comando 3: Buscar Erros nos Logs
+```javascript
+grep({ 
+  pattern: "ERROR|FAIL|Exception",
+  path: "/tmp/logs",
+  output_mode: "content",
+  "-n": true,
+  "-C": 3
+})
+```
+
+#### ✅ Comando 4: Buscar Padrão Específico
+```javascript
+grep({ 
+  pattern: "Health check|health endpoint",
+  path: "/tmp/logs",
+  output_mode: "content",
+  "-i": true
+})
+```
+
+---
+
+### 🏗️ 7. VALIDAÇÃO DE ARQUITETURA E CÓDIGO
+
+**Tool: `get_latest_lsp_diagnostics`**
+
+#### ✅ Comando 1: Verificar Erros TypeScript
+```javascript
+get_latest_lsp_diagnostics({ 
+  file_path: "server.js" 
+})
+```
+**Retorna:** Erros de sintaxe, tipos, imports
+
+#### ✅ Comando 2: Verificar Erros em Arquivo Específico
+```javascript
+get_latest_lsp_diagnostics({ 
+  file_path: "src/app/api/campaigns/route.ts" 
+})
+```
+
+#### ✅ Comando 3: Ver Todos os Erros Recentes
+```javascript
+get_latest_lsp_diagnostics()
+```
+
+---
+
+### 🚀 8. DEPLOY E WORKFLOWS
+
+**Tools: `restart_workflow`, `workflows_set_run_config_tool`**
+
+#### ✅ Comando 1: Reiniciar Servidor
+```javascript
+restart_workflow({ 
+  name: "Production Server",
+  workflow_timeout: 30
+})
+```
+
+#### ✅ Comando 2: Verificar Status de Workflow
+```javascript
+refresh_all_logs()
+```
+**Olhar em:** `<workflow_name>Production Server</workflow_name>`  
+**Status pode ser:** RUNNING, FAILED, STOPPED
+
+#### ✅ Comando 3: Configurar Novo Workflow
+```javascript
+workflows_set_run_config_tool({
+  name: "Database Migration",
+  command: "npm run db:push",
+  output_type: "console"
+})
+```
+
+---
+
+### 🎯 9. WORKFLOW COMPLETO DE TROUBLESHOOTING
+
+**Procedimento Passo a Passo:**
+
+#### Passo 1: Verificar Estado Atual
+```javascript
+// 1.1 Ver documentação
+read({ file_path: "replit.md" })
+
+// 1.2 Verificar secrets configurados
+view_env_vars({ type: "all" })
+
+// 1.3 Ver logs recentes
+refresh_all_logs()
+```
+
+#### Passo 2: Validar Servidor
+```javascript
+// 2.1 Health check
+bash({
+  command: "curl -s http://localhost:8080/health",
+  timeout: 5000,
+  description: "Test health endpoint"
+})
+
+// 2.2 Ver processo
+bash({
+  command: "ps aux | grep node",
+  timeout: 3000,
+  description: "Check Node.js processes"
+})
+```
+
+#### Passo 3: Verificar Database
+```javascript
+// 3.1 Listar tabelas
+execute_sql_tool({ 
+  sql_query: "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';",
+  environment: "development"
+})
+
+// 3.2 Verificar conexão
+execute_sql_tool({ 
+  sql_query: "SELECT version();",
+  environment: "development"
+})
+```
+
+#### Passo 4: Verificar Código
+```javascript
+// 4.1 Erros TypeScript
+get_latest_lsp_diagnostics()
+
+// 4.2 Buscar problemas específicos
+search_codebase({ 
+  query: "Onde está o problema com [descrição do erro]?"
+})
+```
+
+#### Passo 5: Aplicar Correção
+```javascript
+// 5.1 Fazer mudanças necessárias (edit, write)
+// 5.2 Reiniciar servidor
+restart_workflow({ name: "Production Server" })
+
+// 5.3 Validar correção
+bash({
+  command: "curl -s http://localhost:8080/health",
+  timeout: 5000,
+  description: "Validate fix"
+})
+```
+
+---
+
+### 📋 10. CHECKLIST DE COMANDOS DIÁRIOS
+
+**Ao começar o trabalho:**
+
+```javascript
+// 1. Ler contexto atualizado
+read({ file_path: "replit.md" })
+
+// 2. Verificar servidor funcionando
+bash({
+  command: "curl -s http://localhost:8080/health",
+  timeout: 5000,
+  description: "Daily health check"
+})
+
+// 3. Ver logs recentes
+refresh_all_logs()
+
+// 4. Verificar secrets configurados
+view_env_vars({ type: "all" })
+
+// 5. Buscar erros TypeScript
+get_latest_lsp_diagnostics()
+```
+
+**Ao finalizar tarefa:**
+
+```javascript
+// 1. Executar testes
+bash({
+  command: "npx playwright test tests/e2e/quick-health-test.spec.ts",
+  timeout: 60000,
+  description: "Run E2E tests"
+})
+
+// 2. Validar health checks
+bash({
+  command: "for i in {1..5}; do curl -s -w 'Time: %{time_total}s\\n' http://localhost:8080/health | head -1; done",
+  timeout: 10000,
+  description: "Test health check 5 times"
+})
+
+// 3. Reiniciar servidor
+restart_workflow({ name: "Production Server" })
+
+// 4. Atualizar documentação
+edit({ 
+  file_path: "replit.md",
+  old_string: "## Recent Changes...",
+  new_string: "## Recent Changes (atualizado)..."
+})
+```
+
+---
+
+### 🛡️ 11. COMANDOS QUE NUNCA EXECUTAR
+
+**❌ LISTA COMPLETA DE COMANDOS PROIBIDOS:**
+
+```bash
+# 1. Expor secrets
+echo $OPENAI_API_KEY
+printenv | grep SECRET
+cat .env
+node -e "console.log(process.env.ENCRYPTION_KEY)"
+
+# 2. Queries de dados reais
+psql -c "SELECT * FROM users;"
+npm run db:query "SELECT email FROM contacts;"
+
+# 3. Ações destrutivas sem validação
+rm -rf node_modules
+DROP TABLE users;
+DELETE FROM contacts;
+npm run db:push --force (sem validar antes)
+
+# 4. Modificar production diretamente
+execute_sql_tool({ environment: "production" }) // Não disponível!
+
+# 5. Expor logs com dados sensíveis
+cat /tmp/logs/*.log | grep -E "phone|email|password"
+
+# 6. Deploy sem validação
+git push --force
+replit deploy --skip-checks (não existe)
+
+# 7. Instalar packages suspeitos
+npm install malicious-package
+npm install --unsafe-perm
+
+# 8. Modificar arquivos críticos sem ler
+write({ file_path: ".replit", content: "..." }) // sem ler antes
+write({ file_path: "server.js", content: "..." }) // sem ler antes
+```
+
+---
+
+### ✅ 12. TEMPLATE DE INVESTIGAÇÃO COMPLETA
+
+**Quando o usuário reportar um problema:**
+
+```javascript
+// TEMPLATE - Copie e adapte:
+
+console.log("=== INVESTIGAÇÃO INICIADA ===");
+
+// 1. Coletar contexto
+const context = await read({ file_path: "replit.md" });
+const logs = await refresh_all_logs();
+
+// 2. Validar servidor
+const healthCheck = await bash({
+  command: "curl -s http://localhost:8080/health",
+  timeout: 5000,
+  description: "Check server health"
+});
+
+// 3. Verificar database
+const dbStatus = await execute_sql_tool({ 
+  sql_query: "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';",
+  environment: "development"
+});
+
+// 4. Buscar no código
+const codeSearch = await search_codebase({ 
+  query: "Implementação de [feature relacionada ao problema]"
+});
+
+// 5. Verificar erros
+const lspErrors = await get_latest_lsp_diagnostics();
+
+// 6. Analisar e propor solução
+console.log("=== ANÁLISE COMPLETA ===");
+// [Apresentar diagnóstico ao usuário]
+```
+
+---
+
+### 🎓 13. COMANDOS POR CATEGORIA - REFERÊNCIA RÁPIDA
+
+**DOCUMENTAÇÃO:**
+- `read({ file_path: "replit.md" })`
+- `search_codebase({ query: "..." })`
+- `glob({ pattern: "**/*.ts" })`
+
+**SECRETS:**
+- `view_env_vars({ type: "all" })`
+- `view_env_vars({ type: "secret", keys: [...] })`
+- `request_env_var({ request: { type: "secret", keys: [...] }})`
+
+**DATABASE:**
+- `execute_sql_tool({ sql_query: "...", environment: "development" })`
+- `check_database_status()`
+
+**SERVIDOR:**
+- `bash({ command: "curl http://localhost:8080/health" })`
+- `restart_workflow({ name: "Production Server" })`
+- `refresh_all_logs()`
+
+**CÓDIGO:**
+- `get_latest_lsp_diagnostics({ file_path: "..." })`
+- `grep({ pattern: "ERROR", path: "/tmp/logs" })`
+
+**TESTES:**
+- `bash({ command: "npx playwright test ..." })`
+- `screenshot({ path: "/login" })`
+
+**INTEGRAÇÕES:**
+- `search_integrations({ query: "..." })`
+- `use_integration({ integration_id: "...", operation: "view" })`
+
+---
+
+### 💡 14. EXEMPLOS PRÁTICOS COMPLETOS
+
+#### Exemplo 1: Validar Health Checks Antes de Deploy
+```javascript
+// Executar 10 health checks consecutivos
+const results = await bash({
+  command: `
+    echo "Testing health checks..."
+    for i in {1..10}; do
+      START=$(date +%s%N)
+      STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/health)
+      END=$(date +%s%N)
+      TIME=$((($END - $START) / 1000000))
+      echo "Request $i: ${TIME}ms - HTTP $STATUS"
+    done
+  `,
+  timeout: 15000,
+  description: "Run 10 consecutive health checks"
+});
+
+console.log("✅ Todos os health checks passaram!");
+```
+
+#### Exemplo 2: Investigar Problema de Performance
+```javascript
+// 1. Ver uso de memória
+await bash({
+  command: "ps aux --sort=-%mem | head -10",
+  timeout: 3000,
+  description: "Check memory usage"
+});
+
+// 2. Ver queries lentas no database
+await execute_sql_tool({ 
+  sql_query: `
+    SELECT 
+      query, 
+      mean_exec_time, 
+      calls 
+    FROM pg_stat_statements 
+    ORDER BY mean_exec_time DESC 
+    LIMIT 10;
+  `,
+  environment: "development"
+});
+
+// 3. Buscar código que pode estar causando lentidão
+await search_codebase({ 
+  query: "Onde estão loops ou queries que podem causar lentidão?"
+});
+```
+
+#### Exemplo 3: Adicionar Nova Feature com Validação Completa
+```javascript
+// 1. Ler schema atual
+const schema = await read({ file_path: "shared/schema.ts" });
+
+// 2. Fazer mudança (exemplo: adicionar campo)
+await edit({
+  file_path: "shared/schema.ts",
+  old_string: "...",
+  new_string: "..."
+});
+
+// 3. Push para database
+await bash({
+  command: "npm run db:push",
+  timeout: 30000,
+  description: "Apply schema changes"
+});
+
+// 4. Verificar mudança aplicada
+await execute_sql_tool({ 
+  sql_query: "SELECT column_name FROM information_schema.columns WHERE table_name = 'campaigns';",
+  environment: "development"
+});
+
+// 5. Reiniciar servidor
+await restart_workflow({ name: "Production Server" });
+
+// 6. Validar funcionamento
+await bash({
+  command: "curl -s http://localhost:8080/health",
+  timeout: 5000,
+  description: "Validate server after changes"
+});
+```
+
+---
+
+## 🎯 RESUMO EXECUTIVO - ACESSO MÁXIMO E EFICIÊNCIA
+
+**O que você PODE e DEVE fazer:**
+
+1. ✅ **Verificar secrets** (view_env_vars) - SEM expor valores
+2. ✅ **Ler documentação** (read, search_codebase)
+3. ✅ **Consultar database** (execute_sql_tool) - SEM dados de usuários
+4. ✅ **Validar servidor** (bash curl, health checks)
+5. ✅ **Ver logs** (refresh_all_logs) - SEM informações sensíveis
+6. ✅ **Executar testes** (playwright, jest)
+7. ✅ **Verificar código** (get_latest_lsp_diagnostics)
+8. ✅ **Reiniciar workflows** (restart_workflow)
+9. ✅ **Buscar integrações** (search_integrations)
+10. ✅ **Fazer deploys** (após validação completa)
+
+**O que você NUNCA deve fazer:**
+
+1. ❌ **Expor valores de secrets** (echo, cat, printenv)
+2. ❌ **Queries de dados reais** (SELECT * FROM users)
+3. ❌ **Ações destrutivas sem confirmação** (DELETE, DROP, rm -rf)
+4. ❌ **Modificar production** (não há acesso direto)
+5. ❌ **Logar informações sensíveis** (console.log de secrets)
+
+---
+
+**Use este guia como referência constante para trabalhar com máxima eficiência, segurança e profissionalismo no projeto Master IA Oficial.**
+
+---
+
 **Criado por**: Replit Agent (Agente Anterior)  
 **Data**: 23 de Novembro de 2025  
-**Versão**: 1.2 - Contexto Completo + Segurança + Evidências Reais  
+**Versão**: 1.3 - Contexto + Segurança + Evidências + Comandos Práticos  
 **Status**: ✅ PRONTO PARA TRANSFERÊNCIA
