@@ -58,7 +58,7 @@ function killStaleProcesses(targetPort) {
 }
 
 // Execute guard before server initialization
-const PORT = parseInt(process.env.PORT || '8080', 10);
+const PORT = parseInt(process.env.PORT || '5000', 10);
 killStaleProcesses(PORT);
 
 // Memory optimization: Enable garbage collection monitoring
@@ -112,7 +112,7 @@ setInterval(() => {
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = '0.0.0.0';
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 5000;
 
 // Simplified configuration without overriding conf
 const nextConfig = {
@@ -290,7 +290,7 @@ const continueInitialization = () => {
       cors: {
         origin: process.env.NODE_ENV === 'production'
           ? [process.env.NEXT_PUBLIC_BASE_URL || '']
-          : ['http://localhost:8080', 'http://localhost:3000', 'http://0.0.0.0:8080'],
+          : ['http://localhost:5000', 'http://localhost:3000', 'http://0.0.0.0:5000'],
         methods: ['GET', 'POST'],
         credentials: true,
       },
