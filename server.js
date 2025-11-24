@@ -268,19 +268,19 @@ server.listen(port, hostname, (err) => {
   }
 
   // STEP 3: Prepare Next.js in background with TIMEOUT
-  console.log('🔄 Preparing Next.js in background (timeout: 120s)...');
+  console.log('🔄 Preparing Next.js in background (timeout: 300s)...');
 
   // Helper function to wrap app.prepare() with timeout
-  const prepareWithTimeout = (timeoutMs = 120000) => {
+  const prepareWithTimeout = (timeoutMs = 300000) => {
     return Promise.race([
       app.prepare(),
       new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Next.js prepare timeout after 120s')), timeoutMs)
+        setTimeout(() => reject(new Error('Next.js prepare timeout after 300s')), timeoutMs)
       )
     ]);
   };
 
-  prepareWithTimeout(120000)
+  prepareWithTimeout(300000)
     .then(() => {
       nextReady = true;
       console.log('✅ Next.js ready! (completed in time)');
@@ -340,7 +340,7 @@ server.listen(port, hostname, (err) => {
       
       // Retry app.prepare() after 30 seconds
       setTimeout(() => {
-        prepareWithTimeout(120000)
+        prepareWithTimeout(300000)
           .then(() => {
             nextReady = true;
             console.log('✅ Next.js ready! (completed on retry)');

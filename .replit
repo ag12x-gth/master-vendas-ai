@@ -77,6 +77,30 @@ defaultBucketID = "replit-objstore-5c7db24d-3f1a-48f3-a419-34323e1b5779"
 localPort = 8080
 externalPort = 80
 
+[[ports]]
+localPort = 8081
+externalPort = 8081
+
+[[ports]]
+localPort = 8082
+externalPort = 3000
+
+[[ports]]
+localPort = 8083
+externalPort = 3001
+
+[[ports]]
+localPort = 8084
+externalPort = 3002
+
+[[ports]]
+localPort = 8085
+externalPort = 3003
+
+[[ports]]
+localPort = 43839
+externalPort = 4200
+
 [userenv]
 
 [userenv.shared]
