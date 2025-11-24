@@ -1,0 +1,213 @@
+2025-11-24T05:15:35Z info: Deployment: 341193a3-e390-4288-856e-84c62981db7e
+2025-11-24T05:15:35Z info: Running Security Scan
+2025-11-24T05:16:19Z info: Security Scan Complete
+2025-11-24T05:16:19Z info: Connecting to builder
+2025-11-24T05:16:19Z info: Builder connected
+2025-11-24T05:16:19Z info: Installing packages
+--> npm install
+
+
+up to date, audited 1191 packages in 11s
+
+  run `npm fund` for details
+
+
+4 vulnerabilities (1 moderate, 3 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.6.3
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.3
+npm notice To update run: npm install -g npm@11.6.3
+npm notice
+
+2025-11-24T05:16:31Z info: Starting Build
+
+> nextn@2.4.1 build
+> NODE_OPTIONS='--max-old-space-size=4096' next build
+
+
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.com/vercel/next.js/issues
+
+  ▲ Next.js 14.2.33
+
+    · cpus
+
+   Creating an optimized production build ...
+
+ ✓ Compiled successfully
+
+   Linting and checking validity of types ...
+
+
+./src/components/campaigns/TemplatePreview.tsx
+128:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/campaigns/create-whatsapp-campaign-dialog.tsx
+26:50  Warning: 'ImageIcon' is defined but never used.  unused-imports/no-unused-imports
+
+./src/components/campaigns/whatsapp-preview.tsx
+2:10  Warning: 'Clock' is defined but never used.  unused-imports/no-unused-imports
+54:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/contacts/import-contacts-dialog.tsx
+38:6  Warning: 'UploadMode' is defined but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+421:27  Warning: 'total' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+428:80  Warning: 'index' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/dashboard/ai-performance-section.tsx
+54:9  Warning: 'notify' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/lists/upload-contacts-confirm-dialog.tsx
+30:3  Warning: 'listId' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/whatsapp-baileys/qr-code-modal.tsx
+165:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/lib/auth.config.ts
+117:35  Warning: 'profile' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/lib/cache/contact-cache.ts
+131:13  Warning: 'cacheKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+132:13  Warning: 'indexKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+233:13  Warning: 'cacheKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+238:15  Warning: 'indexKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+239:15  Warning: 'validationKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+302:15  Warning: 'cachedContact' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+311:15  Warning: 'cacheKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+312:15  Warning: 'indexKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/lib/cache/metrics.ts
+32:13  Warning: 'hitKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+33:13  Warning: 'totalKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+45:13  Warning: 'missKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+46:13  Warning: 'totalKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/lib/cadence-scheduler.ts
+3:10  Warning: 'companies' is defined but never used.  unused-imports/no-unused-imports
+
+./src/lib/cadence-service.ts
+4:3  Warning: 'cadenceSteps' is defined but never used.  unus
+   Collecting page data ...
+
+⚠️ Redis connection failed, falling back to in-memory cache: Stream isn't writeable and enableOfflineQueue options is false
+
+📝 Note: In-memory cache is for development only. Redis is required for production.
+
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1611:16)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1611:16)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1611:16)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+
+
+╔════════════════════════════════════════════════════════╗
+║ 🔴 ALERT: CRITICAL - database_pool_exhausted
+╠════════════════════════════════════════════════════════╣
+║ Title: Database Connection Pool Near Exhaustion
+║ Message: Database connection pool usage has exceeded 90%. Current value: 91.58, Threshold: 90
+║ Metric: db.connectionPool.usage
+║ Threshold: 90.00
+║ Current Value: 91.58
+║ Time: 2025-11-24T05:17:49.514Z
+╚════════════════════════════════════════════════════════╝
+    
+
+[ioredis] Unhandled error event: Error: connect ECONNREFUSED 127.0.0.1:6379
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1611:16)
+    at TCPConnectWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+
+   Generating static pages (0/50) ...
+
+   Generating static pages (12/50) 
+
+   Generating static pages (24/50) 
+
+   Generating static pages (37/50) 
+
+ ✓ Generating static pages (50/50)
+
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                                   Size     First Load JS
+┌ ○ /                                                         170 B           485 kB
+├ ○ /_not-found                                               203 B           485 kB
+├ ƒ /account                                                  10.2 kB         495 kB
+├ ƒ /admin/agents/performance                                 4.58 kB         490 kB
+├ ƒ /admin/ai-dashboard                                       7.36 kB         493 kB
+├ ƒ /agentes-ia                                               4.64 kB         490 kB
+├ ƒ /agentes-ia/[personaId]                                   14.2 kB         499 kB
+├ ƒ /agentes-ia/new                                           8.36 kB         494 kB
+├ ƒ /ai-chats                                                 6.16 kB         491 kB
+├ ƒ /ajuda                                                    6.21 kB         491 kB
+├ ƒ /analytics                                                5.8 kB          491 kB
+├ ƒ /api/admin/send-password-reset                            0 B                0 B
+├ ƒ /api/ai/health                                            0 B                0 B
+├ ƒ /api/ai/smoke                                             0 B                0 B
+├ ƒ /api/auth/[...nextauth]                                   0 B                0 B
+├ ƒ /api/auth/login                                           0 B                0 B
+├ ƒ /api/auth/logout                                          0 B                0 B
+├ ƒ /api/auth/oauth-callback                                  0 B                0 B
+├ ƒ /api/auth/providers-status                                0 B                0 B
+├ ƒ /api/auth/register                                        0 B                0 B
+├ ƒ /api/auth/resend-verification                             0 B                0 B
+├ ƒ /api/auth/reset-password                                  0 B                0 B
+├ ƒ /api/auth/socket-token                                    0 B                0 B
+├ ƒ /api/auth/verify-email                                    0 B                0 B
+├ ƒ /api/contacts/import                                      0 B                0 B
+├ ○ /api/health                                               0 B                0 B
+├ ƒ /api/metrics                                              0 B                0 B
+├ ƒ /api/test-cache                                           0 B                0 B
+├ ƒ /api/test-contacts                                        0 B                0 B
+├ ƒ /api/v1/admin/ai-metrics                                  0 B                0 B
+├ ƒ /api/v1/admin/scheduler                                   0 B                0 B
+├ ƒ /api/v1/agents/health                                     0 B                0 B
+├ ƒ /api/v1/agents/metrics                                    0 B                0 B
+├ ƒ /api/v1/ai/chats                                          0 B                0 B
+├ ƒ /api/v1/ai/chats/[chatId]                                 0 B                0 B
+├ ƒ /api/v1/ai/chats/[chatId]/messages                        0 B                0 B
+├ ƒ /api/v1/alerts                                            0 B                0 B
+├ ƒ /api/v1/alerts/[alertId]/acknowledge                      0 B                0 B
+├ ƒ /api/v1/alerts/[alertId]/resolve                          0 B                0 B
+├ ƒ /api/v1/alerts/history                                    0 B                0 B
+├ ƒ /api/v1/alerts/settings                                   0 B                0 B
+├ ƒ /api/v1/analytics/campaigns                               0 B                0 B
+├ ƒ /api/v1/analytics/funnel                                  0 B                0 B
+├ ƒ /api/v1/analytics/kpis                                    0 B                0 B
+├ ƒ /api/v1/analytics/timeseries                              0 B                0 B
+├ ƒ /api/v1/api-keys                                          0 B                0 B
+├ ƒ /api/v1/api-keys/[keyId]                                  0 B                0 B
+├ ƒ /api/v1/auth
+2025-11-24T05:18:09Z info: Pushing pid1 binary layer...
+2025-11-24T05:18:11Z info: Created pid1 binary layer
+2025-11-24T05:18:19Z info: Pushing Repl layer...
+2025-11-24T05:18:19Z info: Pushing hosting layer...
+2025-11-24T05:18:19Z info: Retrieved cached nix layer
+2025-11-24T05:18:19Z info: Created hosting layer
+2025-11-24T05:19:45Z info: Created Repl layer
+2025-11-24T05:19:49Z info: Pushed image manifest
+> NODE_ENV=production node server.js
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.com/vercel/next.js/issues
+✅ Socket.IO initialized
+✅ Health endpoints ready: GET /health or /_health
+[Baileys] Initializing sessions from database...
+✅ Baileys initialized
+[2025-11-24T05:22:36.877Z] [INFO] [CadenceScheduler] Starting cadence scheduler...
+✅ Cadence Scheduler ready
+✅ Campaign Processor ready
+📊 [Memory Stats] RSS: 130.22MB | Heap: 41.02/43.99MB (93.25%) | External: 13.57MB
+2025-11-24T05:24:31Z error: The deployment is failing health checks. This can happen if the application isn't responding, responds with an error, or doesn't respond in time. Health checks are sent to the / endpoint by default and must respond as soon as possible. Make sure that the / endpoint is implemented and returns a 200 status code in a timely manner. Avoid doing expensive or long running operations on the / endpoint, prefer deferring them to a different route. Check the logs for more information.
