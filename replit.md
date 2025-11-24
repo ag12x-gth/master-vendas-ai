@@ -86,7 +86,8 @@ Preferred communication style: Simple, everyday language.
 - **Encryption**: AES-256-GCM for sensitive data at rest.
 - **Multi-tenant Architecture**: Company-based tenant model ensuring data isolation.
 - **Webhook System**: Meta Webhooks with signature verification and a production-ready custom webhooks integration with HMAC SHA256 and exponential retry logic.
-- **Kanban Lead Management System**: Interactive Kanban board with full CRUD operations and drag-and-drop functionality.
+- **Kanban Lead Management System**: Interactive Kanban board with full CRUD operations, drag-and-drop functionality, and automatic appointment notifications when leads move to scheduling stages.
+- **Automatic Appointment Notifications (Nov 24, 2025)**: When a lead is moved to a Kanban stage with `semanticType='meeting_scheduled'`, the system automatically creates in-app notifications for all company users and dispatches a `meeting_scheduled` webhook event with lead details. Uses separated database enums: `notification_type` for scheduled reports and `user_notification_type` for in-app notifications including the new `new_appointment` type.
 - **Analytics Dashboard System**: Comprehensive real-time analytics with KPI metrics, time-series charts, funnel visualization, and voice call analytics.
 - **Template Management System**: Full CRUD interface for message templates with dynamic variable support.
 - **UI/UX Component Library**: Reusable ShadCN-based components, including skeleton loaders, empty states, server-side pagination, debounced search inputs, and a centralized toast notification helper.
