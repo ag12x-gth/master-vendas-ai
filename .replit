@@ -72,7 +72,7 @@ externalPort = 80
 deploymentTarget = "vm"
 run = ["npm", "run", "start:prod"]
 build = ["npm", "run", "build"]
-healthCheckPath = "/api/health"
+healthCheckPath = "/health"
 
 [objectStorage]
 defaultBucketID = "replit-objstore-5c7db24d-3f1a-48f3-a419-34323e1b5779"
