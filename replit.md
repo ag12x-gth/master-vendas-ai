@@ -79,6 +79,69 @@ Preferred communication style: Simple, everyday language.
 (zero eviction policy warnings) ✅
 ```
 
+### Redis Connection Resilience Fix (Nov 24, 2025)
+**Status**: ✅ PRODUCTION-READY - Connection timeout and health check issues resolved
+
+**Problem Diagnosed:**
+- Redis connection timeout during production initialization (5s too short for Upstash)
+- Health check failures during deployment due to delayed server startup
+- Silent fallback to in-memory cache without failing fast in production
+
+**Solutions Implemented:**
+
+**1. Connection Timeout Optimization (`src/lib/redis.ts`)**
+```typescript
+// Before:
+connectTimeout: 5000ms  // ❌ Too short for Upstash
+maxRetriesPerRequest: 3
+retryStrategy: Math.min(times * 100, 1000)
+
+// After:
+connectTimeout: 15000ms  // ✅ Extended to 15s
+maxRetriesPerRequest: 5   // ✅ Increased retries
+retryStrategy: Math.min(times * 200, 2000)  // ✅ Better backoff
+```
+
+**2. Production Fail-Fast Guard**
+```typescript
+// In production: Exit immediately if Redis unavailable
+if (process.env.NODE_ENV === 'production') {
+  console.error('❌ FATAL: Redis connection required in production but failed');
+  process.exit(1);  // No silent fallback
+}
+// In development: Keep in-memory fallback
+```
+
+**3. Health Endpoint Optimization (`server.js`, lines 147-157)**
+- Health endpoint (`/health` and `/_health`) responds **immediately** (3ms)
+- Returns status even before Next.js initialization completes
+- Includes `nextReady` flag for monitoring
+- **Response time: 2-3ms** (well under typical 30-60s timeout)
+
+**Evidence (Nov 24, 21:51):**
+```bash
+# Production Server Logs:
+✅ Redis connected successfully - Using distributed Redis cache
+📡 Redis endpoint: rediss://vital-sawfish-40850.upstash.io:6379
+✅ Cadence Scheduler ready
+✅ Campaign Processor ready
+
+# Health Endpoint Test:
+$ curl http://localhost:5000/health
+{"status":"healthy","nextReady":true,"timestamp":"2025-11-24T21:51:44.154Z","uptime":458.45}
+⏱️ Response Time: 0.003087s (3ms)
+
+# Validation (zero fallback messages):
+$ grep -i "fallback\|timeout" /tmp/logs/Production_Server_20251124_214438_955.log
+✅ ZERO MESSAGES (no fallback to in-memory cache)
+```
+
+**Impact:**
+- ✅ Redis connects reliably in production (15s timeout eliminates premature failures)
+- ✅ Server fails fast if Redis unavailable (prevents silent degradation)
+- ✅ Health checks pass immediately (3ms response, no timeout)
+- ✅ All background services start successfully (Cadence, Campaign Processor, BullMQ)
+
 ### Deployment Configuration (Nov 24, 2025)
 **Status**: ✅ READY TO PUBLISH
 
@@ -86,7 +149,7 @@ Preferred communication style: Simple, everyday language.
 - **Why VM?** Socket.IO WebSocket connections, BullMQ background workers, Baileys sessions
 - **Build Command**: `npm run build`
 - **Run Command**: `npm run start:prod`
-- **Health Check**: `/health` endpoint
+- **Health Check**: `/health` and `/_health` endpoints (3ms response time)
 - **Port**: 5000 (bound to 0.0.0.0)
 
 **Documentation**: See `DEPLOY_READINESS_CHECKLIST.md` for complete pre-deployment validation.
