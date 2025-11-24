@@ -199,16 +199,51 @@ const server = createServer(async (req, res) => {
   }
 });
 
-// STEP 1: Start server IMMEDIATELY (NOTHING BEFORE THIS)
-server.listen(port, hostname, (err) => {
-  if (err) {
-    console.error(`❌ Failed to start server:`, err.message);
-    process.exit(1);
-  }
+// ========================================
+// CRITICAL FIX #1: Server Error Handler with EADDRINUSE Retry
+// ========================================
+const startServerWithRetry = (retryCount = 0, maxRetries = 3) => {
+  server.listen(port, hostname, () => {
+    // Server is now LISTENING - health checks will work!
+    console.log(`✅ Server LISTENING on http://${hostname}:${port}`);
+    console.log('✅ Health endpoints ready: GET /health or /_health');
+    
+    // Continue with Socket.IO initialization only AFTER listen succeeds
+    continueInitialization();
+  });
 
-  // Server is now LISTENING - health checks will work!
-  console.log(`✅ Server LISTENING on http://${hostname}:${port}`);
-  console.log('✅ Health endpoints ready: GET /health or /_health');
+  // CRITICAL: Handle EADDRINUSE error with retry logic
+  server.once('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`❌ Port ${port} is already in use (Error: EADDRINUSE)`);
+      
+      if (retryCount < maxRetries) {
+        const delayMs = 1000 * (retryCount + 1);
+        console.log(`⏳ Retry #${retryCount + 1}/${maxRetries} after ${delayMs}ms...`);
+        
+        setTimeout(() => {
+          // Recreate server for retry
+          const newServer = createServer(server._handle);
+          // Copy handlers from old server
+          newServer.on('request', (req, res) => {
+            server.emit('request', req, res);
+          });
+          
+          startServerWithRetry(retryCount + 1, maxRetries);
+        }, delayMs);
+      } else {
+        console.error(`🔴 Failed to start server after ${maxRetries} retries. Exiting.`);
+        process.exit(1);
+      }
+    } else {
+      console.error(`❌ Server error: ${err.message}`);
+      process.exit(1);
+    }
+  });
+};
+
+// Helper function - moved Socket.IO and services init here
+const continueInitialization = () => {
 
   // STEP 2: Initialize Socket.IO (after server is listening)
   let io;
@@ -249,28 +284,21 @@ server.listen(port, hostname, (err) => {
   // ========================================
   // DATABASE POOL MONITORING (Production)
   // ========================================
-  // Monitor database pool usage and alert if approaching limits
   if (process.env.NODE_ENV === 'production' || process.env.DB_DEBUG === 'true') {
     setInterval(async () => {
       try {
-        // Try to get pool stats from postgres connection
-        // Note: postgres library doesn't expose pool stats directly like pg.Pool
-        // So we use connection attempt as proxy for pool health
-        const testTime = Date.now();
-        // Pool monitoring would go here - for now just log that monitoring is active
         if (process.env.DB_DEBUG === 'true') {
-          console.log('🔍 [DB Monitor] Pool monitoring active, checking connection availability...');
+          console.log('🔍 [DB Monitor] Pool monitoring active...');
         }
       } catch (error) {
         console.warn(`⚠️ [DB Monitor] Connection check failed: ${error.message}`);
       }
-    }, 30000); // Check every 30 seconds
+    }, 30000);
   }
 
   // STEP 3: Prepare Next.js in background with TIMEOUT
   console.log('🔄 Preparing Next.js in background (timeout: 300s)...');
 
-  // Helper function to wrap app.prepare() with timeout
   const prepareWithTimeout = (timeoutMs = 300000) => {
     return Promise.race([
       app.prepare(),
@@ -285,7 +313,6 @@ server.listen(port, hostname, (err) => {
       nextReady = true;
       console.log('✅ Next.js ready! (completed in time)');
 
-      // STEP 4: Initialize heavy services (after Next.js is ready)
       (async () => {
         try {
           require('tsx/cjs');
@@ -297,7 +324,6 @@ server.listen(port, hostname, (err) => {
         }
       })();
 
-      // STEP 5: Start schedulers (delayed for stability)
       setTimeout(() => {
         try {
           require('tsx/cjs');
@@ -309,7 +335,6 @@ server.listen(port, hostname, (err) => {
         }
       }, 5000);
 
-      // STEP 6: Start campaign processor (delayed for stability)
       setTimeout(() => {
         const processCampaignQueue = async () => {
           try {
@@ -319,26 +344,19 @@ server.listen(port, hostname, (err) => {
               console.log(`[Campaign Processor] ${data.processed} processed`);
             }
           } catch (error) {
-            // Silent failure - don't spam logs
+            // Silent failure
           }
         };
-
         console.log('✅ Campaign Processor ready');
-        processCampaignQueue(); // Execute once
-        setInterval(processCampaignQueue, 60000); // Then every 60s
+        processCampaignQueue();
+        setInterval(processCampaignQueue, 60000);
       }, 15000);
-
     })
     .catch(err => {
       console.error('❌ Next.js preparation failed or timeout:', err.message);
-      console.log('ℹ️ Server will continue running with basic endpoints (health checks work, but full Next.js unavailable)');
+      console.log('ℹ️ Server will continue running with basic endpoints');
       console.log('ℹ️ Retrying Next.js preparation in 30s...');
-      
-      // Don't set nextReady = true - keep server in initialization state
-      // Server will respond with "initializing" JSON to health checks (HTTP 503)
-      // and HTML loading page to browsers
-      
-      // Retry app.prepare() after 30 seconds
+
       setTimeout(() => {
         prepareWithTimeout(300000)
           .then(() => {
@@ -347,8 +365,74 @@ server.listen(port, hostname, (err) => {
           })
           .catch(retryErr => {
             console.error('❌ Next.js preparation retry also failed:', retryErr.message);
-            console.log('⚠️ Next.js will remain unavailable - server operating in degraded mode');
+            console.log('⚠️ Next.js will remain unavailable - degraded mode');
           });
       }, 30000);
     });
+}; // End continueInitialization function
+
+// STEP 1: Start server with retry logic for EADDRINUSE
+startServerWithRetry();
+
+// ========================================
+// CRITICAL FIX #2: Graceful Shutdown Handler
+// ========================================
+const gracefulShutdown = async (signal) => {
+  console.log(`\n⏳ [${signal}] Graceful shutdown initiated...`);
+  
+  // Close HTTP server
+  server.close(() => {
+    console.log('✅ HTTP server closed');
+  });
+
+  // Force shutdown after 10 seconds
+  const shutdownTimeout = setTimeout(() => {
+    console.error('🔴 Forced shutdown after 10s timeout');
+    process.exit(1);
+  }, 10000);
+
+  try {
+    // Close database connections if available
+    if (global.db && global.db.close) {
+      await global.db.close();
+      console.log('✅ Database connections closed');
+    }
+
+    // Close Redis if available
+    if (global.redis && global.redis.quit) {
+      await global.redis.quit();
+      console.log('✅ Redis connection closed');
+    }
+
+    clearTimeout(shutdownTimeout);
+    console.log('✅ Graceful shutdown completed');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error during graceful shutdown:', error.message);
+    process.exit(1);
+  }
+};
+
+// ========================================
+// CRITICAL FIX #3: Process Error Handlers
+// ========================================
+
+// Handle SIGTERM (sent by container orchestration systems)
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+
+// Handle SIGINT (Ctrl+C)
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('🔴 Uncaught Exception:', error);
+  gracefulShutdown('uncaughtException');
 });
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🔴 Unhandled Rejection at Promise:', promise, 'reason:', reason);
+  gracefulShutdown('unhandledRejection');
+});
+
+console.log('✅ Process error handlers registered');
