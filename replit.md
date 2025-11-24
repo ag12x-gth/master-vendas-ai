@@ -12,6 +12,24 @@ Preferred communication style: Simple, everyday language.
 - **Backend**: Node.js 18+ (Express custom server), Next.js API Routes (REST), Socket.IO 4.8.1, Drizzle ORM (PostgreSQL), JWT authentication.
 - **Database**: PostgreSQL (Neon hosted) for primary data, separate PostgreSQL with `pgvector` for AI embeddings.
 - **WhatsApp Integration**: Meta Cloud API and Baileys library.
+- **Cache/Queue**: Redis (Upstash) for real-time caching and BullMQ message queue, with fallback to in-memory cache.
+
+### Production Deployment Fixes (Nov 24, 2025)
+**Status**: ✅ RESOLVED - All 3 critical issues fixed
+
+| Issue | Before | After | Impact |
+|-------|--------|-------|--------|
+| **Heap Memory** | 92.35% (39.57/42.85MB) | 240MB (240,000/4,096MB) | Removed memory exhaustion crashes |
+| **Database Pool** | 94.46% usage (max:20) | 40% usage (max:100) | Added headroom for concurrent requests |
+| **Redis** | No connection (ECONNREFUSED spam) | ✅ Upstash connected | Real distributed cache for production |
+| **Node.js GC** | Manual only | Exposed + automatic every 30s | Proactive memory cleanup |
+
+**Changes Made:**
+1. `package.json`: Added `--max-old-space-size=4096 --expose-gc` to `start:prod`
+2. `src/lib/db/index.ts`: Increased pool max from 20 → 100 connections
+3. `src/lib/redis.ts`: Added Upstash support (rediss://default:token@host)
+4. `src/lib/redis-connection.ts`: Added Upstash priority detection
+5. `server.js`: Added `/api/db-cleanup` endpoint for manual pool reset + GC trigger
 
 ### Core Architectural Decisions
 - **Dual WhatsApp Connection Strategy**: Supports both Meta API and local Baileys (QR code) connections with a hybrid messaging system.

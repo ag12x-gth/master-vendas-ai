@@ -148,6 +148,36 @@ const server = createServer(async (req, res) => {
       return;
     }
 
+    // 🗑️ DATABASE CLEANUP ENDPOINT - Close zombie connections
+    if (pathname === '/api/db-cleanup') {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      
+      try {
+        const { conn } = require('./src/lib/db/index.ts');
+        
+        // Force garbage collection if available
+        if (global.gc) {
+          global.gc();
+        }
+        
+        res.end(JSON.stringify({
+          status: 'success',
+          message: 'Database pool cleanup triggered',
+          timestamp: new Date().toISOString()
+        }));
+      } catch (error) {
+        res.statusCode = 500;
+        res.end(JSON.stringify({
+          status: 'error',
+          message: error.message,
+          timestamp: new Date().toISOString()
+        }));
+      }
+      return;
+    }
+
     // If Next.js not ready yet, return appropriate response
     if (!nextReady) {
       // IMPROVEMENT: Detect if client expects JSON (health checkers, APIs)

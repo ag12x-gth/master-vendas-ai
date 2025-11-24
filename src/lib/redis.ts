@@ -556,8 +556,10 @@ class HybridRedisClient {
   }
 
   private async initialize(): Promise<void> {
-    // Try to connect to real Redis first
+    // Try to connect to real Redis first (Upstash or standard Redis)
     const redisUrl = process.env.REDIS_URL;
+    const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
+    const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
     const redisHost = process.env.REDIS_HOST || 'localhost';
     const redisPort = parseInt(process.env.REDIS_PORT || '6379');
     const redisPassword = process.env.REDIS_PASSWORD;
@@ -565,7 +567,24 @@ class HybridRedisClient {
     try {
       let redisClient: IORedis;
       
-      if (redisUrl) {
+      // ✅ PRIORIDADE: Upstash REST > REDIS_URL > Localhost
+      if (upstashUrl && upstashToken) {
+        // Upstash REST API connection
+        console.log('🚀 Upstash Redis detected! Converting REST URL to standard Redis...');
+        // Convert REST URL (https://host.upstash.io) to Redis URL (rediss://default:token@host:6379)
+        const upstashHost = upstashUrl.replace('https://', '').replace(/\/$/, '').split(':')[0];
+        const upstashRedisUrl = `rediss://default:${upstashToken}@${upstashHost}:6379`;
+        redisClient = new IORedis(upstashRedisUrl, {
+          maxRetriesPerRequest: 3,
+          enableOfflineQueue: true,
+          connectTimeout: 5000,
+          retryStrategy: (times) => {
+            if (times > 3) return null;
+            return Math.min(times * 100, 1000);
+          },
+          lazyConnect: false,
+        });
+      } else if (redisUrl) {
         redisClient = new IORedis(redisUrl, {
           maxRetriesPerRequest: 3,
           enableOfflineQueue: true,  // ✅ CORRIGIDO: Permite retry automático

@@ -10,18 +10,26 @@ let redisConnection: Redis | null = null;
 export function getRedisConnection(): Redis {
   if (!redisConnection) {
     const redisUrl = process.env.REDIS_URL;
+    const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
+    const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
     
-    if (!redisUrl) {
-      // For development/testing, try to connect to local Redis
-      // In production, REDIS_URL must be set
-      console.warn('⚠️ REDIS_URL not set. Trying localhost:6379 for Redis connection.');
-      console.warn('⚠️ For production, please set REDIS_URL environment variable.');
-      console.warn('⚠️ Example: redis://user:password@redis-host:6379');
-      
-      redisConnection = new Redis({
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379'),
-        password: process.env.REDIS_PASSWORD,
+    // ✅ PRIORIDADE: Upstash > REDIS_URL > Localhost
+    let connectionUrl: string | undefined;
+    
+    if (upstashUrl && upstashToken) {
+      // Convert Upstash REST URL to Redis protocol
+      const upstashHost = upstashUrl.replace('https://', '').replace(/\/$/, '').split(':')[0];
+      connectionUrl = `rediss://default:${upstashToken}@${upstashHost}:6379`;
+      console.log('✅ Using Upstash Redis connection');
+    } else if (redisUrl) {
+      connectionUrl = redisUrl;
+      console.log('✅ Using provided REDIS_URL');
+    } else {
+      console.warn('⚠️ No Redis URL provided. Trying localhost:6379 for BullMQ.');
+    }
+    
+    if (connectionUrl) {
+      redisConnection = new Redis(connectionUrl, {
         maxRetriesPerRequest: null, // Required for BullMQ
         enableReadyCheck: false,
         retryStrategy: (times) => {
@@ -30,8 +38,10 @@ export function getRedisConnection(): Redis {
         }
       });
     } else {
-      // Use the provided Redis URL
-      redisConnection = new Redis(redisUrl, {
+      redisConnection = new Redis({
+        host: process.env.REDIS_HOST || 'localhost',
+        port: parseInt(process.env.REDIS_PORT || '6379'),
+        password: process.env.REDIS_PASSWORD,
         maxRetriesPerRequest: null, // Required for BullMQ
         enableReadyCheck: false,
         retryStrategy: (times) => {

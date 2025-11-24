@@ -98,7 +98,7 @@ localPort = 8085
 externalPort = 3003
 
 [[ports]]
-localPort = 36469
+localPort = 34271
 externalPort = 4200
 
 [userenv]
@@ -106,3 +106,5 @@ externalPort = 4200
 [userenv.shared]
 REDIS_URL = "redis://localhost:6379"
 DB_DEBUG = "true"
+UPSTASH_REDIS_REST_TOKEN = "AR4oAAImcDI3MGUzYmI4YTVjMWE0NzVmYWYxMTkyZTFmZjUyYjlhMHAyNzcyMA"
+UPSTASH_REDIS_REST_URL = "https://causal-dane-7720.upstash.io/"
