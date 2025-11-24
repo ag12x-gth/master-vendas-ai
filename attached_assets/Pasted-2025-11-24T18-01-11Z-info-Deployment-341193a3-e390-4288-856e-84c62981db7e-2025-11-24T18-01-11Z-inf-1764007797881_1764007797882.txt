@@ -1,0 +1,182 @@
+2025-11-24T18:01:11Z info: Deployment: 341193a3-e390-4288-856e-84c62981db7e
+2025-11-24T18:01:11Z info: Build: 9459cdc3-af47-4227-a2f4-a11800fdaa34
+2025-11-24T18:01:11Z info: Running Security Scan
+2025-11-24T18:01:31Z info: Security Scan Complete
+2025-11-24T18:01:31Z info: Connecting to builder
+2025-11-24T18:01:31Z info: Builder connected
+2025-11-24T18:01:31Z info: Installing packages
+--> npm install
+
+
+up to date, audited 1191 packages in 12s
+
+  run `npm fund` for details
+
+
+4 vulnerabilities (1 moderate, 3 high)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.6.3
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.3
+npm notice To update run: npm install -g npm@11.6.3
+npm notice
+
+2025-11-24T18:01:44Z info: Starting Build
+
+> nextn@2.4.1 build
+> NODE_OPTIONS='--max-old-space-size=4096' SKIP_LINT=false next build
+
+
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.com/vercel/next.js/issues
+
+  ▲ Next.js 14.2.33
+
+  - Environments: .env
+  - Experiments (use with caution):
+
+    · cpus
+
+
+   Creating an optimized production build ...
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+
+ ✓ Compiled successfully
+
+   Linting and checking validity of types ...
+
+
+./src/components/campaigns/TemplatePreview.tsx
+128:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/campaigns/create-whatsapp-campaign-dialog.tsx
+26:50  Warning: 'ImageIcon' is defined but never used.  unused-imports/no-unused-imports
+
+./src/components/campaigns/whatsapp-preview.tsx
+2:10  Warning: 'Clock' is defined but never used.  unused-imports/no-unused-imports
+54:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/contacts/import-contacts-dialog.tsx
+38:6  Warning: 'UploadMode' is defined but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+421:27  Warning: 'total' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+428:80  Warning: 'index' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/dashboard/ai-performance-section.tsx
+54:9  Warning: 'notify' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/lists/upload-contacts-confirm-dialog.tsx
+30:3  Warning: 'listId' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/whatsapp-baileys/qr-code-modal.tsx
+165:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/lib/auth.config.ts
+117:35  Warning: 'profile' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/lib/cache/contact-cache.ts
+131:13  Warning: 'cacheKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+132:13  Warning: 'indexKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+233:13  Warning: 'cacheKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+238:15  Warning: 'indexKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+239:15  Warning: 'validationKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+302:15  Warning: 'cachedContact' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+311:15  Warning: 'cacheKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+312:15  Warning: 'indexKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/lib/cache/metrics.ts
+32:13  Warning: 'hitKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+33:13  Warning: 'totalKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+45:13  Warning: 'missKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+46:13  Warning: 'totalKey' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/lib/cadence-scheduler.ts
+3:10  Warning: 'companies' is defined but never used.  unused-imports/no-unused-imports
+
+./src/lib/cadence-service.ts
+4:3  Warning: 'cadenceSteps' is defined but never used.  unus
+   Collecting page data ...
+
+[ioredis] Unhandled error event: Error: getaddrinfo ENOTFOUND causal-dane-7720.upstash.io
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26)
+    at GetAddrInfoReqWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+
+[ioredis] Unhandled error event: Error: getaddrinfo ENOTFOUND causal-dane-7720.upstash.io
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26)
+    at GetAddrInfoReqWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+
+[ioredis] Unhandled error event: Error: getaddrinfo ENOTFOUND causal-dane-7720.upstash.io
+    at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:120:26)
+    at GetAddrInfoReqWrap.callbackTrampoline (node:internal/async_hooks:130:17)
+
+📝 Note: In-memory cache is for development only. Redis is required for production.
+
+   Generating static pages (0/50) ...
+
+   Generating static pages (12/50) 
+
+   Generating static pages (24/50) 
+
+   Generating static pages (37/50) 
+
+ ✓ Generating static pages (50/50)
+
+   Finalizing page optimization ...
+
+   Collecting build traces ...
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+2025-11-24T18:03:39Z info: Pushing pid1 binary layer...
+2025-11-24T18:03:41Z info: Created pid1 binary layer
+2025-11-24T18:03:52Z info: Pushing Repl layer...
+2025-11-24T18:03:52Z info: Pushing hosting layer...
+2025-11-24T18:03:52Z info: Retrieved cached nix layer
+2025-11-24T18:03:52Z info: Created hosting layer
+2025-11-24T18:05:30Z info: Created Repl layer
+2025-11-24T18:05:34Z info: Pushed image manifest
+2025-11-24T18:05:36Z info: Pushed soci index manifest
+2025-11-24T18:05:39Z info: Creating Autoscale service
+🔄 Preparing Next.js in background (timeout: 300s)...
+🔧 [Redis] HybridRedisClient constructor called - starting initialization...
+✅ Process error handlers registered
+🧠 [Memory] Node.js Heap Limit: 4144.00 MB
+> nextn@2.4.1 start:prod
+[Baileys] Initializing sessions from database...
+✅ Baileys initialized
+[2025-11-24T18:07:35.477Z] [INFO] [CadenceScheduler] Scheduler started successfully
+[2025-11-24T18:07:35.401Z] [INFO] [CadenceScheduler] Starting cadence scheduler...
+[2025-11-24T18:07:35.477Z] [INFO] [CadenceScheduler] Processor scheduled for hourly runs {"nextRun":"24/11/2025, 19:00:00"}
+IMPORTANT! Eviction policy is optimistic-volatile. It should be "noeviction"
+IMPORTANT! Eviction policy is optimistic-volatile. It should be "noeviction"
+IMPORTANT! Eviction policy is optimistic-volatile. It should be "noeviction"
+🔍 [DB Monitor] Pool monitoring active...
+🧹 [GC] Freed 3.65MB heap, 0.00MB external, -0.13MB total
+⚠️ [Memory] High heap usage: 92.42%, forcing GC
+⚠️ [Memory] High heap usage: 92.98%, forcing GC
+🧹 [GC] Freed 0.43MB heap, 0.00MB external, 0.00MB total
+🔍 [DB Monitor] Pool monitoring active...
+📊 [Memory Stats] RSS: 134.04MB | Heap: 42.76/46.35MB (92.26%) | External: 13.60MB
+⚠️ [Memory] High heap usage: 92.88%, forcing GC
+⚠️ [Memory] High heap usage: 92.92%, forcing GC
+> NODE_ENV=production NODE_OPTIONS='--max-old-space-size=4096 --expose-gc' node server.js
+🧹 Garbage collection exposed, enabling aggressive memory management
+starting up user application
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.com/vercel/next.js/issues
+[Baileys] Session initialization complete
+[2025-11-24T18:09:04.866Z] [INFO] [CadenceScheduler] Detector scheduled for 9 AM daily {"nextRun":"25/11/2025, 09:00:00"}
+✅ Cadence Scheduler ready
+✅ Campaign Processor ready
+IMPORTANT! Eviction policy is optimistic-volatile. It should be "noeviction"
+IMPORTANT! Eviction policy is optimistic-volatile. It should be "noeviction"
+🔍 [DB Monitor] Pool monitoring active...
+⚠️ [Memory] High heap usage: 90.67%, forcing GC
+2025-11-24T18:09:30Z error: The deployment is failing health checks. This can happen if the application isn't responding, responds with an error, or doesn't respond in time. Health checks are sent to the / endpoint by default and must respond as soon as possible. Make sure that the / endpoint is implemented and returns a 200 status code in a timely manner. Avoid doing expensive or long running operations on the / endpoint, prefer deferring them to a different route. Check the logs for more information.
