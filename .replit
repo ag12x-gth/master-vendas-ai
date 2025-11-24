@@ -76,3 +76,9 @@ defaultBucketID = "replit-objstore-5c7db24d-3f1a-48f3-a419-34323e1b5779"
 [[ports]]
 localPort = 8080
 externalPort = 80
+
+[userenv]
+
+[userenv.shared]
+REDIS_URL = "redis://localhost:6379"
+DB_DEBUG = "true"
