@@ -15,21 +15,26 @@ Preferred communication style: Simple, everyday language.
 - **Cache/Queue**: Redis (Upstash) for real-time caching and BullMQ message queue, with fallback to in-memory cache.
 
 ### Production Deployment Fixes (Nov 24, 2025)
-**Status**: ✅ RESOLVED - All 3 critical issues fixed
+**Status**: ⏸️ IN PROGRESS - 3 of 4 critical issues fixed (75%)
 
-| Issue | Before | After | Impact |
-|-------|--------|-------|--------|
-| **Heap Memory** | 92.35% (39.57/42.85MB) | 240MB (240,000/4,096MB) | Removed memory exhaustion crashes |
-| **Database Pool** | 94.46% usage (max:20) | 40% usage (max:100) | Added headroom for concurrent requests |
-| **Redis** | No connection (ECONNREFUSED spam) | ✅ Upstash connected | Real distributed cache for production |
-| **Node.js GC** | Manual only | Exposed + automatic every 30s | Proactive memory cleanup |
+| Issue | Before | After | Impact | Status |
+|-------|--------|-------|--------|--------|
+| **Heap Memory** | 92.35% (39.57/42.85MB) | 4144MB (4GB limit) | Removed memory exhaustion crashes | ✅ COMPLETE |
+| **Database Pool** | 94.46% usage (max:20) | max:100 connections | 5x capacity for concurrent requests | ✅ COMPLETE |
+| **Port Config** | 8080 | 5000 (frontend standard) | Proper Replit deployment | ✅ COMPLETE |
+| **Redis Upstash** | No connection | ❌ DNS ENOTFOUND | Needs valid Redis endpoint | ⏸️ BLOCKED |
+| **Node.js GC** | Manual only | Exposed + automatic every 30s | Proactive memory cleanup | ✅ COMPLETE |
 
 **Changes Made:**
-1. `package.json`: Added `--max-old-space-size=4096 --expose-gc` to `start:prod`
-2. `src/lib/db/index.ts`: Increased pool max from 20 → 100 connections
-3. `src/lib/redis.ts`: Added Upstash support (rediss://default:token@host)
-4. `src/lib/redis-connection.ts`: Added Upstash priority detection
-5. `server.js`: Added `/api/db-cleanup` endpoint for manual pool reset + GC trigger
+1. ✅ `package.json`: Added `--max-old-space-size=4096 --expose-gc` to `start:prod`, port 5000
+2. ✅ `server.js`: Port 5000 binding, Redis eager loading, port guard
+3. ✅ `src/lib/db/index.ts`: Increased pool max from 20 → 100 connections
+4. ⏸️ `src/lib/redis.ts`: Added Upstash detection (DNS fails, needs correct endpoint)
+5. ⏸️ `src/lib/redis-connection.ts`: HybridRedisClient (fallback to in-memory due to DNS)
+
+**Architect Review:** ✅ Approved fixes 1-3, identified DNS issue for fix #4
+
+**Blocker:** Upstash hostname `causal-dane-7720.upstash.io` does not resolve DNS. Need Redis protocol endpoint (not REST API URL) from Upstash dashboard.
 
 ### Core Architectural Decisions
 - **Dual WhatsApp Connection Strategy**: Supports both Meta API and local Baileys (QR code) connections with a hybrid messaging system.
