@@ -215,6 +215,16 @@ server.listen(port, hostname, (err) => {
 
   }).catch(err => {
     console.error('❌ Next.js preparation failed:', err);
-    process.exit(1);
+    console.log('ℹ️ Server will continue running with loading page. Retry Next.js in 5s...');
+    // Don't exit - let server continue with loading page response
+    // Retry app.prepare() after 5 seconds
+    setTimeout(() => {
+      app.prepare().then(() => {
+        nextReady = true;
+        console.log('✅ Next.js ready!');
+      }).catch(retryErr => {
+        console.error('❌ Next.js retry also failed:', retryErr.message);
+      });
+    }, 5000);
   });
 });
