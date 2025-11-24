@@ -13,7 +13,7 @@ if (!DATABASE_URL) {
 
 // Configuração de connection pooling
 const connectionConfig = {
-  max: 20, // Máximo de conexões no pool
+  max: 100, // ✅ AUMENTADO de 20 para 100: Suporta mais conexões simultâneas
   idle_timeout: 30, // Timeout de conexões inativas (segundos)
   connect_timeout: 10, // Timeout para estabelecer conexão (segundos)
   prepare: false, // Desabilita prepared statements para melhor compatibilidade

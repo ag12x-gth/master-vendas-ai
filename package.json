@@ -11,7 +11,7 @@
     "build:fast": "NODE_OPTIONS='--max-old-space-size=4096' SKIP_LINT=true SKIP_TYPECHECK=true next build",
     "build:prod": "next build",
     "start": "next start -p 8080",
-    "start:prod": "NODE_ENV=production node server.js",
+    "start:prod": "NODE_ENV=production NODE_OPTIONS='--max-old-space-size=4096 --expose-gc' node server.js",
     "lint": "eslint . --ext .ts,.tsx --cache --cache-location .next/cache/eslint",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
