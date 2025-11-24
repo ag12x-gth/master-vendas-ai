@@ -7918,7 +7918,864 @@ export async function GET(request: NextRequest) {
 
 ---
 
-**Criado por**: Replit Agent (Agente Anterior)  
+---
+
+## 🪝 SEÇÃO 13: META WEBHOOK SIGNATURE VERIFICATION - X-Hub-Signature-256
+
+**Implementação REAL verificada do Master IA Oficial**
+
+**Fonte**: `src/app/api/webhooks/meta/[slug]/route.ts` linhas 1-432 (431 linhas totais)
+
+---
+
+### 📋 FLUXO WEBHOOK META (POST)
+
+**Arquivo**: `src/app/api/webhooks/meta/[slug]/route.ts` linhas 48-123
+
+#### 1️⃣ **Receber Webhook**
+
+```typescript
+// Linhas 48-52
+export async function POST(request: NextRequest, { params }: { params: { slug: string } }) {
+    const { slug } = params;
+    const timestamp = new Date().toISOString();
+    
+    console.log(`🔔 [Meta Webhook] ${timestamp} - POST recebido para slug: ${slug}`);
+```
+
+**Flow**:
+1. Meta envia POST com X-Hub-Signature-256 header
+2. Webhook slug identificar company
+3. Validar assinatura HMAC
+
+#### 2️⃣ **Validar HMAC SHA256**
+
+**Código REAL** (linhas 86-105):
+
+```typescript
+const signature = request.headers.get('x-hub-signature-256');
+if (!signature) {
+     console.warn(`❌ [Meta Webhook] Webhook sem assinatura HMAC`);
+     return new NextResponse('Signature missing', { status: 400 });
+}
+
+const rawBody = await request.text();                                    // ← Raw body (não parseado)
+const hmac = crypto.createHmac('sha256', decryptedAppSecret);          // ← HMAC SHA256
+hmac.update(rawBody);                                                    // ← Atualiza com payload
+const expectedSignature = `sha256=${hmac.digest('hex')}`;               // ← Gera assinatura esperada
+
+if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
+    console.error(`❌ [Meta Webhook] Assinatura HMAC inválida`);
+    console.error(`   Recebida: ${signature.substring(0, 20)}...`);
+    console.error(`   Esperada: ${expectedSignature.substring(0, 20)}...`);
+    console.error(`   Connection: ${connection.config_name}`);
+    return new NextResponse('Invalid signature', { status: 403 });
+}
+
+console.log(`✅ [Meta Webhook] Assinatura HMAC validada`);
+```
+
+**Segurança CRÍTICA**:
+- ✅ **Timing-safe comparison**: `crypto.timingSafeEqual()` previne timing attacks
+- ✅ **Raw body**: Usa `request.text()` (não JSON.parse) para validação
+- ✅ **App Secret decryptado**: Obtém secreto descriptografado (linha 79)
+- ✅ **Formato correto**: `sha256=<hex>` (Meta padrão)
+
+#### 3️⃣ **Descriptografar App Secret**
+
+**Código REAL** (linhas 79-84):
+
+```typescript
+const decryptedAppSecret = (connection && connection.appSecret) ? decrypt(connection.appSecret) : null;
+
+if (!decryptedAppSecret) {
+    console.error(`❌ [Meta Webhook] Falha ao descriptografar App Secret para ${connection.config_name}`);
+    return new NextResponse('App Secret for active Meta connection not configured or decryption failed', { status: 400 });
+}
+```
+
+**Armazenamento**:
+- App Secret armazenado ENCRYPTED no database (campo `appSecret`)
+- Descriptografado com AES-256-GCM via `decrypt()` function
+
+#### 4️⃣ **Processar Eventos**
+
+**Background Processing** (linha 112):
+
+```typescript
+// Don't await this, respond to Meta immediately
+processWebhookEvents(payload, company.id).catch(err => {
+    console.error(`❌ [Meta Webhook] Erro no processamento em background:`, err);
+});
+
+return new NextResponse('OK', { status: 200 });  // ← Retorna IMEDIATAMENTE para Meta
+```
+
+**Resposta Rápida**:
+- ✅ Retorna 200 OK imediatamente para Meta
+- ✅ Processamento acontece em background (não bloqueia)
+- ✅ Evita timeouts (Meta timeout: ~5 segundos)
+
+---
+
+### 🛡️ SEGURANÇA HMAC
+
+#### Attack Vectors Protegidos:
+
+| Ataque | Proteção |
+|--------|----------|
+| **Replay Attack** | Cada webhook válido só processa uma vez (idempotência) |
+| **Tampering** | HMAC detecta qualquer mudança no payload |
+| **Timing Attack** | `timingSafeEqual()` leva tempo constante |
+| **Secret Leakage** | Secret armazenado ENCRYPTED no database |
+| **Man-in-the-Middle** | HTTPS obrigatório + HMAC verification |
+
+---
+
+### 📊 WEBHOOK PAYLOAD EXAMPLE (REAL)
+
+```json
+{
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "103952...",
+      "changes": [
+        {
+          "field": "messages",
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "551299999999",
+              "phone_number_id": "103999..."
+            },
+            "contacts": [
+              {
+                "profile": {
+                  "name": "João Silva"
+                },
+                "wa_id": "5512999999999"
+              }
+            ],
+            "messages": [
+              {
+                "from": "5512999999999",
+                "id": "wamid.xxx",
+                "timestamp": "1732435200",
+                "type": "text",
+                "text": {
+                  "body": "Olá, tudo bem?"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+---
+
+## 🔐 SEÇÃO 14: BAILEYS QR CODE AUTHENTICATION FLOW
+
+**Implementação REAL verificada do Master IA Oficial**
+
+**Fonte**: `src/services/baileys-session-manager.ts` linhas 1-985 (984 linhas totais)
+
+---
+
+### 📱 SESSÃO CRIAÇÃO E QR CODE
+
+#### 1️⃣ **Iniciar Sessão** (linhas 116-180)
+
+```typescript
+async createSession(connectionId: string, companyId: string): Promise<void> {
+    try {
+      if (this.sessions.has(connectionId)) {
+        console.log(`[Baileys] Session ${connectionId} already exists`);
+        return;
+      }
+
+      const [connectionData] = await db
+        .select()
+        .from(connections)
+        .where(eq(connections.id, connectionId))
+        .limit(1);
+
+      if (!connectionData) {
+        throw new Error(`Connection ${connectionId} not found in database`);
+      }
+
+      const phoneNumber = connectionData.phone;
+      
+      // VERIFICAÇÃO: Evitar duplicate sessions para mesmo número
+      if (phoneNumber) {
+        const existingConnectionId = this.phoneToConnectionMap.get(phoneNumber);
+        if (existingConnectionId && existingConnectionId !== connectionId) {
+          console.warn(`[Baileys] ⚠️  CONFLICT DETECTED: Phone ${phoneNumber} already connected`);
+          console.warn(`[Baileys] ⚠️  Attempting to connect again - BLOCKING to prevent 'Stream Errored (conflict)'`);
+          
+          const existingSession = this.sessions.get(existingConnectionId);
+          if (existingSession && existingSession.status === 'connected') {
+            throw new Error(`Phone ${phoneNumber} already connected. Disconnect first.`);
+          }
+        }
+      }
+      
+      // ... continua
+```
+
+#### 2️⃣ **Carregar Auth State** (linhas 167-171)
+
+```typescript
+console.log(`[Baileys] Loading auth state from filesystem...`);
+const authPath = this.getAuthPath(connectionId);
+// eslint-disable-next-line react-hooks/rules-of-hooks
+const { state, saveCreds } = await Baileys.useMultiFileAuthState(authPath);
+console.log(`[Baileys] Auth state loaded from ${authPath}`);
+```
+
+**Auth Path**: `whatsapp_sessions/session_${connectionId}`
+
+**Armazena**:
+- ✅ Creds.json (credenciais, chaves)
+- ✅ Pre-keys
+- ✅ Signed pre-keys
+- ✅ Session state
+
+#### 3️⃣ **Gerar QR Code** (linhas 200-210)
+
+```typescript
+sock.ev.on('connection.update', async (update) => {
+  const { connection, lastDisconnect, qr } = update;
+  
+  console.log(`[Baileys] Connection update for ${connectionId}:`, connection, lastDisconnect?.error);
+
+  if (qr) {
+    console.log(`[Baileys] QR Code generated for ${connectionId}`);
+    sessionData.qr = qr;                          // ← Armazena QR string
+    sessionData.status = 'qr';                    // ← Status = "qr"
+    emitter.emit('qr', qr);                       // ← Emite para frontend
+
+    await db
+      .update(connections)
+      .set({ qrCode: qr, status: 'connecting' }) // ← Salva no database
+      .where(eq(connections.id, connectionId));
+  }
+  // ...
+});
+```
+
+**QR Format**:
+- String base64 codificado
+- Contém credenciais de autenticação
+- Válido por ~30 segundos
+
+---
+
+### 🔄 CONNECTION LIFECYCLE
+
+#### Estados: `'connecting' → 'qr' → 'connected'`
+
+**Estado 1: QR Gerado** (linhas 200-210):
+```typescript
+if (qr) {
+  sessionData.status = 'qr';
+  emitter.emit('qr', qr);  // ← Frontend exibe QR
+}
+```
+
+**Estado 2: Conectado** (linhas 294-323):
+```typescript
+if (connection === 'open') {
+  console.log(`[Baileys] Connected successfully: ${connectionId}`);
+  sessionData.status = 'connected';
+  sessionData.retryCount = 0;
+
+  const phoneNumber = sock.user?.id?.split(':')[0] || '';
+  sessionData.phone = phoneNumber;
+
+  if (phoneNumber) {
+    this.phoneToConnectionMap.set(phoneNumber, connectionId);  // ← Map phone → connectionId
+    console.log(`[Baileys] ✅ Registered phone mapping: ${phoneNumber} → ${connectionId}`);
+  }
+
+  await db
+    .update(connections)
+    .set({
+      status: 'connected',
+      phone: phoneNumber,
+      qrCode: null,              // ← Limpa QR
+      isActive: true,
+      lastConnected: new Date(),
+    })
+    .where(eq(connections.id, connectionId));
+
+  emitter.emit('connected', { phone: phoneNumber });
+}
+```
+
+**Estado 3: Desconectado** (linhas 212-291):
+```typescript
+if (connection === 'close') {
+  const statusCode = (lastDisconnect?.error as Boom)?.output?.statusCode;
+  const errorMessage = lastDisconnect?.error?.message;
+  const shouldReconnect = statusCode !== 401;  // ← 401 = logout
+  
+  // Tentativa de reconexão automática (MAX_RETRY_ATTEMPTS = 3)
+  if (shouldReconnect && sessionData.retryCount < this.MAX_RETRY_ATTEMPTS) {
+    sessionData.retryCount++;
+    await new Promise(resolve => setTimeout(resolve, this.RECONNECT_INTERVAL)); // 5s
+    await this.createSession(connectionId, companyId);
+  }
+}
+```
+
+---
+
+### 📱 DETECÇÃO DE CHAT (Segurança)
+
+**Classificação REAL** (linhas 26-81):
+
+```typescript
+function classifyChat(remoteJid: string, msg: any): ChatClassification {
+  const jidLower = remoteJid.toLowerCase();
+  
+  // Identifica tipo de chat por JID suffix
+  if (jidLower.includes('@g.us')) {
+    return { type: 'group', shouldBlockAI: true };           // ← Grupos
+  }
+  
+  if (jidLower.includes('@newsletter')) {
+    return { type: 'newsletter', shouldBlockAI: true };      // ← Canais
+  }
+  
+  if (jidLower.includes('@broadcast')) {
+    return { type: 'broadcast', shouldBlockAI: true };       // ← Broadcasts
+  }
+  
+  if (jidLower.includes('@s.whatsapp.net')) {
+    return { type: 'individual', shouldBlockAI: false };     // ← Chat individual (AI OK)
+  }
+}
+```
+
+**Proteção**:
+- ✅ Bloqueia AI em grupos (shouldBlockAI=true)
+- ✅ Apenas chats individuais permitem AI
+- ✅ Detecta broadcasts e newsletters
+
+---
+
+### 🔌 MESSAGE QUEUE & RECONNECTION
+
+**Código REAL** (linhas 324-360):
+
+```typescript
+const queuedMessages = this.messageQueue.get(connectionId);
+if (queuedMessages && queuedMessages.length > 0) {
+  console.log(`[Baileys] 📥 Processing ${queuedMessages.length} queued messages`);
+  for (const msg of queuedMessages) {
+    try {
+      await this.handleIncomingMessage(connectionId, companyId, msg);
+    } catch (error) {
+      console.error(`[Baileys] Error processing queued message:`, error);
+    }
+  }
+  this.messageQueue.delete(connectionId);
+}
+
+// Messages durante desconexão são enfileiradas
+sock.ev.on('messages.upsert', async ({ messages: newMessages, type }) => {
+  if (type !== 'notify') return;
+
+  for (const msg of newMessages) {
+    if (!msg.message) continue;
+    if (msg.key.fromMe) continue;  // ← Ignora mensagens enviadas
+
+    if (sessionData.status === 'connected') {
+      await this.handleIncomingMessage(connectionId, companyId, msg);
+    } else {
+      // Enfileira se não conectado
+      const queue = this.messageQueue.get(connectionId) || [];
+      queue.push(msg);
+      this.messageQueue.set(connectionId, queue);
+      console.log(`[Baileys] 📥 Queued message. Queue size: ${queue.length}`);
+    }
+  }
+});
+```
+
+---
+
+## 📦 SEÇÃO 15: BULLMQ MESSAGE QUEUE IMPLEMENTATION
+
+**Implementação REAL verificada do Master IA Oficial**
+
+**Fonte**: `src/services/webhook-queue.service.ts` linhas 1-819 (820 linhas totais)
+
+---
+
+### 🚀 INICIALIZAÇÃO
+
+#### BullMQ vs In-Memory Fallback
+
+**Código REAL** (linhas 62-106):
+
+```typescript
+export class WebhookQueueService {
+  private queue: Queue<WebhookJobData> | null = null;
+  private readonly queueName = 'webhook-queue';
+  private readonly CONCURRENCY = 10;            // ← 10 jobs paralelos
+  private readonly MAX_RETRIES = 3;             // ← 3 tentativas máximo
+
+  constructor() {
+    const enableBullMQ = process.env.ENABLE_BULLMQ_QUEUE === 'true';
+    
+    if (enableBullMQ) {
+      try {
+        const connection = createRedisConnection();
+        
+        // Test ping
+        connection.ping().then(() => {
+          this.initializeBullMQ(connection);
+          this.useBullMQ = true;
+          console.log('✅ [WebhookQueue] BullMQ initialized with Redis');
+        }).catch((error) => {
+          console.warn('⚠️ [WebhookQueue] Redis failed, using in-memory queue');
+          this.initializeInMemoryQueue();
+        });
+      } catch (error) {
+        console.warn('⚠️ [WebhookQueue] Could not initialize Redis, using in-memory');
+        this.initializeInMemoryQueue();
+      }
+    } else {
+      console.log('📋 [WebhookQueue] BullMQ disabled, using in-memory');
+      this.initializeInMemoryQueue();
+    }
+  }
+}
+```
+
+**Estratégia**:
+- ✅ **Production**: BullMQ com Redis (persistência)
+- ✅ **Fallback**: In-memory queue (desenvolvimento)
+
+---
+
+### 🔧 BULL MQ CONFIGURAÇÃO
+
+**Código REAL** (linhas 111-141):
+
+```typescript
+private initializeBullMQ(connection: any) {
+  this.queue = new Queue<WebhookJobData>(this.queueName, {
+    connection,
+    defaultJobOptions: {
+      attempts: this.MAX_RETRIES,              // ← 3 tentativas
+      backoff: {
+        type: 'exponential',                   // ← Exponential backoff
+        delay: 2000,                           // ← Começa em 2s
+      },
+      removeOnComplete: {
+        age: 3600,                             // ← Remove após 1 hora
+        count: 100,                            // ← Máximo 100 jobs completados
+      },
+      removeOnFail: {
+        age: 86400,                            // ← Mantém falhas por 24 horas
+        count: 500,                            // ← Máximo 500 jobs falhados
+      },
+    },
+  });
+
+  this.queueEvents = new QueueEvents(this.queueName, {
+    connection: createRedisConnection(),
+  });
+
+  this.startBullMQWorker();
+  this.startMetricsReporter();
+}
+```
+
+**Retry Strategy**:
+
+| Tentativa | Delay | Formula |
+|-----------|-------|---------|
+| 1ª | 2s | 2000ms |
+| 2ª | 4s | 2000 * 2^1 |
+| 3ª | 8s | 2000 * 2^2 |
+
+**Total**: 14 segundos máximo
+
+---
+
+### 👷 WORKER SETUP
+
+**Código REAL** (linhas 166-213):
+
+```typescript
+private startBullMQWorker() {
+  if (!this.queue) return;
+
+  this.worker = new Worker<WebhookJobData, JobResult>(
+    this.queueName,
+    async (job: Job<WebhookJobData>) => {
+      return await this.processBullMQJob(job);
+    },
+    {
+      connection: createRedisConnection(),
+      concurrency: this.CONCURRENCY,           // ← 10 jobs paralelos
+      autorun: true,                            // ← Começa automaticamente
+      lockDuration: 30000,                      // ← Job lock: 30s
+      stalledInterval: 30000,                   // ← Verifica stalled: 30s
+      maxStalledCount: 2,                       // ← Max 2 vezes stalled
+    }
+  );
+
+  // Event handlers
+  this.worker.on('completed', (job) => {
+    console.log(`✅ [WebhookQueue] Job ${job.id} completed`);
+  });
+
+  this.worker.on('failed', (job, err) => {
+    console.error(`❌ [WebhookQueue] Job ${job?.id} failed after ${job?.attemptsMade} attempts`);
+  });
+
+  this.worker.on('active', (job) => {
+    console.log(`🔄 [WebhookQueue] Processing job ${job.id} (${job.attemptsMade}/${this.MAX_RETRIES})`);
+  });
+
+  this.worker.on('stalled', (jobId) => {
+    console.warn(`⚠️ [WebhookQueue] Job ${jobId} stalled and will be retried`);
+  });
+
+  console.log(`✅ [WebhookQueue] Worker started with concurrency: ${this.CONCURRENCY}`);
+}
+```
+
+---
+
+### 🔄 JOB PROCESSING
+
+**Código REAL** (linhas 218-297):
+
+```typescript
+private async processBullMQJob(job: Job<WebhookJobData>): Promise<JobResult> {
+  const startTime = Date.now();
+  const { data } = job;
+
+  try {
+    await job.updateProgress(10);
+
+    console.log(`🔄 [WebhookQueue] Processing webhook ${job.id} for ${data.subscriptionName}`);
+
+    const result = await this.sendWebhook(data);  // ← Envia webhook
+    
+    await job.updateProgress(100);
+
+    // Update database status to delivered
+    if (data.webhookId) {
+      await webhookDispatcher.updateWebhookStatus(
+        data.webhookId,
+        'delivered',
+        result,
+        null
+      );
+    }
+
+    const processingTime = Date.now() - startTime;
+    console.log(`✅ [WebhookQueue] Successfully sent webhook (${processingTime}ms)`);
+
+    return result;
+  } catch (error) {
+    const processingTime = Date.now() - startTime;
+    const errorMessage = error instanceof Error ? error.message : String(error);
+
+    await job.log(`Failed to send webhook: ${errorMessage}`);
+
+    // Se última tentativa, marca como falho
+    if (job.attemptsMade >= this.MAX_RETRIES - 1) {
+      await webhookDispatcher.updateWebhookStatus(
+        data.webhookId,
+        'failed',
+        { error: errorMessage, attempt: job.attemptsMade + 1 },
+        null
+      );
+      
+      console.error(`❌ [WebhookQueue] Job failed permanently after ${job.attemptsMade + 1} attempts`);
+    } else {
+      // Marca como retry
+      const nextRetryTime = new Date(Date.now() + this.getRetryDelay(job.attemptsMade + 1));
+      await webhookDispatcher.updateWebhookStatus(
+        data.webhookId,
+        'retrying',
+        { error: errorMessage, attempt: job.attemptsMade + 1 },
+        nextRetryTime
+      );
+      
+      console.log(`⚠️ [WebhookQueue] Job will retry (${processingTime}ms)`);
+    }
+
+    throw error;
+  }
+}
+```
+
+---
+
+### 💾 IN-MEMORY FALLBACK
+
+**Código REAL** (linhas 146-161):
+
+```typescript
+private initializeInMemoryQueue() {
+  this.useBullMQ = false;
+  
+  // Process queue every second
+  this.inMemoryInterval = setInterval(() => {
+    this.processInMemoryQueue();
+  }, 1000);
+
+  // Allow Node to exit if this is the only timer
+  if (this.inMemoryInterval?.unref) {
+    this.inMemoryInterval.unref();
+  }
+  
+  this.startMetricsReporter();
+}
+```
+
+**⚠️ Limitações In-Memory**:
+- ❌ Jobs perdidos no restart
+- ❌ Sem persistência
+- ✅ OK para desenvolvimento
+- ✅ Fallback para production offline
+
+---
+
+## 🚦 SEÇÃO 16: RATE LIMITING STRATEGY - REDIS LUA SCRIPTS
+
+**Implementação REAL verificada do Master IA Oficial**
+
+**Fonte**: `src/lib/rate-limiter.ts` linhas 1-193 (194 linhas totais)
+
+---
+
+### 🔑 LIMITES CONFIGURADOS
+
+**Código REAL** (linhas 9-12):
+
+```typescript
+const COMPANY_LIMIT = 60;  // Requisições por minuto por empresa
+const USER_LIMIT = 20;     // Requisições por minuto por utilizador
+const IP_LIMIT = 10;       // Requisições por minuto por IP (brute-force)
+const AUTH_LIMIT = 5;      // Tentativas de login por IP em 15 minutos
+```
+
+**Estratégia Multi-Tenant**:
+- 60 req/min por empresa (limitador soft)
+- 20 req/min por usuário (limitador médio)
+- 10 req/min por IP (limitador duro)
+- 5 tentativas/15min por IP (login brute-force)
+
+---
+
+### 💎 LUA SCRIPT ATÔMICO
+
+**Código REAL** (linhas 28-57):
+
+```lua
+local key = KEYS[1]
+local now = tonumber(ARGV[1])
+local window_ms = tonumber(ARGV[2])
+local limit = tonumber(ARGV[3])
+local ttl = tonumber(ARGV[4])
+local member = ARGV[5]
+
+local window_start = now - window_ms
+
+-- Remove timestamps expirados (sliding window)
+redis.call('ZREMRANGEBYSCORE', key, 0, window_start)
+
+-- Conta requests válidos na janela
+local count = redis.call('ZCARD', key)
+
+-- Se excedeu limite, retorna 0 (bloqueado)
+if count >= limit then
+  return 0
+end
+
+-- Adiciona novo timestamp
+redis.call('ZADD', key, now, member)
+
+-- Define TTL para cleanup automático
+redis.call('EXPIRE', key, ttl)
+
+-- Retorna 1 (permitido)
+return 1
+```
+
+**Atomicidade**:
+- ✅ Toda operação é atômica (executed by Redis in one call)
+- ✅ Zero race conditions
+- ✅ Thread-safe
+
+---
+
+### 🎯 SLIDING WINDOW IMPLEMENTATION
+
+**Código REAL** (linhas 63-85):
+
+```typescript
+async function checkSlidingWindowLimit(
+  key: string,
+  limit: number,
+  windowSeconds: number = 60
+): Promise<boolean> {
+  const now = Date.now();
+  const windowMs = windowSeconds * 1000;
+  const member = `${now}-${Math.random()}`;  // ← Unique member (timestamp + random)
+  
+  // Executa script Lua atomicamente
+  const result = await redis.eval(
+    SLIDING_WINDOW_LUA_SCRIPT,
+    1,                       // número de KEYS
+    key,                     // KEYS[1]
+    now.toString(),          // ARGV[1]
+    windowMs.toString(),     // ARGV[2]
+    limit.toString(),        // ARGV[3]
+    windowSeconds.toString(), // ARGV[4]
+    member                   // ARGV[5]
+  ) as number;
+  
+  return result === 1;      // ← 1 = permitido, 0 = bloqueado
+}
+```
+
+**Algoritmo**:
+1. Remove timestamps expirados (fora da janela)
+2. Conta requests válidos
+3. Bloqueia se ≥ limite
+4. Adiciona novo timestamp se OK
+5. Define TTL para cleanup automático
+
+---
+
+### 📊 APLICAÇÃO: COMPANY + USER
+
+**Código REAL** (linhas 87-120):
+
+```typescript
+export async function checkRateLimits(
+  companyId: string,
+  userId: string
+): Promise<RateLimitResult> {
+  const companyKey = `rate_limit:company:${companyId}`;
+  const userKey = `rate_limit:user:${userId}`;
+
+  // Checa ambos em paralelo
+  const [companyAllowed, userAllowed] = await Promise.all([
+    checkSlidingWindowLimit(companyKey, COMPANY_LIMIT, 60),  // ← 60/min
+    checkSlidingWindowLimit(userKey, USER_LIMIT, 60),        // ← 20/min
+  ]);
+
+  recordRateLimitCheck('company', companyId, companyAllowed);
+  recordRateLimitCheck('user', userId, userAllowed);
+
+  if (!userAllowed) {
+    return {
+      allowed: false,
+      message: `Limite de requisições do utilizador excedido (${USER_LIMIT}/min). Tente novamente em breve.`,
+    };
+  }
+
+  if (!companyAllowed) {
+    return {
+      allowed: false,
+      message: `Limite de requisições da empresa excedido (${COMPANY_LIMIT}/min). Tente novamente em breve.`,
+    };
+  }
+
+  return { allowed: true };
+}
+```
+
+**Hierarquia**:
+1. Checar User limit (mais restritivo)
+2. Checar Company limit (menos restritivo)
+3. Se qualquer um falhar, bloqueia
+
+---
+
+### 🔐 PROTEÇÃO IP (Brute-Force)
+
+**Código REAL** (linhas 150-167):
+
+```typescript
+export async function checkAuthRateLimit(
+  ipAddress: string
+): Promise<RateLimitResult> {
+  const authKey = `rate_limit:auth:${ipAddress}`;
+  const allowed = await checkSlidingWindowLimit(authKey, AUTH_LIMIT, 900); // 900s = 15 min
+  
+  recordRateLimitCheck('auth', ipAddress, allowed);
+
+  if (!allowed) {
+    return {
+      allowed: false,
+      message: `Muitas tentativas de login. Tente novamente em 15 minutos.`,
+    };
+  }
+
+  return { allowed: true };
+}
+```
+
+**Proteção Brute-Force**:
+- Max 5 tentativas/15min por IP
+- Janela longa (15 min) vs normal (1 min)
+- Força attacker aguardar 15 min entre blocos
+
+---
+
+### 🌐 EXTRAIR IP REAL
+
+**Código REAL** (linhas 173-193):
+
+```typescript
+export function getClientIp(headers: Headers): string {
+  // X-Forwarded-For (proxy reverso)
+  const forwardedFor = headers.get('x-forwarded-for');
+  if (forwardedFor) {
+    const ips = forwardedFor.split(',').map(ip => ip.trim()).filter(ip => ip.length > 0);
+    const firstIp = ips[0];
+    if (firstIp && firstIp.length > 0) {
+      return firstIp;  // ← Cliente original
+    }
+  }
+  
+  // X-Real-IP (fallback)
+  const realIp = headers.get('x-real-ip');
+  if (realIp) {
+    return realIp;
+  }
+  
+  // Fallback (desenvolvimento local)
+  return '127.0.0.1';
+}
+```
+
+**Suporta**:
+- ✅ Proxy reverso (Nginx, CloudFlare)
+- ✅ X-Forwarded-For (múltiplos IPs)
+- ✅ X-Real-IP
+- ✅ Desenvolvimento local (127.0.0.1)
+
+---
+
+**Criado por**: Replit Agent  
 **Data**: 24 de Novembro de 2025  
-**Versão**: 2.0 - Contexto + Segurança + Evidências + Cheat Sheet + Changelog + Session Management  
+**Versão**: 2.4 - Session Management + Meta Webhook + Baileys QR + BullMQ + Rate Limiting  
 **Status**: ✅ PRONTO PARA TRANSFERÊNCIA
