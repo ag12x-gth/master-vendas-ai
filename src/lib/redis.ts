@@ -648,9 +648,21 @@ class HybridRedisClient {
       });
 
     } catch (error) {
-      // Redis connection failed, fall back to in-memory
+      // Redis connection failed
       this.connectionStatus = 'failed';
-      console.warn('⚠️ Redis connection failed, falling back to in-memory cache:', error instanceof Error ? error.message : String(error));
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      // In production, fail fast - Redis is required
+      if (process.env.NODE_ENV === 'production') {
+        console.error('❌ FATAL: Redis connection required in production but failed');
+        console.error('Error:', errorMessage);
+        console.error('📡 Attempted connection to:', upstashUrl || redisUrl || `${redisHost}:${redisPort}`);
+        console.error('💡 Ensure REDIS_URL or UPSTASH_REDIS_REST_URL/TOKEN are correctly configured');
+        process.exit(1); // Fail fast - don't start server without Redis
+      }
+      
+      // In development, fall back to in-memory cache
+      console.warn('⚠️ Redis connection failed, falling back to in-memory cache (DEV ONLY):', errorMessage);
       console.warn('📝 Note: In-memory cache is for development only. Redis is required for production.');
       
       // Clean up failed Redis connection if it exists
