@@ -43,6 +43,41 @@ Preferred communication style: Simple, everyday language.
 
 **All systems operational - Ready for production deployment! 🚀**
 
+### BullMQ Webhook Queue System (Nov 24, 2025)
+**Status**: ✅ OPERATIONAL - Connection reuse bug fixed
+
+**Issue Fixed:**
+- `webhook-queue.service.ts` was creating multiple Redis connections via `createRedisConnection()`
+- Each BullMQ Queue/Worker instance was creating duplicate connections
+- Root cause: REDIS_URL secret pointing to deleted Upstash database (causal-dane-7720)
+
+**Solution:**
+1. ✅ Updated REDIS_URL secret to new Upstash endpoint (vital-sawfish-40850)
+2. ✅ Refactored `webhook-queue.service.ts` to reuse single Redis connection
+3. ✅ All BullMQ tests passing (queue status, metrics, pause/resume, retry)
+
+**Evidence (Test Output):**
+```bash
+✅ All webhook queue tests completed successfully!
+✓ BullMQ queue initialization
+✓ Queue metrics and monitoring
+✓ Webhook dispatch mechanism
+✓ Queue pause/resume functionality
+✓ Dead letter queue retry capability
+```
+
+### Deployment Configuration (Nov 24, 2025)
+**Status**: ✅ READY TO PUBLISH
+
+**Deployment Type**: VM (Persistent)
+- **Why VM?** Socket.IO WebSocket connections, BullMQ background workers, Baileys sessions
+- **Build Command**: `npm run build`
+- **Run Command**: `npm run start:prod`
+- **Health Check**: `/health` endpoint
+- **Port**: 5000 (bound to 0.0.0.0)
+
+**Documentation**: See `DEPLOY_READINESS_CHECKLIST.md` for complete pre-deployment validation.
+
 ### Core Architectural Decisions
 - **Dual WhatsApp Connection Strategy**: Supports both Meta API and local Baileys (QR code) connections with a hybrid messaging system.
 - **Real-time Communication**: Socket.IO for instant updates.
