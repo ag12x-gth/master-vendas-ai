@@ -3,6 +3,63 @@ const { parse } = require('url');
 const next = require('next');
 const { Server } = require('socket.io');
 const path = require('path');
+const { execSync } = require('child_process');
+
+// ========================================
+// GUARD AUTOMÁTICO - Prevenir EADDRINUSE
+// ========================================
+/**
+ * Kill stale Node.js processes occupying the target port before server starts.
+ * This prevents EADDRINUSE errors when workflow restarts.
+ * 
+ * Architect Recommendation: Add automated guard to kill stale processes
+ * Evidence: Fixed PID 75850 blocking port 8080 on 2025-11-24
+ */
+function killStaleProcesses(targetPort) {
+  try {
+    console.log(`🔍 [Guard] Checking for stale processes on port ${targetPort}...`);
+    
+    // Find processes using the target port
+    const command = `lsof -ti :${targetPort} 2>/dev/null || true`;
+    const pids = execSync(command, { encoding: 'utf8' }).trim();
+    
+    if (pids) {
+      const pidList = pids.split('\n').filter(Boolean);
+      console.log(`⚠️ [Guard] Found ${pidList.length} stale process(es): ${pidList.join(', ')}`);
+      
+      pidList.forEach(pid => {
+        try {
+          // Check if it's a Node.js process (safety check)
+          const processInfo = execSync(`ps -p ${pid} -o comm=`, { encoding: 'utf8' }).trim();
+          
+          if (processInfo.includes('node')) {
+            console.log(`🔪 [Guard] Terminating stale Node.js process PID ${pid}...`);
+            execSync(`kill -9 ${pid}`, { stdio: 'ignore' });
+            console.log(`✅ [Guard] PID ${pid} terminated successfully`);
+          } else {
+            console.log(`⏭️ [Guard] Skipping non-Node.js process PID ${pid} (${processInfo})`);
+          }
+        } catch (killError) {
+          console.warn(`⚠️ [Guard] Could not terminate PID ${pid}: ${killError.message}`);
+        }
+      });
+      
+      // Wait 1 second for port to be released
+      console.log(`⏳ [Guard] Waiting 1s for port ${targetPort} to be released...`);
+      execSync('sleep 1');
+      console.log(`✅ [Guard] Port ${targetPort} cleanup complete`);
+    } else {
+      console.log(`✅ [Guard] No stale processes found on port ${targetPort}`);
+    }
+  } catch (error) {
+    // Non-critical error - continue server startup
+    console.warn(`⚠️ [Guard] Process cleanup failed (non-critical): ${error.message}`);
+  }
+}
+
+// Execute guard before server initialization
+const PORT = parseInt(process.env.PORT || '8080', 10);
+killStaleProcesses(PORT);
 
 // Memory optimization: Enable garbage collection monitoring
 if (global.gc) {
