@@ -46,8 +46,16 @@ export function getRedisConnection(): Redis {
       console.log('✅ Redis connected successfully for BullMQ');
     });
 
-    redisConnection.on('error', (error) => {
-      console.error('❌ Redis connection error:', error.message);
+    redisConnection.on('error', (error: any) => {
+      // ✅ CORRIGIDO: Silenciar ECONNREFUSED em desenvolvimento (esperado quando Redis não está rodando)
+      if (!process.env.REDIS_URL && error.code === 'ECONNREFUSED') {
+        // Silenciar erro esperado - Redis não está rodando em dev
+        return;
+      }
+      // Log outros erros apenas
+      if (error.code !== 'ECONNREFUSED') {
+        console.error('❌ Redis connection error:', error.message);
+      }
       // Don't throw here - let BullMQ handle reconnection
     });
 

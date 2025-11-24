@@ -568,7 +568,7 @@ class HybridRedisClient {
       if (redisUrl) {
         redisClient = new IORedis(redisUrl, {
           maxRetriesPerRequest: 3,
-          enableOfflineQueue: false,
+          enableOfflineQueue: true,  // ✅ CORRIGIDO: Permite retry automático
           connectTimeout: 5000,
           retryStrategy: (times) => {
             if (times > 3) return null;
@@ -582,7 +582,7 @@ class HybridRedisClient {
           port: redisPort,
           password: redisPassword,
           maxRetriesPerRequest: 3,
-          enableOfflineQueue: false,
+          enableOfflineQueue: true,  // ✅ CORRIGIDO: Permite retry automático
           connectTimeout: 5000,
           retryStrategy: (times) => {
             if (times > 3) return null;
