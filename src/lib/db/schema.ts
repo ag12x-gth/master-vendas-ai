@@ -905,6 +905,7 @@ export const customMessageTemplates = pgTable('custom_message_templates', {
 export const userNotificationTypeEnum = pgEnum('user_notification_type', [
   'campaign_completed',
   'new_conversation',
+  'new_appointment',
   'system_error',
   'info',
 ]);

@@ -3,6 +3,7 @@ import { kanbanLeads } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import type { KanbanStage } from '@/lib/types';
 import { NotificationService } from '@/lib/notifications/notification-service';
+import { UserNotificationsService } from '@/lib/notifications/user-notifications.service';
 import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
 
 export interface MoveLeadToStageParams {
@@ -94,6 +95,30 @@ export async function moveLeadToStage(
         });
       } catch (webhookError) {
         console.error('[Webhook] Error dispatching sale_closed:', webhookError);
+      }
+    }
+
+    const isMovingToMeetingScheduled = newStage.semanticType === 'meeting_scheduled';
+    
+    if (isMovingToMeetingScheduled) {
+      try {
+        console.log(`[UserNotification] Dispatching new_appointment for lead ${leadId}`);
+        await UserNotificationsService.notifyLeadScheduled(
+          companyId,
+          lead.id,
+          lead.contact.name,
+          lead.board.id
+        );
+        
+        console.log(`[Webhook] Dispatching meeting_scheduled for lead ${leadId}`);
+        await webhookDispatcher.dispatch(companyId, 'meeting_scheduled', {
+          leadId: lead.id,
+          contactName: lead.contact.name,
+          stageName: newStage.title,
+          scheduledAt: new Date().toISOString(),
+        });
+      } catch (error) {
+        console.error('[MoveLeadToStage] Error notifying lead scheduled:', error);
       }
     }
 
