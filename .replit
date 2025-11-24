@@ -97,13 +97,10 @@ externalPort = 3002
 localPort = 8085
 externalPort = 3003
 
-[[ports]]
-localPort = 43311
-externalPort = 4200
-
 [userenv]
 
 [userenv.shared]
 DB_DEBUG = "true"
 UPSTASH_REDIS_REST_TOKEN = "AZ-SAAIncDI0OTQyYWYzODkxMzQ0YTc4YWViYzc4ZDkxMWIyOWE4MnAyNDA4NTA"
 UPSTASH_REDIS_REST_URL = "https://vital-sawfish-40850.upstash.io"
+ENABLE_BULLMQ_QUEUE = "true"

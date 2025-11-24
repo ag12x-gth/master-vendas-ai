@@ -569,6 +569,7 @@ class HybridRedisClient {
 
     try {
       let redisClient: IORedis;
+      let actualConnectionUrl: string;
       
       // ✅ PRIORIDADE: Upstash REST > REDIS_URL > Localhost
       if (upstashUrl && upstashToken) {
@@ -577,6 +578,7 @@ class HybridRedisClient {
         // Convert REST URL (https://host.upstash.io) to Redis URL (rediss://default:token@host:6379)
         const upstashHost = upstashUrl.replace('https://', '').replace(/\/$/, '').split(':')[0];
         const upstashRedisUrl = `rediss://default:${upstashToken}@${upstashHost}:6379`;
+        actualConnectionUrl = `rediss://default:***@${upstashHost}:6379`;
         redisClient = new IORedis(upstashRedisUrl, {
           maxRetriesPerRequest: 3,
           enableOfflineQueue: true,
@@ -588,6 +590,7 @@ class HybridRedisClient {
           lazyConnect: false,
         });
       } else if (redisUrl) {
+        actualConnectionUrl = redisUrl.replace(/:[^:@]+@/, ':***@');
         redisClient = new IORedis(redisUrl, {
           maxRetriesPerRequest: 3,
           enableOfflineQueue: true,  // ✅ CORRIGIDO: Permite retry automático
@@ -599,6 +602,7 @@ class HybridRedisClient {
           lazyConnect: false,
         });
       } else {
+        actualConnectionUrl = `${redisHost}:${redisPort}`;
         redisClient = new IORedis({
           host: redisHost,
           port: redisPort,
@@ -635,7 +639,7 @@ class HybridRedisClient {
       this.isUsingRedis = true;
       this.connectionStatus = 'connected';
       console.log('✅ Redis connected successfully - Using distributed Redis cache');
-      console.log(`📡 Redis connection: ${redisUrl || `${redisHost}:${redisPort}`}`);
+      console.log(`📡 Redis endpoint: ${actualConnectionUrl}`);
 
       // Set up error handler for future errors
       redisClient.on('error', (error) => {

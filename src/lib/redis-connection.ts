@@ -87,12 +87,22 @@ export function getRedisConnection(): Redis {
  */
 export function createRedisConnection(): Redis {
   const redisUrl = process.env.REDIS_URL;
+  const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
+  const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
   
-  if (!redisUrl) {
-    const connection = new Redis({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379'),
-      password: process.env.REDIS_PASSWORD,
+  // ✅ PRIORIDADE: Upstash > REDIS_URL > Localhost
+  let connectionUrl: string | undefined;
+  
+  if (upstashUrl && upstashToken) {
+    // Convert Upstash REST URL to Redis protocol
+    const upstashHost = upstashUrl.replace('https://', '').replace(/\/$/, '').split(':')[0];
+    connectionUrl = `rediss://default:${upstashToken}@${upstashHost}:6379`;
+  } else if (redisUrl) {
+    connectionUrl = redisUrl;
+  }
+  
+  if (connectionUrl) {
+    return new Redis(connectionUrl, {
       maxRetriesPerRequest: null, // Required for BullMQ
       enableReadyCheck: false,
       retryStrategy: (times) => {
@@ -100,10 +110,13 @@ export function createRedisConnection(): Redis {
         return delay;
       }
     });
-    return connection;
   }
-
-  return new Redis(redisUrl, {
+  
+  // Fallback to localhost
+  return new Redis({
+    host: process.env.REDIS_HOST || 'localhost',
+    port: parseInt(process.env.REDIS_PORT || '6379'),
+    password: process.env.REDIS_PASSWORD,
     maxRetriesPerRequest: null, // Required for BullMQ
     enableReadyCheck: false,
     retryStrategy: (times) => {
