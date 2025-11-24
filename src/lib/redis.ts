@@ -580,24 +580,24 @@ class HybridRedisClient {
         const upstashRedisUrl = `rediss://default:${upstashToken}@${upstashHost}:6379`;
         actualConnectionUrl = `rediss://default:***@${upstashHost}:6379`;
         redisClient = new IORedis(upstashRedisUrl, {
-          maxRetriesPerRequest: 3,
+          maxRetriesPerRequest: 5,
           enableOfflineQueue: true,
-          connectTimeout: 5000,
+          connectTimeout: 15000,
           retryStrategy: (times) => {
-            if (times > 3) return null;
-            return Math.min(times * 100, 1000);
+            if (times > 5) return null;
+            return Math.min(times * 200, 2000);
           },
           lazyConnect: false,
         });
       } else if (redisUrl) {
         actualConnectionUrl = redisUrl.replace(/:[^:@]+@/, ':***@');
         redisClient = new IORedis(redisUrl, {
-          maxRetriesPerRequest: 3,
+          maxRetriesPerRequest: 5,
           enableOfflineQueue: true,  // ✅ CORRIGIDO: Permite retry automático
-          connectTimeout: 5000,
+          connectTimeout: 15000,
           retryStrategy: (times) => {
-            if (times > 3) return null;
-            return Math.min(times * 100, 1000);
+            if (times > 5) return null;
+            return Math.min(times * 200, 2000);
           },
           lazyConnect: false,
         });
@@ -607,12 +607,12 @@ class HybridRedisClient {
           host: redisHost,
           port: redisPort,
           password: redisPassword,
-          maxRetriesPerRequest: 3,
+          maxRetriesPerRequest: 5,
           enableOfflineQueue: true,  // ✅ CORRIGIDO: Permite retry automático
-          connectTimeout: 5000,
+          connectTimeout: 15000,
           retryStrategy: (times) => {
-            if (times > 3) return null;
-            return Math.min(times * 100, 1000);
+            if (times > 5) return null;
+            return Math.min(times * 200, 2000);
           },
           lazyConnect: false,
         });
@@ -622,7 +622,7 @@ class HybridRedisClient {
       await new Promise<void>((resolve, reject) => {
         const timeout = setTimeout(() => {
           reject(new Error('Redis connection timeout'));
-        }, 5000);
+        }, 15000);
 
         redisClient.ping((err) => {
           clearTimeout(timeout);
