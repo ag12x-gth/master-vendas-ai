@@ -128,13 +128,13 @@ export class WebhookQueueService {
       },
     });
 
-    // Initialize QueueEvents for monitoring
+    // Initialize QueueEvents for monitoring - REUSE same connection
     this.queueEvents = new QueueEvents(this.queueName, {
-      connection: createRedisConnection(),
+      connection,
     });
 
-    // Start the worker
-    this.startBullMQWorker();
+    // Start the worker - PASS connection to reuse
+    this.startBullMQWorker(connection);
     
     // Start metrics reporting
     this.startMetricsReporter();
@@ -163,7 +163,7 @@ export class WebhookQueueService {
   /**
    * Start the BullMQ Worker to process jobs
    */
-  private startBullMQWorker() {
+  private startBullMQWorker(connection: any) {
     if (!this.queue) return;
 
     this.worker = new Worker<WebhookJobData, JobResult>(
@@ -172,7 +172,7 @@ export class WebhookQueueService {
         return await this.processBullMQJob(job);
       },
       {
-        connection: createRedisConnection(),
+        connection, // ✅ REUSE same connection instead of creating new one
         concurrency: this.CONCURRENCY,
         autorun: true,
         lockDuration: 30000,
