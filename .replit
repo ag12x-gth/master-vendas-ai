@@ -100,7 +100,6 @@ externalPort = 3003
 [userenv]
 
 [userenv.shared]
-REDIS_URL = "redis://localhost:6379"
 DB_DEBUG = "true"
 UPSTASH_REDIS_REST_TOKEN = "AR4oAAImcDI3MGUzYmI4YTVjMWE0NzVmYWYxMTkyZTFmZjUyYjlhMHAyNzcyMA"
 UPSTASH_REDIS_REST_URL = "https://causal-dane-7720.upstash.io/"

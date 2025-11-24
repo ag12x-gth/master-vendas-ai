@@ -552,6 +552,7 @@ class HybridRedisClient {
 
   constructor() {
     // Initialize asynchronously
+    console.log('🔧 [Redis] HybridRedisClient constructor called - starting initialization...');
     this.initPromise = this.initialize();
   }
 
@@ -563,6 +564,8 @@ class HybridRedisClient {
     const redisHost = process.env.REDIS_HOST || 'localhost';
     const redisPort = parseInt(process.env.REDIS_PORT || '6379');
     const redisPassword = process.env.REDIS_PASSWORD;
+
+    console.log(`🔍 [Redis] Detecting configuration... REDIS_URL=${!!redisUrl}, Upstash=${!!(upstashUrl && upstashToken)}`);
 
     try {
       let redisClient: IORedis;

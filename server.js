@@ -61,6 +61,15 @@ function killStaleProcesses(targetPort) {
 const PORT = parseInt(process.env.PORT || '5000', 10);
 killStaleProcesses(PORT);
 
+// ========================================
+// CRITICAL: Log actual Node.js heap limit on startup
+// ========================================
+const v8 = require('v8');
+const heapStats = v8.getHeapStatistics();
+const heapLimitMB = (heapStats.heap_size_limit / 1024 / 1024).toFixed(2);
+console.log(`🧠 [Memory] Node.js Heap Limit: ${heapLimitMB} MB`);
+console.log(`💾 [Memory] NODE_OPTIONS: ${process.env.NODE_OPTIONS || 'NOT SET'}`);
+
 // Memory optimization: Enable garbage collection monitoring
 if (global.gc) {
   console.log('🧹 Garbage collection exposed, enabling aggressive memory management');
@@ -275,7 +284,18 @@ const startServerWithRetry = (retryCount = 0, maxRetries = 3) => {
 // Helper function - moved Socket.IO and services init here
 const continueInitialization = () => {
 
-  // STEP 2: Initialize Socket.IO (after server is listening)
+  // ========================================
+  // STEP 2A: Initialize Redis (eager loading for production)
+  // ========================================
+  try {
+    require('tsx/cjs');
+    const redis = require('./src/lib/redis.ts').default;
+    console.log('✅ Redis initialized (eager loading)');
+  } catch (error) {
+    console.warn('⚠️ Redis initialization skipped:', error.message);
+  }
+
+  // STEP 2B: Initialize Socket.IO (after server is listening)
   let io;
   try {
     require('tsx/cjs');
