@@ -91,12 +91,12 @@ if (global.gc) {
     }
   }, 30000); // Every 30 seconds
 
-  // Force GC when memory usage is high (>80%)
+  // Force GC when memory usage is high (>95%)
   setInterval(() => {
     const mem = process.memoryUsage();
     const heapPercentage = (mem.heapUsed / mem.heapTotal) * 100;
 
-    if (heapPercentage > 80) {
+    if (heapPercentage > 95) {
       console.warn(`⚠️ [Memory] High heap usage: ${heapPercentage.toFixed(2)}%, forcing GC`);
       global.gc();
     }
