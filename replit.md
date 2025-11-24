@@ -44,17 +44,24 @@ Preferred communication style: Simple, everyday language.
 **All systems operational - Ready for production deployment! 🚀**
 
 ### BullMQ Webhook Queue System (Nov 24, 2025)
-**Status**: ✅ OPERATIONAL - Connection reuse bug fixed
+**Status**: ✅ PRODUCTION-READY - All issues resolved
 
-**Issue Fixed:**
-- `webhook-queue.service.ts` was creating multiple Redis connections via `createRedisConnection()`
-- Each BullMQ Queue/Worker instance was creating duplicate connections
-- Root cause: REDIS_URL secret pointing to deleted Upstash database (causal-dane-7720)
+**Issues Fixed:**
+1. ✅ `webhook-queue.service.ts` was creating multiple Redis connections via `createRedisConnection()`
+2. ✅ Each BullMQ Queue/Worker instance was creating duplicate connections
+3. ✅ Root cause: REDIS_URL secret pointing to deleted Upstash database (causal-dane-7720)
+4. ✅ Upstash eviction policy warning (`optimistic-volatile` → `noeviction`)
 
-**Solution:**
+**Solutions Applied:**
 1. ✅ Updated REDIS_URL secret to new Upstash endpoint (vital-sawfish-40850)
 2. ✅ Refactored `webhook-queue.service.ts` to reuse single Redis connection
-3. ✅ All BullMQ tests passing (queue status, metrics, pause/resume, retry)
+3. ✅ Disabled eviction in Upstash dashboard (Configuration → Eviction OFF)
+4. ✅ All BullMQ tests passing (queue status, metrics, pause/resume, retry)
+
+**Upstash Configuration:**
+- **Database**: vital-sawfish-40850
+- **Eviction Policy**: DISABLED (= `noeviction` behavior)
+- **Impact**: Jobs are never deleted automatically; writes rejected when memory limit reached
 
 **Evidence (Test Output):**
 ```bash
@@ -64,6 +71,12 @@ Preferred communication style: Simple, everyday language.
 ✓ Webhook dispatch mechanism
 ✓ Queue pause/resume functionality
 ✓ Dead letter queue retry capability
+
+# Production logs (Nov 24, 19:44):
+✅ Redis connected successfully - rediss://vital-sawfish-40850.upstash.io:6379
+✅ Cadence Scheduler ready
+✅ Campaign Processor ready
+(zero eviction policy warnings) ✅
 ```
 
 ### Deployment Configuration (Nov 24, 2025)
