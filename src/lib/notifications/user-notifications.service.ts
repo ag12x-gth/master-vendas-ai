@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { userNotifications, campaigns, conversations } from '@/lib/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 
-export type UserNotificationType = 'campaign_completed' | 'new_conversation' | 'system_error' | 'info';
+export type UserNotificationType = 'campaign_completed' | 'new_conversation' | 'new_appointment' | 'system_error' | 'info';
 
 interface CreateNotificationParams {
   userId: string;
@@ -76,6 +76,31 @@ export class UserNotificationsService {
         message: `Você tem um novo atendimento de ${contactName} aguardando.`,
         linkTo: `/atendimentos?conversationId=${conversationId}`,
         metadata: { conversationId, contactName },
+      })
+    );
+
+    await Promise.allSettled(notificationPromises);
+  }
+
+  static async notifyLeadScheduled(
+    companyId: string,
+    leadId: string,
+    contactName: string,
+    boardId?: string
+  ): Promise<void> {
+    const companyUsers = await db.query.users.findMany({
+      where: (users, { eq }) => eq(users.companyId, companyId),
+    });
+
+    const notificationPromises = companyUsers.map(user =>
+      this.create({
+        userId: user.id,
+        companyId,
+        type: 'new_appointment',
+        title: 'Novo Agendamento',
+        message: `Você tem um novo atendimento de ${contactName} aguardando.`,
+        linkTo: boardId ? `/kanban/${boardId}` : '/kanban',
+        metadata: { leadId, contactName, boardId },
       })
     );
 
