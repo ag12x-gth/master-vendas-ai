@@ -1,0 +1,117 @@
+2025-11-24 15:09:04.86
+9459cdc3
+User
+✅ Cadence Scheduler ready
+2025-11-24 15:09:13.46
+9459cdc3
+User
+✅ Campaign Processor ready
+
+2025-11-24 15:09:14.54
+9459cdc3
+User
+IMPORTANT! Eviction policy is optimistic-volatile. It should be "noeviction"
+2025-11-24 15:09:14.54
+9459cdc3
+User
+IMPORTANT! Eviction policy is optimistic-volatile. It should be "noeviction"
+2025-11-24 15:09:14.86
+9459cdc3
+User
+IMPORTANT! Eviction policy is optimistic-volatile. It should be "noeviction"
+2025-11-24 15:09:14.87
+9459cdc3
+User
+IMPORTANT! Eviction policy is optimistic-volatile. It should be "noeviction"
+2025-11-24 15:09:15.58
+9459cdc3
+User
+⚠️ [Memory] High heap usage: 81.02%, forcing GC
+2025-11-24 15:09:25.60
+9459cdc3
+User
+🧹 [GC] Freed 0.60MB heap, 0.00MB external, 0.00MB total
+2025-11-24 15:09:25.60
+9459cdc3
+User
+⚠️ [Memory] High heap usage: 90.67%, forcing GC
+2025-11-24 15:09:26.29
+9459cdc3
+User
+🔍 [DB Monitor] Pool monitoring active...
+2025-11-24 15:09:35.60
+9459cdc3
+User
+⚠️ [Memory] High heap usage: 92.87%, forcing GC
+2025-11-24 15:09:45.60
+9459cdc3
+User
+⚠️ [Memory] High heap usage: 93.37%, forcing GC
+2025-11-24 15:09:55.60
+9459cdc3
+User
+🧹 [GC] Freed 0.36MB heap, 0.00MB external, -0.13MB total
+2025-11-24 15:09:55.60
+9459cdc3
+User
+📊 [Memory Stats] RSS: 135.52MB | Heap: 43.70/47.24MB (92.51%) | External: 13.60MB
+2025-11-24 15:09:55.60
+9459cdc3
+User
+⚠️ [Memory] High heap usage: 92.51%, forcing GC
+2025-11-24 15:09:56.29
+9459cdc3
+User
+🔍 [DB Monitor] Pool monitoring active...
+2025-11-24 15:10:05.60
+9459cdc3
+User
+⚠️ [Memory] High heap usage: 93.19%, forcing GC
+2025-11-24 15:10:15.60
+9459cdc3
+User
+⚠️ [Memory] High heap usage: 95.26%, forcing GC
+2025-11-24 15:18:10.97
+d4313a3d
+System
+starting up user application
+2025-11-24 15:18:10.97
+d4313a3d
+System
+forwarding local port 5000 to external port 80 (mapped as 1104)
+2025-11-24 15:18:10.98
+d4313a3d
+System
+metasidecar: loaded enterprise status from environment is_enterprise=false
+2025-11-24 15:18:13.04
+d4313a3d
+User
+> nextn@2.4.1 start:prod
+2025-11-24 15:18:13.04
+d4313a3d
+User
+> NODE_ENV=production NODE_OPTIONS='--max-old-space-size=4096 --expose-gc' node server.js
+2025-11-24 15:18:13.58
+d4313a3d
+User
+🔍 [Guard] Checking for stale processes on port 5000...
+2025-11-24 15:18:13.59
+d4313a3d
+User
+✅ [Guard] No stale processes found on port 5000
+2025-11-24 15:18:13.59
+d4313a3d
+User
+🧹 Garbage collection exposed, enabling aggressive memory management
+2025-11-24 15:18:13.59
+d4313a3d
+User
+💾 [Memory] NODE_OPTIONS: --max-old-space-size=4096 --expose-gc
+2025-11-24 15:18:13.59
+d4313a3d
+User
+🧠 [Memory] Node.js Heap Limit: 4144.00 MB
+2025-11-24 15:18:13.60
+d4313a3d
+User
+✅ Process error handlers registered
