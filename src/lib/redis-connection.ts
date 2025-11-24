@@ -20,12 +20,10 @@ export function getRedisConnection(): Redis {
       // Convert Upstash REST URL to Redis protocol
       const upstashHost = upstashUrl.replace('https://', '').replace(/\/$/, '').split(':')[0];
       connectionUrl = `rediss://default:${upstashToken}@${upstashHost}:6379`;
-      console.log('✅ Using Upstash Redis connection');
+      console.log('✅ [BullMQ] Using Upstash Redis connection');
     } else if (redisUrl) {
       connectionUrl = redisUrl;
-      console.log('✅ Using provided REDIS_URL');
-    } else {
-      console.warn('⚠️ No Redis URL provided. Trying localhost:6379 for BullMQ.');
+      console.log('✅ [BullMQ] Using provided REDIS_URL');
     }
     
     if (connectionUrl) {
@@ -38,17 +36,9 @@ export function getRedisConnection(): Redis {
         }
       });
     } else {
-      redisConnection = new Redis({
-        host: process.env.REDIS_HOST || 'localhost',
-        port: parseInt(process.env.REDIS_PORT || '6379'),
-        password: process.env.REDIS_PASSWORD,
-        maxRetriesPerRequest: null, // Required for BullMQ
-        enableReadyCheck: false,
-        retryStrategy: (times) => {
-          const delay = Math.min(times * 50, 2000);
-          return delay;
-        }
-      });
+      // No valid connection URL - return null connection to prevent localhost attempts
+      console.warn('⚠️ [BullMQ] No Redis URL provided. BullMQ will not be available.');
+      throw new Error('Redis URL required for BullMQ');
     }
 
     // Handle connection events
