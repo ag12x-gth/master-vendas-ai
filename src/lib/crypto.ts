@@ -72,7 +72,7 @@ export function decrypt(encryptedHex: string): string {
     const authTag = encryptedBuffer.slice(IV_LENGTH, IV_LENGTH + AUTH_TAG_LENGTH);
     const encrypted = encryptedBuffer.slice(IV_LENGTH + AUTH_TAG_LENGTH);
 
-    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv, { authTagLength: AUTH_TAG_LENGTH });
     decipher.setAuthTag(authTag);
     const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
 
