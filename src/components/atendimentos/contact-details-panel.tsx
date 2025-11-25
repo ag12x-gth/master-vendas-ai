@@ -63,24 +63,27 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
                 setAiPersonas(personasData.personas || []);
             }
 
-            // Buscar agentes vinculados e efetivos para cada conversa ativa
+            // Buscar agentes vinculados e efetivos para cada conversa ativa (em paralelo)
             if (contactData.activeConversations) {
                 const personaMap: Record<string, string | null> = {};
                 const effectiveMap: Record<string, EffectivePersona> = {};
                 
-                for (const conv of contactData.activeConversations) {
-                    const convRes = await fetch(`/api/v1/conversations/${conv.id}`);
+                await Promise.all(contactData.activeConversations.map(async (conv) => {
+                    const [convRes, effectiveRes] = await Promise.all([
+                        fetch(`/api/v1/conversations/${conv.id}`),
+                        fetch(`/api/v1/conversations/${conv.id}/effective-persona`)
+                    ]);
+                    
                     if (convRes.ok) {
                         const convData = await convRes.json();
                         personaMap[conv.id] = convData.assignedPersonaId || null;
                     }
                     
-                    const effectiveRes = await fetch(`/api/v1/conversations/${conv.id}/effective-persona`);
                     if (effectiveRes.ok) {
                         const effectiveData = await effectiveRes.json();
                         effectiveMap[conv.id] = effectiveData;
                     }
-                }
+                }));
                 
                 setConversationPersonas(personaMap);
                 setEffectivePersonas(effectiveMap);

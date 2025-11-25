@@ -3,7 +3,7 @@
 
 import { Loader2, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo, useRef } from 'react';
 import type { Conversation, Message, Template, Contact } from '@/lib/types';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
@@ -14,6 +14,7 @@ import { ContactDetailsPanel } from './contact-details-panel';
 import { Skeleton } from '../ui/skeleton';
 import { useSession } from '@/contexts/session-context';
 
+const CONVERSATIONS_PAGE_SIZE = 50;
 
 const InboxSkeleton = () => (
     <div className="h-full flex flex-row border rounded-lg overflow-hidden">
@@ -57,23 +58,36 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
   const [lastKnownUpdate, setLastKnownUpdate] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   
+  const [conversationsOffset, setConversationsOffset] = useState(0);
+  const [hasMoreConversations, setHasMoreConversations] = useState(true);
+  const [isLoadingMoreConversations, setIsLoadingMoreConversations] = useState(false);
+  
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
+  const [isLoadingMoreMessages, setIsLoadingMoreMessages] = useState(false);
+  
   const isMobileDetected = useIsMobile();
   const isMobile = mounted ? isMobileDetected : false;
   const router = useRouter();
-  const { session } = useSession(); // Use session hook to get the logged-in user
+  const { session } = useSession();
   
   useEffect(() => {
     setMounted(true);
   }, []);
   
-  const fetchConversations = useCallback(async () => {
+  const fetchConversations = useCallback(async (offset = 0, append = false) => {
     try {
-      const res = await fetch('/api/v1/conversations?limit=0');
+      const res = await fetch(`/api/v1/conversations?limit=${CONVERSATIONS_PAGE_SIZE}&offset=${offset}`);
       if (!res.ok) throw new Error('Falha ao carregar as conversas.');
       const response = await res.json();
       const data: Conversation[] = response.data || response;
       
-      setConversations(data);
+      if (append) {
+        setConversations(prev => [...prev, ...data]);
+      } else {
+        setConversations(data);
+      }
+      
+      setHasMoreConversations(data.length === CONVERSATIONS_PAGE_SIZE);
       return data || [];
 
     } catch (error) {
@@ -82,21 +96,76 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
     }
   }, [notify]);
 
-  const fetchAndSetMessages = useCallback(async (conversationId: string) => {
-    setLoadingMessages(true);
+  const loadMoreConversations = useCallback(async () => {
+    if (isLoadingMoreConversations || !hasMoreConversations) return;
+    
+    setIsLoadingMoreConversations(true);
+    const newOffset = conversationsOffset + CONVERSATIONS_PAGE_SIZE;
+    
     try {
-      const res = await fetch(`/api/v1/conversations/${conversationId}/messages`);
+      await fetchConversations(newOffset, true);
+      setConversationsOffset(newOffset);
+    } finally {
+      setIsLoadingMoreConversations(false);
+    }
+  }, [conversationsOffset, fetchConversations, hasMoreConversations, isLoadingMoreConversations]);
+
+  const fetchAndSetMessages = useCallback(async (conversationId: string, before?: string, prepend = false) => {
+    if (!prepend) {
+      setLoadingMessages(true);
+    }
+    
+    try {
+      const url = before 
+        ? `/api/v1/conversations/${conversationId}/messages?limit=50&before=${before}`
+        : `/api/v1/conversations/${conversationId}/messages?limit=50`;
+        
+      const res = await fetch(url);
       if (!res.ok) throw new Error('Falha ao carregar as mensagens.');
-      const data: Message[] = await res.json();
+      const response = await res.json();
       
-      setCurrentMessages(data);
+      const data: Message[] = response.messages || response;
+      
+      if (prepend) {
+        setCurrentMessages(prev => [...data, ...prev]);
+      } else {
+        setCurrentMessages(data);
+      }
+      
+      setHasMoreMessages(response.hasMore ?? data.length === 50);
+      return data;
 
     } catch (error) {
        notify.error('Erro', (error as Error).message);
+       return [];
     } finally {
-      setLoadingMessages(false);
+      if (!prepend) {
+        setLoadingMessages(false);
+      }
     }
   }, [notify]);
+
+  const loadMoreMessages = useCallback(async () => {
+    if (isLoadingMoreMessages || !hasMoreMessages || !selectedConversation || currentMessages.length === 0) return;
+    
+    setIsLoadingMoreMessages(true);
+    
+    try {
+      const oldestMessage = currentMessages[0];
+      if (oldestMessage) {
+        const sentAtTimestamp = oldestMessage.sentAt instanceof Date 
+          ? oldestMessage.sentAt.toISOString() 
+          : new Date(oldestMessage.sentAt).toISOString();
+        await fetchAndSetMessages(
+          selectedConversation.id, 
+          sentAtTimestamp,
+          true
+        );
+      }
+    } finally {
+      setIsLoadingMoreMessages(false);
+    }
+  }, [currentMessages, fetchAndSetMessages, hasMoreMessages, isLoadingMoreMessages, selectedConversation]);
   
   const fetchContactDetails = useCallback(async (contactId: string) => {
     try {
@@ -104,28 +173,50 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
         if (!res.ok) throw new Error('Falha ao buscar detalhes do contato.');
         const data = await res.json();
         setSelectedContact(data);
+        return data;
     } catch (error) {
         notify.error('Erro', (error as Error).message);
+        return null;
     }
   }, [notify]);
 
 
   useEffect(() => {
     const fetchInitialData = async () => {
-        const [initialConversations] = await Promise.all([
+        const [conversationsResult, templatesResult, statusResult] = await Promise.all([
             fetchConversations(),
-            fetch('/api/v1/message-templates').then(res => res.json()).then(data => setTemplates(data.templates || data)).catch(() => notify.error('Erro', 'Não foi possível carregar os modelos.'))
+            fetch('/api/v1/message-templates')
+                .then(res => res.json())
+                .then(data => {
+                    const templates = data.templates || data;
+                    setTemplates(templates);
+                    return templates;
+                })
+                .catch(() => {
+                    notify.error('Erro', 'Não foi possível carregar os modelos.');
+                    return [];
+                }),
+            fetch('/api/v1/conversations/status')
+                .then(res => res.json())
+                .then(data => {
+                    setLastKnownUpdate(data.lastUpdated);
+                    return data;
+                })
+                .catch(() => null)
         ]);
         
-        fetch('/api/v1/conversations/status').then(res => res.json()).then(data => setLastKnownUpdate(data.lastUpdated));
-        
+        const initialConversations = conversationsResult;
         const conversationToSelectId = preselectedConversationId || initialConversations.find((c: Conversation) => c.status !== 'ARCHIVED')?.id;
+        
         if (conversationToSelectId) {
             const conversationToSelect = initialConversations.find((c: Conversation) => c.id === conversationToSelectId);
             if (conversationToSelect) {
                 setSelectedConversation(conversationToSelect);
-                await fetchAndSetMessages(conversationToSelect.id);
-                await fetchContactDetails(conversationToSelect.contactId);
+                
+                await Promise.all([
+                    fetchAndSetMessages(conversationToSelect.id),
+                    fetchContactDetails(conversationToSelect.contactId)
+                ]);
             }
         }
         setInitialLoading(false);
@@ -168,7 +259,9 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
     if (conversation) {
         setSelectedConversation(conversation);
         setCurrentMessages([]);
-        setSelectedContact(null); 
+        setSelectedContact(null);
+        setHasMoreMessages(true);
+        
         await Promise.all([
             fetchAndSetMessages(conversationId),
             fetchContactDetails(conversation.contactId)
@@ -269,7 +362,6 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
  const handleToggleAi = async (conversationId: string, aiActive: boolean) => {
     if (!selectedConversation) return;
 
-    // Optimistic update
     const originalConversation = { ...selectedConversation };
     setSelectedConversation(prev => prev ? { ...prev, aiActive } : null);
 
@@ -288,7 +380,6 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
       notify.success('Status da IA Alterado!', `A IA foi ${aiActive ? 'reativada' : 'desativada'} para esta conversa.`);
 
     } catch (error) {
-      // Revert on failure
       setSelectedConversation(originalConversation);
       notify.error('Erro', (error as Error).message);
     }
@@ -310,6 +401,9 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
                     conversations={conversations}
                     currentConversationId={selectedConversation?.id || null}
                     onSelectConversation={handleSelectConversation}
+                    onLoadMore={loadMoreConversations}
+                    hasMore={hasMoreConversations}
+                    isLoadingMore={isLoadingMoreConversations}
                 />
             </div>
         )}
@@ -329,6 +423,9 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
                         onArchive={handleArchive}
                         onUnarchive={handleUnarchive}
                         onToggleAi={handleToggleAi}
+                        onLoadMoreMessages={loadMoreMessages}
+                        hasMoreMessages={hasMoreMessages}
+                        isLoadingMoreMessages={isLoadingMoreMessages}
                     />
                 </div>
             ) : (

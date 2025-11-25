@@ -13,6 +13,7 @@ import {
   Undo,
   Clock,
   Bot,
+  ChevronUp,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,9 @@ interface ActiveChatProps {
   onArchive: () => void;
   onUnarchive: () => void;
   onToggleAi: (conversationId: string, aiActive: boolean) => Promise<void>;
+  onLoadMoreMessages?: () => Promise<void>;
+  hasMoreMessages?: boolean;
+  isLoadingMoreMessages?: boolean;
 }
 
 export function ActiveChat({
@@ -55,12 +59,17 @@ export function ActiveChat({
   onArchive,
   onUnarchive,
   onToggleAi,
+  onLoadMoreMessages,
+  hasMoreMessages = false,
+  isLoadingMoreMessages = false,
 }: ActiveChatProps) {
   const isMobile = useIsMobile();
   const [messageText, setMessageText] = React.useState('');
   const [isSending, setIsSending] = React.useState(false);
   const scrollAreaRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const previousScrollHeightRef = React.useRef<number>(0);
+  const isInitialLoadRef = React.useRef(true);
 
   const lastUserMessage = React.useMemo(() => {
     return [...messages].filter(m => m.senderType === 'USER').sort((a,b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime())[0];
@@ -88,10 +97,55 @@ export function ActiveChat({
   }, [canSendFreeform, lastUserMessage]);
 
   React.useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
+    if (scrollAreaRef.current && isInitialLoadRef.current && messages.length > 0 && !loadingMessages) {
+      scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'auto' });
+      isInitialLoadRef.current = false;
+    }
+  }, [messages, loadingMessages]);
+
+  React.useEffect(() => {
+    if (scrollAreaRef.current && !isInitialLoadRef.current && messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage && (lastMessage.senderType === 'AGENT' || lastMessage.id.startsWith('temp-'))) {
+        scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
+      }
     }
   }, [messages]);
+
+  React.useEffect(() => {
+    if (scrollAreaRef.current && previousScrollHeightRef.current > 0 && !isLoadingMoreMessages) {
+      const newScrollHeight = scrollAreaRef.current.scrollHeight;
+      const scrollDiff = newScrollHeight - previousScrollHeightRef.current;
+      if (scrollDiff > 0) {
+        scrollAreaRef.current.scrollTop = scrollDiff;
+      }
+      previousScrollHeightRef.current = 0;
+    }
+  }, [messages, isLoadingMoreMessages]);
+
+  React.useEffect(() => {
+    isInitialLoadRef.current = true;
+  }, [conversation?.id]);
+
+  const handleScroll = React.useCallback(() => {
+    if (!scrollAreaRef.current || !onLoadMoreMessages || !hasMoreMessages || isLoadingMoreMessages) return;
+    
+    const scrollTop = scrollAreaRef.current.scrollTop;
+    const threshold = 100;
+    
+    if (scrollTop < threshold) {
+      previousScrollHeightRef.current = scrollAreaRef.current.scrollHeight;
+      onLoadMoreMessages();
+    }
+  }, [onLoadMoreMessages, hasMoreMessages, isLoadingMoreMessages]);
+
+  React.useEffect(() => {
+    const container = scrollAreaRef.current;
+    if (!container) return;
+    
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [handleScroll]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -102,7 +156,6 @@ export function ActiveChat({
       await onSendMessage(messageText);
       setMessageText('');
     } catch (error) {
-      // Error is handled by the parent toast
     } finally {
       setIsSending(false);
       inputRef.current?.focus();
@@ -121,7 +174,6 @@ export function ActiveChat({
 
   return (
     <div className="flex flex-col h-full min-h-0">
-      {/* Header */}
       <div className="flex items-center p-3 border-b shrink-0">
         {isMobile && (
           <Button variant="ghost" size="icon" onClick={onBack}>
@@ -181,10 +233,29 @@ export function ActiveChat({
         </div>
       </div>
 
-      {/* Messages */}
        <div className="flex-1 min-h-0 overflow-hidden">
         <ScrollArea className="h-full" viewportRef={scrollAreaRef}>
           <div className="p-4 space-y-4">
+            {hasMoreMessages && (
+              <div className="flex justify-center py-2">
+                {isLoadingMoreMessages ? (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Carregando mensagens anteriores...</span>
+                  </div>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onLoadMoreMessages}
+                    className="text-muted-foreground"
+                  >
+                    <ChevronUp className="h-4 w-4 mr-1" />
+                    Carregar mensagens anteriores
+                  </Button>
+                )}
+              </div>
+            )}
             {loadingMessages ? (
               <div className="flex justify-center items-center h-full">
                 <Loader2 className="h-6 w-6 animate-spin" />
@@ -198,7 +269,6 @@ export function ActiveChat({
         </ScrollArea>
       </div>
 
-      {/* Footer */}
       <div className="shrink-0 border-t bg-background p-4">
         {!isArchived && (
           <>

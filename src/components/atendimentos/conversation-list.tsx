@@ -1,13 +1,13 @@
 // src/components/atendimentos/conversation-list.tsx
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import type { Conversation, Message } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Check, CheckCheck, Clock, MessageSquare, Smartphone, Users } from 'lucide-react';
+import { Search, Check, CheckCheck, Clock, MessageSquare, Smartphone, Users, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { RelativeTime } from '../ui/relative-time';
@@ -88,13 +88,21 @@ export function ConversationList({
     conversations,
     currentConversationId,
     onSelectConversation,
+    onLoadMore,
+    hasMore = false,
+    isLoadingMore = false,
 }: {
     conversations: Conversation[],
     currentConversationId: string | null,
     onSelectConversation: (id: string) => void,
+    onLoadMore?: () => void,
+    hasMore?: boolean,
+    isLoadingMore?: boolean,
 }) {
     const [search, setSearch] = useState('');
     const [sourceFilter, setSourceFilter] = useState<'all' | 'meta_api' | 'baileys'>('all');
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
 
     const filteredConversations = useMemo(() => {
         let filtered = conversations;
@@ -112,6 +120,28 @@ export function ConversationList({
         
         return filtered;
     }, [conversations, search, sourceFilter]);
+
+    const handleScroll = useCallback(() => {
+        if (!scrollContainerRef.current || !onLoadMore || !hasMore || isLoadingMore) return;
+        
+        const container = scrollContainerRef.current;
+        const scrollTop = container.scrollTop;
+        const scrollHeight = container.scrollHeight;
+        const clientHeight = container.clientHeight;
+        
+        const threshold = 100;
+        if (scrollHeight - scrollTop - clientHeight < threshold) {
+            onLoadMore();
+        }
+    }, [onLoadMore, hasMore, isLoadingMore]);
+
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+        
+        container.addEventListener('scroll', handleScroll);
+        return () => container.removeEventListener('scroll', handleScroll);
+    }, [handleScroll]);
 
     return (
         <div className="h-full flex flex-col">
@@ -139,7 +169,7 @@ export function ConversationList({
                     />
                 </div>
             </div>
-            <ScrollArea className="flex-1 overflow-y-auto">
+            <ScrollArea className="flex-1 overflow-y-auto" viewportRef={scrollContainerRef}>
                 <div className="p-2 space-y-1">
                     {filteredConversations.length === 0 ? (
                         <div
@@ -148,14 +178,33 @@ export function ConversationList({
                             <p>Nenhuma conversa encontrada.</p>
                         </div>
                     ) : (
-                        filteredConversations.map(conversation => (
-                            <ConversationListItem
-                                key={conversation.id}
-                                conversation={conversation}
-                                isSelected={currentConversationId === conversation.id}
-                                onSelect={onSelectConversation}
-                            />
-                        ))
+                        <>
+                            {filteredConversations.map(conversation => (
+                                <ConversationListItem
+                                    key={conversation.id}
+                                    conversation={conversation}
+                                    isSelected={currentConversationId === conversation.id}
+                                    onSelect={onSelectConversation}
+                                />
+                            ))}
+                            {hasMore && (
+                                <div 
+                                    ref={loadMoreTriggerRef}
+                                    className="flex justify-center py-4"
+                                >
+                                    {isLoadingMore ? (
+                                        <div className="flex items-center gap-2 text-muted-foreground">
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            <span className="text-sm">Carregando mais...</span>
+                                        </div>
+                                    ) : (
+                                        <span className="text-sm text-muted-foreground">
+                                            Role para carregar mais
+                                        </span>
+                                    )}
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             </ScrollArea>

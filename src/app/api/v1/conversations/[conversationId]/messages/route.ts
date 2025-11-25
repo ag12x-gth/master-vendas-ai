@@ -3,7 +3,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { conversations, messages, contacts, templates, connections, messageReactions } from '@/lib/db/schema';
-import { eq, and, desc, asc, inArray } from 'drizzle-orm';
+import { eq, and, desc, asc, inArray, lt } from 'drizzle-orm';
 import { getCompanyIdFromSession, getUserIdFromSession } from '@/app/actions';
 import { sendWhatsappTemplateMessage, sendWhatsappTextMessage } from '@/lib/facebookApiService';
 import { sessionManager } from '@/services/baileys-session-manager';
@@ -46,21 +46,43 @@ async function canSendFreeFormMessage(conversationId: string): Promise<boolean> 
 // Force dynamic rendering for this API route
 export const dynamic = 'force-dynamic';
 
-export async function GET(_request: NextRequest, { params }: { params: { conversationId: string } }): Promise<NextResponse> {
+export async function GET(request: NextRequest, { params }: { params: { conversationId: string } }): Promise<NextResponse> {
     try {
         const { conversationId } = params;
+        const { searchParams } = new URL(request.url);
+        
+        const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100);
+        const before = searchParams.get('before');
+        
+        const conditions = [eq(messages.conversationId, conversationId)];
+        
+        if (before) {
+            const beforeDate = new Date(before);
+            if (isNaN(beforeDate.getTime())) {
+                return NextResponse.json({ 
+                    error: 'Parâmetro "before" inválido. Deve ser um timestamp ISO válido.' 
+                }, { status: 400 });
+            }
+            conditions.push(lt(messages.sentAt, beforeDate));
+        }
         
         const conversationMessages = await db.select()
             .from(messages)
-            .where(eq(messages.conversationId, conversationId))
-            .orderBy(asc(messages.sentAt));
+            .where(and(...conditions))
+            .orderBy(desc(messages.sentAt))
+            .limit(limit + 1);
 
-        const messageIds = conversationMessages.map(m => m.id);
+        const hasMore = conversationMessages.length > limit;
+        const messagesToReturn = hasMore ? conversationMessages.slice(0, limit) : conversationMessages;
+        
+        const sortedMessages = [...messagesToReturn].reverse();
+
+        const messageIds = sortedMessages.map(m => m.id);
         const reactions = messageIds.length > 0
             ? await db.select().from(messageReactions).where(inArray(messageReactions.messageId, messageIds))
             : [];
 
-        const messagesWithReactions = conversationMessages.map(msg => ({
+        const messagesWithReactions = sortedMessages.map(msg => ({
             ...msg,
             reactions: reactions.filter(r => r.messageId === msg.id).map(r => ({
                 emoji: r.emoji,
@@ -68,8 +90,16 @@ export async function GET(_request: NextRequest, { params }: { params: { convers
                 reactorName: r.reactorName,
             })),
         }));
+        
+        const nextBefore = hasMore && messagesToReturn.length > 0 
+            ? messagesToReturn[messagesToReturn.length - 1].sentAt.toISOString() 
+            : null;
             
-        return NextResponse.json(messagesWithReactions);
+        return NextResponse.json({
+            messages: messagesWithReactions,
+            hasMore,
+            nextBefore
+        });
     } catch (error) {
         console.error('Erro ao buscar mensagens:', error);
         return NextResponse.json({ error: (error as Error).message }, { status: 500 });
