@@ -179,7 +179,17 @@ const server = createServer(async (req, res) => {
     const { pathname, query } = parsedUrl;
 
     // CRITICAL: Health check endpoints ALWAYS respond immediately (even if Next.js not ready)
-    if (pathname === '/health' || pathname === '/_health') {
+    // Also handle root path for deployment health checks (Autoscale sends to / by default)
+    const isHealthCheck = pathname === '/health' || pathname === '/_health' || 
+      (pathname === '/' && (
+        req.headers['user-agent']?.includes('kube-probe') ||
+        req.headers['user-agent']?.includes('GoogleHC') ||
+        req.headers['user-agent']?.includes('HealthChecker') ||
+        req.headers['x-replit-health-check'] === 'true' ||
+        req.method === 'HEAD'
+      ));
+    
+    if (isHealthCheck) {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
