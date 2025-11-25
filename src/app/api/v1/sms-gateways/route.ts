@@ -8,7 +8,7 @@ import { z } from 'zod';
 import { encrypt } from '@/lib/crypto';
 
 const gatewaySchema = z.object({
-    provider: z.enum(['witi', 'seven']),
+    provider: z.enum(['witi', 'seven', 'mkom']),
     name: z.string().min(1, 'Nome da configuração é obrigatório.'),
     credentials: z.record(z.any()),
 });
