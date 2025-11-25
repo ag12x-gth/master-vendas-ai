@@ -1,7 +1,6 @@
 import { db } from '@/lib/db';
 import { 
   cadenceDefinitions, 
-  cadenceSteps, 
   cadenceEnrollments, 
   cadenceEvents,
   conversations,

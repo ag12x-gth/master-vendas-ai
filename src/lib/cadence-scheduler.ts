@@ -1,6 +1,5 @@
 import { CadenceService } from './cadence-service';
 import { db } from './db';
-import { companies } from './db/schema';
 import { logger } from './logger';
 
 interface SchedulerState {
