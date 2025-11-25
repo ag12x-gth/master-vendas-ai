@@ -27,21 +27,34 @@ type MetaTemplate = {
 async function fetchTemplatesFromMeta(wabaId: string, accessToken: string): Promise<MetaTemplate[]> {
     const url = `https://graph.facebook.com/v23.0/${wabaId}/message_templates?fields=name,status,language,category,components&limit=500`;
     
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-      },
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        signal: controller.signal,
+      });
 
-    if (!response.ok) {
-        const errorData = await response.json() as unknown;
-        console.error(`Meta API Error for WABA ${wabaId}:`, errorData);
-        throw new Error((errorData as any)?.error.message || 'Falha ao buscar modelos da Meta.');
+      if (!response.ok) {
+          const errorData = await response.json() as unknown;
+          console.error(`Meta API Error for WABA ${wabaId}:`, errorData);
+          throw new Error((errorData as any)?.error.message || 'Falha ao buscar modelos da Meta.');
+      }
+
+      const data = await response.json() as { data: MetaTemplate[] };
+      return data.data || [];
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error('Tempo limite excedido ao buscar templates da Meta (30s)');
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    const data = await response.json() as { data: MetaTemplate[] };
-    return data.data || [];
 }
 
 export async function POST(_request: NextRequest) {
