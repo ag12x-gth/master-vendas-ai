@@ -3,7 +3,7 @@ const { parse } = require('url');
 const next = require('next');
 const { Server } = require('socket.io');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 
 // ========================================
 // GUARD AUTOMÁTICO - Prevenir EADDRINUSE
@@ -59,8 +59,8 @@ function killStaleProcesses(targetPort) {
         
         try {
           // Check if it's a Node.js process (safety check)
-          // SECURITY: pidString validated as numeric-only (1-4194304) - safe from injection
-          const processInfo = execSync(`ps -p ${pidString} -o comm=`, { encoding: 'utf8' }).trim();
+          // SECURITY: Using execFileSync (no shell invocation) - safe from injection
+          const processInfo = execFileSync('ps', ['-p', pidString, '-o', 'comm='], { encoding: 'utf8' }).trim();
           
           if (processInfo.includes('node')) {
             console.log(`🔪 [Guard] Terminating stale Node.js process PID ${pid}...`);
