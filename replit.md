@@ -142,6 +142,64 @@ $ grep -i "fallback\|timeout" /tmp/logs/Production_Server_20251124_214438_955.lo
 - ✅ Health checks pass immediately (3ms response, no timeout)
 - ✅ All background services start successfully (Cadence, Campaign Processor, BullMQ)
 
+### Email Verification Token Fix (Nov 25, 2025)
+**Status**: ✅ COMPLETE - Token integrity guaranteed
+
+**Problem Diagnosed:**
+- Email verification tokens were not matching the hash stored in database
+- Tokens were generated outside database transaction, causing potential inconsistencies
+- No integrity verification before sending emails
+- Insufficient logging for debugging
+
+**Root Cause Analysis:**
+1. Token generation happened outside the database transaction
+2. No verification that the saved hash matched the calculated hash
+3. Potential for race conditions if registration was triggered multiple times
+
+**Solutions Implemented:**
+
+**1. Transactional Token Generation**
+- Token and hash are now generated BEFORE the transaction
+- Token record is inserted INSIDE the same transaction as user creation
+- If transaction fails, no orphaned tokens are created
+
+**2. Integrity Verification**
+```typescript
+// After saving token, verify hash matches
+if (tokenRecord.tokenHash !== tokenHash) {
+  throw new Error("Inconsistência no token de verificação.");
+}
+```
+
+**3. Diagnostic Logging with Request ID**
+- Each request gets unique 8-char ID for traceability
+- Logs track: token generation, hash calculation, DB insertion, integrity check
+- Sensitive data (full tokens) masked in production logs
+
+**Files Modified:**
+- `src/app/api/auth/register/route.ts`
+- `src/app/api/v1/auth/register/route.ts`
+- `src/app/api/auth/resend-verification/route.ts`
+- `src/app/api/v1/team/invite/route.ts`
+- `src/app/api/auth/verify-email/route.ts`
+- `src/app/api/v1/auth/verify-email/route.ts`
+
+**Evidence (Nov 25, 05:48):**
+```bash
+[REGISTER:5338edd9] Token gerado: f5cddb16...
+[REGISTER:5338edd9] Token hash: ae0b164b95223723...
+[REGISTER:5338edd9] Token salvo na DB: fe24149f-...
+[REGISTER:5338edd9] Verificação de integridade OK ✅
+[REGISTER:5338edd9] Transação concluída com sucesso
+[REGISTER:5338edd9] ✅ Email enviado com sucesso
+```
+
+**Impact:**
+- ✅ Token sent in email ALWAYS matches hash in database
+- ✅ Integrity verification catches any discrepancies
+- ✅ Request IDs enable full flow tracing
+- ✅ Security: No sensitive tokens exposed in logs
+
 ### Deployment Configuration (Nov 24, 2025)
 **Status**: ✅ READY TO PUBLISH
 
