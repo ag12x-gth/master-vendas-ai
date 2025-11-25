@@ -128,8 +128,8 @@ export class ContactCache {
    */
   static async setContact(contact: CachedContact): Promise<void> {
     try {
-      const cacheKey = `${this.CONTACT_PREFIX}:${contact.id}`;
-      const indexKey = `${this.PHONE_INDEX_PREFIX}:${contact.companyId}:${contact.phone}`;
+      const _cacheKey = `${this.CONTACT_PREFIX}:${contact.id}`;
+      const _indexKey = `${this.PHONE_INDEX_PREFIX}:${contact.companyId}:${contact.phone}`;
       
       // Pipeline not supported on HybridRedisClient - use individual set operations
       // // // const pipeline = redis.pipeline(); // not supported
@@ -230,13 +230,13 @@ export class ContactCache {
    */
   static async invalidateContact(contactId: string, phone?: string, companyId?: string): Promise<void> {
     try {
-      const cacheKey = `${this.CONTACT_PREFIX}:${contactId}`;
+      const _cacheKey = `${this.CONTACT_PREFIX}:${contactId}`;
       // Pipeline not supported on HybridRedisClient - skip batch delete
       // Would need: redis.del(cacheKey)
       
       if (phone && companyId) {
-        const indexKey = `${this.PHONE_INDEX_PREFIX}:${companyId}:${phone}`;
-        const validationKey = `${this.VALIDATION_PREFIX}:${companyId}:${phone}`;
+        const _indexKey = `${this.PHONE_INDEX_PREFIX}:${companyId}:${phone}`;
+        const _validationKey = `${this.VALIDATION_PREFIX}:${companyId}:${phone}`;
         // Would need: redis.del(indexKey) and redis.del(validationKey)
       }
     } catch (error) {
@@ -299,7 +299,7 @@ export class ContactCache {
       // // const pipeline = redis.pipeline(); // not supported
       
       for (const contact of contactsFromDb) {
-        const cachedContact: CachedContact = {
+        const _cachedContact: CachedContact = {
           id: contact.id,
           phone: contact.phone,
           name: contact.name || undefined,
@@ -308,8 +308,8 @@ export class ContactCache {
           createdAt: contact.createdAt?.toISOString() || new Date().toISOString(),
         };
         
-        const cacheKey = `${this.CONTACT_PREFIX}:${contact.id}`;
-        const indexKey = `${this.PHONE_INDEX_PREFIX}:${companyId}:${contact.phone}`;
+        const _cacheKey = `${this.CONTACT_PREFIX}:${contact.id}`;
+        const _indexKey = `${this.PHONE_INDEX_PREFIX}:${companyId}:${contact.phone}`;
         
         // // pipeline.set(cacheKey, JSON.stringify(cachedContact), 'EX', this.TTL);
         // // pipeline.set(indexKey, contact.id, 'EX', this.TTL);

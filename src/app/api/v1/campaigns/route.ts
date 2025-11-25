@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { campaigns, connections, smsGateways, smsDeliveryReports, messageTemplates, whatsappDeliveryReports } from '@/lib/db/schema';
-import { eq, and, desc, sql, or, type SQL, count, inArray } from 'drizzle-orm';
+import { eq, and, desc, sql, type SQL, count, inArray } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
@@ -107,7 +107,7 @@ async function fetchCampaignsDataOptimized(params: {
         return { data: [], totalPages };
     }
 
-    const campaignIds = paginatedCampaigns.map(c => c.id);
+    const _campaignIds = paginatedCampaigns.map(c => c.id);
     const whatsappCampaigns = paginatedCampaigns.filter(c => c.channel === 'WHATSAPP').map(c => c.id);
     const smsCampaigns = paginatedCampaigns.filter(c => c.channel === 'SMS').map(c => c.id);
 

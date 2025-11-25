@@ -51,7 +51,7 @@ export function AIPerformanceSection() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
-  const notify = useMemo(() => createToastNotifier(toast), [toast]);
+  const _notify = useMemo(() => createToastNotifier(toast), [toast]);
 
   const fetchMetrics = async () => {
     const controller = new AbortController();

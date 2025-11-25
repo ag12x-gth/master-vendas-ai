@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import type { Template, ContactList, MediaAsset, HeaderType, Connection } from '@/lib/types';
-import { Loader2, Info, ArrowLeft, CalendarIcon, ImageIcon, Send, Clock, VideoIcon, FileText, Copy } from 'lucide-react';
+import { Loader2, Info, ArrowLeft, CalendarIcon, Send, Clock, VideoIcon, FileText, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createToastNotifier } from '@/lib/toast-helper';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';

@@ -35,7 +35,7 @@ import Papa from 'papaparse';
 import { MultiSelectCreatable } from '../ui/multi-select-creatable';
 
 type ImportStep = 'upload' | 'mapping' | 'segmentation' | 'processing' | 'summary';
-type UploadMode = 'csv' | 'paste';
+type _UploadMode = 'csv' | 'paste';
 
 type ImportSummary = {
     created: number;
@@ -418,14 +418,14 @@ export function ImportContactsDialog({ onImportCompleted, children, open: extern
         throw new Error(errorData.error || 'Falha ao processar números.');
       }
 
-      const { normalized, total, valid, invalid } = await response.json();
+      const { normalized, total: _total, valid, invalid } = await response.json();
       
       if (normalized.length === 0) {
         notify.error('Nenhum Número Válido', 'Não foi possível encontrar números de telefone válidos. Verifique o formato e tente novamente.');
         return;
       }
 
-      const csvData = normalized.map((item: { phone: string; valid: boolean }, index: number) => ({
+      const csvData = normalized.map((item: { phone: string; valid: boolean }, _index: number) => ({
         phone: item.phone,
         name: `Contato ${item.phone.slice(-8)}`,
       }));

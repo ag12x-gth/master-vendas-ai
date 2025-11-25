@@ -114,7 +114,7 @@ export const authConfig: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account, profile }: { user: User; account: Account | null; profile?: Profile }) {
+    async signIn({ user, account, profile: _profile }: { user: User; account: Account | null; profile?: Profile }) {
       if (!account) return false;
 
       if (account.provider === 'google' || account.provider === 'facebook') {

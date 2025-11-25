@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
         console.log(`[RESEND:${requestId}] Token hash: ${tokenHash.slice(0, 16)}...`);
         console.log(`[RESEND:${requestId}] Base URL: ${baseUrl}`);
         
-        const tokenRecord = await db.transaction(async (tx) => {
+        const _tokenRecord = await db.transaction(async (tx) => {
             await tx.delete(emailVerificationTokens).where(eq(emailVerificationTokens.userId, user.id));
             console.log(`[RESEND:${requestId}] Tokens antigos removidos`);
             

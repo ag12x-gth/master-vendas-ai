@@ -3,7 +3,7 @@
 
 import { Loader2, Info } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import type { Conversation, Message, Template, Contact } from '@/lib/types';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
@@ -183,7 +183,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
 
   useEffect(() => {
     const fetchInitialData = async () => {
-        const [conversationsResult, templatesResult, statusResult] = await Promise.all([
+        const [conversationsResult, _templatesResult, _statusResult] = await Promise.all([
             fetchConversations(),
             fetch('/api/v1/message-templates')
                 .then(res => res.json())

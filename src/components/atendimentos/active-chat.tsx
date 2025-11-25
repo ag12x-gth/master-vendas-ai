@@ -156,6 +156,7 @@ export function ActiveChat({
       await onSendMessage(messageText);
       setMessageText('');
     } catch (error) {
+      // Error is handled by the caller
     } finally {
       setIsSending(false);
       inputRef.current?.focus();

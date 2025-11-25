@@ -27,7 +27,7 @@ export function UploadContactsConfirmDialog({
   isOpen,
   onClose,
   listName,
-  listId,
+  listId: _listId,
   onUploadCompleted,
 }: UploadContactsConfirmDialogProps): JSX.Element {
   const [showImportDialog, setShowImportDialog] = useState(false);

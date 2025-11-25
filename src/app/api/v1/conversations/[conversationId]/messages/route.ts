@@ -3,7 +3,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { conversations, messages, contacts, templates, connections, messageReactions } from '@/lib/db/schema';
-import { eq, and, desc, asc, inArray, lt } from 'drizzle-orm';
+import { eq, and, desc, inArray, lt } from 'drizzle-orm';
 import { getCompanyIdFromSession, getUserIdFromSession } from '@/app/actions';
 import { sendWhatsappTemplateMessage, sendWhatsappTextMessage } from '@/lib/facebookApiService';
 import { sessionManager } from '@/services/baileys-session-manager';
