@@ -111,6 +111,7 @@ export default function TemplatesV2Page() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
   const [selectedConnectionForCreate, setSelectedConnectionForCreate] = useState<string>('');
+  const [syncing, setSyncing] = useState(false);
   const { toast } = useToast();
   const isMobileDetected = useIsMobile();
   const isMobile = mounted ? isMobileDetected : false;
@@ -348,6 +349,32 @@ export default function TemplatesV2Page() {
     setShowCampaignDialog(true);
   };
 
+  const handleSyncTemplates = async () => {
+    setSyncing(true);
+    try {
+      const response = await fetch('/api/v1/templates/sync', { method: 'POST' });
+      const data = await response.json();
+      
+      if (data.success) {
+        toast({
+          title: 'Sincronização concluída',
+          description: data.message || `${data.synced} templates sincronizados`,
+        });
+        fetchTemplates();
+      } else {
+        throw new Error(data.error || 'Erro na sincronização');
+      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Erro na sincronização',
+        description: error instanceof Error ? error.message : 'Erro desconhecido',
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex flex-col gap-4">
@@ -358,10 +385,20 @@ export default function TemplatesV2Page() {
               Gerencie seus templates de mensagens do WhatsApp Business
             </p>
           </div>
-          <Button onClick={() => setShowCreateDialog(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Novo Template
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleSyncTemplates}
+              disabled={syncing}
+            >
+              <RefreshCw className={`mr-2 h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'Sincronizando...' : 'Sincronizar Meta'}
+            </Button>
+            <Button onClick={() => setShowCreateDialog(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Novo Template
+            </Button>
+          </div>
         </div>
 
         {/* Filtros */}
