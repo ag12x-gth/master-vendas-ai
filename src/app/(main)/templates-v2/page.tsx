@@ -355,15 +355,17 @@ export default function TemplatesV2Page() {
       const response = await fetch('/api/v1/templates/sync', { method: 'POST' });
       const data = await response.json();
       
-      if (data.success) {
-        toast({
-          title: 'Sincronização concluída',
-          description: data.message || `${data.synced} templates sincronizados`,
-        });
-        fetchTemplates();
-      } else {
+      if (!response.ok) {
         throw new Error(data.error || 'Erro na sincronização');
       }
+      
+      toast({
+        title: 'Sincronização concluída',
+        description: data.message || (data.synced !== undefined 
+          ? `${data.synced} templates sincronizados` 
+          : 'Sincronização finalizada'),
+      });
+      fetchTemplates();
     } catch (error) {
       toast({
         variant: 'destructive',
