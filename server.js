@@ -48,7 +48,7 @@ function killStaleProcesses(targetPort) {
           
           if (processInfo.includes('node')) {
             console.log(`🔪 [Guard] Terminating stale Node.js process PID ${pid}...`);
-            execSync(`kill -9 ${pid}`, { stdio: 'ignore' });
+            process.kill(pid, 'SIGKILL');
             console.log(`✅ [Guard] PID ${pid} terminated successfully`);
           } else {
             console.log(`⏭️ [Guard] Skipping non-Node.js process PID ${pid} (${processInfo})`);
