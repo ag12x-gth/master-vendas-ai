@@ -186,9 +186,6 @@ function LoginPageContent() {
 
   return (
     <>
-    <div className="w-full bg-green-600 text-white px-4 py-2 text-center text-sm font-medium">
-      ✅ App Testing ATIVO - Sistema Otimizado | Hydration Fix Aplicado | Preview em Tempo Real
-    </div>
     <div className="w-full min-h-screen grid grid-cols-1 lg:grid-cols-2">
       <div className="hidden lg:flex flex-col items-center justify-center bg-muted/40 p-10 text-center space-y-6">
         <div className="flex items-center gap-4 text-primary">
