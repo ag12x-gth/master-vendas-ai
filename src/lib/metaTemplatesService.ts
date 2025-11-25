@@ -23,7 +23,7 @@ interface MetaTemplateComponent {
   }>;
 }
 
-interface CreateTemplatePayload {
+interface _CreateTemplatePayload {
   name: string;
   language: string;
   category: 'MARKETING' | 'UTILITY' | 'AUTHENTICATION';

@@ -349,9 +349,9 @@ export function withRateLimit(
  * Useful for displaying limits in UI
  */
 export async function getRateLimitStatus(
-  userId: string,
-  companyId: string,
-  ipAddress: string
+  _userId: string,
+  _companyId: string,
+  _ipAddress: string
 ): Promise<{
   user: { limit: number; remaining: number; resetAt: Date };
   company: { limit: number; remaining: number; resetAt: Date };

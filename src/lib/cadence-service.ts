@@ -7,7 +7,7 @@ import {
   contacts,
   kanbanLeads,
 } from '@/lib/db/schema';
-import { eq, and, lt, lte, isNull, sql, desc, inArray } from 'drizzle-orm';
+import { eq, and, lt, lte, isNull, sql, inArray } from 'drizzle-orm';
 import { subDays, addDays } from 'date-fns';
 import { logger } from '@/lib/logger';
 

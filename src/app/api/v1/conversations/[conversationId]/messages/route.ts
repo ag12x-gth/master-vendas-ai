@@ -91,8 +91,9 @@ export async function GET(request: NextRequest, { params }: { params: { conversa
             })),
         }));
         
-        const nextBefore = hasMore && messagesToReturn.length > 0 
-            ? messagesToReturn[messagesToReturn.length - 1].sentAt.toISOString() 
+        const lastMessage = messagesToReturn[messagesToReturn.length - 1];
+        const nextBefore = hasMore && lastMessage 
+            ? lastMessage.sentAt.toISOString() 
             : null;
             
         return NextResponse.json({

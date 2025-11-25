@@ -1,7 +1,7 @@
 // src/lib/notifications/user-notifications.service.ts
 
 import { db } from '@/lib/db';
-import { userNotifications, campaigns, conversations } from '@/lib/db/schema';
+import { userNotifications } from '@/lib/db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 
 export type UserNotificationType = 'campaign_completed' | 'new_conversation' | 'new_appointment' | 'system_error' | 'info';

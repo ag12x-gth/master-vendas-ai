@@ -45,15 +45,15 @@ export class ApiMetrics {
    */
   static async recordApiCall(
     provider: ApiProvider,
-    latencyMs: number,
-    success: boolean
+    _latencyMs: number,
+    _success: boolean
   ): Promise<void> {
     try {
-      const now = Date.now();
-      const latencyKey = `${this.METRICS_PREFIX}:${provider}:latency`;
-      const successKey = `${this.METRICS_PREFIX}:${provider}:success`;
-      const failureKey = `${this.METRICS_PREFIX}:${provider}:failure`;
-      const totalKey = `${this.METRICS_PREFIX}:${provider}:total`;
+      const _now = Date.now();
+      const _latencyKey = `${this.METRICS_PREFIX}:${provider}:latency`;
+      const _successKey = `${this.METRICS_PREFIX}:${provider}:success`;
+      const _failureKey = `${this.METRICS_PREFIX}:${provider}:failure`;
+      const _totalKey = `${this.METRICS_PREFIX}:${provider}:total`;
 
       // Pipeline not supported on HybridRedisClient
       // Would store: latency with timestamp, increment counters, set TTLs
@@ -68,7 +68,7 @@ export class ApiMetrics {
    */
   static async getProviderMetrics(provider: ApiProvider): Promise<ApiMetricsData> {
     try {
-      const latencyKey = `${this.METRICS_PREFIX}:${provider}:latency`;
+      const _latencyKey = `${this.METRICS_PREFIX}:${provider}:latency`;
       const successKey = `${this.METRICS_PREFIX}:${provider}:success`;
       const failureKey = `${this.METRICS_PREFIX}:${provider}:failure`;
       const totalKey = `${this.METRICS_PREFIX}:${provider}:total`;

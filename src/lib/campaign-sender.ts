@@ -46,7 +46,7 @@ async function createCampaignConversationAndMessage(
     connectionId: string,
     providerMessageId: string | null,
     messageContent: string,
-    campaignId: string
+    _campaignId: string
 ): Promise<void> {
     try {
         await db.transaction(async (tx) => {

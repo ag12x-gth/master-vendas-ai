@@ -29,8 +29,8 @@ export class CacheMetrics {
    */
   static async recordHit(cacheType: string): Promise<void> {
     try {
-      const hitKey = `${this.METRICS_PREFIX}:${cacheType}:hits`;
-      const totalKey = `${this.METRICS_PREFIX}:${cacheType}:total`;
+      const _hitKey = `${this.METRICS_PREFIX}:${cacheType}:hits`;
+      const _totalKey = `${this.METRICS_PREFIX}:${cacheType}:total`;
       // Pipeline not supported - would increment counters and set TTL
     } catch (error) {
       console.error('[CacheMetrics] Erro ao registrar hit:', error);
@@ -42,8 +42,8 @@ export class CacheMetrics {
    */
   static async recordMiss(cacheType: string): Promise<void> {
     try {
-      const missKey = `${this.METRICS_PREFIX}:${cacheType}:misses`;
-      const totalKey = `${this.METRICS_PREFIX}:${cacheType}:total`;
+      const _missKey = `${this.METRICS_PREFIX}:${cacheType}:misses`;
+      const _totalKey = `${this.METRICS_PREFIX}:${cacheType}:total`;
       // Pipeline not supported - would increment counters and set TTL
     } catch (error) {
       console.error('[CacheMetrics] Erro ao registrar miss:', error);

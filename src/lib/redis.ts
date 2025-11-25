@@ -99,12 +99,12 @@ class EnhancedCache {
   // Clean up expired keys
   private cleanupExpired() {
     const now = Date.now();
-    let cleaned = 0;
+    let _cleaned = 0;
     
     for (const [key, item] of this.data.entries()) {
       if (item.expireAt && item.expireAt <= now) {
         this.data.delete(key);
-        cleaned++;
+        _cleaned++;
       }
     }
   }
@@ -371,7 +371,7 @@ class EnhancedCache {
     return popped ? String(popped) : null;
   }
 
-  async brpop(key: string | string[], timeout: number): Promise<[string, string] | null> {
+  async brpop(key: string | string[], _timeout: number): Promise<[string, string] | null> {
     const keys = Array.isArray(key) ? key : [key];
     
     for (const k of keys) {
@@ -385,7 +385,7 @@ class EnhancedCache {
     return null;
   }
 
-  async blpop(key: string | string[], timeout: number): Promise<[string, string] | null> {
+  async blpop(key: string | string[], _timeout: number): Promise<[string, string] | null> {
     const keys = Array.isArray(key) ? key : [key];
     
     for (const k of keys) {
