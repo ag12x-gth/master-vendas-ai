@@ -22,13 +22,12 @@ export function HeroSection() {
           </div>
           <div className="relative">
             <Image
-              src="https://firebasestorage.googleapis.com/v0/b/studiostage-3ea73.appspot.com/o/projects%2Fbrn9lgp3q1i23t5d%2Fuser%2Fcxu03y27p78z7z8q%2Fsrc%2Fcomponents%2Flanding%2F219760a9-3d12-42fe-bd35-a75ea9c5f87b.png?alt=media&token=c1fd33b6-7933-4f93-9c88-e9f3b55c65f0"
+              src="/screenshot2.png"
               alt="Dashboard Master IA"
               width={1200}
               height={800}
               className="rounded-lg shadow-2xl"
               priority
-              data-ai-hint="dashboard product"
             />
           </div>
         </div>
