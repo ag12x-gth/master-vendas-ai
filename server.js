@@ -17,17 +17,31 @@ const { execSync } = require('child_process');
  */
 function killStaleProcesses(targetPort) {
   try {
-    console.log(`🔍 [Guard] Checking for stale processes on port ${targetPort}...`);
+    // SECURITY: Validate port is a safe integer (defense in depth)
+    const sanitizedPort = parseInt(targetPort, 10);
+    if (isNaN(sanitizedPort) || sanitizedPort < 1 || sanitizedPort > 65535) {
+      console.warn(`⚠️ [Guard] Invalid port number: ${targetPort}, skipping cleanup`);
+      return;
+    }
+    
+    console.log(`🔍 [Guard] Checking for stale processes on port ${sanitizedPort}...`);
     
     // Find processes using the target port
-    const command = `lsof -ti :${targetPort} 2>/dev/null || true`;
+    const command = `lsof -ti :${sanitizedPort} 2>/dev/null || true`;
     const pids = execSync(command, { encoding: 'utf8' }).trim();
     
     if (pids) {
       const pidList = pids.split('\n').filter(Boolean);
       console.log(`⚠️ [Guard] Found ${pidList.length} stale process(es): ${pidList.join(', ')}`);
       
-      pidList.forEach(pid => {
+      pidList.forEach(pidStr => {
+        // SECURITY: Validate PID is a safe integer (defense in depth)
+        const pid = parseInt(pidStr, 10);
+        if (isNaN(pid) || pid < 1 || pid > 4194304) {
+          console.warn(`⚠️ [Guard] Invalid PID: ${pidStr}, skipping`);
+          return;
+        }
+        
         try {
           // Check if it's a Node.js process (safety check)
           const processInfo = execSync(`ps -p ${pid} -o comm=`, { encoding: 'utf8' }).trim();
@@ -45,11 +59,11 @@ function killStaleProcesses(targetPort) {
       });
       
       // Wait 1 second for port to be released
-      console.log(`⏳ [Guard] Waiting 1s for port ${targetPort} to be released...`);
+      console.log(`⏳ [Guard] Waiting 1s for port ${sanitizedPort} to be released...`);
       execSync('sleep 1');
-      console.log(`✅ [Guard] Port ${targetPort} cleanup complete`);
+      console.log(`✅ [Guard] Port ${sanitizedPort} cleanup complete`);
     } else {
-      console.log(`✅ [Guard] No stale processes found on port ${targetPort}`);
+      console.log(`✅ [Guard] No stale processes found on port ${sanitizedPort}`);
     }
   } catch (error) {
     // Non-critical error - continue server startup
