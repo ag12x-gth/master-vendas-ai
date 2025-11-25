@@ -2,6 +2,13 @@
 const nextConfig = {
   swcMinify: false,
   
+  // Permitir origens de desenvolvimento do Replit (elimina aviso de cross-origin)
+  allowedDevOrigins: [
+    '*.replit.dev',
+    '*.kirk.replit.dev',
+    '*.repl.co',
+  ],
+  
   experimental: {
     cpus: 1,
   },
