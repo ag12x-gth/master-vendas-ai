@@ -33,6 +33,7 @@ Preferred communication style: Simple, everyday language.
 - **Parallel Query Execution**: Dashboard stats, campaigns, and connection health APIs use Promise.all for parallel database/external API calls.
 - **Tiered Cache TTLs**: STATUS_POLLING (2.5s), SHORT (30s), MEDIUM (60s), LONG (5min) for different data freshness requirements.
 - **Memory Leak Prevention**: Global listener registration flag prevents duplicate SIGINT/SIGTERM handlers during hot-reload.
+- **Singleton Implementations**: HybridRedisClient, WebhookQueueService, BaileysSessionManager with constructor-level hot-reload verification.
 - **OAuth Authentication System**: Production-ready OAuth 2.0 with Google and Facebook via NextAuth.js, supporting account linking and multi-tenant compatibility.
 - **Atomic Lua Script Rate Limiting**: Atomic rate limiting implementation using Lua scripts in Redis/EnhancedCache.
 - **Proactive Token Monitoring**: Meta access token expiration monitoring.
