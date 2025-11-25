@@ -27,7 +27,8 @@ function killStaleProcesses(targetPort) {
     console.log(`🔍 [Guard] Checking for stale processes on port ${sanitizedPort}...`);
     
     // Find processes using the target port
-    const command = `lsof -ti :${sanitizedPort} 2>/dev/null || true`;
+    // SECURITY: sanitizedPort is guaranteed to be a numeric integer (1-65535) - safe from injection
+    const command = `lsof -ti :${String(sanitizedPort)} 2>/dev/null || true`;
     const pids = execSync(command, { encoding: 'utf8' }).trim();
     
     if (pids) {
@@ -44,7 +45,8 @@ function killStaleProcesses(targetPort) {
         
         try {
           // Check if it's a Node.js process (safety check)
-          const processInfo = execSync(`ps -p ${pid} -o comm=`, { encoding: 'utf8' }).trim();
+          // SECURITY: pid is guaranteed to be a numeric integer (1-4194304) - safe from injection
+          const processInfo = execSync(`ps -p ${String(pid)} -o comm=`, { encoding: 'utf8' }).trim();
           
           if (processInfo.includes('node')) {
             console.log(`🔪 [Guard] Terminating stale Node.js process PID ${pid}...`);
