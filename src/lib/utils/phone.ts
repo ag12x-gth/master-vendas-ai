@@ -106,3 +106,126 @@ export function detectGroup(options: { remoteJid?: string; phone: string }): boo
   // are likely malformed MSISDNs, not groups
   return false;
 }
+
+/**
+ * Normalize phone number for Brazilian SMS (operadora format)
+ * Converts E.164 (+5511999999999) to operator format (11999999999)
+ * Automatically adds 9th digit for mobile numbers when missing
+ * 
+ * @param phone - Phone number in any format (E.164, with/without +55, etc)
+ * @returns Object with normalized number and validation info
+ * 
+ * @example
+ * normalizeBrazilianSMS('+5564999526870') // { number: '64999526870', valid: true }
+ * normalizeBrazilianSMS('+553891620033')  // { number: '38991620033', valid: true, ninthDigitAdded: true }
+ * normalizeBrazilianSMS('11987654321')    // { number: '11987654321', valid: true }
+ */
+export function normalizeBrazilianSMS(phone: string): {
+  number: string;
+  valid: boolean;
+  original: string;
+  ninthDigitAdded?: boolean;
+  isLandline?: boolean;
+  error?: string;
+} {
+  const original = phone;
+  
+  // Remove all non-digit characters
+  let digits = phone.replace(/\D/g, '');
+  
+  // Remove country code 55 if present (Brazilian numbers start with 55)
+  if (digits.startsWith('55') && digits.length >= 12) {
+    digits = digits.substring(2);
+  }
+  
+  // Validate minimum length (DDD + 8 digits = 10)
+  if (digits.length < 10) {
+    return {
+      number: digits,
+      valid: false,
+      original,
+      error: `Número muito curto: ${digits.length} dígitos (mínimo 10)`
+    };
+  }
+  
+  // Extract DDD (first 2 digits)
+  const ddd = digits.substring(0, 2);
+  const localNumber = digits.substring(2);
+  
+  // Validate DDD (11-99, excluding invalid ranges)
+  const dddNum = parseInt(ddd, 10);
+  if (dddNum < 11 || dddNum > 99) {
+    return {
+      number: digits,
+      valid: false,
+      original,
+      error: `DDD inválido: ${ddd}`
+    };
+  }
+  
+  // Check if it's a landline (starts with 2, 3, 4, or 5)
+  const firstLocalDigit = localNumber.charAt(0);
+  const isLandline = ['2', '3', '4', '5'].includes(firstLocalDigit);
+  
+  // Landlines have 8 digits after DDD
+  if (isLandline) {
+    if (localNumber.length === 8) {
+      return {
+        number: digits,
+        valid: true,
+        original,
+        isLandline: true
+      };
+    }
+    return {
+      number: digits,
+      valid: false,
+      original,
+      isLandline: true,
+      error: `Telefone fixo deve ter 8 dígitos após DDD, encontrado: ${localNumber.length}`
+    };
+  }
+  
+  // Mobile numbers (start with 6, 7, 8, or 9)
+  // After 2016 migration, all mobile numbers should have 9 digits (starting with 9)
+  
+  // Already has 9 digits - check if starts with 9
+  if (localNumber.length === 9) {
+    if (localNumber.startsWith('9')) {
+      return {
+        number: digits,
+        valid: true,
+        original
+      };
+    }
+    // 9 digits but doesn't start with 9 - likely invalid
+    return {
+      number: digits,
+      valid: false,
+      original,
+      error: `Celular com 9 dígitos deve começar com 9, encontrado: ${firstLocalDigit}`
+    };
+  }
+  
+  // Has 8 digits - need to add 9th digit
+  if (localNumber.length === 8) {
+    // Mobile numbers (6, 7, 8, 9) need the 9 prefix added
+    if (['6', '7', '8', '9'].includes(firstLocalDigit)) {
+      const normalizedNumber = `${ddd}9${localNumber}`;
+      return {
+        number: normalizedNumber,
+        valid: true,
+        original,
+        ninthDigitAdded: true
+      };
+    }
+  }
+  
+  // Invalid length
+  return {
+    number: digits,
+    valid: false,
+    original,
+    error: `Quantidade de dígitos inválida após DDD: ${localNumber.length} (esperado 8 ou 9)`
+  };
+}

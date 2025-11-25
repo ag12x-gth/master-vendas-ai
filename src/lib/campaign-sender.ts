@@ -25,6 +25,7 @@ import { NotificationService } from '@/lib/notifications/notification-service';
 import { UserNotificationsService } from '@/lib/notifications/user-notifications.service';
 import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
 import * as CircuitBreaker from '@/lib/circuit-breaker';
+import { normalizeBrazilianSMS } from '@/lib/utils/phone';
 
 // Helper para dividir um array em lotes
 function chunkArray<T>(array: T[], size: number): T[][] {
@@ -706,6 +707,36 @@ async function logSmsDelivery(campaign: typeof campaigns.$inferSelect, gateway: 
 async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: typeof campaigns.$inferSelect, batch: { id: string, phone: string }[]): Promise<Record<string, unknown>> {
     const provider = gateway.provider as 'witi' | 'seven' | 'mkom';
     const credentials = gateway.credentials as Record<string, string> | null;
+    
+    // Normalize all phone numbers for Brazilian SMS format
+    const normalizedBatch = batch.map(contact => {
+        const normalized = normalizeBrazilianSMS(contact.phone);
+        if (normalized.ninthDigitAdded) {
+            console.log(`[SMS] 📱 Nono dígito adicionado: ${normalized.original} → ${normalized.number}`);
+        }
+        if (!normalized.valid) {
+            console.warn(`[SMS] ⚠️ Número inválido: ${contact.phone} - ${normalized.error}`);
+        }
+        return {
+            ...contact,
+            originalPhone: contact.phone,
+            phone: normalized.number,
+            phoneValid: normalized.valid,
+            phoneError: normalized.error
+        };
+    });
+    
+    // Filter valid numbers only
+    const validBatch = normalizedBatch.filter(c => c.phoneValid);
+    const invalidCount = normalizedBatch.length - validBatch.length;
+    
+    if (invalidCount > 0) {
+        console.warn(`[SMS] ⚠️ ${invalidCount} número(s) inválido(s) serão ignorados`);
+    }
+    
+    if (validBatch.length === 0) {
+        throw new Error('Nenhum número válido para enviar SMS');
+    }
 
     switch(provider) {
         case 'witi': {
@@ -720,7 +751,7 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
             const apiKey = decrypt(credentials.token);
             if (!apiKey) throw new Error("Falha ao desencriptar o API Key da Witi.");
             
-            const messages = batch.map(contact => ({ numero: contact.phone.replace(/\\D/g, ''), mensagem: campaign.message!, Codigo_cliente: contact.id }));
+            const messages = validBatch.map(contact => ({ numero: contact.phone, mensagem: campaign.message!, Codigo_cliente: contact.id }));
             const payload = { tipo_envio: "common", referencia: campaign.name, mensagens: messages };
             const url = `https://sms.witi.me/sms/send.aspx?chave=${apiKey}`;
             
@@ -764,7 +795,7 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
             const sevenApiKey = decrypt(credentials.apiKey);
             if (!sevenApiKey) throw new Error("Falha ao desencriptar a API Key da seven.io.");
             
-            const toNumbers = batch.map(c => c.phone.replace(/\\D/g, '')).join(',');
+            const toNumbers = validBatch.map(c => c.phone).join(',');
             const sevenPayload = { to: toNumbers, text: campaign.message!, from: "ZAPMaster" };
             const sevenUrl = 'https://gateway.seven.io/api/sms';
             
@@ -809,11 +840,14 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
             
             // MKOM API - Envio de SMS via MKSMS
             // Documentação: https://mkom.com.br/mksms/
-            const mkomMessages = batch.map(contact => ({
-                numero: contact.phone.replace(/\D/g, ''),
+            // Números já normalizados para formato operadora (DDD + número, sem DDI 55)
+            const mkomMessages = validBatch.map(contact => ({
+                numero: contact.phone,
                 mensagem: campaign.message!,
                 codigo_cliente: contact.id
             }));
+            
+            console.log(`[SMS MKOM] Enviando ${mkomMessages.length} mensagens com números normalizados`);
             
             const mkomPayload = {
                 mensagens: mkomMessages
