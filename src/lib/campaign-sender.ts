@@ -999,94 +999,131 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
                         };
                     }
                     
+                    // Criar mapa de contatos enviados para cross-check
+                    const sentContactIds = new Set(validBatch.map(c => c.id));
+                    
                     // Processar cada mensagem com validação rigorosa de tipos
-                    let hasInvalidStructure = false;
-                    const processedMessages = mkomData.messages.map(m => {
-                        // Validar que reference é string não vazia
-                        if (!m.reference || typeof m.reference !== 'string') {
-                            console.warn(`[SMS MKOM] ⚠️ Mensagem sem reference válido`);
-                            hasInvalidStructure = true;
+                    let invalidMsgCount = 0;
+                    const processedMessages: Array<{
+                        reference: string;
+                        success: boolean;
+                        status: string;
+                        id?: string;
+                        error?: string;
+                    }> = [];
+                    
+                    for (const m of mkomData.messages) {
+                        // Validar reference: string não vazia e existente nos contatos enviados
+                        const reference = (typeof m.reference === 'string' && m.reference.trim()) ? m.reference.trim() : '';
+                        
+                        if (!reference) {
+                            console.warn(`[SMS MKOM] ⚠️ Mensagem sem reference válido - ignorando`);
+                            invalidMsgCount++;
+                            continue;
+                        }
+                        
+                        // Verificar se reference corresponde a um contato enviado
+                        if (!sentContactIds.has(reference)) {
+                            console.warn(`[SMS MKOM] ⚠️ Reference '${reference}' não corresponde a nenhum contato enviado`);
+                            invalidMsgCount++;
+                            continue;
                         }
                         
                         // Determinar sucesso: DEVE ter confirmação explícita
-                        // Sem success boolean ou status string válido = FAILED
                         let isSuccess = false;
-                        let statusStr: string | undefined;
+                        let statusStr = 'FAILED';
                         
                         if (typeof m.success === 'boolean') {
-                            // Campo success boolean explícito
                             isSuccess = m.success;
                             statusStr = m.success ? 'SENT' : 'FAILED';
                         } else if (m.status && typeof m.status === 'string') {
-                            // Campo status string - validar contra lista conhecida
                             const statusUpper = m.status.toUpperCase();
                             if (VALID_SUCCESS_STATUSES.has(statusUpper)) {
                                 isSuccess = true;
                                 statusStr = 'SENT';
                             } else if (VALID_PENDING_STATUSES.has(statusUpper)) {
-                                isSuccess = true; // Pending ainda conta como sucesso no envio
+                                isSuccess = true;
                                 statusStr = 'PENDING';
                             } else {
-                                // Status desconhecido = falha
                                 isSuccess = false;
                                 statusStr = 'FAILED';
                                 console.warn(`[SMS MKOM] ⚠️ Status desconhecido: ${m.status}`);
                             }
-                        } else {
-                            // Sem success nem status = SEM CONFIRMAÇÃO = FAILED
-                            isSuccess = false;
-                            statusStr = 'FAILED';
                         }
                         
-                        return {
-                            reference: m.reference || '',
+                        processedMessages.push({
+                            reference,
                             success: isSuccess,
                             status: statusStr,
                             id: m.id,
                             error: m.error
-                        };
-                    });
+                        });
+                    }
                     
-                    // Se estrutura inválida em muitas mensagens, é problema sério
-                    if (hasInvalidStructure && processedMessages.length > 0) {
-                        const invalidRatio = processedMessages.filter(m => !m.reference).length / processedMessages.length;
-                        if (invalidRatio > 0.5) {
-                            console.error(`[SMS MKOM] ❌ Mais de 50% das mensagens sem reference válido`);
-                            CircuitBreaker.recordFailure('sms_mkom');
-                        }
+                    // Se validação falhou para muitas mensagens, é problema grave na estrutura
+                    if (invalidMsgCount > 0) {
+                        console.warn(`[SMS MKOM] ⚠️ ${invalidMsgCount} mensagem(ns) com estrutura inválida ignoradas`);
+                    }
+                    
+                    // Verificar se todos os contatos receberam resposta
+                    const respondedContactIds = new Set(processedMessages.map(m => m.reference));
+                    const missingContacts = validBatch.filter(c => !respondedContactIds.has(c.id));
+                    
+                    // Adicionar contatos sem resposta como FAILED
+                    for (const missing of missingContacts) {
+                        console.warn(`[SMS MKOM] ⚠️ Contato ${missing.id} não recebeu confirmação do provider`);
+                        processedMessages.push({
+                            reference: missing.id,
+                            success: false,
+                            status: 'FAILED',
+                            error: 'Sem confirmação de entrega do provider'
+                        });
                     }
                     
                     const successCount = processedMessages.filter(m => m.success).length;
                     const failCount = processedMessages.filter(m => !m.success).length;
-                    
-                    if (failCount > 0) {
-                        console.warn(`[SMS MKOM] ⚠️ ${failCount} mensagem(ns) falharam, ${successCount} enviadas com sucesso`);
-                    }
+                    const hasMissingResponses = missingContacts.length > 0;
                     
                     // Mapear resposta para formato compatível com logSmsDelivery
                     const mensagens = processedMessages.map(m => ({
                         Codigo_cliente: m.reference,
                         id_mensagem: m.id || mkomData.mailing?.id || '',
-                        status: m.status || 'FAILED',
+                        status: m.status,
                         error: m.error
                     }));
                     
-                    // Determinar sucesso global
-                    const allSuccess = failCount === 0 && successCount > 0;
-                    const partialSuccess = failCount > 0 && successCount > 0;
+                    // Determinar sucesso global:
+                    // - allSuccess: TODOS os contatos receberam confirmação de sucesso
+                    // - partialSuccess: Alguns com sucesso, mas houve falhas ou contatos sem resposta
+                    // - Contatos sem resposta do provider = FALHA (não sucesso parcial)
+                    const allSuccess = failCount === 0 && successCount > 0 && !hasMissingResponses && successCount === validBatch.length;
+                    const partialSuccess = successCount > 0 && (failCount > 0 || hasMissingResponses);
                     
-                    // Acionar circuit breaker apenas quando todas falham
-                    if (failCount > 0 && successCount === 0) {
+                    // Acionar circuit breaker quando:
+                    // 1. Nenhum sucesso
+                    // 2. Muitos contatos sem resposta (> 50%)
+                    if (successCount === 0 && validBatch.length > 0) {
+                        console.error(`[SMS MKOM] ❌ Nenhuma mensagem confirmada como enviada`);
+                        CircuitBreaker.recordFailure('sms_mkom');
+                    } else if (hasMissingResponses && missingContacts.length > validBatch.length * 0.5) {
+                        console.error(`[SMS MKOM] ❌ Mais de 50% dos contatos sem resposta do provider`);
                         CircuitBreaker.recordFailure('sms_mkom');
                     }
                     
+                    if (failCount > 0 || hasMissingResponses) {
+                        console.warn(`[SMS MKOM] ⚠️ ${failCount} mensagem(ns) falharam, ${successCount} enviadas. Contatos sem resposta: ${missingContacts.length}`);
+                    }
+                    
+                    // success = true APENAS se todos os contatos foram confirmados com sucesso
+                    // success = false se houve qualquer falha ou contato sem resposta
                     return { 
-                        success: allSuccess || partialSuccess,
+                        success: allSuccess,
                         partialSuccess,
                         mailingId: mkomData.mailing?.id,
                         mensagens,
                         successCount,
-                        failCount
+                        failCount,
+                        missingCount: missingContacts.length
                     };
                 } catch (e) {
                     // JSON inválido: tratar como falha e acionar circuit breaker
