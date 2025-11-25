@@ -28,6 +28,7 @@ Preferred communication style: Simple, everyday language.
 - **UI/UX Component Library**: Reusable ShadCN-based components, including skeleton loaders, empty states, server-side pagination, debounced search inputs, and a centralized toast notification helper.
 - **Progressive Web App (PWA)**: Mobile-first PWA implementation with offline support, app manifest, and standalone display mode.
 - **Performance Optimizations**: Caching, dynamic imports, Redis cache optimization, PostgreSQL indexes, BullMQ for queuing, rate limiting middleware, and Prometheus metrics with alerting.
+- **Atendimentos Page Performance**: Optimized conversation and message loading with pagination (50 items per page), infinite scroll, parallel API calls (Promise.all), and cursor-based message pagination using ISO timestamps.
 - **OAuth Authentication System**: Production-ready OAuth 2.0 with Google and Facebook via NextAuth.js, supporting account linking and multi-tenant compatibility.
 - **Atomic Lua Script Rate Limiting**: Atomic rate limiting implementation using Lua scripts in Redis/EnhancedCache.
 - **Proactive Token Monitoring**: Meta access token expiration monitoring.
