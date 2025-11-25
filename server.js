@@ -34,9 +34,14 @@ function killStaleProcesses(targetPort) {
     console.log(`🔍 [Guard] Checking for stale processes on port ${sanitizedPort}...`);
     
     // Find processes using the target port
-    // SECURITY: portString validated as numeric-only (1-65535) - safe from injection
-    const command = `lsof -ti :${portString} 2>/dev/null || true`;
-    const pids = execSync(command, { encoding: 'utf8' }).trim();
+    // SECURITY: Using execFileSync (no shell) to prevent command injection
+    let pids = '';
+    try {
+      pids = execFileSync('lsof', ['-ti', `:${portString}`], { encoding: 'utf8' }).trim();
+    } catch (error) {
+      // lsof returns non-zero exit code when no processes found - this is expected
+      pids = '';
+    }
     
     if (pids) {
       const pidList = pids.split('\n').filter(Boolean);
