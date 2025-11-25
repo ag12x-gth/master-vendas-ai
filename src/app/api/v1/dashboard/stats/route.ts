@@ -26,11 +26,22 @@ export async function GET(request: NextRequest) {
         
         const stats = await getCachedOrFetch(cacheKey, async () => {
 
-        // Where clause for date range to be reused
         const dateRangeFilter = gte(kanbanLeads.createdAt, startDate);
 
-        const [totalLeadsResult] = await db
-            .select({
+        const companyCampaignsSubquery = db
+            .select({ id: campaigns.id })
+            .from(campaigns)
+            .where(eq(campaigns.companyId, companyId));
+
+        const [
+            totalLeadsResults,
+            totalContactsResults,
+            pendingConversationsResults,
+            totalWhatsappSentResults,
+            totalSmsSentResults,
+            agentPerformance
+        ] = await Promise.all([
+            db.select({
                 value: sql<string>`sum(${kanbanLeads.value})`.mapWith(Number),
             })
             .from(kanbanLeads)
@@ -38,51 +49,60 @@ export async function GET(request: NextRequest) {
             .where(and(
                 eq(kanbanBoards.companyId, companyId),
                 dateRangeFilter
-            ));
-            
-        const [totalContactsResult] = await db
-            .select({ count: count() })
-            .from(contacts)
-            .where(and(eq(contacts.companyId, companyId), gte(contacts.createdAt, startDate)));
+            )),
 
-        const [pendingConversationsResult] = await db
-            .select({ count: count() })
-            .from(conversations)
+            db.select({ count: count() })
+                .from(contacts)
+                .where(and(eq(contacts.companyId, companyId), gte(contacts.createdAt, startDate))),
+
+            db.select({ count: count() })
+                .from(conversations)
+                .where(and(
+                    eq(conversations.companyId, companyId), 
+                    eq(conversations.status, 'NEW'),
+                    gte(conversations.createdAt, startDate)
+                )),
+
+            db.select({ count: count() })
+                .from(whatsappDeliveryReports)
+                .where(and(
+                    inArray(whatsappDeliveryReports.campaignId, companyCampaignsSubquery), 
+                    gte(whatsappDeliveryReports.sentAt, startDate)
+                )),
+
+            db.select({ count: count() })
+                .from(smsDeliveryReports)
+                .where(and(
+                    inArray(smsDeliveryReports.campaignId, companyCampaignsSubquery), 
+                    gte(smsDeliveryReports.sentAt, startDate)
+                )),
+
+            db.select({
+                id: users.id,
+                name: users.name,
+                avatarUrl: users.avatarUrl,
+                resolved: sql<number>`count(${conversations.id})::int`,
+            })
+            .from(users)
+            .leftJoin(conversations, and(
+                eq(conversations.assignedTo, users.id),
+                eq(conversations.status, 'RESOLVED'),
+                eq(conversations.companyId, companyId),
+                gte(conversations.updatedAt, startDate)
+            ))
             .where(and(
-                eq(conversations.companyId, companyId), 
-                eq(conversations.status, 'NEW'),
-                gte(conversations.createdAt, startDate)
-            ));
-        
-        // CORREÇÃO: Utilizar subquery para garantir a passagem correta dos parâmetros
-        const companyCampaignsSubquery = db
-            .select({ id: campaigns.id })
-            .from(campaigns)
-            .where(eq(campaigns.companyId, companyId));
+                eq(users.companyId, companyId),
+                eq(users.role, 'atendente')
+            ))
+            .groupBy(users.id, users.name, users.avatarUrl)
+            .orderBy(desc(sql<number>`count(${conversations.id})::int`))
+        ]);
 
-        const [totalWhatsappSentResult] = await db.select({ count: count() }).from(whatsappDeliveryReports).where(and(inArray(whatsappDeliveryReports.campaignId, companyCampaignsSubquery), gte(whatsappDeliveryReports.sentAt, startDate)));
-        const [totalSmsSentResult] = await db.select({ count: count() }).from(smsDeliveryReports).where(and(inArray(smsDeliveryReports.campaignId, companyCampaignsSubquery), gte(smsDeliveryReports.sentAt, startDate)));
-
-        const agentPerformance = await db.select({
-            id: users.id,
-            name: users.name,
-            avatarUrl: users.avatarUrl,
-            resolved: sql<number>`count(${conversations.id})::int`,
-        })
-        .from(users)
-        .leftJoin(conversations, and(
-            eq(conversations.assignedTo, users.id),
-            eq(conversations.status, 'RESOLVED'),
-            eq(conversations.companyId, companyId),
-            gte(conversations.updatedAt, startDate)
-        ))
-        .where(and(
-            eq(users.companyId, companyId),
-            eq(users.role, 'atendente')
-        ))
-        .groupBy(users.id, users.name, users.avatarUrl)
-        .orderBy(desc(sql<number>`count(${conversations.id})::int`));
-
+        const totalLeadsResult = totalLeadsResults[0];
+        const totalContactsResult = totalContactsResults[0];
+        const pendingConversationsResult = pendingConversationsResults[0];
+        const totalWhatsappSentResult = totalWhatsappSentResults[0];
+        const totalSmsSentResult = totalSmsSentResults[0];
             
         return {
             totalLeadValue: totalLeadsResult?.value || 0,

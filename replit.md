@@ -29,6 +29,9 @@ Preferred communication style: Simple, everyday language.
 - **Progressive Web App (PWA)**: Mobile-first PWA implementation with offline support, app manifest, and standalone display mode.
 - **Performance Optimizations**: Caching, dynamic imports, Redis cache optimization, PostgreSQL indexes, BullMQ for queuing, rate limiting middleware, and Prometheus metrics with alerting.
 - **Atendimentos Page Performance**: Optimized conversation and message loading with pagination (50 items per page), infinite scroll, parallel API calls (Promise.all), and cursor-based message pagination using ISO timestamps.
+- **API Cache Singleflight Pattern**: Prevents cache stampede by reusing in-flight promises for concurrent requests to the same cache key.
+- **Parallel Query Execution**: Dashboard stats, campaigns, and connection health APIs use Promise.all for parallel database/external API calls.
+- **Tiered Cache TTLs**: STATUS_POLLING (2.5s), SHORT (30s), MEDIUM (60s), LONG (5min) for different data freshness requirements.
 - **OAuth Authentication System**: Production-ready OAuth 2.0 with Google and Facebook via NextAuth.js, supporting account linking and multi-tenant compatibility.
 - **Atomic Lua Script Rate Limiting**: Atomic rate limiting implementation using Lua scripts in Redis/EnhancedCache.
 - **Proactive Token Monitoring**: Meta access token expiration monitoring.

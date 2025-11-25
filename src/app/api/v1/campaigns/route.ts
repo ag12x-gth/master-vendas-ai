@@ -1,9 +1,7 @@
-
-
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { campaigns, connections, smsGateways, smsDeliveryReports, messageTemplates, whatsappDeliveryReports } from '@/lib/db/schema';
-import { eq, and, desc, sql, or, type SQL, count } from 'drizzle-orm';
+import { eq, and, desc, sql, or, type SQL, count, inArray } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 
@@ -22,11 +20,10 @@ export async function GET(request: NextRequest) {
         const gatewayId = searchParams.get('gatewayId');
         const offset = (page - 1) * limit;
         
-        // Cache baseado nos filtros
         const cacheKey = `campaigns:${companyId}:${page}:${limit}:${channel || ''}:${connectionId || ''}:${templateId || ''}:${gatewayId || ''}`;
         const data = await getCachedOrFetch(cacheKey, async () => {
-            return await fetchCampaignsData({ companyId, page, limit, channel, connectionId, templateId, gatewayId, offset });
-        }, CacheTTL.MEDIUM);
+            return await fetchCampaignsDataOptimized({ companyId, page, limit, channel, connectionId, templateId, gatewayId, offset });
+        }, CacheTTL.LONG);
 
         return NextResponse.json(data);
 
@@ -37,7 +34,15 @@ export async function GET(request: NextRequest) {
     }
 }
 
-async function fetchCampaignsData(params: {
+type DeliveryStats = {
+    campaignId: string;
+    sent: number;
+    delivered: number;
+    read: number;
+    failed: number;
+};
+
+async function fetchCampaignsDataOptimized(params: {
     companyId: string;
     page: number;
     limit: number;
@@ -47,74 +52,128 @@ async function fetchCampaignsData(params: {
     gatewayId: string | null;
     offset: number;
 }) {
-        const { companyId, page: _page, limit, channel, connectionId, templateId, gatewayId, offset } = params;
-
-        // Subqueries for WhatsApp
-        const sentWhatsappSubquery = db.select({ value: sql<number>`count(*)::int` }).from(whatsappDeliveryReports).where(eq(whatsappDeliveryReports.campaignId, campaigns.id));
-        const deliveredWhatsappSubquery = db.select({ value: sql<number>`count(*)::int` }).from(whatsappDeliveryReports).where(and(eq(whatsappDeliveryReports.campaignId, campaigns.id), or(eq(whatsappDeliveryReports.status, 'delivered'), eq(whatsappDeliveryReports.status, 'read'))));
-        const readWhatsappSubquery = db.select({ value: sql<number>`count(*)::int` }).from(whatsappDeliveryReports).where(and(eq(whatsappDeliveryReports.campaignId, campaigns.id), eq(whatsappDeliveryReports.status, 'read')));
-        const failedWhatsappSubquery = db.select({ value: sql<number>`count(*)::int` }).from(whatsappDeliveryReports).where(and(eq(whatsappDeliveryReports.campaignId, campaigns.id), eq(whatsappDeliveryReports.status, 'failed')));
+    const { companyId, limit, channel, connectionId, templateId, gatewayId, offset } = params;
         
-        // Subqueries for SMS
-        const sentSmsSubquery = db.select({ value: sql<number>`count(*)::int` }).from(smsDeliveryReports).where(eq(smsDeliveryReports.campaignId, campaigns.id));
-        const failedSmsSubquery = db.select({ value: sql<number>`count(*)::int` }).from(smsDeliveryReports).where(and(eq(smsDeliveryReports.campaignId, campaigns.id), eq(smsDeliveryReports.status, 'FAILED')));
-            
-        const whereClauses: (SQL | undefined)[] = [
-            eq(campaigns.companyId, companyId),
-        ];
+    const whereClauses: (SQL | undefined)[] = [
+        eq(campaigns.companyId, companyId),
+    ];
 
-        if (channel === 'WHATSAPP' || channel === 'SMS') {
-            whereClauses.push(eq(campaigns.channel, channel));
-        }
+    if (channel === 'WHATSAPP' || channel === 'SMS') {
+        whereClauses.push(eq(campaigns.channel, channel));
+    }
+    if (connectionId) {
+        whereClauses.push(eq(campaigns.connectionId, connectionId));
+    }
+    if (templateId) {
+        whereClauses.push(eq(campaigns.templateId, templateId));
+    }
+    if (gatewayId) {
+        whereClauses.push(eq(campaigns.smsGatewayId, gatewayId));
+    }
 
-        if (connectionId) {
-            whereClauses.push(eq(campaigns.connectionId, connectionId));
-        }
-        if (templateId) {
-            whereClauses.push(eq(campaigns.templateId, templateId));
-        }
-        if (gatewayId) {
-            whereClauses.push(eq(campaigns.smsGatewayId, gatewayId));
-        }
+    const finalWhereClauses = and(...whereClauses.filter((c): c is SQL => !!c));
 
-        const finalWhereClauses = and(...whereClauses.filter((c): c is SQL => !!c));
+    const [totalResult, paginatedCampaigns] = await Promise.all([
+        db.select({ count: count() }).from(campaigns).where(finalWhereClauses),
+        db.select({
+            id: campaigns.id,
+            name: campaigns.name,
+            channel: campaigns.channel,
+            status: campaigns.status,
+            scheduledAt: campaigns.scheduledAt,
+            sentAt: campaigns.sentAt,
+            connectionId: campaigns.connectionId,
+            smsGatewayId: campaigns.smsGatewayId,
+            templateId: campaigns.templateId,
+            message: campaigns.message,
+            connectionName: connections.config_name,
+            smsGatewayName: smsGateways.name,
+            templateName: messageTemplates.name,
+        })
+        .from(campaigns)
+        .leftJoin(connections, eq(campaigns.connectionId, connections.id))
+        .leftJoin(smsGateways, eq(campaigns.smsGatewayId, smsGateways.id))
+        .leftJoin(messageTemplates, eq(campaigns.templateId, messageTemplates.id))
+        .where(finalWhereClauses)
+        .orderBy(desc(campaigns.createdAt))
+        .limit(limit)
+        .offset(offset)
+    ]);
 
-        const companyCampaignsQuery = db
-            .select({
-                id: campaigns.id,
-                name: campaigns.name,
-                channel: campaigns.channel,
-                status: campaigns.status,
-                scheduledAt: campaigns.scheduledAt,
-                sentAt: campaigns.sentAt,
-                sent: sql<number>`COALESCE((CASE WHEN ${campaigns.channel} = 'WHATSAPP' THEN (${sentWhatsappSubquery}) ELSE (${sentSmsSubquery}) END), 0)`.as('sent'),
-                delivered: sql<number>`COALESCE((${deliveredWhatsappSubquery}), 0)`.as('delivered'),
-                read: sql<number>`COALESCE((${readWhatsappSubquery}), 0)`.as('read'),
-                failed: sql<number>`COALESCE((CASE WHEN ${campaigns.channel} = 'WHATSAPP' THEN (${failedWhatsappSubquery}) ELSE (${failedSmsSubquery}) END), 0)`.as('failed'),
-                progress: sql<number>`COALESCE(0, 0)`.as('progress'), // Placeholder
-                connectionId: campaigns.connectionId,
-                smsGatewayId: campaigns.smsGatewayId,
-                templateId: campaigns.templateId,
-                message: campaigns.message,
-                connectionName: connections.config_name,
-                smsGatewayName: smsGateways.name,
-                templateName: messageTemplates.name,
+    const totalCampaigns = totalResult[0]?.count ?? 0;
+    const totalPages = Math.ceil(totalCampaigns / limit);
+
+    if (paginatedCampaigns.length === 0) {
+        return { data: [], totalPages };
+    }
+
+    const campaignIds = paginatedCampaigns.map(c => c.id);
+    const whatsappCampaigns = paginatedCampaigns.filter(c => c.channel === 'WHATSAPP').map(c => c.id);
+    const smsCampaigns = paginatedCampaigns.filter(c => c.channel === 'SMS').map(c => c.id);
+
+    const deliveryStatsPromises: Promise<DeliveryStats[]>[] = [];
+
+    if (whatsappCampaigns.length > 0) {
+        deliveryStatsPromises.push(
+            db.select({
+                campaignId: whatsappDeliveryReports.campaignId,
+                sent: sql<number>`count(*)::int`.as('sent'),
+                delivered: sql<number>`count(*) FILTER (WHERE ${whatsappDeliveryReports.status} IN ('delivered', 'read'))::int`.as('delivered'),
+                read: sql<number>`count(*) FILTER (WHERE ${whatsappDeliveryReports.status} = 'read')::int`.as('read'),
+                failed: sql<number>`count(*) FILTER (WHERE ${whatsappDeliveryReports.status} = 'failed')::int`.as('failed'),
             })
-            .from(campaigns)
-            .leftJoin(connections, eq(campaigns.connectionId, connections.id))
-            .leftJoin(smsGateways, eq(campaigns.smsGatewayId, smsGateways.id))
-            .leftJoin(messageTemplates, eq(campaigns.templateId, messageTemplates.id))
-            .where(finalWhereClauses)
-            .orderBy(desc(campaigns.createdAt));
+            .from(whatsappDeliveryReports)
+            .where(inArray(whatsappDeliveryReports.campaignId, whatsappCampaigns))
+            .groupBy(whatsappDeliveryReports.campaignId)
+        );
+    }
 
-        const totalCampaignsResult = await db.select({ count: count() }).from(campaigns).where(finalWhereClauses);
-        const totalCampaigns = totalCampaignsResult[0]?.count ?? 0;
-        const totalPages = Math.ceil(totalCampaigns / limit);
+    if (smsCampaigns.length > 0) {
+        deliveryStatsPromises.push(
+            db.select({
+                campaignId: smsDeliveryReports.campaignId,
+                sent: sql<number>`count(*)::int`.as('sent'),
+                delivered: sql<number>`0`.as('delivered'),
+                read: sql<number>`0`.as('read'),
+                failed: sql<number>`count(*) FILTER (WHERE ${smsDeliveryReports.status} = 'FAILED')::int`.as('failed'),
+            })
+            .from(smsDeliveryReports)
+            .where(inArray(smsDeliveryReports.campaignId, smsCampaigns))
+            .groupBy(smsDeliveryReports.campaignId)
+        );
+    }
+
+    const deliveryStatsResults = await Promise.all(deliveryStatsPromises);
+    const statsMap = new Map<string, DeliveryStats>();
+    
+    for (const resultSet of deliveryStatsResults) {
+        for (const stat of resultSet) {
+            statsMap.set(stat.campaignId, stat);
+        }
+    }
+
+    const enrichedCampaigns = paginatedCampaigns.map(campaign => {
+        const stats = statsMap.get(campaign.id);
+        const sent = stats?.sent ?? 0;
+        const delivered = stats?.delivered ?? 0;
+        const read = stats?.read ?? 0;
+        const failed = stats?.failed ?? 0;
         
-        const paginatedCampaigns = await companyCampaignsQuery.limit(limit).offset(offset);
-
+        // Calcular progresso baseado em entregues/lidos vs enviados
+        const progress = sent > 0 ? Math.round(((delivered + read) / (sent * 2)) * 100) : 0;
+        
         return {
-            data: paginatedCampaigns,
-            totalPages,
+            ...campaign,
+            sent,
+            delivered,
+            read,
+            failed,
+            progress: Math.min(progress, 100),
         };
+    });
+
+    return {
+        data: enrichedCampaigns,
+        totalPages,
+    };
 }

@@ -72,6 +72,8 @@ class SimpleCache {
 
 export const apiCache = new SimpleCache(500);
 
+const pendingFetches: Map<string, Promise<any>> = new Map();
+
 export async function getCachedOrFetch<T>(
   key: string,
   fetcher: () => Promise<T>,
@@ -86,18 +88,36 @@ export async function getCachedOrFetch<T>(
     return cached;
   }
 
+  const existingFetch = pendingFetches.get(key);
+  if (existingFetch) {
+    console.log(`📊 [API CACHE COALESCE] Key: ${key} - Waiting for existing fetch...`);
+    return existingFetch as Promise<T>;
+  }
+
   console.log(`📊 [API CACHE MISS] Key: ${key} - Fetching from source...`);
-  const data = await fetcher();
-  apiCache.set(key, data, ttl);
   
-  const totalTime = Date.now() - startTime;
-  console.log(`📊 [API CACHE SET] Key: ${key} - TTL: ${ttl}ms - Total time: ${totalTime}ms`);
+  const fetchPromise = (async () => {
+    try {
+      const data = await fetcher();
+      apiCache.set(key, data, ttl);
+      
+      const totalTime = Date.now() - startTime;
+      console.log(`📊 [API CACHE SET] Key: ${key} - TTL: ${ttl}ms - Total time: ${totalTime}ms`);
+      
+      return data;
+    } finally {
+      pendingFetches.delete(key);
+    }
+  })();
+
+  pendingFetches.set(key, fetchPromise);
   
-  return data;
+  return fetchPromise;
 }
 
 // TTLs recomendados por tipo de dados (Estratégia Tiered Cache Expansion)
 export const CacheTTL = {
+  STATUS_POLLING: 2500,    // 2.5s - otimizado para polling de 5s (garante cache hit)
   REAL_TIME: 5000,         // 5s - dados em tempo real (conversas ativas)
   SHORT: 30000,            // 30s - dados frequentes (lista de conversas, leads kanban)
   MEDIUM: 60000,           // 1min - dados semi-estáticos (contatos, campanhas)
