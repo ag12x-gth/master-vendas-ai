@@ -75,9 +75,9 @@ function VerifyEmailContent() {
                 setIsVerified(true);
                 setStatus('success');
 
-                // Redirect to password creation page with the new token
+                // Redirect to dashboard after successful verification
                 setTimeout(() => {
-                    router.push(`/reset-password?token=${data.passwordSetupToken}`);
+                    router.push(data.redirectTo || '/dashboard');
                 }, 3000);
 
             } catch (error) {
@@ -99,7 +99,7 @@ function VerifyEmailContent() {
                 </CardTitle>
                 <CardDescription>
                      {status === 'verifying' && 'Por favor, aguarde um momento.'}
-                     {status === 'success' && 'Sua conta foi ativada. A redirecionar para a criação de senha...'}
+                     {status === 'success' && 'Sua conta foi ativada. A redirecionar para o painel...'}
                      {status === 'error' && errorMessage}
                 </CardDescription>
             </CardHeader>

@@ -1,18 +1,21 @@
 // src/app/api/v1/auth/verify-email/route.ts
 import { NextResponse, type NextRequest } from 'next/server';
-import { db, users, emailVerificationTokens, passwordResetTokens } from '@/lib/db';
+import { db, users, emailVerificationTokens } from '@/lib/db';
 import { eq, and, gte } from 'drizzle-orm';
 import { z } from 'zod';
-import { randomBytes, createHash, randomUUID } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
+import { SignJWT } from 'jose';
 
 const verifyEmailSchema = z.object({
   token: z.string().min(1, 'Token é obrigatório.'),
 });
 
-const createExpirationDate = (hours: number): Date => {
-  const date = new Date();
-  date.setHours(date.getHours() + hours);
-  return date;
+const getJwtSecretKey = () => {
+    const secret = process.env.JWT_SECRET_KEY_CALL;
+    if (!secret) {
+        throw new Error('JWT_SECRET_KEY_CALL não está definida nas variáveis de ambiente.');
+    }
+    return new TextEncoder().encode(secret);
 };
 
 export const dynamic = 'force-dynamic';
@@ -72,25 +75,69 @@ export async function POST(request: NextRequest) {
             .where(eq(users.id, tokenRecord.userId));
         console.log(`[VERIFY-V1:${requestId}] Email marcado como verificado`);
 
-        const passwordSetupToken = randomBytes(20).toString('hex');
-        const passwordTokenHash = createHash('sha256').update(passwordSetupToken).digest('hex');
-        
-        await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, tokenRecord.userId));
-        
-        await db.insert(passwordResetTokens).values({
-            userId: tokenRecord.userId,
-            tokenHash: passwordTokenHash,
-            expiresAt: createExpirationDate(1),
-        });
-        
-        console.log(`[VERIFY-V1:${requestId}] ✅ Verificação concluída com sucesso`);
+        const [user] = await db
+            .select({
+                id: users.id,
+                companyId: users.companyId,
+                email: users.email,
+                role: users.role,
+            })
+            .from(users)
+            .where(eq(users.id, tokenRecord.userId))
+            .limit(1);
 
-        return NextResponse.json({ 
+        if (!user) {
+            console.warn(`[VERIFY-V1:${requestId}] Usuário não encontrado após verificação - email verificado mas sem auto-login`);
+            return NextResponse.json({ 
+                success: true, 
+                message: 'E-mail verificado com sucesso. Por favor, faça login.',
+                redirectTo: '/login',
+                requestId
+            });
+        }
+
+        console.log(`[VERIFY-V1:${requestId}] Criando sessão JWT para usuário: ${user.email}`);
+
+        const jwtToken = await new SignJWT({
+            userId: user.id,
+            companyId: user.companyId,
+            email: user.email,
+            role: user.role,
+        })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime('1d')
+        .sign(getJwtSecretKey());
+
+        console.log(`[VERIFY-V1:${requestId}] ✅ Verificação e auto-login concluídos com sucesso`);
+
+        const response = NextResponse.json({ 
             success: true, 
-            message: 'E-mail verificado com sucesso. Redirecionando para criação de senha.', 
-            passwordSetupToken,
+            message: 'E-mail verificado com sucesso. Redirecionando para o painel.',
+            redirectTo: '/dashboard',
             requestId
         });
+
+        response.cookies.set({
+            name: '__session',
+            value: jwtToken,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 60 * 60 * 24,
+        });
+        response.cookies.set({
+            name: 'session_token',
+            value: jwtToken,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 60 * 60 * 24,
+        });
+
+        return response;
 
     } catch (error) {
         console.error(`[VERIFY-V1:${requestId}] Erro no endpoint de verify-email:`, error);
