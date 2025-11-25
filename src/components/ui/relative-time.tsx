@@ -23,8 +23,8 @@ export const RelativeTime = ({ date }: { date: string | Date | null }) => {
     }
 
     return (
-        <p className="text-xs text-muted-foreground truncate max-w-40">
+        <span className="text-xs text-muted-foreground truncate max-w-40">
             {formattedDate}
-        </p>
+        </span>
     );
 };
