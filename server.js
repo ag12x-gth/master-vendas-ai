@@ -24,11 +24,18 @@ function killStaleProcesses(targetPort) {
       return;
     }
     
+    // SECURITY: Additional regex validation before shell interpolation (defense against injection)
+    const portString = String(sanitizedPort);
+    if (!/^\d+$/.test(portString)) {
+      console.warn(`⚠️ [Guard] Port validation failed regex check: ${portString}, skipping cleanup`);
+      return;
+    }
+    
     console.log(`🔍 [Guard] Checking for stale processes on port ${sanitizedPort}...`);
     
     // Find processes using the target port
-    // SECURITY: sanitizedPort is guaranteed to be a numeric integer (1-65535) - safe from injection
-    const command = `lsof -ti :${String(sanitizedPort)} 2>/dev/null || true`;
+    // SECURITY: portString validated as numeric-only (1-65535) - safe from injection
+    const command = `lsof -ti :${portString} 2>/dev/null || true`;
     const pids = execSync(command, { encoding: 'utf8' }).trim();
     
     if (pids) {
@@ -43,10 +50,17 @@ function killStaleProcesses(targetPort) {
           return;
         }
         
+        // SECURITY: Additional regex validation before shell interpolation (defense against injection)
+        const pidString = String(pid);
+        if (!/^\d+$/.test(pidString)) {
+          console.warn(`⚠️ [Guard] PID validation failed regex check: ${pidString}, skipping`);
+          return;
+        }
+        
         try {
           // Check if it's a Node.js process (safety check)
-          // SECURITY: pid is guaranteed to be a numeric integer (1-4194304) - safe from injection
-          const processInfo = execSync(`ps -p ${String(pid)} -o comm=`, { encoding: 'utf8' }).trim();
+          // SECURITY: pidString validated as numeric-only (1-4194304) - safe from injection
+          const processInfo = execSync(`ps -p ${pidString} -o comm=`, { encoding: 'utf8' }).trim();
           
           if (processInfo.includes('node')) {
             console.log(`🔪 [Guard] Terminating stale Node.js process PID ${pid}...`);
