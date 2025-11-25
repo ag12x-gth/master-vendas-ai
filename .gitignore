@@ -75,6 +75,11 @@ functions/.next/cache/
 *.backup
 database/backup*.sql
 
+# Sensitive test files
+reset-tokens.json
+validate-routes.sh
+setup-test-user.sql
+
 # Generated or local scripts
 .safe_dump_link.sh
 .modified

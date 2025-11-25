@@ -111,12 +111,14 @@ async function fetchContactsData(options: {
         const offset = (page - 1) * limit;
 
         // ✅ IMPORTANTE: Usar a mesma lógica SQL para contagem e dados para garantir consistência
-        const sortableColumns: { [key: string]: string } = {
+        const sortableColumns = ['name', 'created_at'] as const;
+        type SortableColumn = typeof sortableColumns[number];
+        const columnMap: Record<string, SortableColumn> = {
             name: 'name',
             createdAt: 'created_at',
         };
-        const orderByField = sortableColumns[sortBy] || 'created_at';
-        const orderDirection = sortOrder === 'asc' ? 'ASC' : 'DESC';
+        const orderByField = columnMap[sortBy] || 'created_at';
+        const orderDirection = sortOrder === 'asc' ? 'asc' : 'desc';
 
         // Construir filtros WHERE dinâmicos (usados tanto para contagem quanto para dados)
         let whereConditions = sql`c.company_id = ${companyId}`;
@@ -200,7 +202,7 @@ async function fetchContactsData(options: {
             LEFT JOIN contact_lists cl ON ctcl.list_id = cl.id AND cl.company_id = ${companyId}
             WHERE ${whereConditions}
             GROUP BY c.id
-            ORDER BY ${sql.raw(`c.${orderByField}`)} ${sql.raw(orderDirection)}
+            ORDER BY ${orderByField === 'name' ? sql`c.name` : sql`c.created_at`} ${orderDirection === 'asc' ? sql`ASC` : sql`DESC`}
             LIMIT ${limit} OFFSET ${offset}
         `;
 
