@@ -848,6 +848,7 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
             }));
             
             console.log(`[SMS MKOM] Enviando ${mkomMessages.length} mensagens com números normalizados`);
+            console.log(`[SMS MKOM] 📤 Payload:`, JSON.stringify(mkomMessages.map(m => ({ numero: m.numero, mensagem: m.mensagem.substring(0, 30) + '...' })), null, 2));
             
             const mkomPayload = {
                 mensagens: mkomMessages
@@ -856,6 +857,9 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
             const mkomUrl = 'https://api.mkom.com.br/api/v1/sms/send';
             
             try {
+                console.log(`[SMS MKOM] 🌐 Chamando API: POST ${mkomUrl}`);
+                const startTime = Date.now();
+                
                 const mkomResponse = await fetch(mkomUrl, { 
                     method: 'POST', 
                     headers: { 
@@ -866,16 +870,23 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
                     signal: AbortSignal.timeout(30000) // Timeout de 30s para lotes maiores
                 });
                 const mkomResponseText = await mkomResponse.text();
+                const elapsed = Date.now() - startTime;
+                
+                console.log(`[SMS MKOM] 📥 Response Status: ${mkomResponse.status} (${elapsed}ms)`);
+                console.log(`[SMS MKOM] 📥 Response Body:`, mkomResponseText);
 
                 if (!mkomResponse.ok) {
+                    console.error(`[SMS MKOM] ❌ API Error: Status ${mkomResponse.status}`);
                     CircuitBreaker.recordFailure('sms_mkom');
                     throw new Error(`MKOM API Error: Status ${mkomResponse.status} - ${mkomResponseText}`);
                 }
                 
                 CircuitBreaker.recordSuccess('sms_mkom');
+                console.log(`[SMS MKOM] ✅ Envio bem-sucedido!`);
                 
                 try {
                     const mkomData = JSON.parse(mkomResponseText) as { status?: string; mensagens?: Array<{ codigo_cliente: string; id_mensagem: string }> };
+                    console.log(`[SMS MKOM] 📊 Parsed Response:`, JSON.stringify(mkomData, null, 2));
                     return { 
                         success: mkomData.status !== 'ERRO', 
                         mensagens: mkomData.mensagens?.map(m => ({
@@ -885,9 +896,11 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
                         ...mkomData 
                     };
                 } catch (e) {
+                    console.log(`[SMS MKOM] ⚠️ Response não é JSON válido, tratando como sucesso`);
                     return { success: true, details: mkomResponseText };
                 }
             } catch (error) {
+                console.error(`[SMS MKOM] ❌ Erro na requisição:`, (error as Error).message);
                 CircuitBreaker.recordFailure('sms_mkom');
                 throw error;
             }
