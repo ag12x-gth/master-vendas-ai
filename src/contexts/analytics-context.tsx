@@ -17,29 +17,17 @@ export function AnalyticsProvider({ children }: { children: ReactNode }): React.
   useEffect(() => {
     getFirebaseAnalytics().then((analyticsInstance) => {
       setAnalytics(analyticsInstance);
-      if (analyticsInstance) {
-        if (process.env.NODE_ENV !== 'production') console.debug('Analytics Provider montado e pronto.');
-      } else {
-        if (process.env.NODE_ENV !== 'production') console.debug('Analytics não está disponível.');
-      }
+      // Silenciado - Firebase/Analytics não configurado é comportamento esperado
     });
   }, []);
 
   const trackEvent = async (eventName: string, params?: Record<string, unknown>): Promise<void> => {
-    if (!analytics) {
-      const analyticsInstance = await getFirebaseAnalytics();
-      if (analyticsInstance) {
-        const { logEvent } = await import('firebase/analytics');
-        logEvent(analyticsInstance, eventName, params);
-        if (process.env.NODE_ENV !== 'production') console.debug(`[Analytics Event]: ${eventName}`, params);
-      } else {
-        if (process.env.NODE_ENV !== 'production') console.debug(`[Analytics SKIPPED]: ${eventName} (Analytics não suportado)`);
-      }
-    } else {
+    const analyticsInstance = analytics || await getFirebaseAnalytics();
+    if (analyticsInstance) {
       const { logEvent } = await import('firebase/analytics');
-      logEvent(analytics, eventName, params);
-      if (process.env.NODE_ENV !== 'production') console.debug(`[Analytics Event]: ${eventName}`, params);
+      logEvent(analyticsInstance, eventName, params);
     }
+    // Silenciado - se Analytics não está disponível, simplesmente não rastreia
   };
 
   return (
