@@ -48,13 +48,13 @@ args = "Production Server"
 name = "Production Server"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run start:prod"
-waitForPort = 5000
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
 
 [deployment]
 deploymentTarget = "vm"
@@ -68,10 +68,6 @@ defaultBucketID = "replit-objstore-5c7db24d-3f1a-48f3-a419-34323e1b5779"
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 8081
-externalPort = 8081
 
 [[ports]]
 localPort = 8082
@@ -88,6 +84,10 @@ externalPort = 3002
 [[ports]]
 localPort = 8085
 externalPort = 3003
+
+[[ports]]
+localPort = 42735
+externalPort = 4200
 
 [userenv]
 
