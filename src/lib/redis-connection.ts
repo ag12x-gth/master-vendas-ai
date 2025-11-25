@@ -13,17 +13,17 @@ export function getRedisConnection(): Redis {
     const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
     const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
     
-    // ✅ PRIORIDADE: Upstash > REDIS_URL > Localhost
+    // ✅ PRIORIDADE: REDIS_URL > Upstash > Localhost
     let connectionUrl: string | undefined;
     
-    if (upstashUrl && upstashToken) {
-      // Convert Upstash REST URL to Redis protocol
+    if (redisUrl) {
+      connectionUrl = redisUrl;
+      console.log('✅ [BullMQ] Using provided REDIS_URL');
+    } else if (upstashUrl && upstashToken) {
+      // Convert Upstash REST URL to Redis protocol (fallback)
       const upstashHost = upstashUrl.replace('https://', '').replace(/\/$/, '').split(':')[0];
       connectionUrl = `rediss://default:${upstashToken}@${upstashHost}:6379`;
       console.log('✅ [BullMQ] Using Upstash Redis connection');
-    } else if (redisUrl) {
-      connectionUrl = redisUrl;
-      console.log('✅ [BullMQ] Using provided REDIS_URL');
     }
     
     if (connectionUrl) {
@@ -80,15 +80,15 @@ export function createRedisConnection(): Redis {
   const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
   const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
   
-  // ✅ PRIORIDADE: Upstash > REDIS_URL > Localhost
+  // ✅ PRIORIDADE: REDIS_URL > Upstash > Localhost
   let connectionUrl: string | undefined;
   
-  if (upstashUrl && upstashToken) {
-    // Convert Upstash REST URL to Redis protocol
+  if (redisUrl) {
+    connectionUrl = redisUrl;
+  } else if (upstashUrl && upstashToken) {
+    // Convert Upstash REST URL to Redis protocol (fallback)
     const upstashHost = upstashUrl.replace('https://', '').replace(/\/$/, '').split(':')[0];
     connectionUrl = `rediss://default:${upstashToken}@${upstashHost}:6379`;
-  } else if (redisUrl) {
-    connectionUrl = redisUrl;
   }
   
   if (connectionUrl) {

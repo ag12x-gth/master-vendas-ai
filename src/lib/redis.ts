@@ -571,11 +571,24 @@ class HybridRedisClient {
       let redisClient: IORedis;
       let actualConnectionUrl: string;
       
-      // ✅ PRIORIDADE: Upstash REST > REDIS_URL > Localhost
-      if (upstashUrl && upstashToken) {
-        // Upstash REST API connection
+      // ✅ PRIORIDADE: REDIS_URL > Upstash REST > Localhost
+      // REDIS_URL tem prioridade pois contém a URL completa com senha correta
+      if (redisUrl) {
+        console.log('🚀 Using REDIS_URL for connection...');
+        actualConnectionUrl = redisUrl.replace(/:[^:@]+@/, ':***@');
+        redisClient = new IORedis(redisUrl, {
+          maxRetriesPerRequest: 5,
+          enableOfflineQueue: true,
+          connectTimeout: 15000,
+          retryStrategy: (times) => {
+            if (times > 5) return null;
+            return Math.min(times * 200, 2000);
+          },
+          lazyConnect: false,
+        });
+      } else if (upstashUrl && upstashToken) {
+        // Upstash REST API connection (fallback)
         console.log('🚀 Upstash Redis detected! Converting REST URL to standard Redis...');
-        // Convert REST URL (https://host.upstash.io) to Redis URL (rediss://default:token@host:6379)
         const upstashHost = upstashUrl.replace('https://', '').replace(/\/$/, '').split(':')[0];
         const upstashRedisUrl = `rediss://default:${upstashToken}@${upstashHost}:6379`;
         actualConnectionUrl = `rediss://default:***@${upstashHost}:6379`;
@@ -589,26 +602,15 @@ class HybridRedisClient {
           },
           lazyConnect: false,
         });
-      } else if (redisUrl) {
-        actualConnectionUrl = redisUrl.replace(/:[^:@]+@/, ':***@');
-        redisClient = new IORedis(redisUrl, {
-          maxRetriesPerRequest: 5,
-          enableOfflineQueue: true,  // ✅ CORRIGIDO: Permite retry automático
-          connectTimeout: 15000,
-          retryStrategy: (times) => {
-            if (times > 5) return null;
-            return Math.min(times * 200, 2000);
-          },
-          lazyConnect: false,
-        });
       } else {
+        // Localhost fallback
         actualConnectionUrl = `${redisHost}:${redisPort}`;
         redisClient = new IORedis({
           host: redisHost,
           port: redisPort,
           password: redisPassword,
           maxRetriesPerRequest: 5,
-          enableOfflineQueue: true,  // ✅ CORRIGIDO: Permite retry automático
+          enableOfflineQueue: true,
           connectTimeout: 15000,
           retryStrategy: (times) => {
             if (times > 5) return null;
