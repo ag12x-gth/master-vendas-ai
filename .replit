@@ -93,8 +93,10 @@ externalPort = 4200
 
 [userenv.shared]
 DB_DEBUG = "true"
+UPSTASH_REDIS_REST_TOKEN = "AZ-SAAIncDI0OTQyYWYzODkxMzQ0YTc4YWViYzc4ZDkxMWIyOWE4MnAyNDA4NTA"
 UPSTASH_REDIS_REST_URL = "https://vital-sawfish-40850.upstash.io"
 ENABLE_BULLMQ_QUEUE = "true"
+REDIS_URL = "rediss://default:AZ-SAAIncDI0OTQyYWYzODkxMzQ0YTc4YWViYzc4ZDkxMWIyOWE4MnAyNDA4NTA@vital-sawfish-40850.upstash.io:6379"
 
 [userenv.production]
 

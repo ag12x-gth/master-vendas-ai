@@ -69,6 +69,12 @@ public/schuled/
 functions/public/schuled/
 functions/.next/cache/
 
+# Database backups (contain sensitive data)
+*.sql
+*.dump
+*.backup
+database/backup*.sql
+
 # Generated or local scripts
 .safe_dump_link.sh
 .modified
