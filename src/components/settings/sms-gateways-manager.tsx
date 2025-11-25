@@ -57,6 +57,10 @@ const providerConfig = {
     'seven.io': {
         label: 'seven.io',
         credentials: [{ name: 'apiKey', label: 'API Key', type: 'password'}]
+    },
+    mkom: {
+        label: 'MKOM (MKSMS)',
+        credentials: [{ name: 'token', label: 'Token JWT', type: 'password' }]
     }
 } as const;
 

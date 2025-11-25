@@ -704,7 +704,7 @@ async function logSmsDelivery(campaign: typeof campaigns.$inferSelect, gateway: 
 }
 
 async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: typeof campaigns.$inferSelect, batch: { id: string, phone: string }[]): Promise<Record<string, unknown>> {
-    const provider = gateway.provider as 'witi' | 'seven';
+    const provider = gateway.provider as 'witi' | 'seven' | 'mkom';
     const credentials = gateway.credentials as Record<string, string> | null;
 
     switch(provider) {
@@ -791,6 +791,70 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
                 }
             } catch (error) {
                 CircuitBreaker.recordFailure('sms_seven');
+                throw error;
+            }
+        }
+
+        case 'mkom': {
+            // Check circuit breaker before making request
+            if (CircuitBreaker.isOpen('sms_mkom')) {
+                throw new Error('MKOM SMS gateway temporariamente indisponível devido a falhas recentes. Tente novamente em alguns minutos.');
+            }
+            
+            if (!credentials || !credentials.token) {
+                throw new Error("Credenciais 'token' ausentes para o gateway MKOM.");
+            }
+            const mkomToken = decrypt(credentials.token);
+            if (!mkomToken) throw new Error("Falha ao desencriptar o Token JWT da MKOM.");
+            
+            // MKOM API - Envio de SMS via MKSMS
+            // Documentação: https://mkom.com.br/mksms/
+            const mkomMessages = batch.map(contact => ({
+                numero: contact.phone.replace(/\D/g, ''),
+                mensagem: campaign.message!,
+                codigo_cliente: contact.id
+            }));
+            
+            const mkomPayload = {
+                mensagens: mkomMessages
+            };
+            
+            const mkomUrl = 'https://api.mkom.com.br/api/v1/sms/send';
+            
+            try {
+                const mkomResponse = await fetch(mkomUrl, { 
+                    method: 'POST', 
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${mkomToken}`
+                    }, 
+                    body: JSON.stringify(mkomPayload),
+                    signal: AbortSignal.timeout(30000) // Timeout de 30s para lotes maiores
+                });
+                const mkomResponseText = await mkomResponse.text();
+
+                if (!mkomResponse.ok) {
+                    CircuitBreaker.recordFailure('sms_mkom');
+                    throw new Error(`MKOM API Error: Status ${mkomResponse.status} - ${mkomResponseText}`);
+                }
+                
+                CircuitBreaker.recordSuccess('sms_mkom');
+                
+                try {
+                    const mkomData = JSON.parse(mkomResponseText) as { status?: string; mensagens?: Array<{ codigo_cliente: string; id_mensagem: string }> };
+                    return { 
+                        success: mkomData.status !== 'ERRO', 
+                        mensagens: mkomData.mensagens?.map(m => ({
+                            Codigo_cliente: m.codigo_cliente,
+                            id_mensagem: m.id_mensagem
+                        })),
+                        ...mkomData 
+                    };
+                } catch (e) {
+                    return { success: true, details: mkomResponseText };
+                }
+            } catch (error) {
+                CircuitBreaker.recordFailure('sms_mkom');
                 throw error;
             }
         }

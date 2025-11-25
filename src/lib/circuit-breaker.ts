@@ -1,6 +1,6 @@
 // src/lib/circuit-breaker.ts
 
-export type Provider = 'openai' | 'google' | 'meta' | 'sms_witi' | 'sms_seven' | 'vapi' | 'hume';
+export type Provider = 'openai' | 'google' | 'meta' | 'sms_witi' | 'sms_seven' | 'sms_mkom' | 'vapi' | 'hume';
 
 type State = {
   openUntil?: number; // epoch ms
@@ -13,6 +13,7 @@ const state: Record<Provider, State> = {
   meta: {},
   sms_witi: {},
   sms_seven: {},
+  sms_mkom: {},
   vapi: {},
   hume: {},
 };
