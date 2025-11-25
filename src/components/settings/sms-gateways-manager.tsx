@@ -335,6 +335,7 @@ export function SmsGatewaysManager(): JSX.Element {
                             <SelectContent>
                                 <SelectItem value="witi">SMS Flash Advanced</SelectItem>
                                 <SelectItem value="seven.io">seven.io</SelectItem>
+                                <SelectItem value="mkom">MKOM (MKSMS)</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
