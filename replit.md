@@ -32,10 +32,10 @@ Preferred communication style: Simple, everyday language.
 - **API Cache Singleflight Pattern**: Prevents cache stampede by reusing in-flight promises for concurrent requests to the same cache key.
 - **Parallel Query Execution**: Dashboard stats, campaigns, and connection health APIs use Promise.all for parallel database/external API calls.
 - **Tiered Cache TTLs**: STATUS_POLLING (2.5s), SHORT (30s), MEDIUM (60s), LONG (5min) for different data freshness requirements.
+- **Memory Leak Prevention**: Global listener registration flag prevents duplicate SIGINT/SIGTERM handlers during hot-reload.
 - **OAuth Authentication System**: Production-ready OAuth 2.0 with Google and Facebook via NextAuth.js, supporting account linking and multi-tenant compatibility.
 - **Atomic Lua Script Rate Limiting**: Atomic rate limiting implementation using Lua scripts in Redis/EnhancedCache.
 - **Proactive Token Monitoring**: Meta access token expiration monitoring.
-- **Memory Leak Prevention**: Global listener registration flag.
 
 ### Deployment Configuration
 - **Deployment Type**: VM (Persistent) for Socket.IO, BullMQ, and Baileys.
