@@ -1,0 +1,279 @@
+# PLATAFORMA MKOM
+
+## MANUAL DE INTEGRAÇÃO MKSMS (V1)
+
+---
+
+## Sumário
+
+1. [Descrição do Serviço](#1-descrição-do-serviço)
+2. [Tipo de Serviço](#2-tipo-de-serviço)
+3. [Integração para Envio de SMS](#3-integração-para-envio-de-sms)
+   - [a) Geração do Token para envio de SMS](#a-geração-do-token-para-envio-de-sms)
+   - [b) Integração](#b-integração)
+   - [c) Descrição dos campos](#c-descrição-dos-campos)
+   - [d) Retorno Esperado](#d-retorno-esperado)
+4. [Webhooks e Tratamento de Callbacks em Tempo Real](#4-webhooks-e-tratamento-de-callbacks-em-tempo-real)
+   - [1) Configuração de Webhooks](#1-configuração-de-webhooks)
+   - [2) Melhores Práticas para Tratamento de Callbacks](#2-melhores-práticas-para-tratamento-de-callbacks)
+5. [Função de Autorespostas](#5-função-de-autorespostas)
+
+---
+
+## MKOM - Multiplicadores de Comunicação
+
+### 1. Descrição do Serviço
+
+Os Serviços de integração da MKOM visam automatizar as suas tarefas diárias. Possibilita integrar sua empresa a uma plataforma moderna de gerenciamento de envios de SMS corporativo através de conexão segura via API.
+
+### 2. Tipo de Serviço
+
+Nossa mecânica de integração possibilita toda comunicação através do método POST. Ele requer a geração em seu sistema de uma URL contendo parâmetros, de modo a validar e autenticar o envio por seu usuário/token.
+
+### 3. Integração para Envio de SMS
+
+#### a) Geração do Token para envio de SMS
+
+Para gerar o token, basta acessar a Plataforma MKOM e seguir para a "Área do Cliente":
+
+**MKOM - CONVERSAS MULTIPLICAM NEGÓCIOS, INDEPENDENTEMENTE DO CANAL DIGITAL**
+
+Após efetuar o login com suas credenciais, basta escolher o módulo **MKSMS**:
+
+**Selecione o sistema que deseja utilizar:**
+
+- MKSms
+- MKChannels
+- MKWhats One
+- MKInsta
+- MKConfig
+
+E o botão "Usuário — Meus Tokens":
+
+**Menu disponível:**
+
+- Comunicados
+- Meus Tokens
+- Alterar Senha
+- Sair
+
+Nesse modal, será possível visualizar os tokens gerados anteriormente, o nome e a data de validade. Para gerar um novo, basta clicar sobre o botão "Novo Token" e informar o nome e a data de validade (o ideal é colocar uma data longa):
+
+**Novo Token**
+
+- Nome: [campo de entrada]
+- Data de Validade: [campo de entrada]
+
+Ao salvar, o novo token será criado e disponibilizado para uso. Por questões de segurança, o token é apresentado uma única vez; logo, se torna crucial o seu armazenamento correto.
+
+**SEU TOKEN FOI GERADO COM SUCESSO!**
+*Guarde-o de forma segura, ao fechar este modal, não será possível resgatá-lo.*
+
+```
+Exemplo de Token:
+LCIjdXNOb21ICI9pZCISNTEOLCIhAWQICIThcGiLCHaWQIOilMQ3M2TMyx
+NGYSLTQOMMMLODE4ZSO1YJCxYJAMIINZTIIfQOvRMINSDSLUSWMELPISW
+©IHXFVhDFIGXBev3yYN7hO
+```
+
+**Obs:** O token ficará atrelado às credenciais do login que foi utilizado no momento da criação.
+
+#### b) Integração
+
+Para seguir com a integração, basta seguir os passos com os parâmetros abaixo:
+
+- **Método:** POST
+- **URL:** `https://sms.mkmservice.com/sms/api/transmission/v1`
+- **Authentication:** Bearer (token)
+
+**JSON:**
+
+```json
+{
+  "mailing": {
+    "identifier": "Integração API V12.0",
+    "cost_centre_id": 12981
+  },
+  "messages": [
+    {
+      "msisdn": "5511953959059",
+      "message": "Teste de Envio de SMS via API",
+      "schedule": "2023-04-26T17:01:00",
+      "reference": "12345678910"
+    }
+  ]
+}
+```
+
+#### c) Descrição dos campos
+
+- **identifier:** Pode ser colocado o nome do envio; os que tiverem o mesmo nome, serão agrupados
+- **cost_centre_id:** Centro de custo ao qual o envio deverá estar atrelado
+- **msisdn:** Número do telefone do destinatário
+- **message:** Mensagem a ser enviada
+- **schedule:** Data para efetivação do envio; para envios instantâneos, basta configurar o campo como "null"
+- **reference:** Dado de referência, poderá ser passado qualquer forma de escolher posteriormente no relatório para identificação; o dado será apresentado no "Relatório"
+
+#### d) Retorno Esperado
+
+**Status 200**
+
+```json
+{
+  "mailing": {
+    "id": "16358884"
+  },
+  "messages": [
+    {
+      "success": true,
+      "reference": "12345678910"
+    }
+  ]
+}
+```
+
+### 4. Webhooks e Tratamento de Callbacks em Tempo Real
+
+O sistema de call-backs em tempo real tem como objetivo fornecer informações detalhadas de como a nossa plataforma lida com a integração de eventos em tempo real, para nossos clientes. Os call-backs são uma parte essencial da nossa solução, permitindo que você receba notificações imediatas sobre eventos significativos que ocorrem em nossa plataforma. Esses dados explicam como esses call-backs funcionam, as opções de configuração disponíveis e as melhores práticas para otimizar o desempenho do tratamento de eventos.
+
+#### 1) Configuração de Webhooks
+
+Os call-backs de eventos são entregues aos endpoints configurados por você, através de Webhooks; isso permite que você escolha como deseja receber e processar essas notificações. No entanto, para garantir que os call-backs não sobrecarreguem seus servidores, oferecemos as seguintes opções de configurações:
+
+**Desligar Callbacks:** Você tem a opção de desativar completamente os call-backs se não desejar recebê-los. Isso pode ser útil caso você não precise de atualizações em tempo real ou caso deseje implementar uma lógica de recebimento manual de eventos.
+
+**Limitação de Taxa:** Para evitar sobrecargas em seus servidores, você pode configurar o número máximo de call-backs por segundo. Isso permite que você controle o volume de notificações recebidas, evitando picos de tráfego que possam prejudicar o desempenho de seus sistemas.
+
+No entanto, é importante observar que a limitação de taxa pode introduzir atrasos e potencialmente afetar a ordem dos eventos recebidos.
+
+Para receber os eventos relacionados aos "Status" e "Respostas", basta configurar o evento que deseja receber, informando uma URL para recebimento.
+
+Para isso, no módulo MkSms, basta acessar "Configurações Gerais":
+
+**Tela Padrão de Envio - Gerais**
+
+Defina as configurações padrões de sua tela de envio:
+
+- Monitoramento de Limites
+- Controle os dados de referência
+- Criar filtros para mostrar seus listas
+
+No módulo "Configurações Gerais" você poderá configurar os seguintes parâmetros para envios via API:
+
+1. Tipo de envio
+2. Modo de concatenação
+3. URL para os webhooks
+4. Token
+5. Selecionar o tipo de callback na URL disponibilizada
+
+**Configurações Gerais:**
+
+- **Short Code:** Envio até 160 caracteres
+- **Preview SMS**
+- **Token:** [campo para token]
+- **Callback:** [campo para URL de callback]
+- **Requisições por segundo:** [campo numérico]
+
+*Preencher os IP's com as respectivas máscaras (Ex:0.0.0.0/0) e pressione ENTER após cada IP*
+
+**Exemplo dos retornos dos call-backs:**
+
+**a) Status:**
+
+```json
+{
+  "internal_id": 12345678910,
+  "reference_id": "meu-codigo",
+  "status": "Entregue",
+  "msisdn": "5511980664212",
+  "timestamp": 1604513950
+}
+```
+
+**b) Respostas:**
+
+```json
+{
+  "internal_id": 2018773196,
+  "reference_id": "meu-codigo", 
+  "message": "N teste via console",
+  "msisdn": "5511980664212",
+  "timestamp": 1604513532
+}
+```
+
+#### 2) Melhores Práticas para Tratamento de Callbacks
+
+Para otimizar o desempenho do tratamento de callbacks de eventos em tempo real (e garantir que você possa processar cada evento quando ele é disponibilizado), recomendamos as seguintes práticas:
+
+**Uso de Filas de Mensagens em Background:** A abordagem mais eficaz para lidar com callbacks é não realizar nenhum tratamento de evento na mesma thread do servidor web que recebe o callback. Em vez disso, sugerimos colocar os eventos em uma fila para processamento em background. Isso oferece as seguintes vantagens:
+
+**Desacoplamento:** Separar o processamento do evento do servidor web evita que recursos caros, como conexões web, sejam consumidos no tratamento de eventos; isso evita a lentidão em outros serviços.
+
+**Escala Horizontal:** Você pode escalar o processamento de eventos em background separadamente do seu servidor web, permitindo maior flexibilidade e escalabilidade.
+
+**Uso de Servidores de Filas:** Recomendamos o uso de servidores especializados para gerenciar filas de mensagens, como:
+
+1. **Redis:** É uma opção de servidor de fila de mensagens em memória que é rápida e altamente escalável
+2. **Kafka:** É uma plataforma de streaming que pode ser usada para criar pipelines de processamento de eventos em tempo real
+3. **RabbitMQ:** É outro servidor de mensagens amplamente utilizado que suporta filas de mensagens e é altamente configurável
+
+A escolha do servidor de fila depende das necessidades específicas do seu aplicativo e da infraestrutura existente.
+
+### 5. Função de Autorespostas
+
+Autorespostas do MkSms permite que você configure respostas automáticas com base nas interações dos destinatários. Com essa funcionalidade, você pode personalizar mensagens automáticas de acordo com as respostas recebidas, proporcionando uma experiência mais dinâmica e interativa aos usuários.
+
+- **URL:** `https://sms.mkmservice.com/sms/api/transmission/v1`
+- **Authentication:** Bearer (token)
+
+**JSON:**
+
+```json
+{
+  "mailing": {
+    "identifier": "Envio AutoResposta",
+    "cost_centre_id": 12345
+  },
+  "messages": [
+    {
+      "msisdn": "5511111111111",
+      "message": "AutoResposta via API",
+      "schedule": null,
+      "reference": "variavel",
+      "auto_answer": [
+        {
+          "access_level": "1",
+          "access_code": "(1|2|3|4|5|6|7)",
+          "send_message": "Agora escolha uma nova opção:"
+        },
+        {
+          "access_level": "1", 
+          "access_code": "(1|2|3|4|5|6|7)",
+          "send_message": "Obrigado pela sua participação!"
+        }
+      ]
+    }
+  ]
+}
+```
+
+---
+
+## Informações de Contato
+
+**MKOM - Multiplicadores de Comunicação**
+
+**Endereço:**
+
+- Av. Anápolis, 100 - Sala 1703
+- Edifício NBC - Barueri/SP
+
+**Contato:**
+
+- Telefone: (11) 3995-4660
+- Website: mkom.tec.br
+
+---
+
+*Manual de Integração MKSMS (V1) - Plataforma MKOM*

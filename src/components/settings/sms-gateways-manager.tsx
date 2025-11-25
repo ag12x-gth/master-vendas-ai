@@ -60,7 +60,10 @@ const providerConfig = {
     },
     mkom: {
         label: 'MKOM (MKSMS)',
-        credentials: [{ name: 'token', label: 'Token JWT', type: 'password' }]
+        credentials: [
+            { name: 'token', label: 'Token JWT', type: 'password' },
+            { name: 'cost_centre_id', label: 'Centro de Custo (ID)', type: 'text' }
+        ]
     }
 } as const;
 

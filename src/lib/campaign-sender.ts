@@ -689,15 +689,58 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
 // SMS CAMPAIGN SENDER
 // ==========================================
 
-async function logSmsDelivery(campaign: typeof campaigns.$inferSelect, gateway: typeof smsGateways.$inferSelect, contacts: { id: string, phone: string }[], providerResponse: { success: boolean, mensagens?: { Codigo_cliente: string, id_mensagem: string }[] } & Record<string, unknown>): Promise<void> {
-    const logs = contacts.map(contact => ({
-        campaignId: campaign.id,
-        contactId: contact.id,
-        smsGatewayId: gateway.id,
-        status: providerResponse.success ? 'SENT' : 'FAILED',
-        failureReason: providerResponse.success ? null : JSON.stringify(providerResponse),
-        providerMessageId: providerResponse.mensagens?.find(m => m.Codigo_cliente === contact.id)?.id_mensagem,
-    }));
+const VALID_SUCCESS_STATUSES = new Set(['SENT', 'SUCCESS', 'DELIVERED', 'ACCEPTED', 'OK']);
+const VALID_PENDING_STATUSES = new Set(['PENDING', 'QUEUED', 'SCHEDULED', 'PROCESSING']);
+
+function normalizeDeliveryStatus(rawStatus: string | undefined | null): 'SENT' | 'FAILED' | 'PENDING' {
+    // Se não há status explícito, é FAILED (não assumir sucesso sem confirmação)
+    if (!rawStatus) {
+        return 'FAILED';
+    }
+    const upper = rawStatus.toUpperCase();
+    if (VALID_SUCCESS_STATUSES.has(upper)) {
+        return 'SENT';
+    }
+    if (VALID_PENDING_STATUSES.has(upper)) {
+        return 'PENDING';
+    }
+    // Status desconhecido = FAILED
+    return 'FAILED';
+}
+
+async function logSmsDelivery(campaign: typeof campaigns.$inferSelect, gateway: typeof smsGateways.$inferSelect, contacts: { id: string, phone: string }[], providerResponse: { success: boolean, mensagens?: { Codigo_cliente: string, id_mensagem: string, status?: string, error?: string }[], error?: string } & Record<string, unknown>): Promise<void> {
+    const logs = contacts.map(contact => {
+        const msgInfo = providerResponse.mensagens?.find(m => m.Codigo_cliente === contact.id);
+        
+        // Se o contato não está no retorno do provider, é FAILED (não recebeu confirmação)
+        if (!msgInfo) {
+            return {
+                campaignId: campaign.id,
+                contactId: contact.id,
+                smsGatewayId: gateway.id,
+                status: 'FAILED' as const,
+                failureReason: providerResponse.error || 'Contato não encontrado na resposta do provider',
+                providerMessageId: null,
+            };
+        }
+        
+        const status = normalizeDeliveryStatus(msgInfo.status);
+        const isFailed = status === 'FAILED';
+        
+        let failureReason: string | null = null;
+        if (isFailed) {
+            failureReason = msgInfo.error || providerResponse.error || 'Status de envio não confirmado';
+        }
+        
+        return {
+            campaignId: campaign.id,
+            contactId: contact.id,
+            smsGatewayId: gateway.id,
+            status,
+            failureReason,
+            providerMessageId: msgInfo.id_mensagem || null,
+        };
+    });
 
     if (logs.length > 0) {
         await db.insert(smsDeliveryReports).values(logs);
@@ -838,23 +881,44 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
             const mkomToken = decrypt(credentials.token);
             if (!mkomToken) throw new Error("Falha ao desencriptar o Token JWT da MKOM.");
             
+            // Obter cost_centre_id das credenciais (opcional, padrão: 0)
+            const costCentreId = credentials.cost_centre_id ? parseInt(credentials.cost_centre_id) : 0;
+            
             // MKOM API - Envio de SMS via MKSMS
-            // Documentação: https://mkom.com.br/mksms/
-            // Números já normalizados para formato operadora (DDD + número, sem DDI 55)
-            const mkomMessages = validBatch.map(contact => ({
-                numero: contact.phone,
-                mensagem: campaign.message!,
-                codigo_cliente: contact.id
-            }));
+            // Documentação oficial: https://sms.mkmservice.com/sms/api/transmission/v1
+            // Números devem estar no formato E.164 com DDI (ex: 5511999999999)
+            const mkomMessages = validBatch.map(contact => {
+                // Garantir formato E.164: não duplicar DDI se já existir
+                let msisdn = contact.phone.replace(/\D/g, ''); // Remove não-numéricos
+                if (!msisdn.startsWith('55')) {
+                    msisdn = `55${msisdn}`;
+                }
+                return {
+                    msisdn,
+                    message: campaign.message!,
+                    schedule: null, // Envio imediato
+                    reference: contact.id // ID do contato como referência
+                };
+            });
             
-            console.log(`[SMS MKOM] Enviando ${mkomMessages.length} mensagens com números normalizados`);
-            console.log(`[SMS MKOM] 📤 Payload:`, JSON.stringify(mkomMessages.map(m => ({ numero: m.numero, mensagem: m.mensagem.substring(0, 30) + '...' })), null, 2));
+            console.log(`[SMS MKOM] Enviando ${mkomMessages.length} mensagens via MKSMS API`);
+            console.log(`[SMS MKOM] 📤 Payload Preview:`, JSON.stringify(mkomMessages.slice(0, 2).map(m => ({ 
+                msisdn: m.msisdn, 
+                message: m.message.substring(0, 30) + '...',
+                reference: m.reference
+            })), null, 2));
             
+            // Payload conforme documentação MKOM MKSMS
             const mkomPayload = {
-                mensagens: mkomMessages
+                mailing: {
+                    identifier: `MasterIA-Campaign-${campaign.id}`,
+                    cost_centre_id: costCentreId
+                },
+                messages: mkomMessages
             };
             
-            const mkomUrl = 'https://api.mkom.com.br/api/v1/sms/send';
+            // Endpoint oficial MKOM MKSMS
+            const mkomUrl = 'https://sms.mkmservice.com/sms/api/transmission/v1';
             
             try {
                 console.log(`[SMS MKOM] 🌐 Chamando API: POST ${mkomUrl}`);
@@ -885,19 +949,160 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
                 console.log(`[SMS MKOM] ✅ Envio bem-sucedido!`);
                 
                 try {
-                    const mkomData = JSON.parse(mkomResponseText) as { status?: string; mensagens?: Array<{ codigo_cliente: string; id_mensagem: string }> };
+                    // Formato de resposta MKOM: { mailing: { id: "..." }, messages: [{ success: boolean, reference: "...", id?: "..." }] }
+                    const mkomData = JSON.parse(mkomResponseText) as { 
+                        mailing?: { id: string }; 
+                        messages?: Array<{ success?: boolean; reference?: string; id?: string; status?: string; error?: string }>;
+                        error?: string;
+                        status?: string;
+                    };
                     console.log(`[SMS MKOM] 📊 Parsed Response:`, JSON.stringify(mkomData, null, 2));
+                    
+                    // Verificar se houve erro global
+                    if (mkomData.error || mkomData.status === 'ERROR' || mkomData.status === 'ERRO') {
+                        const errorMsg = mkomData.error || 'Erro desconhecido da API MKOM';
+                        console.error(`[SMS MKOM] ❌ Erro global da API: ${errorMsg}`);
+                        CircuitBreaker.recordFailure('sms_mkom');
+                        return { success: false, error: errorMsg, mensagens: [] };
+                    }
+                    
+                    // Validar estrutura mínima da resposta - MKOM deve retornar array messages
+                    if (!mkomData.messages || !Array.isArray(mkomData.messages)) {
+                        // Sem array de mensagens: tratar como falha (estrutura inesperada)
+                        console.error(`[SMS MKOM] ❌ Resposta sem array 'messages' válido - estrutura inesperada`);
+                        CircuitBreaker.recordFailure('sms_mkom');
+                        return { 
+                            success: false, 
+                            error: 'Estrutura de resposta MKOM inválida: campo messages ausente',
+                            mensagens: validBatch.map(c => ({
+                                Codigo_cliente: c.id,
+                                id_mensagem: '',
+                                status: 'FAILED',
+                                error: 'Resposta MKOM sem confirmação de entrega'
+                            }))
+                        };
+                    }
+                    
+                    // Validar se messages tem pelo menos um item
+                    if (mkomData.messages.length === 0) {
+                        console.error(`[SMS MKOM] ❌ Array 'messages' vazio na resposta`);
+                        CircuitBreaker.recordFailure('sms_mkom');
+                        return { 
+                            success: false, 
+                            error: 'MKOM retornou array de mensagens vazio',
+                            mensagens: validBatch.map(c => ({
+                                Codigo_cliente: c.id,
+                                id_mensagem: '',
+                                status: 'FAILED',
+                                error: 'MKOM não confirmou entrega'
+                            }))
+                        };
+                    }
+                    
+                    // Processar cada mensagem com validação rigorosa de tipos
+                    let hasInvalidStructure = false;
+                    const processedMessages = mkomData.messages.map(m => {
+                        // Validar que reference é string não vazia
+                        if (!m.reference || typeof m.reference !== 'string') {
+                            console.warn(`[SMS MKOM] ⚠️ Mensagem sem reference válido`);
+                            hasInvalidStructure = true;
+                        }
+                        
+                        // Determinar sucesso: DEVE ter confirmação explícita
+                        // Sem success boolean ou status string válido = FAILED
+                        let isSuccess = false;
+                        let statusStr: string | undefined;
+                        
+                        if (typeof m.success === 'boolean') {
+                            // Campo success boolean explícito
+                            isSuccess = m.success;
+                            statusStr = m.success ? 'SENT' : 'FAILED';
+                        } else if (m.status && typeof m.status === 'string') {
+                            // Campo status string - validar contra lista conhecida
+                            const statusUpper = m.status.toUpperCase();
+                            if (VALID_SUCCESS_STATUSES.has(statusUpper)) {
+                                isSuccess = true;
+                                statusStr = 'SENT';
+                            } else if (VALID_PENDING_STATUSES.has(statusUpper)) {
+                                isSuccess = true; // Pending ainda conta como sucesso no envio
+                                statusStr = 'PENDING';
+                            } else {
+                                // Status desconhecido = falha
+                                isSuccess = false;
+                                statusStr = 'FAILED';
+                                console.warn(`[SMS MKOM] ⚠️ Status desconhecido: ${m.status}`);
+                            }
+                        } else {
+                            // Sem success nem status = SEM CONFIRMAÇÃO = FAILED
+                            isSuccess = false;
+                            statusStr = 'FAILED';
+                        }
+                        
+                        return {
+                            reference: m.reference || '',
+                            success: isSuccess,
+                            status: statusStr,
+                            id: m.id,
+                            error: m.error
+                        };
+                    });
+                    
+                    // Se estrutura inválida em muitas mensagens, é problema sério
+                    if (hasInvalidStructure && processedMessages.length > 0) {
+                        const invalidRatio = processedMessages.filter(m => !m.reference).length / processedMessages.length;
+                        if (invalidRatio > 0.5) {
+                            console.error(`[SMS MKOM] ❌ Mais de 50% das mensagens sem reference válido`);
+                            CircuitBreaker.recordFailure('sms_mkom');
+                        }
+                    }
+                    
+                    const successCount = processedMessages.filter(m => m.success).length;
+                    const failCount = processedMessages.filter(m => !m.success).length;
+                    
+                    if (failCount > 0) {
+                        console.warn(`[SMS MKOM] ⚠️ ${failCount} mensagem(ns) falharam, ${successCount} enviadas com sucesso`);
+                    }
+                    
+                    // Mapear resposta para formato compatível com logSmsDelivery
+                    const mensagens = processedMessages.map(m => ({
+                        Codigo_cliente: m.reference,
+                        id_mensagem: m.id || mkomData.mailing?.id || '',
+                        status: m.status || 'FAILED',
+                        error: m.error
+                    }));
+                    
+                    // Determinar sucesso global
+                    const allSuccess = failCount === 0 && successCount > 0;
+                    const partialSuccess = failCount > 0 && successCount > 0;
+                    
+                    // Acionar circuit breaker apenas quando todas falham
+                    if (failCount > 0 && successCount === 0) {
+                        CircuitBreaker.recordFailure('sms_mkom');
+                    }
+                    
                     return { 
-                        success: mkomData.status !== 'ERRO', 
-                        mensagens: mkomData.mensagens?.map(m => ({
-                            Codigo_cliente: m.codigo_cliente,
-                            id_mensagem: m.id_mensagem
-                        })),
-                        ...mkomData 
+                        success: allSuccess || partialSuccess,
+                        partialSuccess,
+                        mailingId: mkomData.mailing?.id,
+                        mensagens,
+                        successCount,
+                        failCount
                     };
                 } catch (e) {
-                    console.log(`[SMS MKOM] ⚠️ Response não é JSON válido, tratando como sucesso`);
-                    return { success: true, details: mkomResponseText };
+                    // JSON inválido: tratar como falha e acionar circuit breaker
+                    console.error(`[SMS MKOM] ❌ Response não é JSON válido:`, mkomResponseText);
+                    CircuitBreaker.recordFailure('sms_mkom');
+                    return { 
+                        success: false, 
+                        error: 'Resposta inválida da API MKOM', 
+                        details: mkomResponseText,
+                        mensagens: validBatch.map(c => ({
+                            Codigo_cliente: c.id,
+                            id_mensagem: '',
+                            status: 'FAILED',
+                            error: 'Resposta inválida da API'
+                        }))
+                    };
                 }
             } catch (error) {
                 console.error(`[SMS MKOM] ❌ Erro na requisição:`, (error as Error).message);
