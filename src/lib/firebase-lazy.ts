@@ -23,9 +23,8 @@ let initializationPromise: Promise<void> | null = null;
 // Lazy initialization function
 async function initializeFirebase(): Promise<void> {
   if (!isFirebaseConfigured()) {
-    if (typeof window !== 'undefined') {
-      console.warn('Firebase configuration not found. Firebase features will be disabled.');
-    }
+    // Firebase não configurado - isso é esperado se não estiver usando Firebase Analytics
+    // Silenciado para evitar poluição dos logs
     return;
   }
 
