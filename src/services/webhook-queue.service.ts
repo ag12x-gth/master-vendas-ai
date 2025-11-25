@@ -31,6 +31,14 @@ interface InMemoryJob {
   lastError?: string;
 }
 
+// Global flag to prevent duplicate shutdown handlers on hot-reload
+declare global {
+  // eslint-disable-next-line no-var
+  var __webhookQueueShutdownHandlerRegistered: boolean | undefined;
+  // eslint-disable-next-line no-var
+  var __webhookQueueInstance: WebhookQueueService | undefined;
+}
+
 /**
  * Hybrid webhook queue implementation with BullMQ (when Redis available) or in-memory fallback
  */
@@ -59,7 +67,14 @@ export class WebhookQueueService {
     waiting: 0,
   };
   
+  private isInitialized = false;
+  
   constructor() {
+    // Prevent re-initialization if singleton already exists
+    if (global.__webhookQueueInstance) {
+      return;
+    }
+    
     // Check if BullMQ should be enabled and Redis is available
     const enableBullMQ = process.env.ENABLE_BULLMQ_QUEUE === 'true';
     
@@ -103,6 +118,8 @@ export class WebhookQueueService {
     
     // Setup graceful shutdown
     this.setupGracefulShutdown();
+    
+    this.isInitialized = true;
   }
 
   /**
@@ -722,9 +739,14 @@ export class WebhookQueueService {
   }
 
   /**
-   * Setup graceful shutdown
+   * Setup graceful shutdown - prevent duplicate listeners on hot-reload
    */
   private setupGracefulShutdown() {
+    // Check if handlers are already registered to prevent MaxListenersExceededWarning
+    if (global.__webhookQueueShutdownHandlerRegistered) {
+      return;
+    }
+
     const shutdownHandler = async () => {
       if (this.isShuttingDown) return;
       this.isShuttingDown = true;
@@ -781,9 +803,11 @@ export class WebhookQueueService {
       }
     };
 
-    // Handle different shutdown signals
-    process.on('SIGTERM', shutdownHandler);
-    process.on('SIGINT', shutdownHandler);
+    // Handle different shutdown signals - use once() to prevent duplicate handlers
+    process.once('SIGTERM', shutdownHandler);
+    process.once('SIGINT', shutdownHandler);
+    global.__webhookQueueShutdownHandlerRegistered = true;
+    console.log('🔧 [WebhookQueue] Registered shutdown handlers (SIGINT, SIGTERM)');
   }
 
   /**
@@ -816,5 +840,15 @@ export class WebhookQueueService {
   }
 }
 
-// Create singleton instance
-export const webhookQueue = new WebhookQueueService();
+// Create or reuse singleton instance to prevent multiple instances on hot-reload
+let webhookQueue: WebhookQueueService;
+
+if (!global.__webhookQueueInstance) {
+  console.log('🔧 [WebhookQueue] Creating new WebhookQueueService singleton instance');
+  webhookQueue = new WebhookQueueService();
+  global.__webhookQueueInstance = webhookQueue;
+} else {
+  webhookQueue = global.__webhookQueueInstance;
+}
+
+export { webhookQueue };

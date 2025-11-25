@@ -551,8 +551,7 @@ class HybridRedisClient {
   private initPromise: Promise<void>;
 
   constructor() {
-    // Initialize asynchronously
-    console.log('🔧 [Redis] HybridRedisClient constructor called - starting initialization...');
+    // Initialize asynchronously (log is now in singleton creation block)
     this.initPromise = this.initialize();
   }
 
@@ -909,12 +908,15 @@ class HybridRedisClient {
 declare global {
   // eslint-disable-next-line no-var
   var __hybridRedisClient: HybridRedisClient | undefined;
+  // eslint-disable-next-line no-var
+  var __redisShutdownHandlerRegistered: boolean | undefined;
 }
 
 // Create or reuse the singleton instance
 let redis: HybridRedisClient;
 
 if (!global.__hybridRedisClient) {
+  console.log('🔧 [Redis] Creating new HybridRedisClient singleton instance');
   redis = new HybridRedisClient();
   global.__hybridRedisClient = redis;
 } else {
@@ -926,8 +928,8 @@ export function getCacheMetrics() {
   return redis.getCacheMetrics();
 }
 
-// Graceful shutdown handlers
-if (typeof process !== 'undefined') {
+// Graceful shutdown handlers - prevent duplicate listeners on hot-reload
+if (typeof process !== 'undefined' && !global.__redisShutdownHandlerRegistered) {
   const shutdownHandler = async () => {
     await redis.quit();
     process.exit(0);
@@ -935,6 +937,8 @@ if (typeof process !== 'undefined') {
 
   process.once('SIGINT', shutdownHandler);
   process.once('SIGTERM', shutdownHandler);
+  global.__redisShutdownHandlerRegistered = true;
+  console.log('🔧 [Redis] Registered shutdown handlers (SIGINT, SIGTERM)');
 }
 
 // Export as default for compatibility
