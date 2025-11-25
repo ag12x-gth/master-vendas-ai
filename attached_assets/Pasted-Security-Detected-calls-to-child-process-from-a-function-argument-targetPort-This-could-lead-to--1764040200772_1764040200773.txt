@@ -1,0 +1,55 @@
+Security
+Detected calls to child_process from a function argument `targetPort`. This could lead to a command injection if the input is user controllable. Try to avoid calls to child_process, and if it is needed ensure user input is correctly sanitized or sandboxed.
+
+Detected calls to child_process from a function argument `targetPort`. This could lead to a command injection if the input is user controllable. Try to avoid calls to child_process, and if it is needed ensure user input is correctly sanitized or sandboxed.
+server.js
+31
+    const pids = execSync(command, { encoding: 'utf8' }).trim();
+
+Hide
+
+Fix with Agent
+Security
+Detected calls to child_process from a function argument `pidStr`. This could lead to a command injection if the input is user controllable. Try to avoid calls to child_process, and if it is needed ensure user input is correctly sanitized or sandboxed.
+
+Detected calls to child_process from a function argument `pidStr`. This could lead to a command injection if the input is user controllable. Try to avoid calls to child_process, and if it is needed ensure user input is correctly sanitized or sandboxed.
+server.js
+47
+          const processInfo = execSync(`ps -p ${pid} -o comm=`, { encoding: 'utf8' }).trim();
+
+Hide
+
+Fix with Agent
+Security
+Detected calls to child_process from a function argument `pidStr`. This could lead to a command injection if the input is user controllable. Try to avoid calls to child_process, and if it is needed ensure user input is correctly sanitized or sandboxed.
+
+Detected calls to child_process from a function argument `pidStr`. This could lead to a command injection if the input is user controllable. Try to avoid calls to child_process, and if it is needed ensure user input is correctly sanitized or sandboxed.
+server.js
+51
+            execSync(`kill -9 ${pid}`, { stdio: 'ignore' });
+
+Hide
+
+Fix with Agent
+Security
+A gitleaks Generic API Key detected. Avoid hardcoding credentials directly in connection strings as this creates security risks. Instead, use environment variables to store and access credentials at runtime. If you need the actual credential values to make this work properly, ask me to provide them through Replit's secret system.
+
+A gitleaks Generic API Key detected. Avoid hardcoding credentials directly in connection strings as this creates security risks. Instead, use environment variables to store and access credentials at runtime. If you need the actual credential values to make this work properly, ask me to provide them through Replit's secret system.
+src/components/landing/hero-section.tsx
+25
+              src="https://firebasestorage.googleapis.com/v0/b/studiostage-3ea73.appspot.com/o/projects%2Fbrn9lgp3q1i23t5d%2Fuser%2Fcxu03y27p78z7z8q%2Fsrc%2Fcomponents%2Flanding%2F219760a9-3d12-42fe-bd35-a75ea9c5f87b.png?alt=media&token=c1fd33b6-7933-4f93-9c88-e9f3b55c65f0"
+
+Hide
+
+Fix with Agent
+Security
+The call to 'createDecipheriv' with the Galois Counter Mode (GCM) mode of operation is missing an expected authentication tag length. If the expected authentication tag length is not specified or otherwise checked, the application might be tricked into verifying a shorter-than-expected authentication tag. This can be abused by an attacker to spoof ciphertexts or recover the implicit authentication key of GCM, allowing arbitrary forgeries.
+
+The call to 'createDecipheriv' with the Galois Counter Mode (GCM) mode of operation is missing an expected authentication tag length. If the expected authentication tag length is not specified or otherwise checked, the application might be tricked into verifying a shorter-than-expected authentication tag. This can be abused by an attacker to spoof ciphertexts or recover the implicit authentication key of GCM, allowing arbitrary forgeries.
+src/lib/crypto.ts
+75
+    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+
+Hide
+
+Fix with Agent
