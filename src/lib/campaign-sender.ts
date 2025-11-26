@@ -891,6 +891,7 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
             // MKOM API - Envio de SMS via MKSMS
             // Documentação oficial: https://sms.mkmservice.com/sms/api/transmission/v1
             // Números devem estar no formato E.164 com DDI (ex: 5511999999999)
+            const campaignPrefix = campaign.id.substring(0, 8);
             const mkomMessages = validBatch.map(contact => {
                 // Garantir formato E.164: não duplicar DDI se já existir
                 let msisdn = contact.phone.replace(/\D/g, ''); // Remove não-numéricos
@@ -901,7 +902,7 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
                     msisdn,
                     message: campaign.message!,
                     schedule: null, // Envio imediato
-                    reference: contact.id // ID do contato como referência
+                    reference: `${campaignPrefix}_${contact.id}` // ID único: campaign + contact
                 };
             });
             
@@ -1003,8 +1004,8 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
                         };
                     }
                     
-                    // Criar mapa de contatos enviados para cross-check
-                    const sentContactIds = new Set(validBatch.map(c => c.id));
+                    // Criar mapa de referências enviadas para cross-check
+                    const sentContactRefs = new Set(validBatch.map(c => `${campaignPrefix}_${c.id}`));
                     
                     // Processar cada mensagem com validação rigorosa de tipos
                     let invalidMsgCount = 0;
@@ -1027,7 +1028,7 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
                         }
                         
                         // Verificar se reference corresponde a um contato enviado
-                        if (!sentContactIds.has(reference)) {
+                        if (!sentContactRefs.has(reference)) {
                             console.warn(`[SMS MKOM] ⚠️ Reference '${reference}' não corresponde a nenhum contato enviado`);
                             invalidMsgCount++;
                             continue;
@@ -1070,14 +1071,14 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
                     }
                     
                     // Verificar se todos os contatos receberam resposta
-                    const respondedContactIds = new Set(processedMessages.map(m => m.reference));
-                    const missingContacts = validBatch.filter(c => !respondedContactIds.has(c.id));
+                    const respondedRefs = new Set(processedMessages.map(m => m.reference));
+                    const missingContacts = validBatch.filter(c => !respondedRefs.has(`${campaignPrefix}_${c.id}`));
                     
                     // Adicionar contatos sem resposta como FAILED
                     for (const missing of missingContacts) {
                         console.warn(`[SMS MKOM] ⚠️ Contato ${missing.id} não recebeu confirmação do provider`);
                         processedMessages.push({
-                            reference: missing.id,
+                            reference: `${campaignPrefix}_${missing.id}`,
                             success: false,
                             status: 'FAILED',
                             error: 'Sem confirmação de entrega do provider'
@@ -1089,8 +1090,9 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
                     const hasMissingResponses = missingContacts.length > 0;
                     
                     // Mapear resposta para formato compatível com logSmsDelivery
+                    // Extrair contact_id da referência (formato: campaignPrefix_contactId)
                     const mensagens = processedMessages.map(m => ({
-                        Codigo_cliente: m.reference,
+                        Codigo_cliente: m.reference.includes('_') ? m.reference.split('_')[1] : m.reference,
                         id_mensagem: m.id || mkomData.mailing?.id || '',
                         status: m.status,
                         error: m.error
