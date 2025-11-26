@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { DollarSign, Users, Send, MessageCircleWarning } from 'lucide-react';
+import { DollarSign, Users, Send, MessageCircleWarning, MessageSquare, Smartphone } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
 import { Skeleton } from '../ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -18,6 +18,8 @@ interface KpiData {
     totalLeadValue: number;
     totalContacts: number;
     totalMessagesSent: number;
+    totalWhatsappSent: number;
+    totalSmsSent: number;
     pendingConversations: number;
 }
 
@@ -104,7 +106,7 @@ export function StatsCards({ dateRange }: StatsCardsProps) {
         {
           title: 'Mensagens Enviadas',
           value: data?.totalMessagesSent ?? 0,
-          description: 'Soma de todas as campanhas no período',
+          description: `${(data?.totalWhatsappSent ?? 0).toLocaleString('pt-BR')} via WhatsApp | ${(data?.totalSmsSent ?? 0).toLocaleString('pt-BR')} via SMS`,
           icon: Send,
         },
         {

@@ -108,6 +108,8 @@ export async function GET(request: NextRequest) {
             totalLeadValue: totalLeadsResult?.value || 0,
             totalContacts: totalContactsResult?.count || 0,
             totalMessagesSent: (totalWhatsappSentResult?.count || 0) + (totalSmsSentResult?.count || 0),
+            totalWhatsappSent: totalWhatsappSentResult?.count || 0,
+            totalSmsSent: totalSmsSentResult?.count || 0,
             pendingConversations: pendingConversationsResult?.count || 0,
             agentPerformance,
         };
