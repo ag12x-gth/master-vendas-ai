@@ -49,13 +49,41 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           throw new Error("Não foi possível criar a campanha no banco de dados.");
         }
         
+        // Se for envio imediato, adicionar à fila e disparar processamento
         if (!isScheduled) {
+            console.log(`[SMS Campaign] Adicionando campanha ${newCampaign.id} à fila para processamento imediato`);
+            
+            // Adicionar à fila Redis (mesmo padrão do trigger individual)
             await redis.lpush(SMS_CAMPAIGN_QUEUE, newCampaign.id);
+            
+            // Disparar o trigger CRON para processar imediatamente (fire-and-forget)
+            // Usamos fetch interno para não bloquear a resposta
+            let baseUrl: string;
+            if (process.env.NEXT_PUBLIC_APP_URL) {
+                baseUrl = process.env.NEXT_PUBLIC_APP_URL;
+            } else if (process.env.VERCEL_URL) {
+                baseUrl = `https://${process.env.VERCEL_URL}`;
+            } else {
+                baseUrl = 'http://localhost:5000';
+            }
+            
+            fetch(`${baseUrl}/api/v1/campaigns/trigger`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            }).then(res => {
+                if (!res.ok) {
+                    console.warn(`[SMS Campaign] Trigger retornou status ${res.status}`);
+                }
+            }).catch(err => {
+                console.error(`[SMS Campaign] Erro ao disparar trigger: ${err.message}`);
+            });
+            
+            console.log(`[SMS Campaign] Trigger disparado para campanha ${newCampaign.id}`);
         }
 
         const message = isScheduled 
             ? 'Campanha agendada com sucesso. Ela será enviada na data programada pelo nosso sistema.'
-            : 'Campanha adicionada à fila para o próximo ciclo de envio.';
+            : 'Campanha criada! O envio está sendo processado. Acompanhe o progresso na lista de campanhas.';
 
         return NextResponse.json({ success: true, message: message, campaignId: newCampaign.id }, { status: 201 });
 
