@@ -48,6 +48,15 @@ export async function POST(request: NextRequest) {
         }
         const { provider, name, credentials } = parsed.data;
 
+        if (provider === 'mkom') {
+            const costCentreId = credentials.cost_centre_id;
+            if (!costCentreId || String(costCentreId).trim() === '' || String(costCentreId) === '0') {
+                return NextResponse.json({ 
+                    error: 'Centro de Custo (cost_centre_id) é obrigatório para o gateway MKOM.' 
+                }, { status: 400 });
+            }
+        }
+
         // Encrypt all credential values
         const encryptedCredentials = Object.fromEntries(
             Object.entries(credentials).map(([key, value]) => [key, encrypt(value as string)])

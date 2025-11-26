@@ -881,8 +881,12 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
             const mkomToken = decrypt(credentials.token);
             if (!mkomToken) throw new Error("Falha ao desencriptar o Token JWT da MKOM.");
             
-            // Obter cost_centre_id das credenciais (opcional, padrão: 0)
-            const costCentreId = credentials.cost_centre_id ? parseInt(credentials.cost_centre_id) : 0;
+            // Validação fail-fast: cost_centre_id é obrigatório para MKOM
+            const rawCostCentreId = credentials.cost_centre_id;
+            if (!rawCostCentreId || String(rawCostCentreId).trim() === '' || String(rawCostCentreId) === '0') {
+                throw new Error("Gateway MKOM requer cost_centre_id configurado. Por favor, edite o gateway nas configurações.");
+            }
+            const costCentreId = parseInt(rawCostCentreId);
             
             // MKOM API - Envio de SMS via MKSMS
             // Documentação oficial: https://sms.mkmservice.com/sms/api/transmission/v1

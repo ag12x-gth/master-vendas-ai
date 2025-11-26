@@ -69,25 +69,38 @@ const providerConfig = {
 
 type Provider = keyof typeof providerConfig;
 
-const CredentialInputs = ({ provider, gateway }: { provider: Provider | null, gateway: SmsGateway | null }): JSX.Element | null => {
+const CredentialInputs = ({ provider, gateway, validationErrors }: { provider: Provider | null, gateway: SmsGateway | null, validationErrors: Record<string, string> }): JSX.Element | null => {
     if (!provider) return null;
     const config = providerConfig[provider as Provider];
 
     return (
         <>
-            {config.credentials.map(field => (
-                <div key={field.name} className="space-y-2">
-                    <Label htmlFor={field.name}>{field.label}</Label>
-                    <Input 
-                      id={field.name} 
-                      name={field.name} 
-                      type={field.type} 
-                      required={!gateway} // Required only when creating
-                      placeholder={gateway ? 'Deixe em branco para manter a atual' : ''}
-                      defaultValue={''} // Always empty on render for security
-                    />
-                </div>
-            ))}
+            {config.credentials.map(field => {
+                const isCostCentreForMkom = provider === 'mkom' && field.name === 'cost_centre_id';
+                const isTokenField = field.name === 'token' || field.name === 'apiKey';
+                const isRequired = isCostCentreForMkom || (!gateway && isTokenField);
+                const hasError = validationErrors[field.name];
+                
+                return (
+                    <div key={field.name} className="space-y-2">
+                        <Label htmlFor={field.name}>
+                            {field.label}
+                            {isRequired && <span className="text-destructive ml-1">*</span>}
+                        </Label>
+                        <Input 
+                          id={field.name} 
+                          name={field.name} 
+                          type={field.type} 
+                          placeholder={gateway && isTokenField ? 'Deixe em branco para manter a atual' : ''}
+                          defaultValue={''}
+                          className={hasError ? 'border-destructive' : ''}
+                        />
+                        {hasError && (
+                            <p className="text-sm text-destructive">{hasError}</p>
+                        )}
+                    </div>
+                );
+            })}
         </>
     );
 }
@@ -98,6 +111,7 @@ export function SmsGatewaysManager(): JSX.Element {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingGateway, setEditingGateway] = useState<SmsGateway | null>(null);
     const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const { toast } = useToast();
     const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
@@ -124,11 +138,14 @@ export function SmsGatewaysManager(): JSX.Element {
     const handleOpenModal = (gateway?: SmsGateway): void => {
         setEditingGateway(gateway || null);
         setSelectedProvider((gateway?.provider as Provider) || null);
+        setValidationErrors({});
         setIsModalOpen(true);
     }
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
         event.preventDefault();
+        setValidationErrors({});
+        
         const formData = new FormData(event.currentTarget);
         const name = formData.get('name') as string;
         
@@ -138,6 +155,8 @@ export function SmsGatewaysManager(): JSX.Element {
         
         const credentials: Record<string, string> = {};
         let credentialsProvided = false;
+        const errors: Record<string, string> = {};
+        
         providerConfig[provider as Provider].credentials.forEach(field => {
             const value = formData.get(field.name) as string;
             if (value) {
@@ -145,6 +164,18 @@ export function SmsGatewaysManager(): JSX.Element {
                 credentialsProvided = true;
             }
         });
+        
+        if (provider === 'mkom') {
+            const costCentreId = formData.get('cost_centre_id') as string;
+            if (!costCentreId || costCentreId.trim() === '' || costCentreId === '0') {
+                errors['cost_centre_id'] = 'Centro de Custo é obrigatório para o gateway MKOM.';
+            }
+        }
+        
+        if (Object.keys(errors).length > 0) {
+            setValidationErrors(errors);
+            return;
+        }
 
         const payload: Partial<SmsGateway> & { provider?: string } = { name };
 
@@ -349,7 +380,7 @@ export function SmsGatewaysManager(): JSX.Element {
                             <Label htmlFor="gateway-name">Nome da Configuração</Label>
                             <Input id="gateway-name" name="name" placeholder="Ex: Conta Principal SMS Flash Advanced" defaultValue={editingGateway?.name} required />
                         </div>
-                        <CredentialInputs provider={editingGateway?.provider as Provider || selectedProvider} gateway={editingGateway} />
+                        <CredentialInputs provider={editingGateway?.provider as Provider || selectedProvider} gateway={editingGateway} validationErrors={validationErrors} />
                         </>
                     )}
                 </div>
