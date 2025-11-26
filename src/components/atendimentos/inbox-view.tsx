@@ -396,7 +396,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
   return (
     <div className="h-full flex flex-row border rounded-lg overflow-hidden">
         {showConversationList && (
-            <div className="w-full md:min-w-[280px] md:flex-[0.25] lg:flex-[0.22] xl:flex-[0.20] flex-shrink-0 h-full border-r min-h-0">
+            <div className="w-full md:min-w-[280px] md:flex-[0.25] lg:flex-[0.22] xl:flex-[0.20] flex-shrink-0 h-full border-r min-h-0 overflow-hidden">
                 <ConversationList 
                     conversations={conversations}
                     currentConversationId={selectedConversation?.id || null}

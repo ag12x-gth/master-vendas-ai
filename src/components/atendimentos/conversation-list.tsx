@@ -144,8 +144,8 @@ export function ConversationList({
     }, [handleScroll]);
 
     return (
-        <div className="h-full flex flex-col">
-            <div className="p-4 border-b shrink-0 space-y-3">
+        <div className="h-full flex flex-col min-h-0 overflow-hidden">
+            <div className="p-4 border-b flex-shrink-0 space-y-3">
                 <Tabs value={sourceFilter} onValueChange={(v) => setSourceFilter(v as any)}>
                     <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="all">Todas</TabsTrigger>
@@ -169,7 +169,7 @@ export function ConversationList({
                     />
                 </div>
             </div>
-            <ScrollArea className="flex-1 overflow-y-auto" viewportRef={scrollContainerRef}>
+            <ScrollArea className="flex-1 min-h-0" viewportRef={scrollContainerRef}>
                 <div className="p-2 space-y-1">
                     {filteredConversations.length === 0 ? (
                         <div
