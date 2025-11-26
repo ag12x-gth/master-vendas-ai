@@ -29,7 +29,8 @@ export function SessionsList() {
   const [selectedSessionName, setSelectedSessionName] = useState<string>('');
   const [qrModalOpen, setQrModalOpen] = useState(false);
 
-  const handleConnect = (sessionId: string, sessionName: string) => {
+  const handleConnect = async (sessionId: string, sessionName: string) => {
+    await reconnectSession(sessionId);
     setSelectedSessionId(sessionId);
     setSelectedSessionName(sessionName);
     setQrModalOpen(true);
