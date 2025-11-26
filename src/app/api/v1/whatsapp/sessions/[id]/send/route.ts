@@ -38,6 +38,39 @@ export async function POST(
       );
     }
 
+    const sessionResult = await sessionManager.ensureSession(params.id, companyId);
+    
+    if (!sessionResult.success) {
+      console.log(`[API] Session ${params.id} not ready: ${sessionResult.message}`);
+      
+      if (sessionResult.status === 'needs_qr') {
+        return NextResponse.json(
+          { 
+            error: 'Session requires QR code reconnection', 
+            status: sessionResult.status,
+            message: sessionResult.message 
+          },
+          { status: 409 }
+        );
+      }
+      
+      if (sessionResult.status === 'qr' || sessionResult.status === 'connecting') {
+        return NextResponse.json(
+          { 
+            error: 'Session is connecting, please wait...', 
+            status: sessionResult.status,
+            message: sessionResult.message 
+          },
+          { status: 409 }
+        );
+      }
+      
+      return NextResponse.json(
+        { error: sessionResult.message, status: sessionResult.status },
+        { status: 500 }
+      );
+    }
+
     const messageId = await sessionManager.sendMessage(params.id, to, {
       text,
     });
