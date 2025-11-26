@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { sessionManager } from '@/services/baileys-session-manager';
 import { clearAuthState } from '@/services/baileys-auth-db';
 import { db } from '@/lib/db';
-import { connections, baileysAuthState } from '@/lib/db/schema';
+import { connections, baileysAuthState, campaigns } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 
@@ -66,6 +66,10 @@ export async function DELETE(
     await sessionManager.deleteSession(params.id);
 
     await db.delete(baileysAuthState).where(eq(baileysAuthState.connectionId, params.id));
+    
+    await db.update(campaigns)
+      .set({ connectionId: null })
+      .where(eq(campaigns.connectionId, params.id));
     
     await db.delete(connections).where(eq(connections.id, params.id));
 
