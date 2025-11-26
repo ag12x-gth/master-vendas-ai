@@ -33,7 +33,7 @@ waitForPort = 5000
 
 [deployment]
 deploymentTarget = "vm"
-run = ["npm", "run", "start:prod"]
+run = ["npm", "run", "start"]
 build = ["npm", "run", "build"]
 healthCheckPath = "/health"
 
