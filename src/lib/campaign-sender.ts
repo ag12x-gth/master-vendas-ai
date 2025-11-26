@@ -524,10 +524,18 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
             .from(contactsToContactLists)
             .where(inArray(contactsToContactLists.listId, campaign.contactListIds));
             
-        const campaignContacts = await db
+        let campaignContacts = await db
             .select()
             .from(contacts)
             .where(inArray(contacts.id, contactIdsSubquery));
+        
+        // Suporte a limite de contatos via variableMappings._maxContacts
+        const variableMappingsRaw = campaign.variableMappings as Record<string, any> || {};
+        const maxContacts = variableMappingsRaw._maxContacts as number | undefined;
+        if (maxContacts && campaignContacts.length > maxContacts) {
+            console.log(`[Campanha WhatsApp ${campaign.id}] Limitando de ${campaignContacts.length} para ${maxContacts} contatos`);
+            campaignContacts = campaignContacts.slice(0, maxContacts);
+        }
 
         if (campaignContacts.length === 0) {
             if (process.env.NODE_ENV !== 'production') console.debug(`Campanha ${campaign.id} concluída: sem contatos nas listas.`);
@@ -537,6 +545,16 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
 
         const batchSize = campaign.batchSize || 100; // Padrão de 100
         const batchDelaySeconds = campaign.batchDelaySeconds || 5; // Padrão de 5 segundos
+        
+        // Suporte a delay aleatório individual para Baileys via variableMappings
+        const variableMappings = campaign.variableMappings as Record<string, any> || {};
+        const minDelaySeconds = variableMappings._minDelaySeconds as number | undefined;
+        const maxDelaySeconds = variableMappings._maxDelaySeconds as number | undefined;
+        const useRandomDelay = isBaileys && minDelaySeconds !== undefined && maxDelaySeconds !== undefined;
+        
+        if (useRandomDelay) {
+            console.log(`[Campanha WhatsApp ${campaign.id}] Modo Baileys com delay aleatório: ${minDelaySeconds}-${maxDelaySeconds}s entre mensagens`);
+        }
 
         const contactBatches = chunkArray(campaignContacts, batchSize);
 
@@ -550,14 +568,42 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
 
             console.log(`[Campanha WhatsApp ${campaign.id}] Processando lote ${index + 1}/${contactBatches.length} com ${batch.length} contatos.`);
 
-            const variableMappings = campaign.variableMappings as Record<string, { type: 'dynamic' | 'fixed', value: string }> || {};
-
-            // Usa o wrapper unificado para enviar mensagens
-            const sendPromises = batch.map(contact => 
-                sendCampaignMessage(connection, contact, resolvedTemplate, variableMappings, campaign)
-            );
-
-            const results = await Promise.allSettled(sendPromises);
+            let results: PromiseSettledResult<CampaignMessageResult>[];
+            
+            // Se for Baileys com delay aleatório, processa sequencialmente
+            if (useRandomDelay) {
+                results = [];
+                for (const [contactIndex, contact] of batch.entries()) {
+                    // Verificar pausa durante o processamento sequencial
+                    if (contactIndex > 0 && contactIndex % 10 === 0) {
+                        const [checkCampaign] = await db.select({ status: campaigns.status }).from(campaigns).where(eq(campaigns.id, campaign.id));
+                        if (checkCampaign?.status === 'PAUSED') {
+                            console.log(`[Campanha WhatsApp ${campaign.id}] Campanha pausada durante processamento. Interrompendo.`);
+                            return;
+                        }
+                    }
+                    
+                    try {
+                        const result = await sendCampaignMessage(connection, contact, resolvedTemplate, variableMappings, campaign);
+                        results.push({ status: 'fulfilled', value: result });
+                    } catch (error) {
+                        results.push({ status: 'rejected', reason: error });
+                    }
+                    
+                    // Delay aleatório entre mensagens (exceto após a última)
+                    if (contactIndex < batch.length - 1) {
+                        const randomDelay = Math.floor(Math.random() * (maxDelaySeconds! - minDelaySeconds! + 1)) + minDelaySeconds!;
+                        console.log(`[Campanha WhatsApp ${campaign.id}] Aguardando ${randomDelay}s antes do próximo envio... (${contactIndex + 1}/${batch.length})`);
+                        await sleep(randomDelay * 1000);
+                    }
+                }
+            } else {
+                // Modo padrão: envia em paralelo
+                const sendPromises = batch.map(contact => 
+                    sendCampaignMessage(connection, contact, resolvedTemplate, variableMappings, campaign)
+                );
+                results = await Promise.allSettled(sendPromises);
+            }
 
             // Mapeia resultados para delivery reports
             const deliveryReports = results.map(result => {
