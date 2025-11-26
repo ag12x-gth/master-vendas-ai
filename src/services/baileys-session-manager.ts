@@ -881,6 +881,81 @@ class BaileysSessionManager {
     return session.status;
   }
 
+  async hasFilesystemAuth(connectionId: string): Promise<boolean> {
+    try {
+      const authPath = this.getAuthPath(connectionId);
+      const fs = await import('fs/promises');
+      await fs.access(authPath);
+      const files = await fs.readdir(authPath);
+      return files.length > 0;
+    } catch {
+      return false;
+    }
+  }
+
+  async ensureSession(connectionId: string, companyId: string): Promise<{
+    success: boolean;
+    status: 'connected' | 'connecting' | 'qr' | 'needs_qr' | 'failed';
+    message: string;
+  }> {
+    const existingSession = this.sessions.get(connectionId);
+    if (existingSession) {
+      console.log(`[Baileys] ensureSession: Session ${connectionId} already in memory with status: ${existingSession.status}`);
+      return {
+        success: existingSession.status === 'connected',
+        status: existingSession.status as any,
+        message: `Session exists with status: ${existingSession.status}`,
+      };
+    }
+
+    const hasAuth = await this.hasFilesystemAuth(connectionId);
+    
+    if (hasAuth) {
+      console.log(`[Baileys] ensureSession: Found auth files for ${connectionId}, attempting to restore...`);
+      try {
+        await this.createSession(connectionId, companyId);
+        
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        const restoredSession = this.sessions.get(connectionId);
+        if (restoredSession?.status === 'connected') {
+          console.log(`[Baileys] ensureSession: Session ${connectionId} restored and connected`);
+          return {
+            success: true,
+            status: 'connected',
+            message: 'Session restored from filesystem auth',
+          };
+        }
+        
+        return {
+          success: false,
+          status: restoredSession?.status as any || 'qr',
+          message: 'Session restored but awaiting connection',
+        };
+      } catch (error) {
+        console.error(`[Baileys] ensureSession: Error restoring session ${connectionId}:`, error);
+        return {
+          success: false,
+          status: 'failed',
+          message: `Error restoring session: ${(error as Error).message}`,
+        };
+      }
+    } else {
+      console.log(`[Baileys] ensureSession: No auth files for ${connectionId}, needs QR scan`);
+      
+      await db
+        .update(connections)
+        .set({ status: 'disconnected' })
+        .where(eq(connections.id, connectionId));
+      
+      return {
+        success: false,
+        status: 'needs_qr',
+        message: 'No authentication found. Please scan QR code to connect.',
+      };
+    }
+  }
+
   getEventEmitter(connectionId: string): EventEmitter | undefined {
     console.log(`[SessionManager] Getting emitter for ${connectionId}. Total sessions in map:`, this.sessions.size);
     console.log(`[SessionManager] Session IDs in map:`, Array.from(this.sessions.keys()));

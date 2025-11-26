@@ -81,16 +81,38 @@ export async function GET() {
       },
     });
 
+    const sessionsWithRuntime = await Promise.all(
+      sessions.map(async (s) => {
+        const runtimeStatus = sessionManager.getSessionStatus(s.id);
+        const hasAuth = await sessionManager.hasFilesystemAuth(s.id);
+        
+        let effectiveStatus = runtimeStatus || s.status || 'disconnected';
+        
+        if (s.status === 'connected' && !runtimeStatus && !hasAuth) {
+          effectiveStatus = 'disconnected';
+          db.update(connections)
+            .set({ status: 'disconnected' })
+            .where(eq(connections.id, s.id))
+            .execute()
+            .catch((err) => console.error(`[API] Error updating session ${s.id} status:`, err));
+        }
+        
+        return {
+          id: s.id,
+          name: s.config_name,
+          status: effectiveStatus,
+          runtimeStatus: runtimeStatus || 'none',
+          hasAuth,
+          phone: s.phone,
+          lastConnected: s.lastConnected,
+          isActive: s.isActive,
+          createdAt: s.createdAt,
+        };
+      })
+    );
+
     return NextResponse.json({
-      sessions: sessions.map((s) => ({
-        id: s.id,
-        name: s.config_name,
-        status: s.status || 'disconnected',
-        phone: s.phone,
-        lastConnected: s.lastConnected,
-        isActive: s.isActive,
-        createdAt: s.createdAt,
-      })),
+      sessions: sessionsWithRuntime,
     });
   } catch (error) {
     console.error('[API] Error fetching Baileys sessions:', error);
