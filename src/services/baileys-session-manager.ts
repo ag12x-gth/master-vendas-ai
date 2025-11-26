@@ -887,7 +887,14 @@ class BaileysSessionManager {
       const fs = await import('fs/promises');
       await fs.access(authPath);
       const files = await fs.readdir(authPath);
-      return files.length > 0;
+      
+      const hasCreds = files.some(f => f.includes('creds') || f.includes('auth'));
+      if (!hasCreds) {
+        console.log(`[Baileys] hasFilesystemAuth: Directory exists but no auth files for ${connectionId}`);
+        return false;
+      }
+      
+      return true;
     } catch {
       return false;
     }

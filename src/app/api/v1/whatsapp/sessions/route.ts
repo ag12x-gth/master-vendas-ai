@@ -88,13 +88,19 @@ export async function GET() {
         
         let effectiveStatus = runtimeStatus || s.status || 'disconnected';
         
-        if (s.status === 'connected' && !runtimeStatus && !hasAuth) {
-          effectiveStatus = 'disconnected';
-          db.update(connections)
-            .set({ status: 'disconnected' })
-            .where(eq(connections.id, s.id))
-            .execute()
-            .catch((err) => console.error(`[API] Error updating session ${s.id} status:`, err));
+        if (s.status === 'connected' && !runtimeStatus) {
+          if (!hasAuth) {
+            effectiveStatus = 'disconnected';
+            console.log(`[API] Session ${s.id} has no auth files, marking as disconnected`);
+            db.update(connections)
+              .set({ status: 'disconnected', isActive: false })
+              .where(eq(connections.id, s.id))
+              .execute()
+              .catch((err) => console.error(`[API] Error updating session ${s.id} status:`, err));
+          } else {
+            effectiveStatus = 'connecting';
+            console.log(`[API] Session ${s.id} has auth files but no runtime, showing as connecting`);
+          }
         }
         
         return {
