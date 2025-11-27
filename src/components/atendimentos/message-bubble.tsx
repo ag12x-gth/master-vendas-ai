@@ -166,21 +166,28 @@ export function MessageBubble({ message, allMessages, contactName }: { message: 
             case 'BUTTON':
             case 'INTERACTIVE':
             default:
-                return <p className="text-sm whitespace-pre-wrap">{message.content}</p>;
+                return <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>;
         }
     }
 
     return (
-        <div id={`message-${message.id}`} className={cn("flex", !isUserMessage ? 'justify-end' : 'justify-start')}>
+        <div id={`message-${message.id}`} className={cn("flex items-end gap-2", !isUserMessage ? 'justify-end' : 'justify-start')}>
+            <Avatar className={cn("h-7 w-7 shrink-0", isUserMessage ? 'order-first' : 'order-last')}>
+                <AvatarFallback className="text-xs">
+                    {isUserMessage ? <User className="h-4 w-4" /> 
+                    : isAiMessage ? <Bot className="h-4 w-4" /> 
+                    : <User className="h-4 w-4" />}
+                </AvatarFallback>
+            </Avatar>
             <div className={cn(
-                "p-3 rounded-lg w-full",
-                isAudio ? "max-w-sm" : "max-w-[85%] sm:max-w-[70%]",
+                "p-3 rounded-lg overflow-hidden",
+                isAudio ? "max-w-[280px]" : "max-w-[75%] sm:max-w-[65%]",
                 isUserMessage ? 'bg-background text-foreground rounded-bl-none shadow-sm border'
                 : isAiMessage ? 'bg-accent text-accent-foreground rounded-br-none'
                 : 'bg-primary text-primary-foreground rounded-br-none'
             )}>
                 {repliedMessage && <RepliedMessagePreview message={repliedMessage} contactName={contactName} />}
-                <div className="w-full">
+                <div className="overflow-hidden">
                   {renderContent()}
                 </div>
                 <ReactionsBadge reactions={message.reactions} />
@@ -194,13 +201,6 @@ export function MessageBubble({ message, allMessages, contactName }: { message: 
                     {!isUserMessage && <StatusIcon status={message.status} />}
                 </div>
             </div>
-             <Avatar className={cn("h-8 w-8 shrink-0 self-end ml-2 mr-2", !isUserMessage ? 'order-last' : 'order-first')}>
-                <AvatarFallback>
-                    {isUserMessage ? <User className="h-5 w-5" /> 
-                    : isAiMessage ? <Bot className="h-5 w-5" /> 
-                    : <User className="h-5 w-5" />}
-                </AvatarFallback>
-            </Avatar>
         </div>
     );
 }

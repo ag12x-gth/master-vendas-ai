@@ -1,934 +1,716 @@
 # Page snapshot
 
 ```yaml
-- generic [active] [ref=e1]:
+- generic [ref=e1]:
   - generic [ref=e2]:
     - complementary [ref=e3]:
-      - link "Master IA" [ref=e5] [cursor=pointer]:
+      - link [ref=e5] [cursor=pointer]:
         - /url: /dashboard
         - img [ref=e6] [cursor=pointer]
-        - generic [ref=e9] [cursor=pointer]: Master IA
-      - navigation [ref=e10]:
-        - link "Dashboard" [ref=e11] [cursor=pointer]:
+      - navigation [ref=e9]:
+        - link "Dashboard" [ref=e10] [cursor=pointer]:
           - /url: /dashboard
-          - img [ref=e12] [cursor=pointer]
-          - generic [ref=e17] [cursor=pointer]: Dashboard
-        - link "Primeiros Passos" [ref=e18] [cursor=pointer]:
+          - img [ref=e11] [cursor=pointer]
+          - generic [ref=e16] [cursor=pointer]: Dashboard
+        - link "Primeiros Passos" [ref=e17] [cursor=pointer]:
           - /url: /ajuda
-          - img [ref=e19] [cursor=pointer]
-          - generic [ref=e26] [cursor=pointer]: Primeiros Passos
-        - link "Atendimentos" [ref=e27] [cursor=pointer]:
+          - img [ref=e18] [cursor=pointer]
+          - generic [ref=e25] [cursor=pointer]: Primeiros Passos
+        - link "Atendimentos" [ref=e26] [cursor=pointer]:
           - /url: /atendimentos
-          - img [ref=e28] [cursor=pointer]
-          - generic [ref=e31] [cursor=pointer]: Atendimentos
+          - img [ref=e27] [cursor=pointer]
+          - generic [ref=e30] [cursor=pointer]: Atendimentos
         - generic [ref=e33] [cursor=pointer]:
-          - generic [ref=e34] [cursor=pointer]:
-            - img [ref=e35] [cursor=pointer]
-            - generic [ref=e40] [cursor=pointer]: Leads & CRM
-          - img [ref=e41] [cursor=pointer]
-        - generic [ref=e44] [cursor=pointer]:
-          - generic [ref=e45] [cursor=pointer]:
-            - img [ref=e46] [cursor=pointer]
-            - generic [ref=e49] [cursor=pointer]: Campanhas
+          - img [ref=e34] [cursor=pointer]
+          - generic [ref=e39] [cursor=pointer]: Leads & CRM
+        - generic [ref=e42] [cursor=pointer]:
+          - img [ref=e43] [cursor=pointer]
+          - generic [ref=e46] [cursor=pointer]: Campanhas
+        - generic [ref=e49] [cursor=pointer]:
           - img [ref=e50] [cursor=pointer]
-        - generic [ref=e53] [cursor=pointer]:
-          - generic [ref=e54] [cursor=pointer]:
-            - img [ref=e55] [cursor=pointer]
-            - generic [ref=e59] [cursor=pointer]: Automação
-          - img [ref=e60] [cursor=pointer]
-        - generic [ref=e63] [cursor=pointer]:
-          - generic [ref=e64] [cursor=pointer]:
-            - img [ref=e65] [cursor=pointer]
-            - generic [ref=e67] [cursor=pointer]: Canais
-          - img [ref=e68] [cursor=pointer]
-        - link "Galeria" [ref=e70] [cursor=pointer]:
+          - generic [ref=e54] [cursor=pointer]: Automação
+        - generic [ref=e57] [cursor=pointer]:
+          - img [ref=e58] [cursor=pointer]
+          - generic [ref=e60] [cursor=pointer]: Canais
+        - link "Galeria" [ref=e61] [cursor=pointer]:
           - /url: /gallery
-          - img [ref=e71] [cursor=pointer]
-          - generic [ref=e73] [cursor=pointer]: Galeria
-      - navigation [ref=e74]:
-        - link "Configurações" [ref=e75] [cursor=pointer]:
+          - img [ref=e62] [cursor=pointer]
+          - generic [ref=e64] [cursor=pointer]: Galeria
+      - navigation [ref=e65]:
+        - link "Configurações" [ref=e66] [cursor=pointer]:
           - /url: /settings
-          - img [ref=e76] [cursor=pointer]
-          - generic [ref=e79] [cursor=pointer]: Configurações
-        - button "Recolher" [ref=e81] [cursor=pointer]:
-          - img [ref=e82] [cursor=pointer]
-          - generic [ref=e84] [cursor=pointer]: Recolher
-    - generic [ref=e85]:
-      - banner [ref=e86]:
-        - generic [ref=e87]:
-          - button "2/2" [ref=e88] [cursor=pointer]:
+          - img [ref=e67] [cursor=pointer]
+          - generic [ref=e70] [cursor=pointer]: Configurações
+        - button "Expandir menu" [active] [ref=e72] [cursor=pointer]:
+          - img [ref=e73] [cursor=pointer]
+          - generic [ref=e75] [cursor=pointer]: Expandir menu
+    - generic [ref=e76]:
+      - banner [ref=e77]:
+        - generic [ref=e78]:
+          - button "2/2" [ref=e79] [cursor=pointer]:
+            - img [ref=e80] [cursor=pointer]
+            - generic [ref=e83] [cursor=pointer]: 2/2
+          - generic [ref=e84]:
+            - img [ref=e85]
+            - generic [ref=e87]: v2.4.2
+          - button "162 Notificações" [ref=e88] [cursor=pointer]:
             - img [ref=e89] [cursor=pointer]
-            - generic [ref=e92] [cursor=pointer]: 2/2
-          - generic [ref=e93]:
-            - img [ref=e94]
-            - generic [ref=e96]: v2.4.2
-          - button "150 Notificações" [ref=e97] [cursor=pointer]:
-            - img [ref=e98] [cursor=pointer]
-            - generic [ref=e101] [cursor=pointer]: "150"
-            - generic [ref=e102] [cursor=pointer]: Notificações
-          - button "DI" [ref=e103] [cursor=pointer]:
-            - generic [ref=e105] [cursor=pointer]: DI
-      - main [ref=e106]:
-        - alert [ref=e108]:
-          - generic [ref=e109]:
-            - generic [ref=e110]:
-              - img [ref=e111]
-              - generic [ref=e113]:
-                - strong [ref=e114]: Vincule sua conta Facebook
-                - generic [ref=e115]: para acessar recursos adicionais e sincronizar dados.
-            - generic [ref=e116]:
-              - button "Conectar" [ref=e117] [cursor=pointer]:
-                - img [ref=e118] [cursor=pointer]
+            - generic [ref=e92] [cursor=pointer]: "162"
+            - generic [ref=e93] [cursor=pointer]: Notificações
+          - button "DI" [ref=e94] [cursor=pointer]:
+            - generic [ref=e96] [cursor=pointer]: DI
+      - main [ref=e97]:
+        - alert [ref=e99]:
+          - generic [ref=e100]:
+            - generic [ref=e101]:
+              - img [ref=e102]
+              - generic [ref=e104]:
+                - strong [ref=e105]: Vincule sua conta Facebook
+                - generic [ref=e106]: para acessar recursos adicionais e sincronizar dados.
+            - generic [ref=e107]:
+              - button "Conectar" [ref=e108] [cursor=pointer]:
+                - img [ref=e109] [cursor=pointer]
                 - text: Conectar
-              - button "Fechar" [ref=e120] [cursor=pointer]:
-                - img [ref=e121] [cursor=pointer]
-                - generic [ref=e124] [cursor=pointer]: Fechar
-        - generic [ref=e127]:
-          - heading "Atendimentos" [level=1] [ref=e131]
-          - generic [ref=e133]:
-            - generic [ref=e135]:
-              - generic [ref=e136]:
-                - tablist [ref=e138]:
-                  - tab "Todas" [selected] [ref=e139] [cursor=pointer]
-                  - tab "Business" [ref=e140] [cursor=pointer]:
-                    - img [ref=e141] [cursor=pointer]
+              - button "Fechar" [ref=e111] [cursor=pointer]:
+                - img [ref=e112] [cursor=pointer]
+                - generic [ref=e115] [cursor=pointer]: Fechar
+        - generic [ref=e118]:
+          - heading "Atendimentos" [level=1] [ref=e122]
+          - generic [ref=e124]:
+            - generic [ref=e126]:
+              - generic [ref=e127]:
+                - tablist [ref=e129]:
+                  - tab "Todas" [selected] [ref=e130] [cursor=pointer]
+                  - tab "Business" [ref=e131] [cursor=pointer]:
+                    - img [ref=e132] [cursor=pointer]
                     - text: Business
-                  - tab "Normal" [ref=e143] [cursor=pointer]:
-                    - img [ref=e144] [cursor=pointer]
+                  - tab "Normal" [ref=e134] [cursor=pointer]:
+                    - img [ref=e135] [cursor=pointer]
                     - text: Normal
-                - generic [ref=e146]:
-                  - img [ref=e147]
-                  - textbox "Buscar por nome ou telefone..." [ref=e150]
-              - generic [ref=e154]:
-                - button "Jo José Fernando Chaim há menos de um minuto 5865_Antonio_Roseli_BM 49%" [ref=e155] [cursor=pointer]:
-                  - generic [ref=e157] [cursor=pointer]: Jo
-                  - generic [ref=e158] [cursor=pointer]:
-                    - generic [ref=e159] [cursor=pointer]:
-                      - paragraph [ref=e161] [cursor=pointer]: José Fernando Chaim
-                      - generic [ref=e162] [cursor=pointer]:
-                        - generic [ref=e164] [cursor=pointer]: há menos de um minuto
-                        - generic [ref=e165] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e168] [cursor=pointer]: 49%
-                - button "Va Vanessa Diniz de Santana há menos de um minuto 5865_Antonio_Roseli_BM É ótimo riri" [ref=e169] [cursor=pointer]:
-                  - generic [ref=e171] [cursor=pointer]: Va
-                  - generic [ref=e172] [cursor=pointer]:
-                    - generic [ref=e173] [cursor=pointer]:
-                      - paragraph [ref=e175] [cursor=pointer]: Vanessa Diniz de Santana
-                      - generic [ref=e176] [cursor=pointer]:
-                        - generic [ref=e178] [cursor=pointer]: há menos de um minuto
-                        - generic [ref=e179] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e182] [cursor=pointer]: É ótimo riri
-                - button "Ve Venezia Alvez há menos de um minuto 5865_Antonio_Roseli_BM Mentoria." [ref=e183] [cursor=pointer]:
-                  - generic [ref=e185] [cursor=pointer]: Ve
-                  - generic [ref=e186] [cursor=pointer]:
-                    - generic [ref=e187] [cursor=pointer]:
-                      - paragraph [ref=e189] [cursor=pointer]: Venezia Alvez
-                      - generic [ref=e190] [cursor=pointer]:
-                        - generic [ref=e192] [cursor=pointer]: há menos de um minuto
-                        - generic [ref=e193] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e196] [cursor=pointer]: Mentoria.
-                - button "He Hedilene Apda. Gonçalves há menos de um minuto 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e197] [cursor=pointer]:
-                  - generic [ref=e199] [cursor=pointer]: He
-                  - generic [ref=e200] [cursor=pointer]:
-                    - generic [ref=e201] [cursor=pointer]:
-                      - paragraph [ref=e203] [cursor=pointer]: Hedilene Apda. Gonçalves
-                      - generic [ref=e204] [cursor=pointer]:
-                        - generic [ref=e206] [cursor=pointer]: há menos de um minuto
-                        - generic [ref=e207] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e210] [cursor=pointer]: Resgate seu Acesso
-                - button "Gu Guto Azevedo há 1 minuto 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e211] [cursor=pointer]:
-                  - generic [ref=e213] [cursor=pointer]: Gu
-                  - generic [ref=e214] [cursor=pointer]:
-                    - generic [ref=e215] [cursor=pointer]:
-                      - paragraph [ref=e217] [cursor=pointer]: Guto Azevedo
-                      - generic [ref=e218] [cursor=pointer]:
-                        - generic [ref=e220] [cursor=pointer]: há 1 minuto
-                        - generic [ref=e221] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e224] [cursor=pointer]: Resgate seu Acesso
-                - button "Di Diego Jimenez (JIC) (Performance) há 2 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e225] [cursor=pointer]:
-                  - generic [ref=e227] [cursor=pointer]: Di
-                  - generic [ref=e228] [cursor=pointer]:
-                    - generic [ref=e229] [cursor=pointer]:
-                      - paragraph [ref=e231] [cursor=pointer]: Diego Jimenez (JIC) (Performance)
-                      - generic [ref=e232] [cursor=pointer]:
-                        - generic [ref=e234] [cursor=pointer]: há 2 minutos
-                        - generic [ref=e235] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e238] [cursor=pointer]: Resgate seu Acesso
-                - button "Hu Humberto de Avila Perina há 2 minutos 5865_Antonio_Roseli_BM Com o Jorge" [ref=e239] [cursor=pointer]:
-                  - generic [ref=e241] [cursor=pointer]: Hu
-                  - generic [ref=e242] [cursor=pointer]:
-                    - generic [ref=e243] [cursor=pointer]:
-                      - paragraph [ref=e245] [cursor=pointer]: Humberto de Avila Perina
-                      - generic [ref=e246] [cursor=pointer]:
-                        - generic [ref=e248] [cursor=pointer]: há 2 minutos
-                        - generic [ref=e249] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e252] [cursor=pointer]: Com o Jorge
-                - button "Le Lead SMS 0612 há 2 minutos 5865_Antonio_Roseli_BM Resgatar" [ref=e253] [cursor=pointer]:
-                  - generic [ref=e255] [cursor=pointer]: Le
-                  - generic [ref=e256] [cursor=pointer]:
-                    - generic [ref=e257] [cursor=pointer]:
-                      - paragraph [ref=e259] [cursor=pointer]: Lead SMS 0612
-                      - generic [ref=e260] [cursor=pointer]:
-                        - generic [ref=e262] [cursor=pointer]: há 2 minutos
-                        - generic [ref=e263] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e266] [cursor=pointer]: Resgatar
-                - button "Th Thiago Ferreira de Figueredo há 3 minutos 5865_Antonio_Roseli_BM Interessante! E nessa posição de Diretor, qual tem sido o maior desafio que você enfrenta na empresa de segurança privada?" [ref=e267] [cursor=pointer]:
-                  - generic [ref=e269] [cursor=pointer]: Th
-                  - generic [ref=e270] [cursor=pointer]:
-                    - generic [ref=e271] [cursor=pointer]:
-                      - paragraph [ref=e273] [cursor=pointer]: Thiago Ferreira de Figueredo
-                      - generic [ref=e274] [cursor=pointer]:
-                        - generic [ref=e276] [cursor=pointer]: há 3 minutos
-                        - generic [ref=e277] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                - generic [ref=e137]:
+                  - img [ref=e138]
+                  - textbox "Buscar por nome ou telefone..." [ref=e141]
+              - generic [ref=e145]:
+                - button "Jo Joel Augusto Gracioto há 7 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e146] [cursor=pointer]:
+                  - generic [ref=e148] [cursor=pointer]: Jo
+                  - generic [ref=e149] [cursor=pointer]:
+                    - generic [ref=e150] [cursor=pointer]:
+                      - paragraph [ref=e152] [cursor=pointer]: Joel Augusto Gracioto
+                      - generic [ref=e153] [cursor=pointer]:
+                        - generic [ref=e155] [cursor=pointer]: há 7 minutos
+                        - generic [ref=e156] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e159] [cursor=pointer]: Resgate seu Acesso
+                - button "Sa Saulo Boccanera há 7 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e160] [cursor=pointer]:
+                  - generic [ref=e162] [cursor=pointer]: Sa
+                  - generic [ref=e163] [cursor=pointer]:
+                    - generic [ref=e164] [cursor=pointer]:
+                      - paragraph [ref=e166] [cursor=pointer]: Saulo Boccanera
+                      - generic [ref=e167] [cursor=pointer]:
+                        - generic [ref=e169] [cursor=pointer]: há 7 minutos
+                        - generic [ref=e170] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e173] [cursor=pointer]: Resgate seu Acesso
+                - button "Vi Victor Hugo Pereira há 11 minutos 5865_Antonio_Roseli_BM Baixar Diagnóstico" [ref=e174] [cursor=pointer]:
+                  - generic [ref=e176] [cursor=pointer]: Vi
+                  - generic [ref=e177] [cursor=pointer]:
+                    - generic [ref=e178] [cursor=pointer]:
+                      - paragraph [ref=e180] [cursor=pointer]: Victor Hugo Pereira
+                      - generic [ref=e181] [cursor=pointer]:
+                        - generic [ref=e183] [cursor=pointer]: há 11 minutos
+                        - generic [ref=e184] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e187] [cursor=pointer]: Baixar Diagnóstico
+                - button "Gi Gilvan Avelino Rodrigues há 15 minutos 5865_Antonio_Roseli_BM 📷 Imagem" [ref=e188] [cursor=pointer]:
+                  - generic [ref=e190] [cursor=pointer]: Gi
+                  - generic [ref=e191] [cursor=pointer]:
+                    - generic [ref=e192] [cursor=pointer]:
+                      - paragraph [ref=e194] [cursor=pointer]: Gilvan Avelino Rodrigues
+                      - generic [ref=e195] [cursor=pointer]:
+                        - generic [ref=e197] [cursor=pointer]: há 15 minutos
+                        - generic [ref=e198] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e201] [cursor=pointer]: 📷 Imagem
+                - button "An Ana Caroliny da Conceição Silva há 16 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e202] [cursor=pointer]:
+                  - generic [ref=e204] [cursor=pointer]: An
+                  - generic [ref=e205] [cursor=pointer]:
+                    - generic [ref=e206] [cursor=pointer]:
+                      - paragraph [ref=e208] [cursor=pointer]: Ana Caroliny da Conceição Silva
+                      - generic [ref=e209] [cursor=pointer]:
+                        - generic [ref=e211] [cursor=pointer]: há 16 minutos
+                        - generic [ref=e212] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e215] [cursor=pointer]: Resgate seu Acesso
+                - button "Le Letícia Aparecida Marques há 25 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e216] [cursor=pointer]:
+                  - generic [ref=e218] [cursor=pointer]: Le
+                  - generic [ref=e219] [cursor=pointer]:
+                    - generic [ref=e220] [cursor=pointer]:
+                      - paragraph [ref=e222] [cursor=pointer]: Letícia Aparecida Marques
+                      - generic [ref=e223] [cursor=pointer]:
+                        - generic [ref=e225] [cursor=pointer]: há 25 minutos
+                        - generic [ref=e226] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e229] [cursor=pointer]: Resgate seu Acesso
+                - button "Gr Grupo Construaçomix há 28 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e230] [cursor=pointer]:
+                  - generic [ref=e232] [cursor=pointer]: Gr
+                  - generic [ref=e233] [cursor=pointer]:
+                    - generic [ref=e234] [cursor=pointer]:
+                      - paragraph [ref=e236] [cursor=pointer]: Grupo Construaçomix
+                      - generic [ref=e237] [cursor=pointer]:
+                        - generic [ref=e239] [cursor=pointer]: há 28 minutos
+                        - generic [ref=e240] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e243] [cursor=pointer]: Resgate seu Acesso
+                - button "Ve Venezia Alvez há 28 minutos 5865_Antonio_Roseli_BM Sou o Guilherme, faço parte do time e gostaria de entender melhor como funciona seu negocio." [ref=e244] [cursor=pointer]:
+                  - generic [ref=e246] [cursor=pointer]: Ve
+                  - generic [ref=e247] [cursor=pointer]:
+                    - generic [ref=e248] [cursor=pointer]:
+                      - paragraph [ref=e250] [cursor=pointer]: Venezia Alvez
+                      - generic [ref=e251] [cursor=pointer]:
+                        - generic [ref=e253] [cursor=pointer]: há 28 minutos
+                        - generic [ref=e254] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e256] [cursor=pointer]:
+                      - img [ref=e257] [cursor=pointer]
+                      - generic [ref=e260] [cursor=pointer]: Sou o Guilherme, faço parte do time e gostaria de entender melhor como funciona seu negocio.
+                - button "De Denilson Souza há 29 minutos 5865_Antonio_Roseli_BM Fui convidado por um amigo para o evento meu foco será network como preenchi no Google Forms" [ref=e261] [cursor=pointer]:
+                  - generic [ref=e263] [cursor=pointer]: De
+                  - generic [ref=e264] [cursor=pointer]:
+                    - generic [ref=e265] [cursor=pointer]:
+                      - paragraph [ref=e267] [cursor=pointer]: Denilson Souza
+                      - generic [ref=e268] [cursor=pointer]:
+                        - generic [ref=e270] [cursor=pointer]: há 29 minutos
+                        - generic [ref=e271] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e274] [cursor=pointer]: Fui convidado por um amigo para o evento meu foco será network como preenchi no Google Forms
+                - button "Ed Edson Barbosa de Souza há 31 minutos 5865_Antonio_Roseli_BM Pode mandar por favor as informações a um amigo meu? Ele também quer participar 👇 Esse por favor" [ref=e275] [cursor=pointer]:
+                  - generic [ref=e277] [cursor=pointer]: Ed
+                  - generic [ref=e278] [cursor=pointer]:
                     - generic [ref=e279] [cursor=pointer]:
-                      - img [ref=e280] [cursor=pointer]
-                      - generic [ref=e283] [cursor=pointer]: Interessante! E nessa posição de Diretor, qual tem sido o maior desafio que você enfrenta na empresa de segurança privada?
-                - button "In Ingrid Caroline há 3 minutos 5865_Antonio_Roseli_BM Administração de empresa familiar Ramo diversos (alimentação (compra, revenda , beneficiamentos seleção de frutas, verduras e legumes ), moradia (aquisição , construção , reforma e locação ) )" [ref=e284] [cursor=pointer]:
-                  - generic [ref=e286] [cursor=pointer]: In
-                  - generic [ref=e287] [cursor=pointer]:
-                    - generic [ref=e288] [cursor=pointer]:
-                      - paragraph [ref=e290] [cursor=pointer]: Ingrid Caroline
-                      - generic [ref=e291] [cursor=pointer]:
-                        - generic [ref=e293] [cursor=pointer]: há 3 minutos
-                        - generic [ref=e294] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e297] [cursor=pointer]: Administração de empresa familiar Ramo diversos (alimentação (compra, revenda , beneficiamentos seleção de frutas, verduras e legumes ), moradia (aquisição , construção , reforma e locação ) )
-                - button "Gi Gilvan Avelino Rodrigues há 4 minutos 5865_Antonio_Roseli_BM Não consigo ouvir áudios por aqui, mas se puder digitar sua mensagem, ficarei feliz em ajudar!" [ref=e298] [cursor=pointer]:
-                  - generic [ref=e300] [cursor=pointer]: Gi
-                  - generic [ref=e301] [cursor=pointer]:
-                    - generic [ref=e302] [cursor=pointer]:
-                      - paragraph [ref=e304] [cursor=pointer]: Gilvan Avelino Rodrigues
-                      - generic [ref=e305] [cursor=pointer]:
-                        - generic [ref=e307] [cursor=pointer]: há 4 minutos
-                        - generic [ref=e308] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e310] [cursor=pointer]:
-                      - img [ref=e311] [cursor=pointer]
-                      - generic [ref=e314] [cursor=pointer]: Não consigo ouvir áudios por aqui, mas se puder digitar sua mensagem, ficarei feliz em ajudar!
-                - button "Le Lead SMS 5677 há 4 minutos 5865_Antonio_Roseli_BM Olá! Como posso te ajudar hoje? 😊" [ref=e315] [cursor=pointer]:
-                  - generic [ref=e317] [cursor=pointer]: Le
-                  - generic [ref=e318] [cursor=pointer]:
-                    - generic [ref=e319] [cursor=pointer]:
-                      - paragraph [ref=e321] [cursor=pointer]: Lead SMS 5677
-                      - generic [ref=e322] [cursor=pointer]:
-                        - generic [ref=e324] [cursor=pointer]: há 4 minutos
-                        - generic [ref=e325] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e327] [cursor=pointer]:
-                      - img [ref=e328] [cursor=pointer]
-                      - generic [ref=e330] [cursor=pointer]: Olá! Como posso te ajudar hoje? 😊
-                - 'button "Cr Cristiano Francisco Xavier há 4 minutos 5865_Antonio_Roseli_BM Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?" [ref=e331] [cursor=pointer]':
-                  - generic [ref=e333] [cursor=pointer]: Cr
+                      - paragraph [ref=e281] [cursor=pointer]: Edson Barbosa de Souza
+                      - generic [ref=e282] [cursor=pointer]:
+                        - generic [ref=e284] [cursor=pointer]: há 31 minutos
+                        - generic [ref=e285] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e288] [cursor=pointer]: Pode mandar por favor as informações a um amigo meu? Ele também quer participar 👇 Esse por favor
+                - button "Ra Rafael há 32 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e289] [cursor=pointer]:
+                  - generic [ref=e291] [cursor=pointer]: Ra
+                  - generic [ref=e292] [cursor=pointer]:
+                    - generic [ref=e293] [cursor=pointer]:
+                      - paragraph [ref=e295] [cursor=pointer]: Rafael
+                      - generic [ref=e296] [cursor=pointer]:
+                        - generic [ref=e298] [cursor=pointer]: há 32 minutos
+                        - generic [ref=e299] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e302] [cursor=pointer]: Resgate seu Acesso
+                - button "Ma Marco Aurélio Dragone há 33 minutos 5865_Antonio_Roseli_BM Construção civil" [ref=e303] [cursor=pointer]:
+                  - generic [ref=e305] [cursor=pointer]: Ma
+                  - generic [ref=e306] [cursor=pointer]:
+                    - generic [ref=e307] [cursor=pointer]:
+                      - paragraph [ref=e309] [cursor=pointer]: Marco Aurélio Dragone
+                      - generic [ref=e310] [cursor=pointer]:
+                        - generic [ref=e312] [cursor=pointer]: há 33 minutos
+                        - generic [ref=e313] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e316] [cursor=pointer]: Construção civil
+                - button "Jo José Fernando Chaim há 33 minutos 5865_Antonio_Roseli_BM Para ter noção somos um distribuidor oficial da Disney no Brasil" [ref=e317] [cursor=pointer]:
+                  - generic [ref=e319] [cursor=pointer]: Jo
+                  - generic [ref=e320] [cursor=pointer]:
+                    - generic [ref=e321] [cursor=pointer]:
+                      - paragraph [ref=e323] [cursor=pointer]: José Fernando Chaim
+                      - generic [ref=e324] [cursor=pointer]:
+                        - generic [ref=e326] [cursor=pointer]: há 33 minutos
+                        - generic [ref=e327] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e330] [cursor=pointer]: Para ter noção somos um distribuidor oficial da Disney no Brasil
+                - button "Jo Jose Carlos Peres da Silva há 35 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e331] [cursor=pointer]:
+                  - generic [ref=e333] [cursor=pointer]: Jo
                   - generic [ref=e334] [cursor=pointer]:
                     - generic [ref=e335] [cursor=pointer]:
-                      - paragraph [ref=e337] [cursor=pointer]: Cristiano Francisco Xavier
+                      - paragraph [ref=e337] [cursor=pointer]: Jose Carlos Peres da Silva
                       - generic [ref=e338] [cursor=pointer]:
-                        - generic [ref=e340] [cursor=pointer]: há 4 minutos
+                        - generic [ref=e340] [cursor=pointer]: há 35 minutos
                         - generic [ref=e341] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e343] [cursor=pointer]:
-                      - img [ref=e344] [cursor=pointer]
-                      - generic [ref=e347] [cursor=pointer]: "Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?"
-                - 'button "In Instituto Bia Nogueira Fernandes há 4 minutos 5865_Antonio_Roseli_BM Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?" [ref=e348] [cursor=pointer]':
-                  - generic [ref=e350] [cursor=pointer]: In
-                  - generic [ref=e351] [cursor=pointer]:
-                    - generic [ref=e352] [cursor=pointer]:
-                      - paragraph [ref=e354] [cursor=pointer]: Instituto Bia Nogueira Fernandes
-                      - generic [ref=e355] [cursor=pointer]:
-                        - generic [ref=e357] [cursor=pointer]: há 4 minutos
-                        - generic [ref=e358] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e360] [cursor=pointer]:
-                      - img [ref=e361] [cursor=pointer]
-                      - generic [ref=e364] [cursor=pointer]: "Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?"
-                - button "De Denilson Souza há 4 minutos 5865_Antonio_Roseli_BM Ótimo! Trabalhar com academia é sempre dinâmico. E me diz, você está buscando estratégias para atrair mais alunos ou melhorar a gestão do seu negócio?" [ref=e365] [cursor=pointer]:
-                  - generic [ref=e367] [cursor=pointer]: De
-                  - generic [ref=e368] [cursor=pointer]:
-                    - generic [ref=e369] [cursor=pointer]:
-                      - paragraph [ref=e371] [cursor=pointer]: Denilson Souza
-                      - generic [ref=e372] [cursor=pointer]:
-                        - generic [ref=e374] [cursor=pointer]: há 4 minutos
-                        - generic [ref=e375] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e344] [cursor=pointer]: Resgate seu Acesso
+                - button "Ro Rodrigo há 35 minutos 5865_Antonio_Roseli_BM Até que se fosse de graça, raramente eu tiro tempo pra essas coisas. Minha maior venda foi realizada *SEM NENHUMA* tecnologia. Numa direção do Espírito do *ALTÍSSIMO YAUH* , fui em determinado lugar e encontrei uma pessoa, e de forma *GENEROSA* eu me ofereci a ajudá-la. Logo após, foi marcada uma reunião e apresentado um projeto bilionário, a partir *DESSA INICIATIVA!*" [ref=e345] [cursor=pointer]:
+                  - generic [ref=e347] [cursor=pointer]: Ro
+                  - generic [ref=e348] [cursor=pointer]:
+                    - generic [ref=e349] [cursor=pointer]:
+                      - paragraph [ref=e351] [cursor=pointer]: Rodrigo
+                      - generic [ref=e352] [cursor=pointer]:
+                        - generic [ref=e354] [cursor=pointer]: há 35 minutos
+                        - generic [ref=e355] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e358] [cursor=pointer]: Até que se fosse de graça, raramente eu tiro tempo pra essas coisas. Minha maior venda foi realizada *SEM NENHUMA* tecnologia. Numa direção do Espírito do *ALTÍSSIMO YAUH* , fui em determinado lugar e encontrei uma pessoa, e de forma *GENEROSA* eu me ofereci a ajudá-la. Logo após, foi marcada uma reunião e apresentado um projeto bilionário, a partir *DESSA INICIATIVA!*
+                - button "Ma Marina Mendes há 37 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e359] [cursor=pointer]:
+                  - generic [ref=e361] [cursor=pointer]: Ma
+                  - generic [ref=e362] [cursor=pointer]:
+                    - generic [ref=e363] [cursor=pointer]:
+                      - paragraph [ref=e365] [cursor=pointer]: Marina Mendes
+                      - generic [ref=e366] [cursor=pointer]:
+                        - generic [ref=e368] [cursor=pointer]: há 37 minutos
+                        - generic [ref=e369] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e372] [cursor=pointer]: Resgate seu Acesso
+                - button "Le Lead SMS 1013 há 37 minutos 5865_Antonio_Roseli_BM Sim , trabalho com manutenção de autoclave e revenda de equipamentos .pretendo ampliar cada vez mais" [ref=e373] [cursor=pointer]:
+                  - generic [ref=e375] [cursor=pointer]: Le
+                  - generic [ref=e376] [cursor=pointer]:
                     - generic [ref=e377] [cursor=pointer]:
-                      - img [ref=e378] [cursor=pointer]
-                      - generic [ref=e381] [cursor=pointer]: Ótimo! Trabalhar com academia é sempre dinâmico. E me diz, você está buscando estratégias para atrair mais alunos ou melhorar a gestão do seu negócio?
-                - 'button "Ma Marco Aurélio Dragone há 4 minutos 5865_Antonio_Roseli_BM Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?" [ref=e382] [cursor=pointer]':
-                  - generic [ref=e384] [cursor=pointer]: Ma
-                  - generic [ref=e385] [cursor=pointer]:
-                    - generic [ref=e386] [cursor=pointer]:
-                      - paragraph [ref=e388] [cursor=pointer]: Marco Aurélio Dragone
-                      - generic [ref=e389] [cursor=pointer]:
-                        - generic [ref=e391] [cursor=pointer]: há 4 minutos
-                        - generic [ref=e392] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e394] [cursor=pointer]:
-                      - img [ref=e395] [cursor=pointer]
-                      - generic [ref=e398] [cursor=pointer]: "Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?"
-                - button "Cl Cleivani marques melo há 7 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e399] [cursor=pointer]:
-                  - generic [ref=e401] [cursor=pointer]: Cl
-                  - generic [ref=e402] [cursor=pointer]:
-                    - generic [ref=e403] [cursor=pointer]:
-                      - paragraph [ref=e405] [cursor=pointer]: Cleivani marques melo
-                      - generic [ref=e406] [cursor=pointer]:
-                        - generic [ref=e408] [cursor=pointer]: há 7 minutos
-                        - generic [ref=e409] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e412] [cursor=pointer]: Resgate seu Acesso
-                - button "Ra Rafael Silverio Ribeiro há 7 minutos 5865_Antonio_Roseli_BM Vidraçaria e esquadrias" [ref=e413] [cursor=pointer]:
-                  - generic [ref=e415] [cursor=pointer]: Ra
-                  - generic [ref=e416] [cursor=pointer]:
-                    - generic [ref=e417] [cursor=pointer]:
-                      - paragraph [ref=e419] [cursor=pointer]: Rafael Silverio Ribeiro
-                      - generic [ref=e420] [cursor=pointer]:
-                        - generic [ref=e422] [cursor=pointer]: há 7 minutos
-                        - generic [ref=e423] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e426] [cursor=pointer]: Vidraçaria e esquadrias
-                - 'button "Co Contato 64460621 há 7 minutos 5865_Antonio_Roseli_BM Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?" [ref=e427] [cursor=pointer]':
-                  - generic [ref=e429] [cursor=pointer]: Co
-                  - generic [ref=e430] [cursor=pointer]:
-                    - generic [ref=e431] [cursor=pointer]:
-                      - paragraph [ref=e433] [cursor=pointer]: Contato 64460621
-                      - generic [ref=e434] [cursor=pointer]:
-                        - generic [ref=e436] [cursor=pointer]: há 7 minutos
-                        - generic [ref=e437] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e439] [cursor=pointer]:
-                      - img [ref=e440] [cursor=pointer]
-                      - generic [ref=e443] [cursor=pointer]: "Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?"
-                - 'button "Hu Humberto há 7 minutos 5865_Antonio_Roseli_BM Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?" [ref=e444] [cursor=pointer]':
-                  - generic [ref=e446] [cursor=pointer]: Hu
-                  - generic [ref=e447] [cursor=pointer]:
-                    - generic [ref=e448] [cursor=pointer]:
-                      - paragraph [ref=e450] [cursor=pointer]: Humberto
-                      - generic [ref=e451] [cursor=pointer]:
-                        - generic [ref=e453] [cursor=pointer]: há 7 minutos
-                        - generic [ref=e454] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e456] [cursor=pointer]:
-                      - img [ref=e457] [cursor=pointer]
-                      - generic [ref=e460] [cursor=pointer]: "Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?"
-                - 'button "Da Daniela Menezes Nascimento há 7 minutos 5865_Antonio_Roseli_BM Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?" [ref=e461] [cursor=pointer]':
-                  - generic [ref=e463] [cursor=pointer]: Da
-                  - generic [ref=e464] [cursor=pointer]:
-                    - generic [ref=e465] [cursor=pointer]:
-                      - paragraph [ref=e467] [cursor=pointer]: Daniela Menezes Nascimento
-                      - generic [ref=e468] [cursor=pointer]:
-                        - generic [ref=e470] [cursor=pointer]: há 7 minutos
-                        - generic [ref=e471] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e473] [cursor=pointer]:
-                      - img [ref=e474] [cursor=pointer]
-                      - generic [ref=e477] [cursor=pointer]: "Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?"
-                - button "O O QUE VOCÊ PRECISA? MEELIG há 7 minutos 5865_Antonio_Roseli_BM Quem me mandou mensagem foi você" [ref=e478] [cursor=pointer]:
-                  - generic [ref=e480] [cursor=pointer]: O
-                  - generic [ref=e481] [cursor=pointer]:
-                    - generic [ref=e482] [cursor=pointer]:
-                      - paragraph [ref=e484] [cursor=pointer]: O QUE VOCÊ PRECISA? MEELIG
-                      - generic [ref=e485] [cursor=pointer]:
-                        - generic [ref=e487] [cursor=pointer]: há 7 minutos
-                        - generic [ref=e488] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e491] [cursor=pointer]: Quem me mandou mensagem foi você
-                - button "An Andre Cardoso há 8 minutos 5865_Antonio_Roseli_BM Você quer bloquear sua vaga 👍. Já calculou quanto pode estar ficando na mesa sem um plano claro?" [ref=e492] [cursor=pointer]:
-                  - generic [ref=e494] [cursor=pointer]: An
-                  - generic [ref=e495] [cursor=pointer]:
-                    - generic [ref=e496] [cursor=pointer]:
-                      - paragraph [ref=e498] [cursor=pointer]: Andre Cardoso
-                      - generic [ref=e499] [cursor=pointer]:
-                        - generic [ref=e501] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e502] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e504] [cursor=pointer]:
-                      - img [ref=e505] [cursor=pointer]
-                      - generic [ref=e508] [cursor=pointer]: Você quer bloquear sua vaga 👍. Já calculou quanto pode estar ficando na mesa sem um plano claro?
-                - button "Su Sueli Roth Sabino há 8 minutos 5865_Antonio_Roseli_BM Agradeço o contato! Meu nome é Amanda. Estou interessada em organizar um evento corporativo para cerca de 100 pessoas. A data prevista seria para o final de março. Você poderia me informar mais sobre os pacotes disponíveis para esse tipo de evento?" [ref=e509] [cursor=pointer]:
-                  - generic [ref=e511] [cursor=pointer]: Su
-                  - generic [ref=e512] [cursor=pointer]:
-                    - generic [ref=e513] [cursor=pointer]:
-                      - paragraph [ref=e515] [cursor=pointer]: Sueli Roth Sabino
-                      - generic [ref=e516] [cursor=pointer]:
-                        - generic [ref=e518] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e519] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e521] [cursor=pointer]:
-                      - img [ref=e522] [cursor=pointer]
-                      - generic [ref=e524] [cursor=pointer]: Agradeço o contato! Meu nome é Amanda. Estou interessada em organizar um evento corporativo para cerca de 100 pessoas. A data prevista seria para o final de março. Você poderia me informar mais sobre os pacotes disponíveis para esse tipo de evento?
-                - button "Si Sinval Aragão há 8 minutos 5865_Antonio_Roseli_BM Olá, Tarcísio! Deus te abençoe também. Como posso ajudar você hoje? Você está interessado em saber mais sobre algum dos nossos eventos ou serviços?" [ref=e525] [cursor=pointer]:
-                  - generic [ref=e527] [cursor=pointer]: Si
-                  - generic [ref=e528] [cursor=pointer]:
-                    - generic [ref=e529] [cursor=pointer]:
-                      - paragraph [ref=e531] [cursor=pointer]: Sinval Aragão
-                      - generic [ref=e532] [cursor=pointer]:
-                        - generic [ref=e534] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e535] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e537] [cursor=pointer]:
-                      - img [ref=e538] [cursor=pointer]
-                      - generic [ref=e540] [cursor=pointer]: Olá, Tarcísio! Deus te abençoe também. Como posso ajudar você hoje? Você está interessado em saber mais sobre algum dos nossos eventos ou serviços?
-                - button "Ra Rafaella Paes de Castro há 8 minutos 5865_Antonio_Roseli_BM Olá! Como vai? Agradeço o contato e as informações. Como posso ajudar você hoje? Alguma dúvida específica ou algo em que posso assisti-lo?" [ref=e541] [cursor=pointer]:
-                  - generic [ref=e543] [cursor=pointer]: Ra
+                      - paragraph [ref=e379] [cursor=pointer]: Lead SMS 1013
+                      - generic [ref=e380] [cursor=pointer]:
+                        - generic [ref=e382] [cursor=pointer]: há 37 minutos
+                        - generic [ref=e383] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e386] [cursor=pointer]: Sim , trabalho com manutenção de autoclave e revenda de equipamentos .pretendo ampliar cada vez mais
+                - button "Ad Adriana dos Santos Oliveira há 39 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e387] [cursor=pointer]:
+                  - generic [ref=e389] [cursor=pointer]: Ad
+                  - generic [ref=e390] [cursor=pointer]:
+                    - generic [ref=e391] [cursor=pointer]:
+                      - paragraph [ref=e393] [cursor=pointer]: Adriana dos Santos Oliveira
+                      - generic [ref=e394] [cursor=pointer]:
+                        - generic [ref=e396] [cursor=pointer]: há 39 minutos
+                        - generic [ref=e397] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e400] [cursor=pointer]: Resgate seu Acesso
+                - button "Ro Roberto Dias há 39 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e401] [cursor=pointer]:
+                  - generic [ref=e403] [cursor=pointer]: Ro
+                  - generic [ref=e404] [cursor=pointer]:
+                    - generic [ref=e405] [cursor=pointer]:
+                      - paragraph [ref=e407] [cursor=pointer]: Roberto Dias
+                      - generic [ref=e408] [cursor=pointer]:
+                        - generic [ref=e410] [cursor=pointer]: há 39 minutos
+                        - generic [ref=e411] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e414] [cursor=pointer]: Resgate seu Acesso
+                - button "He Hedilene Apda. Gonçalves há 39 minutos 5865_Antonio_Roseli_BM BLOQUEAR CONTATO" [ref=e415] [cursor=pointer]:
+                  - generic [ref=e417] [cursor=pointer]: He
+                  - generic [ref=e418] [cursor=pointer]:
+                    - generic [ref=e419] [cursor=pointer]:
+                      - paragraph [ref=e421] [cursor=pointer]: Hedilene Apda. Gonçalves
+                      - generic [ref=e422] [cursor=pointer]:
+                        - generic [ref=e424] [cursor=pointer]: há 39 minutos
+                        - generic [ref=e425] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e428] [cursor=pointer]: BLOQUEAR CONTATO
+                - button "Wi Wilson Serqueira há 39 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e429] [cursor=pointer]:
+                  - generic [ref=e431] [cursor=pointer]: Wi
+                  - generic [ref=e432] [cursor=pointer]:
+                    - generic [ref=e433] [cursor=pointer]:
+                      - paragraph [ref=e435] [cursor=pointer]: Wilson Serqueira
+                      - generic [ref=e436] [cursor=pointer]:
+                        - generic [ref=e438] [cursor=pointer]: há 39 minutos
+                        - generic [ref=e439] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e442] [cursor=pointer]: Resgate seu Acesso
+                - button "Th Thiago Ferreira de Figueredo há 39 minutos 5865_Antonio_Roseli_BM Diferencial competitivo do mercado." [ref=e443] [cursor=pointer]:
+                  - generic [ref=e445] [cursor=pointer]: Th
+                  - generic [ref=e446] [cursor=pointer]:
+                    - generic [ref=e447] [cursor=pointer]:
+                      - paragraph [ref=e449] [cursor=pointer]: Thiago Ferreira de Figueredo
+                      - generic [ref=e450] [cursor=pointer]:
+                        - generic [ref=e452] [cursor=pointer]: há 39 minutos
+                        - generic [ref=e453] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e456] [cursor=pointer]: Diferencial competitivo do mercado.
+                - button "Va Vanessa Diniz de Santana há 39 minutos 5865_Antonio_Roseli_BM É ótimo riri" [ref=e457] [cursor=pointer]:
+                  - generic [ref=e459] [cursor=pointer]: Va
+                  - generic [ref=e460] [cursor=pointer]:
+                    - generic [ref=e461] [cursor=pointer]:
+                      - paragraph [ref=e463] [cursor=pointer]: Vanessa Diniz de Santana
+                      - generic [ref=e464] [cursor=pointer]:
+                        - generic [ref=e466] [cursor=pointer]: há 39 minutos
+                        - generic [ref=e467] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e470] [cursor=pointer]: É ótimo riri
+                - button "Gu Guto Azevedo há 40 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e471] [cursor=pointer]:
+                  - generic [ref=e473] [cursor=pointer]: Gu
+                  - generic [ref=e474] [cursor=pointer]:
+                    - generic [ref=e475] [cursor=pointer]:
+                      - paragraph [ref=e477] [cursor=pointer]: Guto Azevedo
+                      - generic [ref=e478] [cursor=pointer]:
+                        - generic [ref=e480] [cursor=pointer]: há 40 minutos
+                        - generic [ref=e481] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e484] [cursor=pointer]: Resgate seu Acesso
+                - button "Di Diego Jimenez (JIC) (Performance) há 41 minutos 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e485] [cursor=pointer]:
+                  - generic [ref=e487] [cursor=pointer]: Di
+                  - generic [ref=e488] [cursor=pointer]:
+                    - generic [ref=e489] [cursor=pointer]:
+                      - paragraph [ref=e491] [cursor=pointer]: Diego Jimenez (JIC) (Performance)
+                      - generic [ref=e492] [cursor=pointer]:
+                        - generic [ref=e494] [cursor=pointer]: há 41 minutos
+                        - generic [ref=e495] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e498] [cursor=pointer]: Resgate seu Acesso
+                - button "Hu Humberto de Avila Perina há 41 minutos 5865_Antonio_Roseli_BM Com o Jorge" [ref=e499] [cursor=pointer]:
+                  - generic [ref=e501] [cursor=pointer]: Hu
+                  - generic [ref=e502] [cursor=pointer]:
+                    - generic [ref=e503] [cursor=pointer]:
+                      - paragraph [ref=e505] [cursor=pointer]: Humberto de Avila Perina
+                      - generic [ref=e506] [cursor=pointer]:
+                        - generic [ref=e508] [cursor=pointer]: há 41 minutos
+                        - generic [ref=e509] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e512] [cursor=pointer]: Com o Jorge
+                - button "Le Lead SMS 0612 há 41 minutos 5865_Antonio_Roseli_BM Resgatar" [ref=e513] [cursor=pointer]:
+                  - generic [ref=e515] [cursor=pointer]: Le
+                  - generic [ref=e516] [cursor=pointer]:
+                    - generic [ref=e517] [cursor=pointer]:
+                      - paragraph [ref=e519] [cursor=pointer]: Lead SMS 0612
+                      - generic [ref=e520] [cursor=pointer]:
+                        - generic [ref=e522] [cursor=pointer]: há 41 minutos
+                        - generic [ref=e523] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e526] [cursor=pointer]: Resgatar
+                - button "In Ingrid Caroline há 42 minutos 5865_Antonio_Roseli_BM Administração de empresa familiar Ramo diversos (alimentação (compra, revenda , beneficiamentos seleção de frutas, verduras e legumes ), moradia (aquisição , construção , reforma e locação ) )" [ref=e527] [cursor=pointer]:
+                  - generic [ref=e529] [cursor=pointer]: In
+                  - generic [ref=e530] [cursor=pointer]:
+                    - generic [ref=e531] [cursor=pointer]:
+                      - paragraph [ref=e533] [cursor=pointer]: Ingrid Caroline
+                      - generic [ref=e534] [cursor=pointer]:
+                        - generic [ref=e536] [cursor=pointer]: há 42 minutos
+                        - generic [ref=e537] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e540] [cursor=pointer]: Administração de empresa familiar Ramo diversos (alimentação (compra, revenda , beneficiamentos seleção de frutas, verduras e legumes ), moradia (aquisição , construção , reforma e locação ) )
+                - button "Le Lead SMS 5677 há 43 minutos 5865_Antonio_Roseli_BM Olá! Como posso te ajudar hoje? 😊" [ref=e541] [cursor=pointer]:
+                  - generic [ref=e543] [cursor=pointer]: Le
                   - generic [ref=e544] [cursor=pointer]:
                     - generic [ref=e545] [cursor=pointer]:
-                      - paragraph [ref=e547] [cursor=pointer]: Rafaella Paes de Castro
+                      - paragraph [ref=e547] [cursor=pointer]: Lead SMS 5677
                       - generic [ref=e548] [cursor=pointer]:
-                        - generic [ref=e550] [cursor=pointer]: há 8 minutos
+                        - generic [ref=e550] [cursor=pointer]: há 43 minutos
                         - generic [ref=e551] [cursor=pointer]: 5865_Antonio_Roseli_BM
                     - generic [ref=e553] [cursor=pointer]:
                       - img [ref=e554] [cursor=pointer]
-                      - generic [ref=e557] [cursor=pointer]: Olá! Como vai? Agradeço o contato e as informações. Como posso ajudar você hoje? Alguma dúvida específica ou algo em que posso assisti-lo?
-                - button "Ho Home Cinema há 8 minutos 5865_Antonio_Roseli_BM Olá! Aqui é Amanda, assessora do Antônio Fogaça. Estou interessada em saber mais sobre soluções de home cinema para um evento corporativo. Você poderia me informar quais são as opções disponíveis?" [ref=e558] [cursor=pointer]:
-                  - generic [ref=e560] [cursor=pointer]: Ho
-                  - generic [ref=e561] [cursor=pointer]:
-                    - generic [ref=e562] [cursor=pointer]:
-                      - paragraph [ref=e564] [cursor=pointer]: Home Cinema
-                      - generic [ref=e565] [cursor=pointer]:
-                        - generic [ref=e567] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e568] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e570] [cursor=pointer]:
-                      - img [ref=e571] [cursor=pointer]
-                      - generic [ref=e573] [cursor=pointer]: Olá! Aqui é Amanda, assessora do Antônio Fogaça. Estou interessada em saber mais sobre soluções de home cinema para um evento corporativo. Você poderia me informar quais são as opções disponíveis?
-                - 'button "LU LUIZ HENRIQUE BARBOSA há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e574] [cursor=pointer]':
-                  - generic [ref=e576] [cursor=pointer]: LU
+                      - generic [ref=e556] [cursor=pointer]: Olá! Como posso te ajudar hoje? 😊
+                - 'button "Cr Cristiano Francisco Xavier há 43 minutos 5865_Antonio_Roseli_BM Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?" [ref=e557] [cursor=pointer]':
+                  - generic [ref=e559] [cursor=pointer]: Cr
+                  - generic [ref=e560] [cursor=pointer]:
+                    - generic [ref=e561] [cursor=pointer]:
+                      - paragraph [ref=e563] [cursor=pointer]: Cristiano Francisco Xavier
+                      - generic [ref=e564] [cursor=pointer]:
+                        - generic [ref=e566] [cursor=pointer]: há 43 minutos
+                        - generic [ref=e567] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e569] [cursor=pointer]:
+                      - img [ref=e570] [cursor=pointer]
+                      - generic [ref=e573] [cursor=pointer]: "Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?"
+                - 'button "In Instituto Bia Nogueira Fernandes há 43 minutos 5865_Antonio_Roseli_BM Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?" [ref=e574] [cursor=pointer]':
+                  - generic [ref=e576] [cursor=pointer]: In
                   - generic [ref=e577] [cursor=pointer]:
                     - generic [ref=e578] [cursor=pointer]:
-                      - paragraph [ref=e580] [cursor=pointer]: LUIZ HENRIQUE BARBOSA
+                      - paragraph [ref=e580] [cursor=pointer]: Instituto Bia Nogueira Fernandes
                       - generic [ref=e581] [cursor=pointer]:
-                        - generic [ref=e583] [cursor=pointer]: há 8 minutos
+                        - generic [ref=e583] [cursor=pointer]: há 43 minutos
                         - generic [ref=e584] [cursor=pointer]: 5865_Antonio_Roseli_BM
                     - generic [ref=e586] [cursor=pointer]:
                       - img [ref=e587] [cursor=pointer]
-                      - generic [ref=e590] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - button "55 558398510057 há 8 minutos 5865_Antonio_Roseli_BM Olá! Como vai? Entendi que essa é uma mensagem automática. Quando puder, me avise para continuarmos nossa conversa. Estou aqui para ajudar no que precisar! 😊" [ref=e591] [cursor=pointer]:
-                  - generic [ref=e593] [cursor=pointer]: "55"
+                      - generic [ref=e590] [cursor=pointer]: "Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?"
+                - button "Cl Cleivani marques melo há cerca de 1 hora 5865_Antonio_Roseli_BM Resgate seu Acesso" [ref=e591] [cursor=pointer]:
+                  - generic [ref=e593] [cursor=pointer]: Cl
                   - generic [ref=e594] [cursor=pointer]:
                     - generic [ref=e595] [cursor=pointer]:
-                      - paragraph [ref=e597] [cursor=pointer]: "558398510057"
+                      - paragraph [ref=e597] [cursor=pointer]: Cleivani marques melo
                       - generic [ref=e598] [cursor=pointer]:
-                        - generic [ref=e600] [cursor=pointer]: há 8 minutos
+                        - generic [ref=e600] [cursor=pointer]: há cerca de 1 hora
                         - generic [ref=e601] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e603] [cursor=pointer]:
-                      - img [ref=e604] [cursor=pointer]
-                      - generic [ref=e606] [cursor=pointer]: Olá! Como vai? Entendi que essa é uma mensagem automática. Quando puder, me avise para continuarmos nossa conversa. Estou aqui para ajudar no que precisar! 😊
-                - button "We Weslley Santos BRTractor há 8 minutos 5865_Antonio_Roseli_BM Olá, Weslley! Agradeço o contato. Estou interessada em saber mais sobre as soluções da BRTractor para empresas do setor agrícola. Você poderia me informar quais são os principais produtos e serviços que vocês oferecem?" [ref=e607] [cursor=pointer]:
-                  - generic [ref=e609] [cursor=pointer]: We
-                  - generic [ref=e610] [cursor=pointer]:
-                    - generic [ref=e611] [cursor=pointer]:
-                      - paragraph [ref=e613] [cursor=pointer]: Weslley Santos BRTractor
-                      - generic [ref=e614] [cursor=pointer]:
-                        - generic [ref=e616] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e617] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e619] [cursor=pointer]:
-                      - img [ref=e620] [cursor=pointer]
-                      - generic [ref=e623] [cursor=pointer]: Olá, Weslley! Agradeço o contato. Estou interessada em saber mais sobre as soluções da BRTractor para empresas do setor agrícola. Você poderia me informar quais são os principais produtos e serviços que vocês oferecem?
-                - button "Ga Gabriel Caldas há 8 minutos 5865_Antonio_Roseli_BM Olá, Gabriel! Como vai? Vi que você trabalha com Marketing Digital. Estou aqui para te ajudar com o que precisar. Você já conhece o Encontro de Negócios com Antônio Fogaça e Pablo Marçal?" [ref=e624] [cursor=pointer]:
-                  - generic [ref=e626] [cursor=pointer]: Ga
-                  - generic [ref=e627] [cursor=pointer]:
-                    - generic [ref=e628] [cursor=pointer]:
-                      - paragraph [ref=e630] [cursor=pointer]: Gabriel Caldas
-                      - generic [ref=e631] [cursor=pointer]:
-                        - generic [ref=e633] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e634] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e636] [cursor=pointer]:
-                      - img [ref=e637] [cursor=pointer]
-                      - generic [ref=e640] [cursor=pointer]: Olá, Gabriel! Como vai? Vi que você trabalha com Marketing Digital. Estou aqui para te ajudar com o que precisar. Você já conhece o Encontro de Negócios com Antônio Fogaça e Pablo Marçal?
-                - button "Le Leandro Lopes | Brain Tech CV há 8 minutos 5865_Antonio_Roseli_BM Olá! Como vai? Vi que vocês são da Brain Tech Comunicação Visual. Aqui é Amanda, assessora do time do Antônio Fogaça e Pablo Marçal. Posso saber mais sobre o que vocês estão buscando ou precisam hoje?" [ref=e641] [cursor=pointer]:
-                  - generic [ref=e643] [cursor=pointer]: Le
-                  - generic [ref=e644] [cursor=pointer]:
-                    - generic [ref=e645] [cursor=pointer]:
-                      - paragraph [ref=e647] [cursor=pointer]: Leandro Lopes | Brain Tech CV
-                      - generic [ref=e648] [cursor=pointer]:
-                        - generic [ref=e650] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e651] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e653] [cursor=pointer]:
-                      - img [ref=e654] [cursor=pointer]
-                      - generic [ref=e657] [cursor=pointer]: Olá! Como vai? Vi que vocês são da Brain Tech Comunicação Visual. Aqui é Amanda, assessora do time do Antônio Fogaça e Pablo Marçal. Posso saber mais sobre o que vocês estão buscando ou precisam hoje?
-                - 'button "Je Jeidzon Palacio há 8 minutos 5865_Antonio_Roseli_BM Olá! Como vai? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?" [ref=e658] [cursor=pointer]':
-                  - generic [ref=e660] [cursor=pointer]: Je
-                  - generic [ref=e661] [cursor=pointer]:
-                    - generic [ref=e662] [cursor=pointer]:
-                      - paragraph [ref=e664] [cursor=pointer]: Jeidzon Palacio
-                      - generic [ref=e665] [cursor=pointer]:
-                        - generic [ref=e667] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e668] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e670] [cursor=pointer]:
-                      - img [ref=e671] [cursor=pointer]
-                      - generic [ref=e674] [cursor=pointer]: "Olá! Como vai? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?"
-                - button "Le Lead SMS 8910 há 8 minutos 5865_Antonio_Roseli_BM Olá! Como vai? Agradeço pela mensagem. Como posso ajudar você hoje? Se tiver alguma dúvida ou precisar de informações, estou aqui para ajudar!" [ref=e675] [cursor=pointer]:
-                  - generic [ref=e677] [cursor=pointer]: Le
-                  - generic [ref=e678] [cursor=pointer]:
-                    - generic [ref=e679] [cursor=pointer]:
-                      - paragraph [ref=e681] [cursor=pointer]: Lead SMS 8910
-                      - generic [ref=e682] [cursor=pointer]:
-                        - generic [ref=e684] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e685] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e687] [cursor=pointer]:
-                      - img [ref=e688] [cursor=pointer]
-                      - generic [ref=e691] [cursor=pointer]: Olá! Como vai? Agradeço pela mensagem. Como posso ajudar você hoje? Se tiver alguma dúvida ou precisar de informações, estou aqui para ajudar!
-                - 'button "Ka Kauã Henrique Maia há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e692] [cursor=pointer]':
-                  - generic [ref=e694] [cursor=pointer]: Ka
-                  - generic [ref=e695] [cursor=pointer]:
+                    - generic [ref=e604] [cursor=pointer]: Resgate seu Acesso
+                - button "Ra Rafael Silverio Ribeiro há cerca de 1 hora 5865_Antonio_Roseli_BM Vidraçaria e esquadrias" [ref=e605] [cursor=pointer]:
+                  - generic [ref=e607] [cursor=pointer]: Ra
+                  - generic [ref=e608] [cursor=pointer]:
+                    - generic [ref=e609] [cursor=pointer]:
+                      - paragraph [ref=e611] [cursor=pointer]: Rafael Silverio Ribeiro
+                      - generic [ref=e612] [cursor=pointer]:
+                        - generic [ref=e614] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e615] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e618] [cursor=pointer]: Vidraçaria e esquadrias
+                - 'button "Co Contato 64460621 há cerca de 1 hora 5865_Antonio_Roseli_BM Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?" [ref=e619] [cursor=pointer]':
+                  - generic [ref=e621] [cursor=pointer]: Co
+                  - generic [ref=e622] [cursor=pointer]:
+                    - generic [ref=e623] [cursor=pointer]:
+                      - paragraph [ref=e625] [cursor=pointer]: Contato 64460621
+                      - generic [ref=e626] [cursor=pointer]:
+                        - generic [ref=e628] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e629] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e631] [cursor=pointer]:
+                      - img [ref=e632] [cursor=pointer]
+                      - generic [ref=e635] [cursor=pointer]: "Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?"
+                - 'button "Hu Humberto há cerca de 1 hora 5865_Antonio_Roseli_BM Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?" [ref=e636] [cursor=pointer]':
+                  - generic [ref=e638] [cursor=pointer]: Hu
+                  - generic [ref=e639] [cursor=pointer]:
+                    - generic [ref=e640] [cursor=pointer]:
+                      - paragraph [ref=e642] [cursor=pointer]: Humberto
+                      - generic [ref=e643] [cursor=pointer]:
+                        - generic [ref=e645] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e646] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e648] [cursor=pointer]:
+                      - img [ref=e649] [cursor=pointer]
+                      - generic [ref=e652] [cursor=pointer]: "Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?"
+                - 'button "Da Daniela Menezes Nascimento há cerca de 1 hora 5865_Antonio_Roseli_BM Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?" [ref=e653] [cursor=pointer]':
+                  - generic [ref=e655] [cursor=pointer]: Da
+                  - generic [ref=e656] [cursor=pointer]:
+                    - generic [ref=e657] [cursor=pointer]:
+                      - paragraph [ref=e659] [cursor=pointer]: Daniela Menezes Nascimento
+                      - generic [ref=e660] [cursor=pointer]:
+                        - generic [ref=e662] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e663] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e665] [cursor=pointer]:
+                      - img [ref=e666] [cursor=pointer]
+                      - generic [ref=e669] [cursor=pointer]: "Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?"
+                - button "O O QUE VOCÊ PRECISA? MEELIG há cerca de 1 hora 5865_Antonio_Roseli_BM Quem me mandou mensagem foi você" [ref=e670] [cursor=pointer]:
+                  - generic [ref=e672] [cursor=pointer]: O
+                  - generic [ref=e673] [cursor=pointer]:
+                    - generic [ref=e674] [cursor=pointer]:
+                      - paragraph [ref=e676] [cursor=pointer]: O QUE VOCÊ PRECISA? MEELIG
+                      - generic [ref=e677] [cursor=pointer]:
+                        - generic [ref=e679] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e680] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e683] [cursor=pointer]: Quem me mandou mensagem foi você
+                - button "An Andre Cardoso há cerca de 1 hora 5865_Antonio_Roseli_BM Você quer bloquear sua vaga 👍. Já calculou quanto pode estar ficando na mesa sem um plano claro?" [ref=e684] [cursor=pointer]:
+                  - generic [ref=e686] [cursor=pointer]: An
+                  - generic [ref=e687] [cursor=pointer]:
+                    - generic [ref=e688] [cursor=pointer]:
+                      - paragraph [ref=e690] [cursor=pointer]: Andre Cardoso
+                      - generic [ref=e691] [cursor=pointer]:
+                        - generic [ref=e693] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e694] [cursor=pointer]: 5865_Antonio_Roseli_BM
                     - generic [ref=e696] [cursor=pointer]:
-                      - paragraph [ref=e698] [cursor=pointer]: Kauã Henrique Maia
-                      - generic [ref=e699] [cursor=pointer]:
-                        - generic [ref=e701] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e702] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e704] [cursor=pointer]:
-                      - img [ref=e705] [cursor=pointer]
-                      - generic [ref=e708] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "Jo Jonas Danilo Violato da Silva há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e709] [cursor=pointer]':
-                  - generic [ref=e711] [cursor=pointer]: Jo
-                  - generic [ref=e712] [cursor=pointer]:
+                      - img [ref=e697] [cursor=pointer]
+                      - generic [ref=e700] [cursor=pointer]: Você quer bloquear sua vaga 👍. Já calculou quanto pode estar ficando na mesa sem um plano claro?
+                - button "Su Sueli Roth Sabino há cerca de 1 hora 5865_Antonio_Roseli_BM Agradeço o contato! Meu nome é Amanda. Estou interessada em organizar um evento corporativo para cerca de 100 pessoas. A data prevista seria para o final de março. Você poderia me informar mais sobre os pacotes disponíveis para esse tipo de evento?" [ref=e701] [cursor=pointer]:
+                  - generic [ref=e703] [cursor=pointer]: Su
+                  - generic [ref=e704] [cursor=pointer]:
+                    - generic [ref=e705] [cursor=pointer]:
+                      - paragraph [ref=e707] [cursor=pointer]: Sueli Roth Sabino
+                      - generic [ref=e708] [cursor=pointer]:
+                        - generic [ref=e710] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e711] [cursor=pointer]: 5865_Antonio_Roseli_BM
                     - generic [ref=e713] [cursor=pointer]:
-                      - paragraph [ref=e715] [cursor=pointer]: Jonas Danilo Violato da Silva
-                      - generic [ref=e716] [cursor=pointer]:
-                        - generic [ref=e718] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e719] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e721] [cursor=pointer]:
-                      - img [ref=e722] [cursor=pointer]
-                      - generic [ref=e725] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "Al Alex Carvalho Fonseca há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e726] [cursor=pointer]':
-                  - generic [ref=e728] [cursor=pointer]: Al
-                  - generic [ref=e729] [cursor=pointer]:
+                      - img [ref=e714] [cursor=pointer]
+                      - generic [ref=e717] [cursor=pointer]: Agradeço o contato! Meu nome é Amanda. Estou interessada em organizar um evento corporativo para cerca de 100 pessoas. A data prevista seria para o final de março. Você poderia me informar mais sobre os pacotes disponíveis para esse tipo de evento?
+                - button "Si Sinval Aragão há cerca de 1 hora 5865_Antonio_Roseli_BM Olá, Tarcísio! Deus te abençoe também. Como posso ajudar você hoje? Você está interessado em saber mais sobre algum dos nossos eventos ou serviços?" [ref=e718] [cursor=pointer]:
+                  - generic [ref=e720] [cursor=pointer]: Si
+                  - generic [ref=e721] [cursor=pointer]:
+                    - generic [ref=e722] [cursor=pointer]:
+                      - paragraph [ref=e724] [cursor=pointer]: Sinval Aragão
+                      - generic [ref=e725] [cursor=pointer]:
+                        - generic [ref=e727] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e728] [cursor=pointer]: 5865_Antonio_Roseli_BM
                     - generic [ref=e730] [cursor=pointer]:
-                      - paragraph [ref=e732] [cursor=pointer]: Alex Carvalho Fonseca
-                      - generic [ref=e733] [cursor=pointer]:
-                        - generic [ref=e735] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e736] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                      - img [ref=e731] [cursor=pointer]
+                      - generic [ref=e733] [cursor=pointer]: Olá, Tarcísio! Deus te abençoe também. Como posso ajudar você hoje? Você está interessado em saber mais sobre algum dos nossos eventos ou serviços?
+                - button "Ra Rafaella Paes de Castro há cerca de 1 hora 5865_Antonio_Roseli_BM Olá! Como vai? Agradeço o contato e as informações. Como posso ajudar você hoje? Alguma dúvida específica ou algo em que posso assisti-lo?" [ref=e734] [cursor=pointer]:
+                  - generic [ref=e736] [cursor=pointer]: Ra
+                  - generic [ref=e737] [cursor=pointer]:
                     - generic [ref=e738] [cursor=pointer]:
-                      - img [ref=e739] [cursor=pointer]
-                      - generic [ref=e741] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "An Andreone Dias Ferraz há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e742] [cursor=pointer]':
-                  - generic [ref=e744] [cursor=pointer]: An
-                  - generic [ref=e745] [cursor=pointer]:
+                      - paragraph [ref=e740] [cursor=pointer]: Rafaella Paes de Castro
+                      - generic [ref=e741] [cursor=pointer]:
+                        - generic [ref=e743] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e744] [cursor=pointer]: 5865_Antonio_Roseli_BM
                     - generic [ref=e746] [cursor=pointer]:
-                      - paragraph [ref=e748] [cursor=pointer]: Andreone Dias Ferraz
-                      - generic [ref=e749] [cursor=pointer]:
-                        - generic [ref=e751] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e752] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e754] [cursor=pointer]:
-                      - img [ref=e755] [cursor=pointer]
-                      - generic [ref=e758] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "Jo José Antonio Fagá de Sousa há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e759] [cursor=pointer]':
-                  - generic [ref=e761] [cursor=pointer]: Jo
-                  - generic [ref=e762] [cursor=pointer]:
+                      - img [ref=e747] [cursor=pointer]
+                      - generic [ref=e750] [cursor=pointer]: Olá! Como vai? Agradeço o contato e as informações. Como posso ajudar você hoje? Alguma dúvida específica ou algo em que posso assisti-lo?
+                - button "Ho Home Cinema há cerca de 1 hora 5865_Antonio_Roseli_BM Olá! Aqui é Amanda, assessora do Antônio Fogaça. Estou interessada em saber mais sobre soluções de home cinema para um evento corporativo. Você poderia me informar quais são as opções disponíveis?" [ref=e751] [cursor=pointer]:
+                  - generic [ref=e753] [cursor=pointer]: Ho
+                  - generic [ref=e754] [cursor=pointer]:
+                    - generic [ref=e755] [cursor=pointer]:
+                      - paragraph [ref=e757] [cursor=pointer]: Home Cinema
+                      - generic [ref=e758] [cursor=pointer]:
+                        - generic [ref=e760] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e761] [cursor=pointer]: 5865_Antonio_Roseli_BM
                     - generic [ref=e763] [cursor=pointer]:
-                      - paragraph [ref=e765] [cursor=pointer]: José Antonio Fagá de Sousa
-                      - generic [ref=e766] [cursor=pointer]:
-                        - generic [ref=e768] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e769] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                      - img [ref=e764] [cursor=pointer]
+                      - generic [ref=e766] [cursor=pointer]: Olá! Aqui é Amanda, assessora do Antônio Fogaça. Estou interessada em saber mais sobre soluções de home cinema para um evento corporativo. Você poderia me informar quais são as opções disponíveis?
+                - 'button "LU LUIZ HENRIQUE BARBOSA há cerca de 1 hora 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e767] [cursor=pointer]':
+                  - generic [ref=e769] [cursor=pointer]: LU
+                  - generic [ref=e770] [cursor=pointer]:
                     - generic [ref=e771] [cursor=pointer]:
-                      - img [ref=e772] [cursor=pointer]
-                      - generic [ref=e775] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "Jo Jose Carlos Peres da Silva há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e776] [cursor=pointer]':
-                  - generic [ref=e778] [cursor=pointer]: Jo
-                  - generic [ref=e779] [cursor=pointer]:
-                    - generic [ref=e780] [cursor=pointer]:
-                      - paragraph [ref=e782] [cursor=pointer]: Jose Carlos Peres da Silva
-                      - generic [ref=e783] [cursor=pointer]:
-                        - generic [ref=e785] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e786] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                      - paragraph [ref=e773] [cursor=pointer]: LUIZ HENRIQUE BARBOSA
+                      - generic [ref=e774] [cursor=pointer]:
+                        - generic [ref=e776] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e777] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e779] [cursor=pointer]:
+                      - img [ref=e780] [cursor=pointer]
+                      - generic [ref=e783] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
+                - button "55 558398510057 há cerca de 1 hora 5865_Antonio_Roseli_BM Olá! Como vai? Entendi que essa é uma mensagem automática. Quando puder, me avise para continuarmos nossa conversa. Estou aqui para ajudar no que precisar! 😊" [ref=e784] [cursor=pointer]:
+                  - generic [ref=e786] [cursor=pointer]: "55"
+                  - generic [ref=e787] [cursor=pointer]:
                     - generic [ref=e788] [cursor=pointer]:
-                      - img [ref=e789] [cursor=pointer]
-                      - generic [ref=e792] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "Ra Raphael Vinicius Bispo da Silva há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e793] [cursor=pointer]':
-                  - generic [ref=e795] [cursor=pointer]: Ra
-                  - generic [ref=e796] [cursor=pointer]:
-                    - generic [ref=e797] [cursor=pointer]:
-                      - paragraph [ref=e799] [cursor=pointer]: Raphael Vinicius Bispo da Silva
-                      - generic [ref=e800] [cursor=pointer]:
-                        - generic [ref=e802] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e803] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                      - paragraph [ref=e790] [cursor=pointer]: "558398510057"
+                      - generic [ref=e791] [cursor=pointer]:
+                        - generic [ref=e793] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e794] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e796] [cursor=pointer]:
+                      - img [ref=e797] [cursor=pointer]
+                      - generic [ref=e800] [cursor=pointer]: Olá! Como vai? Entendi que essa é uma mensagem automática. Quando puder, me avise para continuarmos nossa conversa. Estou aqui para ajudar no que precisar! 😊
+                - button "We Weslley Santos BRTractor há cerca de 1 hora 5865_Antonio_Roseli_BM Olá, Weslley! Agradeço o contato. Estou interessada em saber mais sobre as soluções da BRTractor para empresas do setor agrícola. Você poderia me informar quais são os principais produtos e serviços que vocês oferecem?" [ref=e801] [cursor=pointer]:
+                  - generic [ref=e803] [cursor=pointer]: We
+                  - generic [ref=e804] [cursor=pointer]:
                     - generic [ref=e805] [cursor=pointer]:
-                      - img [ref=e806] [cursor=pointer]
-                      - generic [ref=e809] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "Ro Rogerio de souza lavrador há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e810] [cursor=pointer]':
-                  - generic [ref=e812] [cursor=pointer]: Ro
-                  - generic [ref=e813] [cursor=pointer]:
-                    - generic [ref=e814] [cursor=pointer]:
-                      - paragraph [ref=e816] [cursor=pointer]: Rogerio de souza lavrador
-                      - generic [ref=e817] [cursor=pointer]:
-                        - generic [ref=e819] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e820] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                      - paragraph [ref=e807] [cursor=pointer]: Weslley Santos BRTractor
+                      - generic [ref=e808] [cursor=pointer]:
+                        - generic [ref=e810] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e811] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e813] [cursor=pointer]:
+                      - img [ref=e814] [cursor=pointer]
+                      - generic [ref=e817] [cursor=pointer]: Olá, Weslley! Agradeço o contato. Estou interessada em saber mais sobre as soluções da BRTractor para empresas do setor agrícola. Você poderia me informar quais são os principais produtos e serviços que vocês oferecem?
+                - button "Ga Gabriel Caldas há cerca de 1 hora 5865_Antonio_Roseli_BM Olá, Gabriel! Como vai? Vi que você trabalha com Marketing Digital. Estou aqui para te ajudar com o que precisar. Você já conhece o Encontro de Negócios com Antônio Fogaça e Pablo Marçal?" [ref=e818] [cursor=pointer]:
+                  - generic [ref=e820] [cursor=pointer]: Ga
+                  - generic [ref=e821] [cursor=pointer]:
                     - generic [ref=e822] [cursor=pointer]:
-                      - img [ref=e823] [cursor=pointer]
-                      - generic [ref=e826] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "Th Thiago Andrade há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e827] [cursor=pointer]':
-                  - generic [ref=e829] [cursor=pointer]: Th
-                  - generic [ref=e830] [cursor=pointer]:
-                    - generic [ref=e831] [cursor=pointer]:
-                      - paragraph [ref=e833] [cursor=pointer]: Thiago Andrade
-                      - generic [ref=e834] [cursor=pointer]:
-                        - generic [ref=e836] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e837] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                      - paragraph [ref=e824] [cursor=pointer]: Gabriel Caldas
+                      - generic [ref=e825] [cursor=pointer]:
+                        - generic [ref=e827] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e828] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e830] [cursor=pointer]:
+                      - img [ref=e831] [cursor=pointer]
+                      - generic [ref=e834] [cursor=pointer]: Olá, Gabriel! Como vai? Vi que você trabalha com Marketing Digital. Estou aqui para te ajudar com o que precisar. Você já conhece o Encontro de Negócios com Antônio Fogaça e Pablo Marçal?
+                - button "Le Leandro Lopes | Brain Tech CV há cerca de 1 hora 5865_Antonio_Roseli_BM Olá! Como vai? Vi que vocês são da Brain Tech Comunicação Visual. Aqui é Amanda, assessora do time do Antônio Fogaça e Pablo Marçal. Posso saber mais sobre o que vocês estão buscando ou precisam hoje?" [ref=e835] [cursor=pointer]:
+                  - generic [ref=e837] [cursor=pointer]: Le
+                  - generic [ref=e838] [cursor=pointer]:
                     - generic [ref=e839] [cursor=pointer]:
-                      - img [ref=e840] [cursor=pointer]
-                      - generic [ref=e843] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "Ri Rita de cassia pereira soares há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e844] [cursor=pointer]':
-                  - generic [ref=e846] [cursor=pointer]: Ri
-                  - generic [ref=e847] [cursor=pointer]:
-                    - generic [ref=e848] [cursor=pointer]:
-                      - paragraph [ref=e850] [cursor=pointer]: Rita de cassia pereira soares
-                      - generic [ref=e851] [cursor=pointer]:
-                        - generic [ref=e853] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e854] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                      - paragraph [ref=e841] [cursor=pointer]: Leandro Lopes | Brain Tech CV
+                      - generic [ref=e842] [cursor=pointer]:
+                        - generic [ref=e844] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e845] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e847] [cursor=pointer]:
+                      - img [ref=e848] [cursor=pointer]
+                      - generic [ref=e851] [cursor=pointer]: Olá! Como vai? Vi que vocês são da Brain Tech Comunicação Visual. Aqui é Amanda, assessora do time do Antônio Fogaça e Pablo Marçal. Posso saber mais sobre o que vocês estão buscando ou precisam hoje?
+                - 'button "Je Jeidzon Palacio há cerca de 1 hora 5865_Antonio_Roseli_BM Olá! Como vai? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?" [ref=e852] [cursor=pointer]':
+                  - generic [ref=e854] [cursor=pointer]: Je
+                  - generic [ref=e855] [cursor=pointer]:
                     - generic [ref=e856] [cursor=pointer]:
-                      - img [ref=e857] [cursor=pointer]
-                      - generic [ref=e860] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "Li Livia Viana Dos Reis há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e861] [cursor=pointer]':
-                  - generic [ref=e863] [cursor=pointer]: Li
-                  - generic [ref=e864] [cursor=pointer]:
-                    - generic [ref=e865] [cursor=pointer]:
-                      - paragraph [ref=e867] [cursor=pointer]: Livia Viana Dos Reis
-                      - generic [ref=e868] [cursor=pointer]:
-                        - generic [ref=e870] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e871] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                      - paragraph [ref=e858] [cursor=pointer]: Jeidzon Palacio
+                      - generic [ref=e859] [cursor=pointer]:
+                        - generic [ref=e861] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e862] [cursor=pointer]: 5865_Antonio_Roseli_BM
+                    - generic [ref=e864] [cursor=pointer]:
+                      - img [ref=e865] [cursor=pointer]
+                      - generic [ref=e868] [cursor=pointer]: "Olá! Como vai? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?"
+                - button "Le Lead SMS 8910 há cerca de 1 hora 5865_Antonio_Roseli_BM Olá! Como vai? Agradeço pela mensagem. Como posso ajudar você hoje? Se tiver alguma dúvida ou precisar de informações, estou aqui para ajudar!" [ref=e869] [cursor=pointer]:
+                  - generic [ref=e871] [cursor=pointer]: Le
+                  - generic [ref=e872] [cursor=pointer]:
                     - generic [ref=e873] [cursor=pointer]:
-                      - img [ref=e874] [cursor=pointer]
-                      - generic [ref=e876] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "Le Leticia Fontebasso há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e877] [cursor=pointer]':
-                  - generic [ref=e879] [cursor=pointer]: Le
-                  - generic [ref=e880] [cursor=pointer]:
+                      - paragraph [ref=e875] [cursor=pointer]: Lead SMS 8910
+                      - generic [ref=e876] [cursor=pointer]:
+                        - generic [ref=e878] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e879] [cursor=pointer]: 5865_Antonio_Roseli_BM
                     - generic [ref=e881] [cursor=pointer]:
-                      - paragraph [ref=e883] [cursor=pointer]: Leticia Fontebasso
-                      - generic [ref=e884] [cursor=pointer]:
-                        - generic [ref=e886] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e887] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e889] [cursor=pointer]:
-                      - img [ref=e890] [cursor=pointer]
-                      - generic [ref=e893] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "Ra Rafael Leme Pereira há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e894] [cursor=pointer]':
-                  - generic [ref=e896] [cursor=pointer]: Ra
-                  - generic [ref=e897] [cursor=pointer]:
+                      - img [ref=e882] [cursor=pointer]
+                      - generic [ref=e885] [cursor=pointer]: Olá! Como vai? Agradeço pela mensagem. Como posso ajudar você hoje? Se tiver alguma dúvida ou precisar de informações, estou aqui para ajudar!
+                - 'button "Ka Kauã Henrique Maia há cerca de 1 hora 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e886] [cursor=pointer]':
+                  - generic [ref=e888] [cursor=pointer]: Ka
+                  - generic [ref=e889] [cursor=pointer]:
+                    - generic [ref=e890] [cursor=pointer]:
+                      - paragraph [ref=e892] [cursor=pointer]: Kauã Henrique Maia
+                      - generic [ref=e893] [cursor=pointer]:
+                        - generic [ref=e895] [cursor=pointer]: há cerca de 1 hora
+                        - generic [ref=e896] [cursor=pointer]: 5865_Antonio_Roseli_BM
                     - generic [ref=e898] [cursor=pointer]:
-                      - paragraph [ref=e900] [cursor=pointer]: Rafael Leme Pereira
-                      - generic [ref=e901] [cursor=pointer]:
-                        - generic [ref=e903] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e904] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e906] [cursor=pointer]:
-                      - img [ref=e907] [cursor=pointer]
-                      - generic [ref=e910] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "Sé Sérgio Luiz Gussen dos Santos Filho há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e911] [cursor=pointer]':
-                  - generic [ref=e913] [cursor=pointer]: Sé
-                  - generic [ref=e914] [cursor=pointer]:
-                    - generic [ref=e915] [cursor=pointer]:
-                      - paragraph [ref=e917] [cursor=pointer]: Sérgio Luiz Gussen dos Santos Filho
-                      - generic [ref=e918] [cursor=pointer]:
-                        - generic [ref=e920] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e921] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e923] [cursor=pointer]:
-                      - img [ref=e924] [cursor=pointer]
-                      - generic [ref=e927] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "Jo Joelson Iaralhan há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e928] [cursor=pointer]':
-                  - generic [ref=e930] [cursor=pointer]: Jo
-                  - generic [ref=e931] [cursor=pointer]:
-                    - generic [ref=e932] [cursor=pointer]:
-                      - paragraph [ref=e934] [cursor=pointer]: Joelson Iaralhan
-                      - generic [ref=e935] [cursor=pointer]:
-                        - generic [ref=e937] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e938] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e940] [cursor=pointer]:
-                      - img [ref=e941] [cursor=pointer]
-                      - generic [ref=e944] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - 'button "Ma Mauricio Archiza há 8 minutos 5865_Antonio_Roseli_BM Template: _faltam1dias_edn_nov_25___" [ref=e945] [cursor=pointer]':
-                  - generic [ref=e947] [cursor=pointer]: Ma
-                  - generic [ref=e948] [cursor=pointer]:
-                    - generic [ref=e949] [cursor=pointer]:
-                      - paragraph [ref=e951] [cursor=pointer]: Mauricio Archiza
-                      - generic [ref=e952] [cursor=pointer]:
-                        - generic [ref=e954] [cursor=pointer]: há 8 minutos
-                        - generic [ref=e955] [cursor=pointer]: 5865_Antonio_Roseli_BM
-                    - generic [ref=e957] [cursor=pointer]:
-                      - img [ref=e958] [cursor=pointer]
-                      - generic [ref=e961] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
-                - generic [ref=e963]: Role para carregar mais
-            - generic [ref=e965]:
-              - generic [ref=e966]:
-                - generic [ref=e967]:
-                  - generic [ref=e969]: Jo
-                  - generic [ref=e970]:
-                    - paragraph [ref=e971]:
-                      - link "José Fernando Chaim" [ref=e972] [cursor=pointer]:
-                        - /url: /contacts/0132edbe-6110-4154-809f-bdf04b74f90b
-                    - paragraph [ref=e973]: "+5511984559559"
-                - generic [ref=e974]:
-                  - generic [ref=e975]:
-                    - img [ref=e976]
-                    - switch "Ativar/Desativar IA" [checked] [ref=e979] [cursor=pointer]
-                  - button [ref=e980] [cursor=pointer]:
-                    - img [ref=e981] [cursor=pointer]
-              - generic [ref=e988]:
-                - generic [ref=e989]:
-                  - generic [ref=e990]:
-                    - paragraph [ref=e992]: Boa tarde
-                    - paragraph [ref=e994]: 09:11 PM
-                  - img [ref=e997]
-                - generic [ref=e1000]:
-                  - generic [ref=e1001]:
-                    - paragraph [ref=e1003]: Eu tenho uma empresa para apresentar ao Pablo Marçal
-                    - paragraph [ref=e1005]: 09:11 PM
-                  - img [ref=e1008]
-                - generic [ref=e1011]:
-                  - generic [ref=e1012]:
-                    - paragraph [ref=e1014]: Será que consegue o e-mail dele?
-                    - paragraph [ref=e1016]: 09:12 PM
-                  - img [ref=e1019]
-                - generic [ref=e1022]:
-                  - generic [ref=e1023]:
-                    - paragraph [ref=e1025]: Olá! Boa tarde! Que ótimo ouvir isso. Poderia me contar um pouco mais sobre sua empresa e o que você busca ao apresentá-la ao Pablo Marçal?
-                    - generic [ref=e1026]:
-                      - paragraph [ref=e1027]: 09:12 PM
-                      - img [ref=e1028]
-                  - img [ref=e1032]
-                - generic [ref=e1035]:
-                  - generic [ref=e1036]:
-                    - paragraph [ref=e1038]: "Olá! Como vai?? Perfeito, acabei de pedir o time para liberar o seu acesso aqui. Enquanto isso, uma dúvida para já anotar aqui: Você hoje trabalha em qual área?"
-                    - generic [ref=e1039]:
-                      - paragraph [ref=e1040]: 09:12 PM
-                      - img [ref=e1041]
-                  - img [ref=e1046]
-                - generic [ref=e1049]:
-                  - generic [ref=e1050]:
-                    - paragraph [ref=e1052]: Como é uma empresa multinacional
-                    - paragraph [ref=e1054]: 09:12 PM
-                  - img [ref=e1057]
-                - generic [ref=e1060]:
-                  - generic [ref=e1061]:
-                    - paragraph [ref=e1063]: Eu trabalho com Turismo Internacional (USA)
-                    - paragraph [ref=e1065]: 09:12 PM
-                  - img [ref=e1068]
-                - generic [ref=e1071]:
-                  - generic [ref=e1072]:
-                    - paragraph [ref=e1074]: Inclusive Pablo
-                    - paragraph [ref=e1076]: 09:12 PM
-                  - img [ref=e1079]
-                - generic [ref=e1082]:
-                  - generic [ref=e1083]:
-                    - paragraph [ref=e1085]: Algumas vezes
-                    - paragraph [ref=e1087]: 09:12 PM
-                  - img [ref=e1090]
-                - generic [ref=e1093]:
-                  - generic [ref=e1094]:
-                    - paragraph [ref=e1096]: Já comprou nossos serviços
-                    - paragraph [ref=e1098]: 09:12 PM
-                  - img [ref=e1101]
-                - generic [ref=e1104]:
-                  - generic [ref=e1105]:
-                    - paragraph [ref=e1107]: Ou seja, ele é nosso cliente.
-                    - paragraph [ref=e1109]: 09:13 PM
-                  - img [ref=e1112]
-                - generic [ref=e1115]:
-                  - generic [ref=e1116]:
-                    - paragraph [ref=e1118]: Que interessante! Trabalhar com turismo internacional certamente abre muitas portas. E que bom saber que o Pablo já é cliente de vocês!
-                    - generic [ref=e1119]:
-                      - paragraph [ref=e1120]: 09:13 PM
-                      - img [ref=e1121]
-                  - img [ref=e1126]
-                - generic [ref=e1129]:
-                  - generic [ref=e1130]:
-                    - paragraph [ref=e1132]: Para direcionar melhor a sua solicitação, você está buscando uma parceria mais estratégica ou gostaria de apresentar novos serviços?
-                    - generic [ref=e1133]:
-                      - paragraph [ref=e1134]: 09:13 PM
-                      - img [ref=e1135]
-                  - img [ref=e1140]
-                - generic [ref=e1143]:
-                  - generic [ref=e1144]:
-                    - paragraph [ref=e1146]: Que bacana! Trabalhar com turismo internacional deve ser bem dinâmico. E que legal saber que o Pablo já conhece seus serviços! Você está pensando em expandir ainda mais sua atuação ou focar em algum nicho específico dentro do turismo?
-                    - generic [ref=e1147]:
-                      - paragraph [ref=e1148]: 09:13 PM
-                      - img [ref=e1149]
-                  - img [ref=e1154]
-                - generic [ref=e1157]:
-                  - generic [ref=e1158]:
-                    - paragraph [ref=e1160]: A empresa já exige há 33 anos
-                    - paragraph [ref=e1162]: 09:13 PM
-                  - img [ref=e1165]
-                - generic [ref=e1168]:
-                  - generic [ref=e1169]:
-                    - paragraph [ref=e1171]: Impressionante! Uma trajetória de 33 anos no mercado de turismo internacional mostra muita solidez e experiência. Com essa bagagem, quais são os próximos passos que vocês estão planejando para a empresa? Alguma nova meta ou mercado que desejam explorar?
-                    - generic [ref=e1172]:
-                      - paragraph [ref=e1173]: 09:13 PM
-                      - img [ref=e1174]
-                  - img [ref=e1179]
-                - generic [ref=e1182]:
-                  - generic [ref=e1183]:
-                    - paragraph [ref=e1185]: Impressionante! Uma trajetória de 33 anos mostra uma grande solidez no mercado. Com essa experiência toda, quais são os próximos passos que vocês estão planejando para a empresa? Algum novo mercado ou serviço que pretendem explorar?
-                    - generic [ref=e1186]:
-                      - paragraph [ref=e1187]: 09:13 PM
-                      - img [ref=e1188]
-                  - img [ref=e1193]
-                - generic [ref=e1196]:
-                  - generic [ref=e1197]:
-                    - paragraph [ref=e1199]: Impressionante! Uma trajetória de 33 anos no mercado de turismo internacional mostra muita solidez e experiência. Com essa bagagem, quais são os próximos passos que vocês estão planejando para a empresa? Alguma nova meta ou mercado que desejam explorar?
-                    - generic [ref=e1200]:
-                      - paragraph [ref=e1201]: 09:14 PM
-                      - img [ref=e1202]
-                  - img [ref=e1207]
-                - generic [ref=e1210]:
-                  - generic [ref=e1211]:
-                    - paragraph [ref=e1213]: Ela está em operação e tem um faturamento anual de 320 milhões de reais
-                    - paragraph [ref=e1215]: 09:14 PM
-                  - img [ref=e1218]
-                - generic [ref=e1221]:
-                  - generic [ref=e1222]:
-                    - paragraph [ref=e1224]: Isso é realmente notável! Com um faturamento anual de 320 milhões de reais, a empresa certamente tem uma posição robusta no mercado. Diante disso, quais são os principais desafios que vocês enfrentam atualmente? Existe algum objetivo específico para o próximo ano que você gostaria de compartilhar?
-                    - generic [ref=e1225]:
-                      - paragraph [ref=e1226]: 09:14 PM
-                      - img [ref=e1227]
-                  - img [ref=e1232]
-                - generic [ref=e1235]:
-                  - generic [ref=e1236]:
-                    - paragraph [ref=e1238]: Olá
-                    - paragraph [ref=e1240]: 09:14 PM
-                  - img [ref=e1243]
-                - generic [ref=e1246]:
-                  - generic [ref=e1247]:
-                    - paragraph [ref=e1249]: A empresa tem potencial de dobrar o faturamento
-                    - paragraph [ref=e1251]: 09:15 PM
-                  - img [ref=e1254]
-                - generic [ref=e1257]:
-                  - generic [ref=e1258]:
-                    - paragraph [ref=e1260]: Porém o herdeiro colocou parentes para trabalhar
-                    - paragraph [ref=e1262]: 09:15 PM
-                  - img [ref=e1265]
-                - generic [ref=e1268]:
-                  - generic [ref=e1269]:
-                    - paragraph [ref=e1271]: É isso tem travado o crescimento do negócio
-                    - paragraph [ref=e1273]: 09:15 PM
-                  - img [ref=e1276]
-                - generic [ref=e1279]:
-                  - generic [ref=e1280]:
-                    - paragraph [ref=e1282]: Para se livrar dos parentes o dono está disposto a vender tudo
-                    - paragraph [ref=e1284]: 09:15 PM
-                  - img [ref=e1287]
-                - generic [ref=e1290]:
-                  - generic [ref=e1291]:
-                    - paragraph [ref=e1293]: Ou parte da empresa
-                    - paragraph [ref=e1295]: 09:15 PM
-                  - img [ref=e1298]
-                - generic [ref=e1301]:
-                  - generic [ref=e1302]:
-                    - paragraph [ref=e1304]: 49%
-                    - paragraph [ref=e1306]: 09:15 PM
-                  - img [ref=e1309]
-                - generic [ref=e1312]:
-                  - generic [ref=e1313]:
-                    - paragraph [ref=e1315]: Tivemos uma proposta do Grupo Decolar
-                    - paragraph [ref=e1317]: 09:16 PM
-                  - img [ref=e1320]
-              - generic [ref=e1323]:
-                - generic [ref=e1324]:
-                  - img [ref=e1325]
-                  - generic [ref=e1328]: "Tempo restante para resposta: 23:59:44"
-                - generic [ref=e1329]:
-                  - button [ref=e1330] [cursor=pointer]:
-                    - img [ref=e1331] [cursor=pointer]
-                  - textbox "Digite sua mensagem..." [ref=e1334]
-                  - button [ref=e1335] [cursor=pointer]:
-                    - img [ref=e1336] [cursor=pointer]
-            - complementary [ref=e1339]:
-              - generic [ref=e1343]:
-                - generic [ref=e1344]:
-                  - img "José Fernando Chaim" [ref=e1346]
-                  - heading "José Fernando Chaim" [level=3] [ref=e1347]
-                  - paragraph [ref=e1348]:
-                    - img "Bandeira do Brasil" [ref=e1349]
-                    - text: "+5511984559559"
-                - button "Iniciar Chamada de Voz" [ref=e1350] [cursor=pointer]:
-                  - img [ref=e1351] [cursor=pointer]
+                      - img [ref=e899] [cursor=pointer]
+                      - generic [ref=e902] [cursor=pointer]: "Template: _faltam1dias_edn_nov_25___"
+                - generic [ref=e904]: Role para carregar mais
+            - generic [ref=e906]:
+              - generic [ref=e907]:
+                - generic [ref=e908]:
+                  - generic [ref=e910]: Jo
+                  - generic [ref=e911]:
+                    - paragraph [ref=e912]:
+                      - link "Joel Augusto Gracioto" [ref=e913] [cursor=pointer]:
+                        - /url: /contacts/88074527-a1a6-437b-b3cb-2e8b37b362e2
+                    - paragraph [ref=e914]: "+5511995727302"
+                - generic [ref=e915]:
+                  - generic [ref=e916]:
+                    - img [ref=e917]
+                    - switch "Ativar/Desativar IA" [ref=e920] [cursor=pointer]
+                  - button [ref=e921] [cursor=pointer]:
+                    - img [ref=e922] [cursor=pointer]
+              - generic [ref=e930]:
+                - img [ref=e933]
+                - generic [ref=e936]:
+                  - paragraph [ref=e938]: Resgate seu Acesso
+                  - paragraph [ref=e940]: 09:48 PM
+              - generic [ref=e941]:
+                - generic [ref=e942]:
+                  - img [ref=e943]
+                  - generic [ref=e946]: "Tempo: 23:52:48"
+                - generic [ref=e947]:
+                  - button [ref=e948] [cursor=pointer]:
+                    - img [ref=e949] [cursor=pointer]
+                  - textbox "Digite sua mensagem..." [ref=e952]
+                  - button [ref=e953] [cursor=pointer]:
+                    - img [ref=e954] [cursor=pointer]
+            - complementary [ref=e957]:
+              - generic [ref=e961]:
+                - generic [ref=e962]:
+                  - img "Joel Augusto Gracioto" [ref=e964]
+                  - heading "Joel Augusto Gracioto" [level=3] [ref=e965]
+                  - paragraph [ref=e966]:
+                    - img "Bandeira do Brasil" [ref=e967]
+                    - text: "+5511995727302"
+                - button "Iniciar Chamada de Voz" [ref=e968] [cursor=pointer]:
+                  - img [ref=e969] [cursor=pointer]
                   - text: Iniciar Chamada de Voz
-                - alert [ref=e1353]:
-                  - img [ref=e1354]
-                  - generic [ref=e1356]:
-                    - generic [ref=e1357]: Conversas Múltiplas Detectadas
-                    - paragraph [ref=e1358]: Este contato está em conversa com 2 números diferentes simultaneamente.
-                - generic [ref=e1359]:
-                  - heading "Conversas Ativas (2)" [level=3] [ref=e1361]:
-                    - img [ref=e1362]
+                - alert [ref=e971]:
+                  - img [ref=e972]
+                  - generic [ref=e974]:
+                    - generic [ref=e975]: Conversas Múltiplas Detectadas
+                    - paragraph [ref=e976]: Este contato está em conversa com 2 números diferentes simultaneamente.
+                - generic [ref=e977]:
+                  - heading "Conversas Ativas (2)" [level=3] [ref=e979]:
+                    - img [ref=e980]
                     - text: Conversas Ativas (2)
-                  - generic [ref=e1364]:
-                    - generic [ref=e1365]:
-                      - generic [ref=e1367]:
-                        - paragraph [ref=e1368]: 7827 - Priscila
-                        - generic [ref=e1369]:
-                          - generic [ref=e1370]: Whatsapp Normal
-                          - generic [ref=e1371]: IN_PROGRESS
-                          - generic [ref=e1372]: IA Ativa
-                      - paragraph [ref=e1373]:
+                  - generic [ref=e982]:
+                    - generic [ref=e983]:
+                      - generic [ref=e985]:
+                        - paragraph [ref=e986]: 7827 - Priscila
+                        - generic [ref=e987]:
+                          - generic [ref=e988]: Whatsapp Normal
+                          - generic [ref=e989]: IN_PROGRESS
+                          - generic [ref=e990]: IA Ativa
+                      - paragraph [ref=e991]:
                         - text: "Última mensagem:"
-                        - generic [ref=e1374]: há cerca de 20 horas
-                      - generic [ref=e1375]:
-                        - generic [ref=e1376]:
-                          - generic [ref=e1377]:
-                            - img [ref=e1378]
+                        - generic [ref=e992]: há cerca de 21 horas
+                      - generic [ref=e993]:
+                        - generic [ref=e994]:
+                          - generic [ref=e995]:
+                            - img [ref=e996]
                             - text: Agente IA Ativo
-                          - generic [ref=e1381]:
-                            - paragraph [ref=e1382]: Agente Genérico
-                            - paragraph [ref=e1383]: ⚠️ Resposta básica genérica
-                        - generic [ref=e1384]:
-                          - generic [ref=e1385]: Fallback Manual (Opcional)
-                          - combobox [ref=e1386] [cursor=pointer]:
+                          - generic [ref=e999]:
+                            - paragraph [ref=e1000]: Agente Genérico
+                            - paragraph [ref=e1001]: ⚠️ Resposta básica genérica
+                        - generic [ref=e1002]:
+                          - generic [ref=e1003]: Fallback Manual (Opcional)
+                          - combobox [ref=e1004] [cursor=pointer]:
                             - generic: Nenhum
-                            - img [ref=e1387] [cursor=pointer]
-                          - paragraph [ref=e1389]: Usado apenas se não houver no Kanban ou Conexão
-                    - generic [ref=e1390]:
-                      - generic [ref=e1392]:
-                        - paragraph [ref=e1393]: 5865_Antonio_Roseli_BM
-                        - generic [ref=e1394]:
-                          - generic [ref=e1395]: Whatsapp Business
-                          - generic [ref=e1396]: IN_PROGRESS
-                          - generic [ref=e1397]: IA Ativa
-                      - paragraph [ref=e1398]:
+                            - img [ref=e1005] [cursor=pointer]
+                          - paragraph [ref=e1007]: Usado apenas se não houver no Kanban ou Conexão
+                    - generic [ref=e1008]:
+                      - generic [ref=e1010]:
+                        - paragraph [ref=e1011]: 5865_Antonio_Roseli_BM
+                        - generic [ref=e1012]:
+                          - generic [ref=e1013]: Whatsapp Business
+                          - generic [ref=e1014]: NEW
+                      - paragraph [ref=e1015]:
                         - text: "Última mensagem:"
-                        - generic [ref=e1399]: há menos de um minuto
-                      - generic [ref=e1400]:
-                        - generic [ref=e1401]:
-                          - generic [ref=e1402]:
-                            - img [ref=e1403]
-                            - text: Agente IA Ativo
-                          - generic [ref=e1406]:
-                            - paragraph [ref=e1407]: Antônio EDN Atendimento
-                            - paragraph [ref=e1408]: 📱 Conexão padrão
-                        - generic [ref=e1409]:
-                          - generic [ref=e1410]: Fallback Manual (Opcional)
-                          - combobox [ref=e1411] [cursor=pointer]:
-                            - generic: Nenhum
-                            - img [ref=e1412] [cursor=pointer]
-                          - paragraph [ref=e1414]: Usado apenas se não houver no Kanban ou Conexão
-                - generic [ref=e1415]:
-                  - heading "Segmentação" [level=3] [ref=e1417]
-                  - generic [ref=e1418]:
-                    - generic [ref=e1419]:
-                      - generic [ref=e1420]: Tags
-                      - generic [ref=e1422]: convidados-cpf-edn-nov-25
-                    - generic [ref=e1423]:
-                      - generic [ref=e1424]: Listas
-                      - generic [ref=e1425]:
-                        - generic [ref=e1426]: conv-edn-nov-25
-                        - generic [ref=e1427]: conv-edn-nov-25-50
-                - generic [ref=e1428]:
-                  - heading "Notas Internas" [level=3] [ref=e1430]
-                  - textbox "Adicione uma nota sobre este contato..." [ref=e1432]
-                - button "Salvar Alterações" [ref=e1433] [cursor=pointer]:
-                  - img [ref=e1434] [cursor=pointer]
+                        - generic [ref=e1016]: há 7 minutos
+                - generic [ref=e1017]:
+                  - heading "Segmentação" [level=3] [ref=e1019]
+                  - generic [ref=e1020]:
+                    - generic [ref=e1021]:
+                      - generic [ref=e1022]: Tags
+                      - generic [ref=e1024]: convidados-cpf-edn-nov-25
+                    - generic [ref=e1025]:
+                      - generic [ref=e1026]: Listas
+                      - generic [ref=e1027]:
+                        - generic [ref=e1028]: conv-edn-nov-25
+                        - generic [ref=e1029]: conv-edn-nov-25-50
+                - generic [ref=e1030]:
+                  - heading "Notas Internas" [level=3] [ref=e1032]
+                  - textbox "Adicione uma nota sobre este contato..." [ref=e1034]
+                - button "Salvar Alterações" [ref=e1035] [cursor=pointer]:
+                  - img [ref=e1036] [cursor=pointer]
                   - text: Salvar Alterações
-  - button [ref=e1438] [cursor=pointer]:
-    - img [ref=e1440] [cursor=pointer]
+  - button [ref=e1040] [cursor=pointer]:
+    - img [ref=e1042] [cursor=pointer]
   - generic:
-    - generic [ref=e1442]:
-      - heading "Console Monitor" [level=3] [ref=e1443]
-      - generic [ref=e1444]:
-        - button [ref=e1445] [cursor=pointer]:
-          - img [ref=e1446] [cursor=pointer]
-        - button [ref=e1449] [cursor=pointer]:
-          - img [ref=e1450] [cursor=pointer]
-        - button [ref=e1453] [cursor=pointer]:
-          - img [ref=e1454] [cursor=pointer]
-    - generic [ref=e1457]:
-      - generic [ref=e1458]:
-        - button "all" [ref=e1459] [cursor=pointer]
-        - button "log" [ref=e1460] [cursor=pointer]
-        - button "error" [ref=e1461] [cursor=pointer]
-        - button "warn" [ref=e1462] [cursor=pointer]
-        - button "info" [ref=e1463] [cursor=pointer]
-      - textbox "Search..." [ref=e1465]
-    - generic [ref=e1466]:
+    - generic [ref=e1044]:
+      - heading "Console Monitor" [level=3] [ref=e1045]
+      - generic [ref=e1046]:
+        - button [ref=e1047] [cursor=pointer]:
+          - img [ref=e1048] [cursor=pointer]
+        - button [ref=e1051] [cursor=pointer]:
+          - img [ref=e1052] [cursor=pointer]
+        - button [ref=e1055] [cursor=pointer]:
+          - img [ref=e1056] [cursor=pointer]
+    - generic [ref=e1059]:
+      - generic [ref=e1060]:
+        - button "all" [ref=e1061] [cursor=pointer]
+        - button "log" [ref=e1062] [cursor=pointer]
+        - button "error" [ref=e1063] [cursor=pointer]
+        - button "warn" [ref=e1064] [cursor=pointer]
+        - button "info" [ref=e1065] [cursor=pointer]
+      - textbox "Search..." [ref=e1067]
+    - generic [ref=e1068]:
       - generic:
         - img
-        - generic [ref=e1468]: 9:16:11 PM
-        - generic [ref=e1470]:
+        - generic [ref=e1070]: 9:55:16 PM
+        - generic [ref=e1072]:
           - text: "[Console Monitor] Iniciado - Capturando todos os logs"
-          - generic [ref=e1471]: (2x)
-      - generic:
-        - img
-        - generic [ref=e1473]: 9:16:14 PM
-        - generic [ref=e1475]: "Image with src \"https://flagsapi.com/BR/flat/16.png\" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: \"auto\"' or 'height: \"auto\"' to maintain the aspect ratio."
+          - generic [ref=e1073]: (2x)
   - region "Notifications (F8)":
     - list
-  - alert [ref=e1476]
+  - alert [ref=e1074]
 ```

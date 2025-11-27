@@ -410,7 +410,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
       
         {showActiveChat ? (
             selectedConversation ? (
-                 <div className="flex-[0.6] md:flex-[0.55] xl:flex-[0.60] flex flex-col min-h-0 border-r">
+                 <div className="flex-[0.6] md:flex-[0.55] xl:flex-[0.60] flex flex-col h-full min-h-0 border-r overflow-hidden">
                     <ActiveChat
                         key={selectedConversation.id}
                         conversation={selectedConversation}

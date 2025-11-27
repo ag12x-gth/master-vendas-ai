@@ -34,20 +34,41 @@ export async function GET(
         // Create read stream
         const stream = objectFile.createReadStream();
         
-        // Convert to web stream
+        // Convert to web stream with proper controller state management
         const webStream = new ReadableStream({
-            async start(controller) {
+            start(controller) {
+                let isClosed = false;
+                
                 stream.on('data', (chunk) => {
-                    controller.enqueue(chunk);
+                    if (!isClosed) {
+                        try {
+                            controller.enqueue(chunk);
+                        } catch {
+                            isClosed = true;
+                        }
+                    }
                 });
                 
                 stream.on('end', () => {
-                    controller.close();
+                    if (!isClosed) {
+                        isClosed = true;
+                        try {
+                            controller.close();
+                        } catch {}
+                    }
                 });
                 
                 stream.on('error', (err) => {
-                    controller.error(err);
+                    if (!isClosed) {
+                        isClosed = true;
+                        try {
+                            controller.error(err);
+                        } catch {}
+                    }
                 });
+            },
+            cancel() {
+                stream.destroy();
             }
         });
         

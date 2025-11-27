@@ -234,9 +234,9 @@ export function ActiveChat({
         </div>
       </div>
 
-       <div className="flex-1 min-h-0 overflow-hidden">
-        <ScrollArea className="h-full" viewportRef={scrollAreaRef}>
-          <div className="p-4 space-y-4">
+       <div className="flex-1 min-h-0 overflow-hidden relative">
+        <ScrollArea className="absolute inset-0" viewportRef={scrollAreaRef}>
+          <div className="p-4 space-y-3 overflow-x-hidden">
             {hasMoreMessages && (
               <div className="flex justify-center py-2">
                 {isLoadingMoreMessages ? (
@@ -270,18 +270,18 @@ export function ActiveChat({
         </ScrollArea>
       </div>
 
-      <div className="shrink-0 border-t bg-background p-4">
+      <div className="shrink-0 border-t bg-background p-4 overflow-x-hidden">
         {!isArchived && (
           <>
             {canSendFreeform && timeLeft !== null ? (
                 <div className="mb-2 text-xs text-center text-primary font-semibold flex items-center justify-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    <span>Tempo restante para resposta: {formatTimeLeft(timeLeft)}</span>
+                    <Clock className="h-4 w-4 shrink-0" />
+                    <span>Tempo: {formatTimeLeft(timeLeft)}</span>
                 </div>
             ) : (
-                <div className="mb-2 p-2 text-xs text-center text-yellow-800 bg-yellow-400/20 rounded-md flex items-center justify-center gap-2">
-                    <AlertTriangle className="h-4 w-4" />
-                    <span>A janela de 24 horas expirou. Envie um modelo para continuar.</span>
+                <div className="mb-2 p-2 text-xs text-center text-yellow-800 bg-yellow-400/20 rounded-md flex items-center justify-center gap-2 flex-wrap">
+                    <AlertTriangle className="h-4 w-4 shrink-0" />
+                    <span className="break-words">A janela de 24 horas expirou. Envie um modelo para continuar.</span>
                 </div>
             )}
           </>
