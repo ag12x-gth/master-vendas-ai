@@ -1306,12 +1306,16 @@ export async function sendSmsCampaign(campaign: typeof campaigns.$inferSelect): 
                 const providerResponse = await sendSmsBatch(gateway, campaign, batch);
                 
                 // Salvar mailing ID da MKOM se disponível e ainda não salvo
-                if (providerResponse.mailingId && !savedMailingId) {
-                    savedMailingId = providerResponse.mailingId;
+                const responseMailingId = typeof providerResponse.mailingId === 'string' 
+                    ? providerResponse.mailingId 
+                    : (providerResponse.mailingId ? String(providerResponse.mailingId) : null);
+                    
+                if (responseMailingId && !savedMailingId) {
+                    savedMailingId = responseMailingId;
                     await db.update(campaigns).set({ 
-                        smsProviderMailingId: providerResponse.mailingId 
+                        smsProviderMailingId: responseMailingId 
                     }).where(eq(campaigns.id, campaign.id));
-                    console.log(`[Campanha SMS ${campaign.id}] ✅ Mailing ID salvo: ${providerResponse.mailingId}`);
+                    console.log(`[Campanha SMS ${campaign.id}] ✅ Mailing ID salvo: ${responseMailingId}`);
                 }
                 
                 await logSmsDelivery(campaign, gateway, batch, providerResponse as any);

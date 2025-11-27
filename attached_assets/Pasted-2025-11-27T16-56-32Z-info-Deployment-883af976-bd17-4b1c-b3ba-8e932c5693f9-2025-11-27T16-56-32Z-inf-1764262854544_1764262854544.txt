@@ -1,0 +1,82 @@
+2025-11-27T16:56:32Z info: Deployment: 883af976-bd17-4b1c-b3ba-8e932c5693f9
+2025-11-27T16:56:32Z info: Running Security Scan
+2025-11-27T16:57:37Z info: Connecting to builder
+2025-11-27T16:57:37Z info: Builder connected
+2025-11-27T16:57:38Z info: Installing packages
+--> npm install
+
+
+up to date, audited 1180 packages in 7s
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.6.4
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.4
+npm notice To update run: npm install -g npm@11.6.4
+npm notice
+
+2025-11-27T16:57:45Z info: Starting Build
+
+> nextn@2.4.2 build
+> NODE_OPTIONS='--max-old-space-size=4096' SKIP_LINT=false next build
+
+
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.com/vercel/next.js/issues
+
+  ▲ Next.js 14.2.33
+
+    · cpus
+
+   Creating an optimized production build ...
+
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+
+ ✓ Compiled successfully
+
+   Linting and checking validity of types ...
+
+
+./src/components/analytics/stats-cards.tsx
+10:57  Warning: 'MessageSquare' is defined but never used.  unused-imports/no-unused-imports
+10:72  Warning: 'Smartphone' is defined but never used.  unused-imports/no-unused-imports
+
+./src/components/campaigns/TemplatePreview.tsx
+128:17  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/campaigns/whatsapp-preview.tsx
+53:23  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/whatsapp-baileys/qr-code-modal.tsx
+165:15  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/server.js
+4:9  Warning: 'Server' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+5:7  Warning: 'path' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+212:17  Warning: 'conn' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+337:11  Warning: 'redis' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/services/ai/openai-service.ts
+43:5  Warning: 'conversationHistory' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/services/alert.service.ts
+415:46  Warning: 'alert' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+692:39  Warning: 'metricName' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+733:13  Warning: 'result' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+757:13  Warning: 'result' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+832:13  Warning: 'result' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+
+Failed to compile.
+
+./src/lib/campaign-sender.ts:1310:21
+Type error: Type '{}' is not assignable to type 'string'.
+
+  1308 |                 // Salvar mailing ID da MKOM se disponível e ainda não salvo
+  1309 |                 if (providerResponse.mailingId && !savedMailingId) {
+> 1310 |                     savedMailingId = providerResponse.mailingId;
+       |                     ^
+  1311 |                     await db.update(campaigns).set({ 
+  1312 |                         smsProviderMailingId: providerResponse.mailingId 
+  1313 |                     }).where(eq(campaigns.id, campaign.id));
+
+Next.js build worker exited with code: 1 and signal: null
