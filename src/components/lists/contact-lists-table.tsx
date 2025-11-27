@@ -149,38 +149,39 @@ export function ContactListsTable() {
 
     return (
         <div className="space-y-4">
-             <div className="flex flex-col sm:flex-row items-center gap-4">
-                <div className="relative w-full sm:w-auto sm:flex-1">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                <div className="relative w-full sm:w-auto sm:flex-1 sm:max-w-xs">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Buscar por nome ou descrição..."
-                        className="pl-9 w-full sm:w-64"
+                        className="pl-9 w-full"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
-                <div className="flex w-full sm:w-auto">
-                    <Button onClick={() => handleOpenModal(null)} className="w-full">
+                <div className="w-full sm:w-auto sm:ml-auto">
+                    <Button onClick={() => handleOpenModal(null)} className="w-full sm:w-auto">
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Criar Lista
                     </Button>
                 </div>
             </div>
-            <div className="border rounded-lg w-full">
-                <Table>
+            
+            <div className="border rounded-lg w-full overflow-x-auto">
+                <Table className="min-w-[500px]">
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Nome da Lista</TableHead>
-                            <TableHead>Contatos</TableHead>
-                            <TableHead>Data de Criação</TableHead>
-                            <TableHead className="text-right">Ações</TableHead>
+                            <TableHead className="w-[40%] min-w-[180px]">Nome da Lista</TableHead>
+                            <TableHead className="w-[15%] min-w-[80px] text-center">Contatos</TableHead>
+                            <TableHead className="w-[25%] min-w-[100px]">Data de Criação</TableHead>
+                            <TableHead className="w-[20%] min-w-[60px] text-center">Ações</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {loading ? (
-                             <TableRow>
+                            <TableRow>
                                 <TableCell colSpan={4} className="h-24 text-center">
-                                <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                                    <Loader2 className="mx-auto h-6 w-6 animate-spin" />
                                 </TableCell>
                             </TableRow>
                         ) : lists.length === 0 ? (
@@ -191,15 +192,21 @@ export function ContactListsTable() {
                             lists.map((list) => (
                                 <TableRow key={list.id}>
                                     <TableCell>
-                                        <div className="font-medium">{list.name}</div>
-                                        <div className="text-sm text-muted-foreground">{list.description}</div>
+                                        <div className="font-medium truncate max-w-[200px] sm:max-w-none">{list.name}</div>
+                                        {list.description && (
+                                            <div className="text-sm text-muted-foreground truncate max-w-[200px] sm:max-w-[300px] lg:max-w-none">{list.description}</div>
+                                        )}
                                     </TableCell>
-                                    <TableCell>{list.contactCount}</TableCell>
+                                    <TableCell className="text-center">{list.contactCount}</TableCell>
                                     <TableCell>{list.createdAt ? new Date(list.createdAt).toLocaleDateString('pt-BR') : '-'}</TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className="text-center">
                                         <DropdownMenu>
-                                            <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button></DropdownMenuTrigger>
-                                            <DropdownMenuContent>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon">
+                                                    <MoreHorizontal className="h-4 w-4" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end">
                                                 <DropdownMenuItem onSelect={() => handleOpenModal(list)}>
                                                     <Edit className="mr-2 h-4 w-4"/>Editar
                                                 </DropdownMenuItem>
@@ -229,25 +236,38 @@ export function ContactListsTable() {
                     </TableBody>
                 </Table>
             </div>
-             {totalPages > 1 && (
-                <div className="flex items-center justify-between space-x-2 py-4">
-                    <div className="flex-1 text-sm text-muted-foreground">
-                        Página {page} de {totalPages}.
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <Select value={limit.toString()} onValueChange={(value) => {setLimit(parseInt(value, 10)); setPage(1);}}>
-                            <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                {[10, 20, 50].map(val => <SelectItem key={val} value={val.toString()}>{val} por página</SelectItem>)}
-                            </SelectContent>
-                        </Select>
-                        <Button variant="outline" size="icon" onClick={() => setPage(1)} disabled={page === 1}><ChevronsLeft className="h-4 w-4" /></Button>
-                        <Button variant="outline" size="icon" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}><ChevronLeft className="h-4 w-4" /></Button>
-                        <Button variant="outline" size="icon" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}><ChevronRight className="h-4 w-4" /></Button>
-                        <Button variant="outline" size="icon" onClick={() => setPage(totalPages)} disabled={page === totalPages}><ChevronsRight className="h-4 w-4" /></Button>
+            
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 py-2">
+                <div className="text-sm text-muted-foreground order-2 sm:order-1">
+                    Página {page} de {totalPages}.
+                </div>
+                <div className="flex items-center gap-2 order-1 sm:order-2 flex-wrap justify-center">
+                    <Select value={limit.toString()} onValueChange={(value) => {setLimit(parseInt(value, 10)); setPage(1);}}>
+                        <SelectTrigger className="w-[100px] h-9">
+                            <SelectValue placeholder="10 por..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {[10, 20, 50].map(val => (
+                                <SelectItem key={val} value={val.toString()}>{val} por...</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <div className="flex items-center gap-1">
+                        <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setPage(1)} disabled={page === 1}>
+                            <ChevronsLeft className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
+                            <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => setPage(totalPages)} disabled={page === totalPages}>
+                            <ChevronsRight className="h-4 w-4" />
+                        </Button>
                     </div>
                 </div>
-            )}
+            </div>
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent>
                     <DialogHeader>
