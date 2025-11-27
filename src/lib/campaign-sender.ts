@@ -718,7 +718,7 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
         const deliveryRate = totalSent > 0 ? (deliveredCount / totalSent * 100) : 0;
 
         NotificationService.safeNotify(
-          NotificationService.notifyCampaignSent,
+          NotificationService.notifyCampaignSent.bind(NotificationService),
           'CampaignSender',
           campaign.companyId!,
           {

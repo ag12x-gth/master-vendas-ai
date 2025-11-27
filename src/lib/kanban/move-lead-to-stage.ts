@@ -76,7 +76,7 @@ export async function moveLeadToStage(
 
     if (isMovingToWin) {
       NotificationService.safeNotify(
-        NotificationService.notifyNewSale,
+        NotificationService.notifyNewSale.bind(NotificationService),
         'MoveLeadToStage',
         companyId,
         {
