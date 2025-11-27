@@ -19,6 +19,7 @@ Preferred communication style: Simple, everyday language.
 - **Real-time Communication**: Socket.IO for instant updates.
 - **AI Personas and Automation Engine**: Persona-based design with OpenAI provider and RAG capabilities via a vector database. Includes AI-powered automatic lead progression and humanized AI response delays.
 - **Campaign Management**: Custom queue system with rate limiting, retry logic, dedicated Baileys mass campaign system, and automated cadence (drip campaign) system. Includes full pause/resume functionality for campaigns.
+- **SMS Campaign Duplication Protection**: Prevents duplicate SMS sends via `smsNextContactIndex` (resume from last successful batch) and `smsProviderMailingId` (MKOM mailing tracking). Failed batches trigger PARTIAL_FAILURE status for manual review before retry. Guard against re-trigger via sentAt/completedAt check.
 - **Encryption**: AES-256-GCM for sensitive data at rest.
 - **Multi-tenant Architecture**: Company-based tenant model ensuring data isolation.
 - **Webhook System**: Meta Webhooks with signature verification and a production-ready custom webhooks integration with HMAC SHA256 and exponential retry logic.
