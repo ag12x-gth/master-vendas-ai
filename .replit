@@ -61,12 +61,12 @@ localPort = 8085
 externalPort = 3003
 
 [[ports]]
-localPort = 33747
-externalPort = 5000
+localPort = 33385
+externalPort = 6000
 
 [[ports]]
-localPort = 40979
-externalPort = 6000
+localPort = 33747
+externalPort = 5000
 
 [[ports]]
 localPort = 41849
