@@ -84,6 +84,7 @@ class BaileysSessionManager {
   private sessions = new Map<string, SessionData>();
   private phoneToConnectionMap = new Map<string, string>();
   private messageQueue = new Map<string, any[]>();
+  private pendingCreations = new Map<string, Promise<void>>();
   private readonly MAX_RETRY_ATTEMPTS = 3;
   private readonly RECONNECT_INTERVAL = 5000;
 
@@ -114,10 +115,39 @@ class BaileysSessionManager {
   }
 
   async createSession(connectionId: string, companyId: string): Promise<void> {
+    if (this.sessions.has(connectionId)) {
+      const session = this.sessions.get(connectionId);
+      if (session && (session.status === 'connected' || session.status === 'connecting')) {
+        console.log(`[Baileys] Session ${connectionId} already exists (status: ${session.status}), skipping creation`);
+        return;
+      }
+    }
+
+    const pendingCreation = this.pendingCreations.get(connectionId);
+    if (pendingCreation) {
+      console.log(`[Baileys] ⏳ Session ${connectionId} creation already in progress, waiting...`);
+      await pendingCreation;
+      return;
+    }
+
+    const creationPromise = this._doCreateSession(connectionId, companyId);
+    this.pendingCreations.set(connectionId, creationPromise);
+    
+    try {
+      await creationPromise;
+    } finally {
+      this.pendingCreations.delete(connectionId);
+    }
+  }
+
+  private async _doCreateSession(connectionId: string, companyId: string): Promise<void> {
     try {
       if (this.sessions.has(connectionId)) {
-        console.log(`[Baileys] Session ${connectionId} already exists`);
-        return;
+        const session = this.sessions.get(connectionId);
+        if (session && (session.status === 'connected' || session.status === 'connecting')) {
+          console.log(`[Baileys] Session ${connectionId} already exists after await, skipping`);
+          return;
+        }
       }
 
       const [connectionData] = await db
@@ -1055,12 +1085,28 @@ class BaileysSessionManager {
 
 declare global {
   // eslint-disable-next-line no-var
-  var baileysSessionManager: BaileysSessionManager | undefined;
+  var __BAILEYS_SESSION_MANAGER: BaileysSessionManager | undefined;
+  // eslint-disable-next-line no-var
+  var __BAILEYS_INSTANCE_ID: string | undefined;
 }
 
-export const sessionManager = global.baileysSessionManager || new BaileysSessionManager();
+const INSTANCE_ID = `sm_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
-if (!global.baileysSessionManager) {
-  global.baileysSessionManager = sessionManager;
+function getOrCreateSessionManager(): BaileysSessionManager {
+  if (globalThis.__BAILEYS_SESSION_MANAGER) {
+    return globalThis.__BAILEYS_SESSION_MANAGER;
+  }
+
+  console.log(`[Baileys] Creating new SessionManager singleton (ID: ${INSTANCE_ID})`);
+  const manager = new BaileysSessionManager();
+  
+  globalThis.__BAILEYS_SESSION_MANAGER = manager;
+  globalThis.__BAILEYS_INSTANCE_ID = INSTANCE_ID;
+  
+  Object.freeze(globalThis.__BAILEYS_SESSION_MANAGER);
+  
   console.log('[Baileys] SessionManager instance created and stored globally');
+  return manager;
 }
+
+export const sessionManager = getOrCreateSessionManager();

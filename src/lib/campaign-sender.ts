@@ -252,9 +252,32 @@ async function sendViaBaileys(
         };
     }
     
-    // NOVO: Verificar status da sessão ANTES de enviar
-    const sessionStatus = baileysSessionManager.getSessionStatus(connectionId);
+    // Verificar status da sessão e tentar restaurar se necessário
+    let sessionStatus = baileysSessionManager.getSessionStatus(connectionId);
     console.log(`[Campaign-Baileys] Preparando envio | ConnectionID: ${connectionId} | Status: ${sessionStatus || 'NOT_FOUND'} | Contato: ${contact.phone}`);
+    
+    // Se sessão não existir, tentar restaurar automaticamente
+    if (!sessionStatus) {
+        console.log(`[Campaign-Baileys] ⚡ Tentando restaurar sessão ${connectionId}...`);
+        try {
+            const [connectionData] = await db.select().from(connections).where(eq(connections.id, connectionId)).limit(1);
+            if (connectionData && connectionData.companyId) {
+                await baileysSessionManager.createSession(connectionId, connectionData.companyId);
+                // Aguardar até 10 segundos para conexão
+                for (let i = 0; i < 20; i++) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    sessionStatus = baileysSessionManager.getSessionStatus(connectionId);
+                    if (sessionStatus === 'connected') {
+                        console.log(`[Campaign-Baileys] ✅ Sessão restaurada com sucesso | ConnectionID: ${connectionId}`);
+                        break;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error(`[Campaign-Baileys] ❌ Falha ao restaurar sessão: ${(error as Error).message}`);
+        }
+        sessionStatus = baileysSessionManager.getSessionStatus(connectionId);
+    }
     
     if (!sessionStatus || sessionStatus !== 'connected') {
         const errorMsg = sessionStatus ? `Sessão ${sessionStatus} - não está conectada` : 'Sessão não encontrada no SessionManager';
