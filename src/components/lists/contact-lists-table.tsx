@@ -174,7 +174,9 @@ export function ContactListsTable() {
                             <TableHead className="min-w-[140px]">Nome da Lista</TableHead>
                             <TableHead className="w-[70px] text-center">Qtd</TableHead>
                             <TableHead className="w-[90px]">Data</TableHead>
-                            <TableHead className="w-[50px] text-center"></TableHead>
+                            <TableHead className="w-[50px] text-center">
+                                <span className="sr-only">Ações</span>
+                            </TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
