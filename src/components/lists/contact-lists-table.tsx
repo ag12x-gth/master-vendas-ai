@@ -168,13 +168,13 @@ export function ContactListsTable() {
             </div>
             
             <div className="border rounded-lg w-full overflow-x-auto">
-                <Table className="min-w-[500px]">
+                <Table className="min-w-[420px]">
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="w-[40%] min-w-[180px]">Nome da Lista</TableHead>
-                            <TableHead className="w-[15%] min-w-[80px] text-center">Contatos</TableHead>
-                            <TableHead className="w-[25%] min-w-[100px]">Data de Criação</TableHead>
-                            <TableHead className="w-[20%] min-w-[60px] text-center">Ações</TableHead>
+                            <TableHead className="min-w-[140px]">Nome da Lista</TableHead>
+                            <TableHead className="w-[70px] text-center">Qtd</TableHead>
+                            <TableHead className="w-[90px]">Data</TableHead>
+                            <TableHead className="w-[50px] text-center"></TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -186,20 +186,20 @@ export function ContactListsTable() {
                             </TableRow>
                         ) : lists.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={4} className="h-24 text-center">Nenhuma lista de contatos encontrada.</TableCell>
+                                <TableCell colSpan={4} className="h-24 text-center">Nenhuma lista encontrada.</TableCell>
                             </TableRow>
                         ) : (
                             lists.map((list) => (
                                 <TableRow key={list.id}>
                                     <TableCell>
-                                        <div className="font-medium truncate max-w-[200px] sm:max-w-none">{list.name}</div>
+                                        <div className="font-medium">{list.name}</div>
                                         {list.description && (
-                                            <div className="text-sm text-muted-foreground truncate max-w-[200px] sm:max-w-[300px] lg:max-w-none">{list.description}</div>
+                                            <div className="text-sm text-muted-foreground line-clamp-1">{list.description}</div>
                                         )}
                                     </TableCell>
                                     <TableCell className="text-center">{list.contactCount}</TableCell>
-                                    <TableCell>{list.createdAt ? new Date(list.createdAt).toLocaleDateString('pt-BR') : '-'}</TableCell>
-                                    <TableCell className="text-center">
+                                    <TableCell className="text-sm whitespace-nowrap">{list.createdAt ? new Date(list.createdAt).toLocaleDateString('pt-BR') : '-'}</TableCell>
+                                    <TableCell className="text-center p-1">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="icon">

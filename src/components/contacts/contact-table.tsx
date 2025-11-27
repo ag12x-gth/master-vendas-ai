@@ -402,22 +402,24 @@ export function ContactTable() {
   
   return (
     <>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <PageHeader
           title="Contatos"
           description="Gerencie a sua base de clientes e leads."
         />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
            <AddContactDialog onSaveSuccess={fetchContacts}>
-                <Button variant="outline" data-add-contact>
+                <Button variant="outline" data-add-contact size="sm" className="sm:size-default">
                     <PlusCircle className="mr-2 h-4 w-4" />
-                    Adicionar
+                    <span className="hidden xs:inline">Adicionar</span>
+                    <span className="xs:hidden">+</span>
                 </Button>
            </AddContactDialog>
            <ImportContactsDialog onImportCompleted={fetchContacts}>
-                <Button>
+                <Button size="sm" className="sm:size-default">
                     <Upload className="mr-2 h-4 w-4" />
-                    Importar Contatos
+                    <span className="hidden sm:inline">Importar Contatos</span>
+                    <span className="sm:hidden">Importar</span>
                 </Button>
             </ImportContactsDialog>
         </div>
