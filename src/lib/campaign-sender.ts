@@ -529,9 +529,18 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
             .from(contacts)
             .where(inArray(contacts.id, contactIdsSubquery));
         
-        // Suporte a limite de contatos via variableMappings._maxContacts
+        // Suporte a offset e limite de contatos via variableMappings
         const variableMappingsRaw = campaign.variableMappings as Record<string, any> || {};
+        const contactOffset = variableMappingsRaw._contactOffset as number | undefined;
         const maxContacts = variableMappingsRaw._maxContacts as number | undefined;
+        
+        // Primeiro aplica o offset para pular contatos já enviados
+        if (contactOffset && contactOffset > 0) {
+            console.log(`[Campanha WhatsApp ${campaign.id}] Pulando os primeiros ${contactOffset} contatos (já enviados)`);
+            campaignContacts = campaignContacts.slice(contactOffset);
+        }
+        
+        // Depois aplica o limite
         if (maxContacts && campaignContacts.length > maxContacts) {
             console.log(`[Campanha WhatsApp ${campaign.id}] Limitando de ${campaignContacts.length} para ${maxContacts} contatos`);
             campaignContacts = campaignContacts.slice(0, maxContacts);
