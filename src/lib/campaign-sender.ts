@@ -1200,10 +1200,11 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
                     
                     // success = true APENAS se todos os contatos foram confirmados com sucesso
                     // success = false se houve qualquer falha ou contato sem resposta
+                    const mailingId = mkomData.mailing?.id;
                     return { 
                         success: allSuccess,
                         partialSuccess,
-                        mailingId: mkomData.mailing?.id,
+                        mailingId: typeof mailingId === 'string' ? mailingId : (mailingId ? String(mailingId) : undefined),
                         mensagens,
                         successCount,
                         failCount,
@@ -1238,6 +1239,12 @@ async function sendSmsBatch(gateway: typeof smsGateways.$inferSelect, campaign: 
 }
 
 export async function sendSmsCampaign(campaign: typeof campaigns.$inferSelect): Promise<void> {
+    // GUARD: Verificar se já foi completada para evitar duplicações em caso de re-trigger ou restart
+    if (campaign.sentAt || campaign.completedAt) {
+        console.log(`[Campanha SMS ${campaign.id}] Já foi completada (sentAt: ${campaign.sentAt}, completedAt: ${campaign.completedAt}). Ignorando re-trigger.`);
+        return;
+    }
+    
     await db.update(campaigns).set({ status: 'SENDING' }).where(eq(campaigns.id, campaign.id));
     
     try {
@@ -1262,34 +1269,84 @@ export async function sendSmsCampaign(campaign: typeof campaigns.$inferSelect): 
             return;
         }
 
+        // Usar índice de retomada para proteção contra duplicação
+        const startIndex = campaign.smsNextContactIndex || 0;
+        const remainingContacts = campaignContacts.slice(startIndex);
+        
+        if (remainingContacts.length === 0) {
+            console.log(`[Campanha SMS ${campaign.id}] Todos os contatos já foram processados (startIndex: ${startIndex}, total: ${campaignContacts.length}). Marcando como completa.`);
+            await db.update(campaigns).set({ status: 'COMPLETED', sentAt: new Date(), completedAt: new Date() }).where(eq(campaigns.id, campaign.id));
+            return;
+        }
+        
+        if (startIndex > 0) {
+            console.log(`[Campanha SMS ${campaign.id}] 🔄 Retomando campanha do índice ${startIndex}. Total: ${campaignContacts.length}, Restantes: ${remainingContacts.length}`);
+        }
+
         const batchSize = campaign.batchSize || 100;
         const batchDelaySeconds = campaign.batchDelaySeconds || 5;
-        const contactBatches = chunkArray(campaignContacts, batchSize);
+        const contactBatches = chunkArray(remainingContacts, batchSize);
+        
+        // Variável local para tracking do mailing ID (será preenchido após primeiro lote)
+        let savedMailingId = campaign.smsProviderMailingId;
 
-        for (const [index, batch] of contactBatches.entries()) {
+        for (const [batchIndex, batch] of contactBatches.entries()) {
+            // Calcular o índice absoluto baseado no startIndex
+            const absoluteIndex = startIndex + (batchIndex * batchSize);
+            
             // Verificar se a campanha foi pausada antes de processar o próximo lote
             const [currentCampaign] = await db.select({ status: campaigns.status }).from(campaigns).where(eq(campaigns.id, campaign.id));
             if (currentCampaign?.status === 'PAUSED') {
-                console.log(`[Campanha SMS ${campaign.id}] Campanha pausada pelo usuário. Interrompendo envio.`);
+                console.log(`[Campanha SMS ${campaign.id}] Campanha pausada pelo usuário. Interrompendo envio no índice ${absoluteIndex}.`);
                 return; // Sai da função sem marcar como completa ou falha
             }
 
-            console.log(`[Campanha SMS ${campaign.id}] Processando lote ${index + 1}/${contactBatches.length} com ${batch.length} contatos.`);
+            console.log(`[Campanha SMS ${campaign.id}] Processando lote ${batchIndex + 1}/${contactBatches.length} (índice ${absoluteIndex}) com ${batch.length} contatos.`);
             try {
                 const providerResponse = await sendSmsBatch(gateway, campaign, batch);
+                
+                // Salvar mailing ID da MKOM se disponível e ainda não salvo
+                if (providerResponse.mailingId && !savedMailingId) {
+                    savedMailingId = providerResponse.mailingId;
+                    await db.update(campaigns).set({ 
+                        smsProviderMailingId: providerResponse.mailingId 
+                    }).where(eq(campaigns.id, campaign.id));
+                    console.log(`[Campanha SMS ${campaign.id}] ✅ Mailing ID salvo: ${providerResponse.mailingId}`);
+                }
+                
                 await logSmsDelivery(campaign, gateway, batch, providerResponse as any);
+                
+                // Atualizar próximo índice APENAS quando lote foi totalmente bem-sucedido
+                // Se houve falhas parciais ou totais, não atualiza para permitir retry
+                if (providerResponse.success) {
+                    const nextIndex = absoluteIndex + batch.length;
+                    await db.update(campaigns).set({ 
+                        smsNextContactIndex: nextIndex 
+                    }).where(eq(campaigns.id, campaign.id));
+                    console.log(`[Campanha SMS ${campaign.id}] 📍 Índice atualizado: ${nextIndex}`);
+                } else {
+                    // Lote com falha parcial ou total - pausar campanha para intervenção manual
+                    console.warn(`[Campanha SMS ${campaign.id}] ⚠️ Lote ${batchIndex + 1} teve falhas. Marcando campanha como PARTIAL_FAILURE para revisão.`);
+                    await db.update(campaigns).set({ status: 'PARTIAL_FAILURE' }).where(eq(campaigns.id, campaign.id));
+                    return; // Sai para permitir intervenção manual antes de continuar
+                }
+                
             } catch (error) {
-                console.error(`[Campanha SMS ${campaign.id}] Erro no lote ${index + 1}:`, error);
+                console.error(`[Campanha SMS ${campaign.id}] Erro no lote ${batchIndex + 1} (índice ${absoluteIndex}):`, error);
                 await logSmsDelivery(campaign, gateway, batch, { success: false, error: (error as Error).message });
+                // Não atualiza o índice em caso de erro de exceção, permitindo retry do mesmo lote
+                await db.update(campaigns).set({ status: 'FAILED' }).where(eq(campaigns.id, campaign.id));
+                return; // Sai para permitir investigação antes de retentativa
             }
 
-             if (index < contactBatches.length - 1) {
+            if (batchIndex < contactBatches.length - 1) {
                 console.log(`[Campanha SMS ${campaign.id}] Pausando por ${batchDelaySeconds} segundos...`);
                 await sleep(batchDelaySeconds * 1000);
             }
         }
         
         await db.update(campaigns).set({ status: 'COMPLETED', sentAt: new Date(), completedAt: new Date() }).where(eq(campaigns.id, campaign.id));
+        console.log(`[Campanha SMS ${campaign.id}] ✅ Campanha concluída com sucesso. Total de contatos processados: ${campaignContacts.length}`);
     
     } catch (error) {
         console.error(`Falha crítica ao enviar campanha SMS ${campaign.id}:`, error);

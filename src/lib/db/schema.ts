@@ -487,6 +487,7 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     mediaAssetId: text('media_asset_id').references(() => mediaAssets.id, { onDelete: 'set null' }),
     smsGatewayId: text('sms_gateway_id').references(() => smsGateways.id),
     smsProviderMailingId: text('sms_provider_mailing_id'),
+    smsNextContactIndex: integer('sms_next_contact_index').default(0),
     message: text('message'),
     contactListIds: text('contact_list_ids').array(),
     batchSize: integer('batch_size'),
