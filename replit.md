@@ -63,7 +63,13 @@ Preferred communication style: Simple, everyday language.
 - **Replit**: Development environment, Object Storage.
 
 ## Recent Changes (November 2025)
-### Multi-List Selection for Campaigns - Latest Update
+### AI Agent Duplication Feature - Latest Update
+- **Duplicate API**: New POST `/api/v1/ia/personas/[personaId]/duplicate` endpoint
+- **Full Agent Copy**: Duplicates all agent settings including name (with " (Cópia)" suffix), model, temperature, delays, etc.
+- **RAG Sections Duplication**: Automatically duplicates all RAG prompt sections when the agent uses RAG
+- **UI Integration**: Dropdown menu "Duplicar" option with loading state and toast notifications
+
+### Multi-List Selection for Campaigns
 - **MultiListSelector Component**: Reusable component for selecting multiple contact lists with checkboxes, search, select all/deselect all, and total contact count display
 - **WhatsApp API Cloud Campaigns**: Updated to support multiple list selection
 - **Baileys Campaigns**: Updated to support multiple list selection
