@@ -39,6 +39,7 @@ import { MediaUploader } from './media-uploader';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { TemplatePreview } from './TemplatePreview';
+import { MultiListSelector, SelectedListsSummary } from './multi-list-selector';
 
 const contactFields = [
     { value: 'name', label: 'Nome' },
@@ -467,19 +468,13 @@ export function CreateWhatsappCampaignDialog({
                  return (
                     <div className="space-y-6">
                         <div className="space-y-2">
-                            <Label className="text-base font-semibold">Público</Label>
-                             <Select value={contactListIds[0]} onValueChange={(value) => setContactListIds([value])}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Selecione uma lista de contatos..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {availableLists.map(list => (
-                                        <SelectItem key={list.id} value={list.id}>
-                                            {list.name} ({list.contactCount || 0} contatos)
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Label className="text-base font-semibold">Público (selecione uma ou mais listas)</Label>
+                            <MultiListSelector
+                                lists={availableLists}
+                                selectedIds={contactListIds}
+                                onSelectionChange={setContactListIds}
+                                maxHeight="180px"
+                            />
                         </div>
                         <div className="space-y-2">
                             <Label className="text-base font-semibold">Agendamento</Label>
@@ -511,7 +506,7 @@ export function CreateWhatsappCampaignDialog({
                             <h4 className="font-semibold text-lg">Revisar e Enviar</h4>
                             <div className="space-y-2">
                                 <p><span className="font-semibold">Nome:</span> {name}</p>
-                                <p><span className="font-semibold">Lista:</span> {availableLists.find(l => l.id === contactListIds[0])?.name || 'Nenhuma'}</p>
+                                <div><span className="font-semibold">Listas:</span> <SelectedListsSummary lists={availableLists} selectedIds={contactListIds} /></div>
                                 <p><span className="font-semibold">Agendamento:</span> {sendNow ? 'Imediato' : `Para ${scheduleDate ? format(scheduleDate, 'dd/MM/yyyy') : 'data não definida'} às ${scheduleTime}`}</p>
                             </div>
                             
