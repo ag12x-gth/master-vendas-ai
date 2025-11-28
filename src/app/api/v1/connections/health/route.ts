@@ -191,7 +191,10 @@ export async function GET(_request: NextRequest) {
 
     return NextResponse.json({ ...responseData, cached: false });
 
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.message?.includes('Não autorizado')) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
     console.error('Erro ao verificar saúde das conexões:', error);
     return NextResponse.json(
       { error: 'Erro interno do servidor ao verificar conexões' },

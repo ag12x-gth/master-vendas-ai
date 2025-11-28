@@ -20,7 +20,10 @@ export async function GET(request: NextRequest) {
     const unreadCount = await UserNotificationsService.getUnreadCount(userId);
 
     return NextResponse.json({ notifications, unreadCount });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.message?.includes('Não autorizado')) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
     console.error('Error fetching notifications:', error);
     return NextResponse.json(
       { error: 'Erro ao buscar notificações' },
@@ -52,7 +55,10 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.message?.includes('Não autorizado')) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+    }
     console.error('Error marking notifications as read:', error);
     return NextResponse.json(
       { error: 'Erro ao marcar notificações' },
