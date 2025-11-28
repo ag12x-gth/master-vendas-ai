@@ -42,6 +42,7 @@ export function PersonaList() {
   const [loading, setLoading] = useState(true);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [personaToDelete, setPersonaToDelete] = useState<Persona | null>(null);
+  const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
   const { toast } = useToast();
   const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
@@ -68,6 +69,28 @@ export function PersonaList() {
   const openDeleteDialog = (persona: Persona) => {
     setPersonaToDelete(persona);
     setIsDeleteDialogOpen(true);
+  };
+
+  const handleDuplicate = async (persona: Persona) => {
+    setDuplicatingId(persona.id);
+    try {
+      const response = await fetch(`/api/v1/ia/personas/${persona.id}/duplicate`, {
+        method: 'POST',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Falha ao duplicar agente.');
+      }
+      
+      const newPersona = await response.json();
+      notify.success('Agente Duplicado!', `O agente "${persona.name}" foi duplicado com sucesso.`);
+      setPersonas([newPersona, ...personas]);
+    } catch (error) {
+      notify.error('Erro', (error as Error).message);
+    } finally {
+      setDuplicatingId(null);
+    }
   };
   
   const handleDelete = async () => {
@@ -123,9 +146,16 @@ export function PersonaList() {
                       Editar
                     </DropdownMenuItem>
                   </Link>
-                  <DropdownMenuItem>
-                    <Copy className="mr-2 h-4 w-4" />
-                    Duplicar
+                  <DropdownMenuItem
+                    onSelect={() => handleDuplicate(persona)}
+                    disabled={duplicatingId === persona.id}
+                  >
+                    {duplicatingId === persona.id ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Copy className="mr-2 h-4 w-4" />
+                    )}
+                    {duplicatingId === persona.id ? 'Duplicando...' : 'Duplicar'}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     className="text-destructive focus:text-destructive"
