@@ -15,7 +15,7 @@ function Loading() {
             <Skeleton className="h-4 w-64" />
         </div>
       </div>
-      <div className="h-full flex-1 grid grid-cols-1 md:grid-cols-[minmax(300px,_1fr)_3fr] xl:grid-cols-[minmax(320px,_1fr)_2fr_1fr] border rounded-lg overflow-hidden">
+      <div className="h-full flex-1 grid grid-cols-1 md:grid-cols-[minmax(300px,_1fr)_3fr] lg:grid-cols-[minmax(320px,_1fr)_2fr_1fr] border rounded-lg overflow-hidden">
         {/* Coluna da Lista de Conversas (Skeleton) */}
         <div className="h-full border-r p-4 space-y-2 hidden md:block">
             <Skeleton className="h-10 w-full" />
@@ -35,7 +35,7 @@ function Loading() {
             </div>
         </div>
          {/* Coluna de Detalhes (Skeleton) */}
-        <div className="h-full hidden xl:flex p-4 flex-col items-center gap-4">
+        <div className="h-full hidden lg:flex p-4 flex-col items-center gap-4">
             <Skeleton className="h-24 w-24 rounded-full" />
             <Skeleton className="h-6 w-32" />
             <Skeleton className="h-24 w-full" />
