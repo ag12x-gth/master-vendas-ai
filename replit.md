@@ -91,6 +91,12 @@ Preferred communication style: Simple, everyday language.
 - **Auth error handling**: APIs now return 401 (unauthorized) instead of 500 (server error) for expired sessions
 - **Object Storage streaming fix**: Added controller state management to prevent `ERR_INVALID_STATE` errors in ReadableStream
 
+### Error Handling & Developer Experience
+- **Session Expiry Handling**: `useNotifications` hook silently stops polling when session expires (401), preventing console error spam
+- **Pre-dev Script**: Automatic cache cleanup (`rm -rf .next/cache`) and port conflict resolution (`fuser -k 5000/tcp`) before `npm run dev`
+- **Crypto Singleton**: `globalThis` pattern for ENCRYPTION_KEY warning to show only once per process (may appear during route compilation in dev mode - expected behavior)
+- **BullMQ Warning Silence**: Webpack externals config suppresses "Critical dependency" warning for require.main evaluation
+
 ### Validated Features
 - Campaign system: Automatic processing via BullMQ worker (polling every 30s)
 - Meta Webhooks: sent/delivered/read status callbacks working
