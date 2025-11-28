@@ -63,7 +63,14 @@ Preferred communication style: Simple, everyday language.
 - **Replit**: Development environment, Object Storage.
 
 ## Recent Changes (November 2025)
-### Automatic Campaign Processing Worker - Latest Update
+### Multi-List Selection for Campaigns - Latest Update
+- **MultiListSelector Component**: Reusable component for selecting multiple contact lists with checkboxes, search, select all/deselect all, and total contact count display
+- **WhatsApp API Cloud Campaigns**: Updated to support multiple list selection
+- **Baileys Campaigns**: Updated to support multiple list selection
+- **SMS Campaigns**: Updated to support multiple list selection
+- **SelectedListsSummary Component**: Shows all selected lists with badges in the review step
+
+### Automatic Campaign Processing Worker
 - **Campaign Trigger Worker**: BullMQ-based worker that automatically processes QUEUED/PENDING/SCHEDULED campaigns every 30 seconds
 - **Shared Service**: Extracted campaign processing logic to `src/services/campaign-processing.service.ts` for reuse
 - **Next.js Instrumentation**: Auto-starts worker on server boot via `src/instrumentation.ts`
