@@ -63,7 +63,14 @@ Preferred communication style: Simple, everyday language.
 - **Replit**: Development environment, Object Storage.
 
 ## Recent Changes (November 2025)
-### Layout Fixes (Atendimentos Page) - Latest Update
+### Automatic Campaign Processing Worker - Latest Update
+- **Campaign Trigger Worker**: BullMQ-based worker that automatically processes QUEUED/PENDING/SCHEDULED campaigns every 30 seconds
+- **Shared Service**: Extracted campaign processing logic to `src/services/campaign-processing.service.ts` for reuse
+- **Next.js Instrumentation**: Auto-starts worker on server boot via `src/instrumentation.ts`
+- **Graceful Shutdown**: Proper SIGINT/SIGTERM handlers and Redis connection cleanup
+- **CAS Locking**: Compare-And-Set atomic updates prevent duplicate processing in concurrent environments
+
+### Layout Fixes (Atendimentos Page)
 - **Fixed React hooks error**: Cleared `.next` cache directory to resolve "Invalid hook call" runtime error
 - **Fixed message bubble overflow**: Reduced `max-w` from 75% to 60%, added `break-words`, `min-w-0`, and `[word-break:break-word]`
 - **Fixed footer/input visibility**: Removed `overflow-hidden` from ActiveChat container, adjusted ScrollArea padding to `p-4 pr-3`
@@ -72,7 +79,7 @@ Preferred communication style: Simple, everyday language.
 - **Object Storage streaming fix**: Added controller state management to prevent `ERR_INVALID_STATE` errors in ReadableStream
 
 ### Validated Features
-- Campaign system: 401/401 messages sent (100% success rate)
+- Campaign system: Automatic processing via BullMQ worker (polling every 30s)
 - Meta Webhooks: sent/delivered/read status callbacks working
 - AI automation: Humanized delays (38-98s) with persona-based responses
 - E2E tests: Playwright screenshot validation for Atendimentos page

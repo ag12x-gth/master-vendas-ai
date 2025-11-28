@@ -11,6 +11,7 @@ const nextConfig = {
   
   experimental: {
     cpus: 1,
+    instrumentationHook: true,
   },
   
   // Otimizações de produção
