@@ -166,12 +166,12 @@ export function MessageBubble({ message, allMessages, contactName }: { message: 
             case 'BUTTON':
             case 'INTERACTIVE':
             default:
-                return <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>;
+                return <p className="text-sm whitespace-pre-wrap break-words [word-break:break-word]">{message.content}</p>;
         }
     }
 
     return (
-        <div id={`message-${message.id}`} className={cn("flex items-end gap-2", !isUserMessage ? 'justify-end' : 'justify-start')}>
+        <div id={`message-${message.id}`} className={cn("flex items-end gap-2 w-full", !isUserMessage ? 'justify-end' : 'justify-start')}>
             <Avatar className={cn("h-7 w-7 shrink-0", isUserMessage ? 'order-first' : 'order-last')}>
                 <AvatarFallback className="text-xs">
                     {isUserMessage ? <User className="h-4 w-4" /> 
@@ -180,14 +180,14 @@ export function MessageBubble({ message, allMessages, contactName }: { message: 
                 </AvatarFallback>
             </Avatar>
             <div className={cn(
-                "p-3 rounded-lg overflow-hidden",
-                isAudio ? "max-w-[280px]" : "max-w-[75%] sm:max-w-[65%]",
+                "p-3 rounded-lg min-w-0 break-words",
+                isAudio ? "max-w-[280px]" : "max-w-[60%]",
                 isUserMessage ? 'bg-background text-foreground rounded-bl-none shadow-sm border'
                 : isAiMessage ? 'bg-accent text-accent-foreground rounded-br-none'
                 : 'bg-primary text-primary-foreground rounded-br-none'
             )}>
                 {repliedMessage && <RepliedMessagePreview message={repliedMessage} contactName={contactName} />}
-                <div className="overflow-hidden">
+                <div className="overflow-hidden break-words">
                   {renderContent()}
                 </div>
                 <ReactionsBadge reactions={message.reactions} />

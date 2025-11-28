@@ -236,7 +236,7 @@ export function ActiveChat({
 
        <div className="flex-1 min-h-0 overflow-hidden relative">
         <ScrollArea className="absolute inset-0" viewportRef={scrollAreaRef}>
-          <div className="p-4 space-y-3 overflow-x-hidden">
+          <div className="p-4 pr-3 space-y-3">
             {hasMoreMessages && (
               <div className="flex justify-center py-2">
                 {isLoadingMoreMessages ? (

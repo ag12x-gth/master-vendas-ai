@@ -63,10 +63,12 @@ Preferred communication style: Simple, everyday language.
 - **Replit**: Development environment, Object Storage.
 
 ## Recent Changes (November 2025)
-### Layout Fixes (Atendimentos Page)
-- **Fixed footer/input visibility**: Applied `flex-1 min-h-0 overflow-hidden relative` to messages container with `absolute inset-0` ScrollArea positioning
-- **Fixed message bubble overflow**: Added `overflow-hidden break-words max-w-[75%]` to prevent text cutoff on edges
+### Layout Fixes (Atendimentos Page) - Latest Update
+- **Fixed React hooks error**: Cleared `.next` cache directory to resolve "Invalid hook call" runtime error
+- **Fixed message bubble overflow**: Reduced `max-w` from 75% to 60%, added `break-words`, `min-w-0`, and `[word-break:break-word]`
+- **Fixed footer/input visibility**: Removed `overflow-hidden` from ActiveChat container, adjusted ScrollArea padding to `p-4 pr-3`
 - **Fixed timer text truncation**: Shortened "Tempo restante para resposta" to "Tempo:" for compact display
+- **Auth error handling**: APIs now return 401 (unauthorized) instead of 500 (server error) for expired sessions
 - **Object Storage streaming fix**: Added controller state management to prevent `ERR_INVALID_STATE` errors in ReadableStream
 
 ### Validated Features
@@ -74,3 +76,4 @@ Preferred communication style: Simple, everyday language.
 - Meta Webhooks: sent/delivered/read status callbacks working
 - AI automation: Humanized delays (38-98s) with persona-based responses
 - E2E tests: Playwright screenshot validation for Atendimentos page
+- Atendimentos page: Layout fully functional with visible input, proper message display
