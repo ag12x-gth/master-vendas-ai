@@ -35,6 +35,7 @@ import { Loader2, CalendarIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createToastNotifier } from '@/lib/toast-helper';
 import { useRouter } from 'next/navigation';
+import { MultiListSelector } from './multi-list-selector';
 
 interface CreateSmsCampaignDialogProps {
   children: React.ReactNode;
@@ -166,13 +167,13 @@ export function CreateSmsCampaignDialog({ children, onSaveSuccess }: CreateSmsCa
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Listas de Contatos</Label>
-              <Select value={selectedListIds[0]} onValueChange={(value) => setSelectedListIds([value])}>
-                <SelectTrigger><SelectValue placeholder="Selecione uma lista..." /></SelectTrigger>
-                <SelectContent>
-                  {lists.map(list => <SelectItem key={list.id} value={list.id}>{list.name} ({list.contactCount || 0} contatos)</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Label>Listas de Contatos (selecione uma ou mais)</Label>
+              <MultiListSelector
+                lists={lists}
+                selectedIds={selectedListIds}
+                onSelectionChange={setSelectedListIds}
+                maxHeight="150px"
+              />
             </div>
             <div className="space-y-2 pt-2 border-t">
               <Label className="text-base font-semibold">Agendamento</Label>
