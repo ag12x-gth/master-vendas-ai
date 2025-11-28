@@ -36,6 +36,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Separator } from '../ui/separator';
 import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription } from '../ui/alert';
+import { MultiListSelector, SelectedListsSummary } from './multi-list-selector';
 
 const contactFields = [
     { value: 'name', label: 'Nome' },
@@ -476,19 +477,13 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                         )}
 
                         <div className="space-y-2">
-                            <Label className="text-base font-semibold">Público</Label>
-                             <Select value={contactListIds[0]} onValueChange={(value) => setContactListIds([value])}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Selecione uma lista de contatos..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {availableLists.map(list => (
-                                        <SelectItem key={list.id} value={list.id}>
-                                            {list.name} ({list.contactCount || 0} contatos)
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Label className="text-base font-semibold">Público (selecione uma ou mais listas)</Label>
+                            <MultiListSelector
+                                lists={availableLists}
+                                selectedIds={contactListIds}
+                                onSelectionChange={setContactListIds}
+                                maxHeight="180px"
+                            />
                         </div>
 
                         <div className="space-y-2">
@@ -517,7 +512,6 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
 
             case 'review': {
                 const selectedConnection = baileysConnections.find(c => c.id === selectedConnectionId);
-                const selectedList = availableLists.find(l => l.id === contactListIds[0]);
                 
                 return (
                     <div className="space-y-4">
@@ -531,8 +525,8 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                                     <span className="font-medium">Conexão:</span>
                                     <span>{selectedConnection?.config_name || 'N/A'}</span>
                                     
-                                    <span className="font-medium">Lista:</span>
-                                    <span>{selectedList?.name} ({selectedList?.contactCount || 0} contatos)</span>
+                                    <span className="font-medium">Listas:</span>
+                                    <SelectedListsSummary lists={availableLists} selectedIds={contactListIds} />
                                     
                                     <span className="font-medium">Envio:</span>
                                     <span>{sendNow ? 'Imediato' : `Agendado para ${scheduleDate ? format(scheduleDate, "PPP 'às' HH:mm", { locale: ptBR }) : 'N/A'}`}</span>
