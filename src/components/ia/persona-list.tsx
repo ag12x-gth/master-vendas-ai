@@ -85,7 +85,7 @@ export function PersonaList() {
       
       const newPersona = await response.json();
       notify.success('Agente Duplicado!', `O agente "${persona.name}" foi duplicado com sucesso.`);
-      setPersonas([newPersona, ...personas]);
+      setPersonas(prev => [newPersona, ...prev]);
     } catch (error) {
       notify.error('Erro', (error as Error).message);
     } finally {
