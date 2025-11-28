@@ -1,4 +1,3 @@
-
 // src/lib/crypto.ts
 import crypto from 'crypto';
 
@@ -6,49 +5,49 @@ const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 16;
 const AUTH_TAG_LENGTH = 16;
 
-// Singleton pattern to ensure key is only hashed once
-class EncryptionKeyManager {
-  private static instance: EncryptionKeyManager;
-  private key: Buffer;
-  private hasLoggedWarning = false;
+const CRYPTO_SINGLETON_KEY = '__master_ia_crypto_singleton__' as const;
+const CRYPTO_WARNING_KEY = '__master_ia_crypto_warning_logged__' as const;
 
-  private constructor() {
-    const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
-
-    if (!ENCRYPTION_KEY) {
-      throw new Error('ENCRYPTION_KEY must be set in environment variables.');
-    }
-
-    // Ensure key is exactly 32 bytes by hashing if needed
-    if (ENCRYPTION_KEY.length === 32) {
-      this.key = Buffer.from(ENCRYPTION_KEY, 'utf-8');
-    } else {
-      // Hash the key to get exactly 32 bytes
-      this.key = crypto.createHash('sha256').update(ENCRYPTION_KEY).digest();
-      
-      // Log warning only once
-      if (!this.hasLoggedWarning) {
-        console.log('⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).');
-        this.hasLoggedWarning = true;
-      }
-    }
-  }
-
-  public static getInstance(): EncryptionKeyManager {
-    if (!EncryptionKeyManager.instance) {
-      EncryptionKeyManager.instance = new EncryptionKeyManager();
-    }
-    return EncryptionKeyManager.instance;
-  }
-
-  public getKey(): Buffer {
-    return this.key;
-  }
+interface CryptoSingleton {
+  key: Buffer;
 }
 
-// Get the key using singleton pattern
-const keyManager = EncryptionKeyManager.getInstance();
-const key = keyManager.getKey();
+interface GlobalCrypto {
+  [CRYPTO_SINGLETON_KEY]?: CryptoSingleton;
+  [CRYPTO_WARNING_KEY]?: boolean;
+}
+
+const globalCrypto = globalThis as unknown as GlobalCrypto;
+
+function initializeEncryptionKey(): Buffer {
+  if (globalCrypto[CRYPTO_SINGLETON_KEY]) {
+    return globalCrypto[CRYPTO_SINGLETON_KEY].key;
+  }
+
+  const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY;
+
+  if (!ENCRYPTION_KEY) {
+    throw new Error('ENCRYPTION_KEY must be set in environment variables.');
+  }
+
+  let key: Buffer;
+  
+  if (ENCRYPTION_KEY.length === 32) {
+    key = Buffer.from(ENCRYPTION_KEY, 'utf-8');
+  } else {
+    key = crypto.createHash('sha256').update(ENCRYPTION_KEY).digest();
+    
+    if (!globalCrypto[CRYPTO_WARNING_KEY]) {
+      console.log('⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).');
+      globalCrypto[CRYPTO_WARNING_KEY] = true;
+    }
+  }
+
+  globalCrypto[CRYPTO_SINGLETON_KEY] = { key };
+  return key;
+}
+
+const key = initializeEncryptionKey();
 
 export function encrypt(text: string): string {
   if (!text) {

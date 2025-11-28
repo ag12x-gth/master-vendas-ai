@@ -53,6 +53,15 @@ const nextConfig = {
   },
   
   webpack: (config, { dev, isServer }) => {
+    if (isServer) {
+      config.externals = config.externals || [];
+      if (Array.isArray(config.externals)) {
+        config.externals.push({
+          'bullmq': 'commonjs bullmq',
+        });
+      }
+    }
+    
     // Desabilitar hot reload em produção
     if (!dev) {
       config.watchOptions = {

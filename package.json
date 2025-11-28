@@ -3,6 +3,7 @@
   "version": "2.4.2",
   "private": true,
   "scripts": {
+    "predev": "rm -rf .next/cache 2>/dev/null; fuser -k 5000/tcp 2>/dev/null || true",
     "dev": "next dev -p 5000 --hostname 0.0.0.0",
     "dev:server": "NODE_OPTIONS='--max-old-space-size=2048 --expose-gc' tsx watch server.js",
     "dev:safe": "bash scripts/auto-fix-server.sh && npm run dev:server",

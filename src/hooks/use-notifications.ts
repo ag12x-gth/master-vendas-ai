@@ -1,7 +1,7 @@
 // src/hooks/use-notifications.ts
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export interface UserNotification {
   id: string;
@@ -26,10 +26,22 @@ export function useNotifications(refreshInterval: number = 30000) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
+  const sessionExpiredRef = useRef(false);
 
   const fetchNotifications = useCallback(async () => {
+    if (sessionExpiredRef.current) return;
+    
     try {
       const response = await fetch('/api/v1/notifications?limit=20');
+      
+      if (response.status === 401) {
+        sessionExpiredRef.current = true;
+        setNotifications([]);
+        setUnreadCount(0);
+        setError(null);
+        return;
+      }
+      
       if (!response.ok) {
         throw new Error('Falha ao buscar notificações');
       }
