@@ -99,6 +99,7 @@ These credentials are required for any authenticated page testing.
 - **Auth error handling**: APIs now return 401 (unauthorized) instead of 500 (server error) for expired sessions
 - **Object Storage streaming fix**: Added controller state management to prevent `ERR_INVALID_STATE` errors in ReadableStream
 - **Route-Aware Layout System**: PageLayoutContext derives layout mode from pathname, ensuring /atendimentos uses full-height mode (overflow-hidden, min-h-0) while other pages use default scrollable mode - eliminates SSR flicker and chat input clipping
+- **Contact Details Toggle**: Painel de detalhes do contato agora é oculto por padrão, com botão toggle (PanelRightOpen/Close) ao lado do switch de IA; estado reseta automaticamente ao mudar de conversa
 
 ### Error Handling & Developer Experience
 - **Session Expiry Handling**: `useNotifications` hook silently stops polling when session expires (401), preventing console error spam

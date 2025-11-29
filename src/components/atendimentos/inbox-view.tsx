@@ -263,6 +263,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
         setCurrentMessages([]);
         setSelectedContact(null);
         setHasMoreMessages(true);
+        setShowContactDetails(false);
         
         await Promise.all([
             fetchAndSetMessages(conversationId),
@@ -278,6 +279,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
       setSelectedConversation(null);
       setCurrentMessages([]);
       setSelectedContact(null);
+      setShowContactDetails(false);
       router.push('/atendimentos', { scroll: false });
   }
 
@@ -437,9 +439,9 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
             )
         ) : null}
 
-       {showContactDetails && (
+       {showContactDetails && selectedConversation && (
          <aside className="hidden lg:flex flex-col w-[280px] flex-shrink-0 h-full bg-card min-h-0 overflow-hidden border-l">
-           <ContactDetailsPanel contactId={selectedConversation?.contactId} />
+           <ContactDetailsPanel contactId={selectedConversation.contactId} />
          </aside>
        )}
     </div>
