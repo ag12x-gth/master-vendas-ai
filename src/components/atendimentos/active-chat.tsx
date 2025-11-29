@@ -14,6 +14,9 @@ import {
   Clock,
   Bot,
   ChevronUp,
+  User,
+  PanelRightOpen,
+  PanelRightClose,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -46,6 +49,8 @@ interface ActiveChatProps {
   onLoadMoreMessages?: () => Promise<void>;
   hasMoreMessages?: boolean;
   isLoadingMoreMessages?: boolean;
+  showContactDetails?: boolean;
+  onToggleContactDetails?: () => void;
 }
 
 export function ActiveChat({
@@ -62,6 +67,8 @@ export function ActiveChat({
   onLoadMoreMessages,
   hasMoreMessages = false,
   isLoadingMoreMessages = false,
+  showContactDetails = false,
+  onToggleContactDetails,
 }: ActiveChatProps) {
   const isMobile = useIsMobile();
   const [messageText, setMessageText] = React.useState('');
@@ -212,6 +219,31 @@ export function ActiveChat({
                     <TooltipContent><p>{conversation.aiActive ? 'IA Ativa' : 'IA Desativada'}</p></TooltipContent>
                 </Tooltip>
             </TooltipProvider>
+
+            {onToggleContactDetails && !isMobile && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      type="button" 
+                      variant={showContactDetails ? "secondary" : "ghost"} 
+                      size="icon" 
+                      onClick={onToggleContactDetails}
+                      className="mr-1"
+                    >
+                      {showContactDetails ? (
+                        <PanelRightClose className="h-5 w-5" />
+                      ) : (
+                        <PanelRightOpen className="h-5 w-5" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{showContactDetails ? 'Ocultar Detalhes' : 'Ver Detalhes do Contato'}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
 
             <TooltipProvider>
             <Tooltip>

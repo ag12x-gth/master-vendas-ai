@@ -62,6 +62,8 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
   const [hasMoreConversations, setHasMoreConversations] = useState(true);
   const [isLoadingMoreConversations, setIsLoadingMoreConversations] = useState(false);
   
+  const [showContactDetails, setShowContactDetails] = useState(false);
+  
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [isLoadingMoreMessages, setIsLoadingMoreMessages] = useState(false);
   
@@ -426,6 +428,8 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
                         onLoadMoreMessages={loadMoreMessages}
                         hasMoreMessages={hasMoreMessages}
                         isLoadingMoreMessages={isLoadingMoreMessages}
+                        showContactDetails={showContactDetails}
+                        onToggleContactDetails={() => setShowContactDetails(prev => !prev)}
                     />
                 </div>
             ) : (
@@ -433,9 +437,11 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
             )
         ) : null}
 
-       <aside className="hidden lg:flex flex-col w-[280px] flex-shrink-0 h-full bg-card min-h-0 overflow-hidden">
-         <ContactDetailsPanel contactId={selectedConversation?.contactId} />
-       </aside>
+       {showContactDetails && (
+         <aside className="hidden lg:flex flex-col w-[280px] flex-shrink-0 h-full bg-card min-h-0 overflow-hidden border-l">
+           <ContactDetailsPanel contactId={selectedConversation?.contactId} />
+         </aside>
+       )}
     </div>
   );
 }
