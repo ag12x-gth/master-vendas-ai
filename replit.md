@@ -104,6 +104,13 @@ These credentials are required for any authenticated page testing.
 ### Dashboard Improvements
 - **Lead Value Toggle**: Botão Eye/EyeOff no card "Valor Total em Leads" para ocultar/mostrar o valor monetário (exibe "R$ ••••••" quando oculto)
 
+### Atendimentos Server-Side Search
+- **API Enhancement**: GET `/api/v1/conversations?search=term` now searches contact names, phone numbers, and message content via PostgreSQL ILIKE
+- **Debounced Input**: 500ms debounce on search input to reduce API calls
+- **Performance**: Server-side filtering handles 2770+ conversations efficiently (~200-300ms response)
+- **UI**: Search bar with clear button (X), displays up to 50 matching results
+- **Cache Bypass**: Search queries bypass cache to ensure fresh results
+
 ### Error Handling & Developer Experience
 - **Session Expiry Handling**: `useNotifications` hook silently stops polling when session expires (401), preventing console error spam
 - **Pre-dev Script**: Automatic cache cleanup (`rm -rf .next/cache`) and port conflict resolution (`fuser -k 5000/tcp`) before `npm run dev`

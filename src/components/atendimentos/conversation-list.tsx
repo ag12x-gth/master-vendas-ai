@@ -127,7 +127,7 @@ export function ConversationList({
         
         debounceTimeoutRef.current = setTimeout(() => {
             onSearchChange?.(value);
-        }, 400);
+        }, 500);
     }, [onSearchChange]);
 
     const handleClearSearch = useCallback(() => {
