@@ -18,7 +18,7 @@ const CONVERSATIONS_PAGE_SIZE = 50;
 
 const InboxSkeleton = () => (
     <div className="h-full flex flex-row border rounded-lg overflow-hidden">
-        <div className="w-full md:min-w-[280px] md:flex-[0.25] lg:flex-[0.22] xl:flex-[0.20] flex-shrink-0 h-full border-r p-4 space-y-2 hidden md:flex md:flex-col">
+        <div className="w-full md:w-[280px] lg:w-[260px] xl:w-[280px] flex-shrink-0 h-full border-r p-4 space-y-2 hidden md:flex md:flex-col">
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-16 w-full" />
             <Skeleton className="h-16 w-full" />
@@ -31,8 +31,8 @@ const InboxSkeleton = () => (
                 <Skeleton className="h-16 w-full" />
              </div>
         </div>
-        <div className="flex-[0.6] md:flex-[0.55] xl:flex-[0.60] hidden md:flex items-center justify-center border-r"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
-        <div className="flex-[0.20] hidden lg:flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+        <div className="flex-1 min-w-0 hidden md:flex items-center justify-center border-r"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+        <div className="w-[280px] flex-shrink-0 hidden lg:flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
     </div>
 )
 
