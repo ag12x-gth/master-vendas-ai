@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 
 type LayoutMode = 'default' | 'full-height';
 
@@ -36,8 +36,8 @@ export function usePageLayout(): PageLayoutContextType {
 export function useFullHeightLayout(): void {
   const { setLayoutMode } = usePageLayout();
   
-  useState(() => {
+  useEffect(() => {
     setLayoutMode('full-height');
-    return null;
-  });
+    return () => setLayoutMode('default');
+  }, [setLayoutMode]);
 }
