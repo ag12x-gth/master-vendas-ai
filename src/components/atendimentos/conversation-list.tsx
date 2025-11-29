@@ -7,10 +7,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, Check, CheckCheck, Clock, MessageSquare, Smartphone, Users, Loader2 } from 'lucide-react';
+import { Search, Check, CheckCheck, Clock, MessageSquare, Smartphone, Users, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
 import { RelativeTime } from '../ui/relative-time';
+import { Button } from '../ui/button';
 
 
 const StatusIcon = ({ status }: { status: Message['status'] }) => {
@@ -84,6 +85,18 @@ const ConversationListItem = ({ conversation, isSelected, onSelect }: { conversa
 }
 
 
+interface ConversationListProps {
+    conversations: Conversation[];
+    currentConversationId: string | null;
+    onSelectConversation: (id: string) => void;
+    onLoadMore?: () => void;
+    hasMore?: boolean;
+    isLoadingMore?: boolean;
+    searchTerm?: string;
+    onSearchChange?: (term: string) => void;
+    isSearching?: boolean;
+}
+
 export function ConversationList({
     conversations,
     currentConversationId,
@@ -91,18 +104,47 @@ export function ConversationList({
     onLoadMore,
     hasMore = false,
     isLoadingMore = false,
-}: {
-    conversations: Conversation[],
-    currentConversationId: string | null,
-    onSelectConversation: (id: string) => void,
-    onLoadMore?: () => void,
-    hasMore?: boolean,
-    isLoadingMore?: boolean,
-}) {
-    const [search, setSearch] = useState('');
+    searchTerm = '',
+    onSearchChange,
+    isSearching = false,
+}: ConversationListProps) {
+    const [localSearch, setLocalSearch] = useState(searchTerm);
     const [sourceFilter, setSourceFilter] = useState<'all' | 'meta_api' | 'baileys'>('all');
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const loadMoreTriggerRef = useRef<HTMLDivElement>(null);
+    const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        setLocalSearch(searchTerm);
+    }, [searchTerm]);
+
+    const handleSearchInputChange = useCallback((value: string) => {
+        setLocalSearch(value);
+        
+        if (debounceTimeoutRef.current) {
+            clearTimeout(debounceTimeoutRef.current);
+        }
+        
+        debounceTimeoutRef.current = setTimeout(() => {
+            onSearchChange?.(value);
+        }, 400);
+    }, [onSearchChange]);
+
+    const handleClearSearch = useCallback(() => {
+        setLocalSearch('');
+        if (debounceTimeoutRef.current) {
+            clearTimeout(debounceTimeoutRef.current);
+        }
+        onSearchChange?.('');
+    }, [onSearchChange]);
+
+    useEffect(() => {
+        return () => {
+            if (debounceTimeoutRef.current) {
+                clearTimeout(debounceTimeoutRef.current);
+            }
+        };
+    }, []);
 
     const filteredConversations = useMemo(() => {
         let filtered = conversations;
@@ -111,17 +153,8 @@ export function ConversationList({
             filtered = filtered.filter(c => c.connectionType === sourceFilter);
         }
         
-        if (search) {
-            const searchLower = search.toLowerCase();
-            filtered = filtered.filter(c => 
-                c.contactName.toLowerCase().includes(searchLower) ||
-                c.phone.includes(search) ||
-                (c.lastMessage && c.lastMessage.toLowerCase().includes(searchLower))
-            );
-        }
-        
         return filtered;
-    }, [conversations, search, sourceFilter]);
+    }, [conversations, sourceFilter]);
 
     const handleScroll = useCallback(() => {
         if (!scrollContainerRef.current || !onLoadMore || !hasMore || isLoadingMore) return;
@@ -162,13 +195,27 @@ export function ConversationList({
                     </TabsList>
                 </Tabs>
                 <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    {isSearching ? (
+                        <Loader2 className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground animate-spin" />
+                    ) : (
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    )}
                     <Input
-                        placeholder="Buscar por nome ou telefone..."
-                        className="pl-8"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        placeholder="Buscar por nome, telefone ou mensagem..."
+                        className="pl-8 pr-8"
+                        value={localSearch}
+                        onChange={(e) => handleSearchInputChange(e.target.value)}
                     />
+                    {localSearch && (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="absolute right-1 top-1 h-7 w-7"
+                            onClick={handleClearSearch}
+                        >
+                            <X className="h-4 w-4" />
+                        </Button>
+                    )}
                 </div>
             </div>
             <ScrollArea className="flex-1 min-h-0" viewportRef={scrollContainerRef}>

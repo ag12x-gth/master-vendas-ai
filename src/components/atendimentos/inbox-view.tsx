@@ -64,6 +64,9 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
   
   const [showContactDetails, setShowContactDetails] = useState(false);
   
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  
   const [hasMoreMessages, setHasMoreMessages] = useState(true);
   const [isLoadingMoreMessages, setIsLoadingMoreMessages] = useState(false);
   
@@ -76,9 +79,17 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
     setMounted(true);
   }, []);
   
-  const fetchConversations = useCallback(async (offset = 0, append = false) => {
+  const fetchConversations = useCallback(async (offset = 0, append = false, search = '') => {
     try {
-      const res = await fetch(`/api/v1/conversations?limit=${CONVERSATIONS_PAGE_SIZE}&offset=${offset}`);
+      const params = new URLSearchParams({
+        limit: String(CONVERSATIONS_PAGE_SIZE),
+        offset: String(offset),
+      });
+      if (search) {
+        params.set('search', search);
+      }
+      
+      const res = await fetch(`/api/v1/conversations?${params.toString()}`);
       if (!res.ok) throw new Error('Falha ao carregar as conversas.');
       const response = await res.json();
       const data: Conversation[] = response.data || response;
@@ -105,12 +116,24 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
     const newOffset = conversationsOffset + CONVERSATIONS_PAGE_SIZE;
     
     try {
-      await fetchConversations(newOffset, true);
+      await fetchConversations(newOffset, true, searchTerm);
       setConversationsOffset(newOffset);
     } finally {
       setIsLoadingMoreConversations(false);
     }
-  }, [conversationsOffset, fetchConversations, hasMoreConversations, isLoadingMoreConversations]);
+  }, [conversationsOffset, fetchConversations, hasMoreConversations, isLoadingMoreConversations, searchTerm]);
+
+  const handleSearchChange = useCallback(async (term: string) => {
+    setSearchTerm(term);
+    setConversationsOffset(0);
+    setIsSearching(true);
+    
+    try {
+      await fetchConversations(0, false, term);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [fetchConversations]);
 
   const fetchAndSetMessages = useCallback(async (conversationId: string, before?: string, prepend = false) => {
     if (!prepend) {
@@ -408,6 +431,9 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
                     onLoadMore={loadMoreConversations}
                     hasMore={hasMoreConversations}
                     isLoadingMore={isLoadingMoreConversations}
+                    searchTerm={searchTerm}
+                    onSearchChange={handleSearchChange}
+                    isSearching={isSearching}
                 />
             </div>
         )}
