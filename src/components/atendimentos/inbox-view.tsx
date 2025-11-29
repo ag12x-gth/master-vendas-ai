@@ -396,7 +396,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
   return (
     <div className="h-full flex flex-row border rounded-lg overflow-hidden">
         {showConversationList && (
-            <div className="w-full md:min-w-[280px] md:flex-[0.25] lg:flex-[0.22] xl:flex-[0.20] flex-shrink-0 h-full border-r min-h-0 overflow-hidden">
+            <div className="w-full md:w-[280px] lg:w-[260px] xl:w-[280px] flex-shrink-0 h-full border-r min-h-0 overflow-hidden">
                 <ConversationList 
                     conversations={conversations}
                     currentConversationId={selectedConversation?.id || null}
@@ -410,7 +410,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
       
         {showActiveChat ? (
             selectedConversation ? (
-                 <div className="flex-[0.6] md:flex-[0.55] lg:flex-[0.60] flex flex-col h-full min-h-0 border-r">
+                 <div className="flex-1 flex flex-col h-full min-h-0 min-w-0 border-r overflow-hidden">
                     <ActiveChat
                         key={selectedConversation.id}
                         conversation={selectedConversation}
@@ -433,7 +433,7 @@ export function InboxView({ preselectedConversationId }: { preselectedConversati
             )
         ) : null}
 
-       <aside className="hidden lg:flex flex-col flex-[0.20] min-w-[280px] flex-shrink-0 h-full bg-card min-h-0">
+       <aside className="hidden lg:flex flex-col w-[280px] flex-shrink-0 h-full bg-card min-h-0 overflow-hidden">
          <ContactDetailsPanel contactId={selectedConversation?.contactId} />
        </aside>
     </div>
