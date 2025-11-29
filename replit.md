@@ -101,6 +101,9 @@ These credentials are required for any authenticated page testing.
 - **Route-Aware Layout System**: PageLayoutContext derives layout mode from pathname, ensuring /atendimentos uses full-height mode (overflow-hidden, min-h-0) while other pages use default scrollable mode - eliminates SSR flicker and chat input clipping
 - **Contact Details Toggle**: Painel de detalhes do contato agora é oculto por padrão, com botão toggle (PanelRightOpen/Close) ao lado do switch de IA; estado reseta automaticamente ao mudar de conversa
 
+### Dashboard Improvements
+- **Lead Value Toggle**: Botão Eye/EyeOff no card "Valor Total em Leads" para ocultar/mostrar o valor monetário (exibe "R$ ••••••" quando oculto)
+
 ### Error Handling & Developer Experience
 - **Session Expiry Handling**: `useNotifications` hook silently stops polling when session expires (401), preventing console error spam
 - **Pre-dev Script**: Automatic cache cleanup (`rm -rf .next/cache`) and port conflict resolution (`fuser -k 5000/tcp`) before `npm run dev`

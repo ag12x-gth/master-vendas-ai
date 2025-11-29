@@ -7,12 +7,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { DollarSign, Users, Send, MessageCircleWarning, MessageSquare, Smartphone } from 'lucide-react';
+import { DollarSign, Users, Send, MessageCircleWarning, Eye, EyeOff } from 'lucide-react';
 import { useEffect, useState, useMemo } from 'react';
 import { Skeleton } from '../ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { createToastNotifier } from '@/lib/toast-helper';
 import type { DateRange } from 'react-day-picker';
+import { Button } from '../ui/button';
 
 interface KpiData {
     totalLeadValue: number;
@@ -27,12 +28,53 @@ interface StatsCardsProps {
     dateRange?: DateRange;
 }
 
-const StatCard = ({ title, value, description, icon: Icon, loading }: { title: string, value: string | number, description: string, icon: React.ElementType, loading: boolean }) => {
+interface StatCardProps {
+    title: string;
+    value: string | number;
+    description: string;
+    icon: React.ElementType;
+    loading: boolean;
+    showToggle?: boolean;
+    isHidden?: boolean;
+    onToggleVisibility?: () => void;
+}
+
+const StatCard = ({ title, value, description, icon: Icon, loading, showToggle, isHidden, onToggleVisibility }: StatCardProps) => {
+    const formatValue = () => {
+        if (isHidden) {
+            return 'R$ ••••••';
+        }
+        if (typeof value === 'number' && title.toLowerCase().includes('valor')) {
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'});
+        }
+        if (typeof value === 'number') {
+            return value.toLocaleString('pt-BR');
+        }
+        return value;
+    };
+
     return (
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{title}</CardTitle>
-                <Icon className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center gap-1">
+                    {showToggle && (
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={onToggleVisibility}
+                            title={isHidden ? 'Mostrar valor' : 'Ocultar valor'}
+                        >
+                            {isHidden ? (
+                                <EyeOff className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                                <Eye className="h-4 w-4 text-muted-foreground" />
+                            )}
+                        </Button>
+                    )}
+                    <Icon className="h-4 w-4 text-muted-foreground" />
+                </div>
             </CardHeader>
             <CardContent>
                 {loading ? (
@@ -43,12 +85,7 @@ const StatCard = ({ title, value, description, icon: Icon, loading }: { title: s
                 ) : (
                     <>
                     <div className="text-2xl font-bold">
-                        {typeof value === 'number' && title.toLowerCase().includes('valor')
-                            ? value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL'})
-                            : typeof value === 'number'
-                            ? value.toLocaleString('pt-BR')
-                            : value
-                        }
+                        {formatValue()}
                     </div>
                     <p className="text-xs text-muted-foreground">{description}</p>
                     </>
@@ -61,6 +98,7 @@ const StatCard = ({ title, value, description, icon: Icon, loading }: { title: s
 export function StatsCards({ dateRange }: StatsCardsProps) {
     const [data, setData] = useState<KpiData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [hideLeadValue, setHideLeadValue] = useState(false);
     const { toast } = useToast();
     const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
@@ -96,6 +134,7 @@ export function StatsCards({ dateRange }: StatsCardsProps) {
           value: data?.totalLeadValue ?? 0,
           description: 'Soma de oportunidades no período',
           icon: DollarSign,
+          showToggle: true,
         },
         {
           title: 'Novos Contatos',
@@ -127,6 +166,9 @@ export function StatsCards({ dateRange }: StatsCardsProps) {
             description={stat.description}
             icon={stat.icon}
             loading={loading}
+            showToggle={stat.showToggle}
+            isHidden={stat.showToggle ? hideLeadValue : false}
+            onToggleVisibility={stat.showToggle ? () => setHideLeadValue(!hideLeadValue) : undefined}
         />
       ))}
     </div>
