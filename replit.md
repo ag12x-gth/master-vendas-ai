@@ -6,6 +6,14 @@ Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control pan
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+## Testing & Development
+### E2E Test Credentials (MANDATORY)
+All E2E tests, screenshots, and manual testing must use these credentials:
+- **Email**: `diegomaninhu@gmail.com`
+- **Password**: `MasterIA2025!`
+
+These credentials are required for any authenticated page testing.
+
 ## System Architecture
 ### Technology Stack
 - **Frontend**: Next.js 14 (App Router), React, ShadCN UI, Tailwind CSS, TypeScript, Socket.IO.
