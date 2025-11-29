@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 
 type LayoutMode = 'default' | 'full-height';
 
@@ -9,10 +10,21 @@ interface PageLayoutContextType {
   setLayoutMode: (mode: LayoutMode) => void;
 }
 
+const FULL_HEIGHT_ROUTES = ['/atendimentos'];
+
+function getInitialLayoutMode(pathname: string): LayoutMode {
+  return FULL_HEIGHT_ROUTES.some(route => pathname.startsWith(route)) ? 'full-height' : 'default';
+}
+
 const PageLayoutContext = createContext<PageLayoutContextType | undefined>(undefined);
 
 export function PageLayoutProvider({ children }: { children: ReactNode }): JSX.Element {
-  const [layoutMode, setLayoutModeState] = useState<LayoutMode>('default');
+  const pathname = usePathname();
+  const [layoutMode, setLayoutModeState] = useState<LayoutMode>(() => getInitialLayoutMode(pathname));
+
+  useEffect(() => {
+    setLayoutModeState(getInitialLayoutMode(pathname));
+  }, [pathname]);
 
   const setLayoutMode = useCallback((mode: LayoutMode) => {
     setLayoutModeState(mode);
@@ -34,10 +46,4 @@ export function usePageLayout(): PageLayoutContextType {
 }
 
 export function useFullHeightLayout(): void {
-  const { setLayoutMode } = usePageLayout();
-  
-  useEffect(() => {
-    setLayoutMode('full-height');
-    return () => setLayoutMode('default');
-  }, [setLayoutMode]);
 }
