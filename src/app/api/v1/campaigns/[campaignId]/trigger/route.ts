@@ -4,15 +4,12 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { campaigns } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import redis from '@/lib/redis';
 import { getCompanyIdFromSession } from '@/app/actions';
-
-const WHATSAPP_CAMPAIGN_QUEUE = 'whatsapp_campaign_queue';
-const SMS_CAMPAIGN_QUEUE = 'sms_campaign_queue';
-
+import { sendWhatsappCampaign, sendSmsCampaign } from '@/lib/campaign-sender';
 
 /**
  * Endpoint para forçar o envio de UMA campanha específica.
+ * Dispara diretamente sem depender de Redis/BullMQ.
  */
 
 // Force dynamic rendering for this API route
@@ -32,17 +29,41 @@ export async function POST(request: NextRequest, { params }: { params: { campaig
         if (!['SCHEDULED', 'PENDING', 'QUEUED'].includes(campaign.status)) {
             return NextResponse.json({ error: `A campanha não está num estado que permita o reenvio. Status atual: ${campaign.status}` }, { status: 400 });
         }
-        
-        const queueName = campaign.channel === 'WHATSAPP' ? WHATSAPP_CAMPAIGN_QUEUE : SMS_CAMPAIGN_QUEUE;
-        
-        await db.update(campaigns).set({ status: 'QUEUED', scheduledAt: null }).where(eq(campaigns.id, campaign.id));
-        await redis.lpush(queueName, campaign.id);
 
-        return NextResponse.json({ success: true, message: 'Campanha adicionada à fila para envio imediato.' });
+        console.log(`[Campaign Trigger] 🚀 Disparando campanha manualmente: ${campaign.name} (${campaignId})`);
+
+        // Dispara diretamente sem usar Redis (bypass para quando Redis está com limite)
+        const channelUpper = campaign.channel?.toUpperCase();
+        
+        if (channelUpper === 'WHATSAPP') {
+            // Dispara em background para responder imediatamente
+            sendWhatsappCampaign(campaign).catch(err => {
+                console.error(`[Campaign Trigger] ❌ Erro ao enviar campanha WhatsApp ${campaignId}:`, err);
+            });
+            
+            return NextResponse.json({ 
+                success: true, 
+                message: `Campanha "${campaign.name}" disparada com sucesso. Processando envios...`,
+                campaignId: campaign.id,
+                channel: 'WHATSAPP'
+            });
+        } else if (channelUpper === 'SMS') {
+            sendSmsCampaign(campaign).catch(err => {
+                console.error(`[Campaign Trigger] ❌ Erro ao enviar campanha SMS ${campaignId}:`, err);
+            });
+            
+            return NextResponse.json({ 
+                success: true, 
+                message: `Campanha SMS "${campaign.name}" disparada com sucesso.`,
+                campaignId: campaign.id,
+                channel: 'SMS'
+            });
+        }
+
+        return NextResponse.json({ error: 'Canal não suportado.' }, { status: 400 });
+        
     } catch (error) {
-        console.error(`Erro ao forçar envio da campanha ${campaignId}:`, error);
-        // Tenta reverter o status em caso de falha ao enfileirar
-        await db.update(campaigns).set({ status: 'SCHEDULED' }).where(eq(campaigns.id, campaignId));
+        console.error(`[Campaign Trigger] ❌ Erro ao disparar campanha ${campaignId}:`, error);
         return NextResponse.json({ error: (error as Error).message }, { status: 500 });
     }
 }
