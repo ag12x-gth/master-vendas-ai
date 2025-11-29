@@ -112,9 +112,11 @@ export function ConversationList({
         }
         
         if (search) {
+            const searchLower = search.toLowerCase();
             filtered = filtered.filter(c => 
-                c.contactName.toLowerCase().includes(search.toLowerCase()) ||
-                c.phone.includes(search)
+                c.contactName.toLowerCase().includes(searchLower) ||
+                c.phone.includes(search) ||
+                (c.lastMessage && c.lastMessage.toLowerCase().includes(searchLower))
             );
         }
         
