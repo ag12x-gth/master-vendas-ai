@@ -1,0 +1,17 @@
+Atue como um Engenheiro de DevOps Sênior especialista na infraestrutura do Replit. Preciso de uma análise forense completa do meu projeto para diagnosticar uma regressão crítica: o modo 'Watch' (tempo real) do painel de Testes parou de atualizar, embora funcionasse anteriormente.
+Por favor, analise todo o escopo da aplicação, incluindo arquivos ocultos de configuração, e verifique se alguma funcionalidade instalada recentemente ou uma configuração fora do padrão Replit está bloqueando o processo. Siga estritamente este protocolo de auditoria:
+Auditoria do Arquivo .replit (Bloco ``):
+Verifique se o comando de execução (command) possui as flags necessárias para persistência (ex: --watch, --watchAll, --interactive). Se o comando encerra após uma execução (exit code 0), o painel não atualiza.
+Confirme se a chave language corresponde exatamente aos binários disponíveis no ambiente atual.
+Análise de Rede e Bindings (Crítico):
+Examine os arquivos de configuração do framework de testes e da aplicação principal. Procure por definições de host.
+O Replit exige que serviços interativos escutem em 0.0.0.0. Se uma atualização recente forçou o binding para 127.0.0.1 ou localhost, o painel de testes (que atua como um visualizador externo) perderá a conexão.
+Integridade do Ambiente Nix (replit.nix):
+Compare as dependências declaradas com as necessárias para file watching (ex: inotify-tools, bibliotecas glibc compatíveis).
+Verifique se houve mudança no canal Nix (channel) que possa ter introduzido incompatibilidade com as bibliotecas de teste instaladas.
+Detecção de Bloqueios e 'Zumbis':
+Analise se scripts de 'pre-run' ou inicialização da aplicação estão bloqueando o terminal ou sequestrando a porta necessária para o runner de testes.
+Verifique a possibilidade de processos órfãos de sessões anteriores que impedem o novo processo de 'Watch' de se conectar.
+Fator de Regressão ('Antes Funcionava'):
+Analise o package.json ou requirements.txt em busca de atualizações recentes de versão que possam ter alterado o comportamento padrão de CLI (ex: remoção de suporte a certas flags de watch).
+Saída Obrigatória: Não tente corrigir cegamente. Primeiro, liste os arquivos suspeitos e a razão técnica exata do bloqueio (ex: 'Conflito de porta em vite.config.js', 'Flag --watch ausente no.replit'). Em seguida, proponha a correção exata do código ou configuração.
