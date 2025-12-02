@@ -117,6 +117,15 @@ These credentials are required for any authenticated page testing.
 - **Crypto Singleton**: `globalThis` pattern for ENCRYPTION_KEY warning to show only once per process (may appear during route compilation in dev mode - expected behavior)
 - **BullMQ Warning Silence**: Webpack externals config suppresses "Critical dependency" warning for require.main evaluation
 
+### Kanban Page UI/UX Improvements (December 2025)
+- **Flexbox Layout System**: Replaced fixed viewport height calculations with proper flex-based sizing using min-h-0 pattern throughout the component tree
+- **Column Scroll**: Each stage column has internal ScrollArea for independent scrolling of leads without page-level scroll issues
+- **Responsive Design**: Columns stack vertically on mobile, display horizontally with min-width constraints on desktop (300-320px per column)
+- **Card Visual Improvements**: Compact design with smaller avatars (28px), tighter padding, improved truncation, and subtle shadows
+- **Dark Mode Support**: Stage headers and backgrounds now properly adapt to dark theme with appropriate color variants
+- **Empty State**: Columns show "Arraste leads para cá" placeholder when empty for better UX
+- **Toolbar Responsiveness**: Compact buttons and search bar with adaptive sizing for different screen widths
+
 ### Deployment Build Fixes (December 2025)
 - **Empty catch blocks fixed**: Added comments to empty catch blocks in `src/app/objects/[...path]/route.ts` to satisfy ESLint no-empty rule
 - **Global var declarations**: Added eslint-disable comments for required `var` in `declare global` blocks in `src/workers/campaign-trigger.worker.ts`
