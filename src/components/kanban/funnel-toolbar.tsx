@@ -16,64 +16,54 @@ interface FunnelToolbarProps {
 
 export function FunnelToolbar({ funnel, onAddCard, onSearch, onFilter }: FunnelToolbarProps): JSX.Element {
   return (
-    <>
-    <div className="border-b bg-background">
-      {/* Mobile: Stack vertically, Desktop: horizontal */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 sm:p-4 gap-3">
-        {/* Title section */}
-        <div className="flex flex-col gap-1">
-          <h2 className="text-lg sm:text-xl font-semibold truncate">{funnel.name}</h2>
-          <div className="text-xs sm:text-sm text-muted-foreground">
+    <div className="border-b bg-background flex-shrink-0">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 gap-3">
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <h2 className="text-base sm:text-lg font-semibold truncate">{funnel.name}</h2>
+          <div className="text-xs text-muted-foreground">
             {funnel.totalLeads || 0} leads • R$ {(funnel.totalValue || 0).toLocaleString('pt-BR')}
           </div>
         </div>
         
-        {/* Actions section */}
-        <div className="flex items-center gap-2">
-          {/* Search - hidden on mobile, visible on tablet+ */}
-          <div className="relative hidden md:block">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="relative hidden lg:block">
+            <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar leads..."
-              className="pl-10 w-48 lg:w-64"
+              className="pl-8 h-8 w-40 xl:w-56 text-sm"
               onChange={(e) => onSearch?.(e.target.value)}
             />
           </div>
           
-          {/* Filter button - icon only on mobile */}
-          <Button variant="outline" size="sm" onClick={onFilter} className="flex-shrink-0">
-            <Filter className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Filtros</span>
+          <Button variant="outline" size="sm" onClick={onFilter} className="h-8 px-2 sm:px-3">
+            <Filter className="h-4 w-4" />
+            <span className="hidden sm:inline ml-1.5">Filtros</span>
           </Button>
           
-          {/* Edit funnel button */}
           <Link href={`/kanban/${funnel.id}/edit`}>
-            <Button variant="outline" size="sm" className="flex-shrink-0">
-              <Settings className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Editar Kanban</span>
+            <Button variant="outline" size="sm" className="h-8 px-2 sm:px-3">
+              <Settings className="h-4 w-4" />
+              <span className="hidden md:inline ml-1.5">Editar</span>
             </Button>
           </Link>
           
-          {/* Add button - icon only on mobile */}
-          <Button size="sm" onClick={onAddCard} className="flex-shrink-0">
-            <Plus className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Novo Lead</span>
+          <Button size="sm" onClick={onAddCard} className="h-8 px-2 sm:px-3">
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline ml-1.5">Novo Lead</span>
           </Button>
         </div>
       </div>
       
-      {/* Mobile search bar - only visible on mobile */}
-      <div className="px-3 pb-3 md:hidden">
+      <div className="px-3 pb-3 lg:hidden">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Buscar leads..."
-            className="pl-10 w-full"
+            className="pl-8 h-8 w-full text-sm"
             onChange={(e) => onSearch?.(e.target.value)}
           />
         </div>
       </div>
     </div>
-    </>
   );
 }

@@ -153,26 +153,26 @@ export default function FunnelPage({ params }: { params: { funnelId: string } })
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <Tabs defaultValue="kanban" className="flex-1 flex flex-col">
-        <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
+    <div className="h-full flex flex-col min-h-0">
+      <Tabs defaultValue="kanban" className="flex-1 flex flex-col min-h-0">
+        <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent flex-shrink-0">
           <TabsTrigger 
             value="kanban" 
-            className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
+            className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2"
           >
             <KanbanIcon className="h-4 w-4 mr-2" />
             Visualização do Funil
           </TabsTrigger>
           <TabsTrigger 
             value="agents" 
-            className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none"
+            className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-4 py-2"
           >
             <Bot className="h-4 w-4 mr-2" />
             Agentes IA por Estágio
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="kanban" className="flex-1 mt-0">
+        <TabsContent value="kanban" className="flex-1 mt-0 min-h-0">
           <KanbanView 
             funnel={funnel} 
             cards={cards} 
@@ -186,7 +186,7 @@ export default function FunnelPage({ params }: { params: { funnelId: string } })
           />
         </TabsContent>
 
-        <TabsContent value="agents" className="flex-1 mt-4 overflow-auto p-4">
+        <TabsContent value="agents" className="flex-1 mt-0 min-h-0 overflow-auto p-4">
           <StagePersonaConfig 
             boardId={params.funnelId} 
             stages={funnel.stages}

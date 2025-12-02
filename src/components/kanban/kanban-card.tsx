@@ -5,7 +5,7 @@ import { Draggable } from '@hello-pangea/dnd';
 import { Card, CardContent, CardHeader } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { MoreHorizontal, Phone, Mail, Eye, Edit2, Trash2, MessageCircle, MoveRight, Clock } from 'lucide-react';
+import { MoreHorizontal, Phone, Eye, Edit2, Trash2, MessageCircle, MoveRight, Clock } from 'lucide-react';
 import { Button } from '../ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from '../ui/dropdown-menu';
 import type { KanbanCard as KanbanCardType, KanbanStage } from '@/lib/types';
@@ -59,25 +59,24 @@ export function KanbanCard({ card, index, stages, onUpdate, onDelete, onOpenWhat
             {...provided.draggableProps}
           >
             <Card
-              className={`mb-3 cursor-pointer transition-shadow hover:shadow-md ${
-                snapshot.isDragging ? 'shadow-lg rotate-2' : ''
+              className={`cursor-pointer transition-all hover:shadow-md bg-card ${
+                snapshot.isDragging ? 'shadow-lg rotate-1 scale-[1.02]' : ''
               }`}
             >
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
+              <CardHeader className="p-3 pb-2">
+                <div className="flex items-start justify-between gap-2">
                   <div 
                     {...provided.dragHandleProps}
                     className="flex items-center gap-2 flex-1 min-w-0"
                   >
-                    <Avatar className="h-8 w-8">
+                    <Avatar className="h-7 w-7 flex-shrink-0">
                       <AvatarImage src={card.contact?.avatarUrl || ''} alt={card.contact?.name || 'Lead'} />
-                      <AvatarFallback className="text-xs">
+                      <AvatarFallback className="text-xs bg-primary/10 text-primary">
                         {(card.contact?.name || 'L').substring(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{card.contact?.name || 'Lead sem nome'}</p>
-                      <p className="text-xs text-muted-foreground truncate">{card.title}</p>
+                      <p className="font-medium text-sm leading-tight truncate">{card.contact?.name || 'Lead sem nome'}</p>
                     </div>
                   </div>
                   
@@ -86,10 +85,10 @@ export function KanbanCard({ card, index, stages, onUpdate, onDelete, onOpenWhat
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        className="h-6 w-6 p-0 -mr-1"
+                        className="h-6 w-6 p-0 flex-shrink-0 opacity-60 hover:opacity-100"
                         onPointerDown={(e) => e.stopPropagation()}
                       >
-                        <MoreHorizontal className="h-3 w-3" />
+                        <MoreHorizontal className="h-3.5 w-3.5" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
@@ -146,42 +145,26 @@ export function KanbanCard({ card, index, stages, onUpdate, onDelete, onOpenWhat
                 </div>
               </CardHeader>
               
-              <CardContent className="pt-0">
-                {(card.value !== null && card.value !== undefined) && (
-                  <div className="mb-2">
-                    <Badge variant="secondary" className="text-xs">
-                      R$ {Number(card.value).toLocaleString('pt-BR')}
-                    </Badge>
-                  </div>
+              <CardContent className="p-3 pt-0 space-y-2">
+                {(card.value !== null && card.value !== undefined && Number(card.value) > 0) && (
+                  <Badge variant="secondary" className="text-xs font-medium">
+                    R$ {Number(card.value).toLocaleString('pt-BR')}
+                  </Badge>
                 )}
                 
                 <div className="flex flex-col gap-1 text-xs text-muted-foreground">
                   {card.contact?.phone && (
-                    <div className="flex items-center gap-1 min-w-0">
-                      <Phone className="h-3 w-3 flex-shrink-0" />
-                      <span className="truncate">{card.contact.phone}</span>
-                    </div>
-                  )}
-                  {card.contact?.email && (
-                    <div className="flex items-center gap-1 min-w-0">
-                      <Mail className="h-3 w-3 flex-shrink-0" />
-                      <span className="truncate">{card.contact.email}</span>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <Phone className="h-3 w-3 flex-shrink-0 text-muted-foreground/70" />
+                      <span className="truncate font-mono text-[11px]">{card.contact.phone}</span>
                     </div>
                   )}
                 </div>
                 
                 {card.notes && card.notes.includes('📅 Reunião agendada:') && (
-                  <div className="mt-2">
-                    <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                      {card.notes.split('\n')[0]}
-                    </Badge>
-                  </div>
-                )}
-                
-                {card.notes && !card.notes.includes('📅 Reunião agendada:') && (
-                  <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
-                    {card.notes}
-                  </p>
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 bg-green-50 dark:bg-green-950/50 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 w-fit max-w-full">
+                    <span className="truncate">{card.notes.split('\n')[0]}</span>
+                  </Badge>
                 )}
               </CardContent>
             </Card>

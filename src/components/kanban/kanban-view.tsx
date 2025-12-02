@@ -2,7 +2,6 @@
 'use client';
 
 import { FunnelToolbar } from './funnel-toolbar';
-import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { KanbanColumn } from './kanban-column';
 import type { KanbanFunnel, KanbanCard as KanbanCardType, KanbanStage } from '@/lib/types';
 import { DragDropContext, type DropResult } from '@hello-pangea/dnd';
@@ -25,35 +24,31 @@ export function KanbanView({ funnel, cards, onMoveCard, onUpdateLead, onDeleteLe
   }
   
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col min-h-0">
       <FunnelToolbar 
         funnel={funnel} 
         onAddCard={onAddCard}
         onFilter={onFilter}
         onSearch={onSearch}
       />
-      <div className="flex-1 min-h-0">
-        <ScrollArea className="h-full w-full">
-          <div className="p-2 sm:p-4">
-            <DragDropContext onDragEnd={onMoveCard}>
-              {/* Mobile: vertical stack, Desktop: horizontal scroll */}
-              <div className="flex flex-col md:flex-row md:w-max gap-3 md:gap-4">
-                {funnel.stages.map((stage: KanbanStage, index: number) => (
-                  <KanbanColumn
-                    key={stage.id}
-                    stage={stage}
-                    stages={funnel.stages}
-                    cards={cards}
-                    index={index}
-                    onUpdateLead={onUpdateLead}
-                    onDeleteLead={onDeleteLead}
-                  />
-                ))}
-              </div>
-            </DragDropContext>
-          </div>
-          <ScrollBar orientation="horizontal" className="hidden md:flex" />
-        </ScrollArea>
+      <div className="flex-1 min-h-0 overflow-auto">
+        <div className="p-3 sm:p-4 min-h-full">
+          <DragDropContext onDragEnd={onMoveCard}>
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4 md:min-h-[500px]">
+              {funnel.stages.map((stage: KanbanStage, index: number) => (
+                <KanbanColumn
+                  key={stage.id}
+                  stage={stage}
+                  stages={funnel.stages}
+                  cards={cards}
+                  index={index}
+                  onUpdateLead={onUpdateLead}
+                  onDeleteLead={onDeleteLead}
+                />
+              ))}
+            </div>
+          </DragDropContext>
+        </div>
       </div>
     </div>
   );
