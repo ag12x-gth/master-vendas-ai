@@ -412,7 +412,7 @@ export class AlertService {
   /**
    * Send email notification
    */
-  private static async sendEmailNotification(alert: any): Promise<NotificationResult> {
+  private static async sendEmailNotification(_alert: any): Promise<NotificationResult> {
     // This would integrate with an email service
     // For now, we'll just log it
     console.log('[AlertService] Email notification would be sent here');
@@ -689,7 +689,7 @@ export class AlertService {
   /**
    * Get metric value by name
    */
-  private static async getMetricValue(metricName: string): Promise<number | null> {
+  private static async getMetricValue(_metricName: string): Promise<number | null> {
     // This would integrate with Prometheus or other metrics systems
     // For now, return null to indicate metric not available
     return null;
@@ -730,7 +730,7 @@ export class AlertService {
    */
   static async acknowledgeAlert(alertId: string, userId: string): Promise<boolean> {
     try {
-      const result = await db
+      await db
         .update(alerts)
         .set({
           status: 'acknowledged' as any,
@@ -754,7 +754,7 @@ export class AlertService {
    */
   static async resolveAlert(alertId: string, userId: string): Promise<boolean> {
     try {
-      const result = await db
+      await db
         .update(alerts)
         .set({
           status: 'resolved' as any,
@@ -829,7 +829,7 @@ export class AlertService {
    */
   static async cleanupExpiredAlerts(): Promise<number> {
     try {
-      const result = await db
+      await db
         .update(alerts)
         .set({ status: 'expired' as any })
         .where(and(

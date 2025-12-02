@@ -1,7 +1,6 @@
 const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
-const path = require('path');
 const { execSync, execFileSync } = require('child_process');
 
 // ========================================
@@ -208,7 +207,7 @@ const server = createServer(async (req, res) => {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       
       try {
-        const { conn } = require('./src/lib/db/index.ts');
+        const { conn: _conn } = require('./src/lib/db/index.ts');
         
         // Force garbage collection if available
         if (global.gc) {
@@ -333,7 +332,7 @@ const continueInitialization = () => {
   // ========================================
   try {
     require('tsx/cjs');
-    const redis = require('./src/lib/redis.ts').default;
+    const _redis = require('./src/lib/redis.ts').default;
     console.log('✅ Redis initialized (eager loading)');
   } catch (error) {
     console.warn('⚠️ Redis initialization skipped:', error.message);

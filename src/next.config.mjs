@@ -12,7 +12,7 @@ const nextConfig = {
       },
     ],
   },
-   webpack: (config, { isServer, webpack }) => {
+   webpack: (config, { isServer: _isServer, webpack: _webpack }) => {
     // Adiciona uma regra para carregar ficheiros .node como assets,
     // o que é necessário para dependências como oslo, bcrypt, argon2.
     config.module.rules.push({

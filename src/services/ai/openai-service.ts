@@ -40,7 +40,7 @@ export class OpenAIService {
   async generateResponse(
     userMessage: string,
     contactName?: string,
-    conversationHistory: ChatMessage[] = []
+    _conversationHistory: ChatMessage[] = []
   ): Promise<string> {
     throw new Error('Generic AI responses are disabled. Please assign an AI persona to the conversation.');
   }
