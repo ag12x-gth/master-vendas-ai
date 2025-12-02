@@ -14,7 +14,6 @@ import {
   Clock,
   Bot,
   ChevronUp,
-  User,
   PanelRightOpen,
   PanelRightClose,
 } from 'lucide-react';

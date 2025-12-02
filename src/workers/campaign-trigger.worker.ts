@@ -14,7 +14,9 @@ let isInitialized = false;
 let shutdownHandlersRegistered = false;
 
 declare global {
+  // eslint-disable-next-line no-var
   var __campaignTriggerWorkerInitialized: boolean | undefined;
+  // eslint-disable-next-line no-var
   var __campaignTriggerShutdownRegistered: boolean | undefined;
 }
 
@@ -150,8 +152,7 @@ async function initializeCampaignTriggerWorker(): Promise<boolean> {
     if (redisConnection) {
       try {
         await redisConnection.quit();
-      } catch {
-      }
+      } catch (_) { /* ignore close error */ }
       redisConnection = null;
     }
 

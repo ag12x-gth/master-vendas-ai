@@ -54,7 +54,7 @@ export async function GET(
                         isClosed = true;
                         try {
                             controller.close();
-                        } catch {}
+                        } catch (_) { /* stream already closed */ }
                     }
                 });
                 
@@ -63,7 +63,7 @@ export async function GET(
                         isClosed = true;
                         try {
                             controller.error(err);
-                        } catch {}
+                        } catch (_) { /* stream already closed */ }
                     }
                 });
             },
