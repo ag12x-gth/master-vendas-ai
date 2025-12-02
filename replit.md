@@ -117,9 +117,17 @@ These credentials are required for any authenticated page testing.
 - **Crypto Singleton**: `globalThis` pattern for ENCRYPTION_KEY warning to show only once per process (may appear during route compilation in dev mode - expected behavior)
 - **BullMQ Warning Silence**: Webpack externals config suppresses "Critical dependency" warning for require.main evaluation
 
+### Deployment Build Fixes (December 2025)
+- **Empty catch blocks fixed**: Added comments to empty catch blocks in `src/app/objects/[...path]/route.ts` to satisfy ESLint no-empty rule
+- **Global var declarations**: Added eslint-disable comments for required `var` in `declare global` blocks in `src/workers/campaign-trigger.worker.ts`
+- **Unused imports removed**: Cleaned up unused imports (`Server` in server.js, `User` in active-chat.tsx)
+- **Unused variables prefixed**: Added underscore prefix to unused function parameters across server.js, alert.service.ts, openai-service.ts, and next.config.mjs
+- **Build validation**: All critical ESLint errors resolved - only non-blocking `<img>` warnings remain (performance recommendations)
+
 ### Validated Features
 - Campaign system: Automatic processing via BullMQ worker (polling every 30s)
 - Meta Webhooks: sent/delivered/read status callbacks working
 - AI automation: Humanized delays (38-98s) with persona-based responses
 - E2E tests: Playwright screenshot validation for Atendimentos page
 - Atendimentos page: Layout fully functional with visible input, proper message display
+- Deployment build: Passes ESLint and TypeScript validation
