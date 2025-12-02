@@ -122,7 +122,8 @@ These credentials are required for any authenticated page testing.
 - **Global var declarations**: Added eslint-disable comments for required `var` in `declare global` blocks in `src/workers/campaign-trigger.worker.ts`
 - **Unused imports removed**: Cleaned up unused imports (`Server` in server.js, `User` in active-chat.tsx)
 - **Unused variables prefixed**: Added underscore prefix to unused function parameters across server.js, alert.service.ts, openai-service.ts, and next.config.mjs
-- **Build validation**: All critical ESLint errors resolved - only non-blocking `<img>` warnings remain (performance recommendations)
+- **Dynamic image warnings fixed**: Added eslint-disable comments for `<img>` elements with dynamic URLs (TemplatePreview.tsx, whatsapp-preview.tsx, qr-code-modal.tsx) - these use data URLs or API-provided URLs not suitable for next/image optimization
+- **Build validation**: All ESLint errors and warnings resolved - lint passes with zero warnings
 
 ### Validated Features
 - Campaign system: Automatic processing via BullMQ worker (polling every 30s)

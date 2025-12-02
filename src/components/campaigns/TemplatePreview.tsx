@@ -125,6 +125,7 @@ export function TemplatePreview({
           {hasMedia ? (
             <div className="relative aspect-video bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
               {headerComponent.format === 'IMAGE' && mediaUrl && (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img 
                   src={mediaUrl} 
                   alt="Preview" 

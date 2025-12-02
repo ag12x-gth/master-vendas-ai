@@ -50,6 +50,7 @@ export function WhatsAppPreview({
                   )}
                   {header.type === 'image' && header.url && (
                     <div className="relative w-full h-48 bg-gray-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img 
                         src={header.url} 
                         alt="Header" 

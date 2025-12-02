@@ -162,6 +162,7 @@ export function QRCodeModal({ sessionId, sessionName, isOpen, onClose }: QRCodeM
 
           {status === 'qr' && qrCode && (
             <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={qrCode} alt="QR Code" className="w-72 h-72" />
               <div className="text-center space-y-2">
                 <p className="text-sm font-medium">
