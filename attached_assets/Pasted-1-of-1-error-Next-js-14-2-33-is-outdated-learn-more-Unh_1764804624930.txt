@@ -1,0 +1,95 @@
+1 of 1 error
+Next.js (14.2.33) is outdated (learn more)
+
+Unhandled Runtime Error
+Error: Maximum update depth exceeded. This can happen when a component repeatedly calls setState inside componentWillUpdate or componentDidUpdate. React limits the number of nested updates to prevent infinite loops.
+
+Call Stack
+React
+setNode
+../src/presence.tsx (159:7)
+setRef
+node_modules/@radix-ui/react-compose-refs/dist/index.mjs (5:1)
+eval
+node_modules/@radix-ui/react-compose-refs/dist/index.mjs (14:1)
+Array.map
+<anonymous>
+eval
+node_modules/@radix-ui/react-compose-refs/dist/index.mjs (13:1)
+setRef
+node_modules/@radix-ui/react-compose-refs/dist/index.mjs (5:1)
+eval
+node_modules/@radix-ui/react-compose-refs/dist/index.mjs (14:1)
+Array.map
+<anonymous>
+eval
+node_modules/@radix-ui/react-compose-refs/dist/index.mjs (13:1)
+React
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+React
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+React
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+commitMutationEffectsOnFiber
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js
+recursivelyTraverseMutationEffects
+webpack-internal:/(app-pages-browser)/node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js

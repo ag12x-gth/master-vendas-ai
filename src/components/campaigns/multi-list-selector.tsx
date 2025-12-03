@@ -4,7 +4,6 @@ import * as React from 'react';
 import { useState, useMemo } from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -101,7 +100,7 @@ export function MultiListSelector({
       </div>
 
       <Card className="border">
-        <ScrollArea className="pr-3" style={{ height: maxHeight }}>
+        <div className="overflow-y-auto pr-1" style={{ maxHeight }}>
           <div className="p-2 space-y-1">
             {filteredLists.length === 0 ? (
               <div className="text-center py-6 text-muted-foreground">
@@ -154,7 +153,7 @@ export function MultiListSelector({
               })
             )}
           </div>
-        </ScrollArea>
+        </div>
       </Card>
 
       {selectedIds.length > 0 && (
