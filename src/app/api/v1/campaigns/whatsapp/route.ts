@@ -42,6 +42,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const { contactListIds, schedule, ...campaignData } = parsed.data;
         const isScheduled = !!schedule;
 
+        console.log('[Campaign Create Debug] contactListIds recebidos:', JSON.stringify(contactListIds));
+        console.log('[Campaign Create Debug] Quantidade de listas:', contactListIds.length);
+
         // FASE 0: Validar conexão - verificar que existe, pertence à empresa e está ativa
         const [connection] = await db
             .select()
@@ -74,7 +77,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 inArray(contactLists.id, contactListIds)
             ));
         
+        console.log('[Campaign Create Debug] Listas encontradas (ownership):', ownedLists.length);
         if (ownedLists.length !== contactListIds.length) {
+            console.log('[Campaign Create Debug] ERRO: Listas não pertencem à empresa. Expected:', contactListIds.length, 'Found:', ownedLists.length);
             return NextResponse.json({ 
                 error: 'Lista(s) inválida(s)', 
                 description: 'Uma ou mais listas selecionadas não existem ou não pertencem à sua empresa.' 
@@ -91,9 +96,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             .where(inArray(contactsToContactLists.listId, contactListIds))
             .groupBy(contactsToContactLists.listId);
         
+        console.log('[Campaign Create Debug] Listas com contatos:', JSON.stringify(listsWithContacts));
+        
         // Verificar se TODAS as listas aparecem no resultado (se não, estão vazias)
         const listIdsWithContacts = new Set(listsWithContacts.map(l => l.listId));
         const emptyLists = contactListIds.filter(id => !listIdsWithContacts.has(id));
+        
+        console.log('[Campaign Create Debug] Listas vazias:', emptyLists.length, 'IDs:', JSON.stringify(emptyLists));
         
         if (emptyLists.length > 0) {
             return NextResponse.json({ 
