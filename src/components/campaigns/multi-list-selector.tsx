@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Users, Search, CheckSquare, Square, List } from 'lucide-react';
+import { Users, Search, CheckSquare, Square, List, AlertTriangle } from 'lucide-react';
 import type { ContactList } from '@/lib/types';
 
 interface MultiListSelectorProps {
@@ -35,10 +35,11 @@ export function MultiListSelector({
     );
   }, [lists, searchTerm]);
 
-  const totalContacts = useMemo(() => {
-    return lists
-      .filter(list => selectedIds.includes(list.id))
-      .reduce((sum, list) => sum + (list.contactCount || 0), 0);
+  const { totalContacts, emptySelectedCount } = useMemo(() => {
+    const selectedLists = lists.filter(list => selectedIds.includes(list.id));
+    const total = selectedLists.reduce((sum, list) => sum + (list.contactCount || 0), 0);
+    const emptyCount = selectedLists.filter(list => (list.contactCount || 0) === 0).length;
+    return { totalContacts: total, emptySelectedCount: emptyCount };
   }, [lists, selectedIds]);
 
   const handleToggle = (listId: string) => {
@@ -110,48 +111,71 @@ export function MultiListSelector({
                 </p>
               </div>
             ) : (
-              filteredLists.map(list => (
-                <div
-                  key={list.id}
-                  className={`flex items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-muted/50 transition-colors ${
-                    selectedIds.includes(list.id) ? 'bg-primary/5 border border-primary/20' : ''
-                  }`}
-                  onClick={() => handleToggle(list.id)}
-                >
-                  <Checkbox
-                    id={`list-${list.id}`}
-                    checked={selectedIds.includes(list.id)}
-                    onCheckedChange={() => handleToggle(list.id)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <Label
-                      htmlFor={`list-${list.id}`}
-                      className="font-medium cursor-pointer truncate block"
+              filteredLists.map(list => {
+                const isEmpty = (list.contactCount || 0) === 0;
+                const isSelected = selectedIds.includes(list.id);
+                return (
+                  <div
+                    key={list.id}
+                    className={`flex items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-muted/50 transition-colors ${
+                      isSelected 
+                        ? isEmpty 
+                          ? 'bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700' 
+                          : 'bg-primary/5 border border-primary/20' 
+                        : isEmpty 
+                          ? 'opacity-60' 
+                          : ''
+                    }`}
+                    onClick={() => handleToggle(list.id)}
+                  >
+                    <Checkbox
+                      id={`list-${list.id}`}
+                      checked={isSelected}
+                      onCheckedChange={() => handleToggle(list.id)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <Label
+                        htmlFor={`list-${list.id}`}
+                        className={`font-medium cursor-pointer truncate block ${isEmpty ? 'text-muted-foreground' : ''}`}
+                      >
+                        {list.name}
+                      </Label>
+                    </div>
+                    <Badge 
+                      variant={isEmpty ? "outline" : "secondary"} 
+                      className={`shrink-0 ${isEmpty ? 'text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-600' : ''}`}
                     >
-                      {list.name}
-                    </Label>
+                      <Users className="h-3 w-3 mr-1" />
+                      {list.contactCount || 0}
+                    </Badge>
                   </div>
-                  <Badge variant="secondary" className="shrink-0">
-                    <Users className="h-3 w-3 mr-1" />
-                    {list.contactCount || 0}
-                  </Badge>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </ScrollArea>
       </Card>
 
       {selectedIds.length > 0 && (
-        <div className="flex items-center justify-between text-sm bg-primary/5 p-2 rounded-md border border-primary/20">
-          <span className="font-medium text-primary">
-            {selectedIds.length} lista{selectedIds.length !== 1 ? 's' : ''} selecionada{selectedIds.length !== 1 ? 's' : ''}
-          </span>
-          <Badge variant="default" className="bg-primary">
-            <Users className="h-3 w-3 mr-1" />
-            {totalContacts.toLocaleString('pt-BR')} contatos
-          </Badge>
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-sm bg-primary/5 p-2 rounded-md border border-primary/20">
+            <span className="font-medium text-primary">
+              {selectedIds.length} lista{selectedIds.length !== 1 ? 's' : ''} selecionada{selectedIds.length !== 1 ? 's' : ''}
+            </span>
+            <Badge variant="default" className="bg-primary">
+              <Users className="h-3 w-3 mr-1" />
+              {totalContacts.toLocaleString('pt-BR')} contatos
+            </Badge>
+          </div>
+          {emptySelectedCount > 0 && (
+            <div className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 p-2 rounded-md border border-amber-200 dark:border-amber-800">
+              <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
+              <span>
+                {emptySelectedCount} lista{emptySelectedCount !== 1 ? 's' : ''} vazia{emptySelectedCount !== 1 ? 's' : ''} será{emptySelectedCount !== 1 ? 'ão' : ''} ignorada{emptySelectedCount !== 1 ? 's' : ''} automaticamente.
+              </span>
+            </div>
+          )}
         </div>
       )}
     </div>
