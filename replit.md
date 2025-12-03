@@ -134,6 +134,13 @@ These credentials are required for any authenticated page testing.
 - **Dynamic image warnings fixed**: Added eslint-disable comments for `<img>` elements with dynamic URLs (TemplatePreview.tsx, whatsapp-preview.tsx, qr-code-modal.tsx) - these use data URLs or API-provided URLs not suitable for next/image optimization
 - **Build validation**: All ESLint errors and warnings resolved - lint passes with zero warnings
 
+### Empty List Handling for Campaigns (December 2025)
+- **Backend Smart Filtering**: WhatsApp, Baileys, and SMS campaign APIs automatically filter out empty contact lists
+- **Response Metadata**: APIs return `listsUsed` and `listsIgnored` counts for frontend reconciliation
+- **Graceful Degradation**: Campaigns only fail with 400 error if ALL selected lists are empty; otherwise, empty lists are silently ignored
+- **UI Warning System**: MultiListSelector highlights empty lists with amber warning badges and displays a banner summarizing ignored lists
+- **Ownership Validation**: All campaign APIs verify list ownership before processing to prevent unauthorized access
+
 ### Validated Features
 - Campaign system: Automatic processing via BullMQ worker (polling every 30s)
 - Meta Webhooks: sent/delivered/read status callbacks working
@@ -141,3 +148,4 @@ These credentials are required for any authenticated page testing.
 - E2E tests: Playwright screenshot validation for Atendimentos page
 - Atendimentos page: Layout fully functional with visible input, proper message display
 - Deployment build: Passes ESLint and TypeScript validation
+- Empty list handling: APIs filter empty lists, return metadata, UI shows warnings
