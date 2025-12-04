@@ -6,51 +6,38 @@ Master IA Oficial is a comprehensive WhatsApp and SMS mass messaging control pan
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
-## Testing & Development
-### E2E Test Credentials (MANDATORY)
-All E2E tests, screenshots, and manual testing must use these credentials:
-- **Email**: `diegomaninhu@gmail.com`
-- **Password**: `MasterIA2025!`
-
-These credentials are required for any authenticated page testing.
-
 ## System Architecture
 ### Technology Stack
 - **Frontend**: Next.js 14 (App Router), React, ShadCN UI, Tailwind CSS, TypeScript, Socket.IO.
 - **Backend**: Node.js 18+ (Express custom server), Next.js API Routes (REST), Socket.IO 4.8.1, Drizzle ORM (PostgreSQL), JWT authentication.
 - **Database**: PostgreSQL (Neon hosted) for primary data, separate PostgreSQL with `pgvector` for AI embeddings.
 - **WhatsApp Integration**: Meta Cloud API and Baileys library.
-- **Cache/Queue**: Redis (Upstash) for real-time caching and BullMQ message queue, with fallback to in-memory cache.
+- **Cache/Queue**: Redis (Upstash) for real-time caching and BullMQ message queue.
 
 ### Core Architectural Decisions
-- **Dual WhatsApp Connection Strategy**: Supports both Meta API and local Baileys (QR code) connections with a hybrid messaging system.
+- **Dual WhatsApp Connection Strategy**: Supports both Meta API and local Baileys (QR code) connections.
 - **Real-time Communication**: Socket.IO for instant updates.
-- **AI Personas and Automation Engine**: Persona-based design with OpenAI provider and RAG capabilities via a vector database. Includes AI-powered automatic lead progression and humanized AI response delays.
-- **Campaign Management**: Custom queue system with rate limiting, retry logic, dedicated Baileys mass campaign system, and automated cadence (drip campaign) system. Includes full pause/resume functionality for campaigns.
-- **SMS Campaign Duplication Protection**: Prevents duplicate SMS sends via `smsNextContactIndex` (resume from last successful batch) and `smsProviderMailingId` (MKOM mailing tracking). Failed batches trigger PARTIAL_FAILURE status for manual review before retry. Guard against re-trigger via sentAt/completedAt check.
+- **AI Personas and Automation Engine**: Persona-based design with OpenAI provider, RAG via vector database, and AI-powered lead progression.
+- **Campaign Management**: Custom queue system with rate limiting, retry logic, dedicated Baileys mass campaign system, and automated cadence (drip campaign) system with pause/resume functionality. Includes SMS duplication protection.
 - **Encryption**: AES-256-GCM for sensitive data at rest.
 - **Multi-tenant Architecture**: Company-based tenant model ensuring data isolation.
-- **Webhook System**: Meta Webhooks with signature verification and a production-ready custom webhooks integration with HMAC SHA256 and exponential retry logic.
-- **Kanban Lead Management System**: Interactive Kanban board with full CRUD operations, drag-and-drop functionality, and automatic appointment notifications when leads move to scheduling stages.
-- **Analytics Dashboard System**: Comprehensive real-time analytics with KPI metrics, time-series charts, funnel visualization, and voice call analytics.
-- **Template Management System**: Full CRUD interface for message templates with dynamic variable support.
-- **UI/UX Component Library**: Reusable ShadCN-based components, including skeleton loaders, empty states, server-side pagination, debounced search inputs, and a centralized toast notification helper.
-- **Progressive Web App (PWA)**: Mobile-first PWA implementation with offline support, app manifest, and standalone display mode.
-- **Performance Optimizations**: Caching, dynamic imports, Redis cache optimization, PostgreSQL indexes, BullMQ for queuing, rate limiting middleware, and Prometheus metrics with alerting.
-- **Atendimentos Page Performance**: Optimized conversation and message loading with pagination (50 items per page), infinite scroll, parallel API calls (Promise.all), and cursor-based message pagination using ISO timestamps.
-- **API Cache Singleflight Pattern**: Prevents cache stampede by reusing in-flight promises for concurrent requests to the same cache key.
-- **Parallel Query Execution**: Dashboard stats, campaigns, and connection health APIs use Promise.all for parallel database/external API calls.
-- **Tiered Cache TTLs**: STATUS_POLLING (2.5s), SHORT (30s), MEDIUM (60s), LONG (5min) for different data freshness requirements.
-- **Memory Leak Prevention**: Global listener registration flag prevents duplicate SIGINT/SIGTERM handlers during hot-reload.
-- **Singleton Implementations**: HybridRedisClient, WebhookQueueService, BaileysSessionManager with constructor-level hot-reload verification.
-- **OAuth Authentication System**: Production-ready OAuth 2.0 with Google and Facebook via NextAuth.js, supporting account linking and multi-tenant compatibility.
-- **Atomic Lua Script Rate Limiting**: Atomic rate limiting implementation using Lua scripts in Redis/EnhancedCache.
+- **Webhook System**: Meta Webhooks with signature verification and custom webhooks with HMAC SHA256 and exponential retry.
+- **Kanban Lead Management System**: Interactive Kanban board with CRUD, drag-and-drop, and automatic appointment notifications.
+- **Analytics Dashboard System**: Real-time analytics with KPI metrics, time-series charts, funnel visualization, and voice call analytics.
+- **Template Management System**: CRUD interface for message templates with dynamic variable support.
+- **UI/UX Component Library**: Reusable ShadCN-based components, including skeleton loaders, empty states, server-side pagination, debounced search, and toast notifications.
+- **Progressive Web App (PWA)**: Mobile-first PWA with offline support.
+- **Performance Optimizations**: Caching, dynamic imports, Redis cache, PostgreSQL indexes, BullMQ for queuing, rate limiting middleware.
+- **Conversation Optimization**: Optimized conversation and message loading with pagination, infinite scroll, parallel API calls, and cursor-based message pagination.
+- **API Cache Singleflight Pattern**: Prevents cache stampede for concurrent requests.
+- **Parallel Query Execution**: Dashboard stats, campaigns, and connection health APIs use `Promise.all`.
+- **Tiered Cache TTLs**: For different data freshness requirements.
+- **Memory Leak Prevention**: Global listener registration flag.
+- **Singleton Implementations**: For key services like `HybridRedisClient`, `WebhookQueueService`, `BaileysSessionManager`.
+- **OAuth Authentication System**: Production-ready OAuth 2.0 with Google and Facebook via NextAuth.js.
+- **Atomic Lua Script Rate Limiting**: Using Redis/EnhancedCache.
 - **Proactive Token Monitoring**: Meta access token expiration monitoring.
-
-### Deployment Configuration
-- **Deployment Type**: VM (Persistent) for Socket.IO, BullMQ, and Baileys.
-- **Health Check**: `/health` and `/_health` endpoints.
-- **Port**: 5000.
+- **Deployment Configuration**: VM (Persistent) for Socket.IO, BullMQ, and Baileys; `/health` endpoint; Port 5000.
 
 ## External Dependencies
 ### Third-Party APIs
@@ -69,83 +56,3 @@ These credentials are required for any authenticated page testing.
 - **PostgreSQL**: Neon (hosted database).
 - **Firebase**: (Optional) App Hosting and Secret Manager.
 - **Replit**: Development environment, Object Storage.
-
-## Recent Changes (November 2025)
-### AI Agent Duplication Feature - Latest Update
-- **Duplicate API**: New POST `/api/v1/ia/personas/[personaId]/duplicate` endpoint
-- **Full Agent Copy**: Duplicates all agent settings including name (with " (Cópia)" suffix), model, temperature, delays, etc.
-- **RAG Sections Duplication**: Automatically duplicates all RAG prompt sections when the agent uses RAG
-- **UI Integration**: Dropdown menu "Duplicar" option with loading state and toast notifications
-
-### Multi-List Selection for Campaigns
-- **MultiListSelector Component**: Reusable component for selecting multiple contact lists with checkboxes, search, select all/deselect all, and total contact count display
-- **WhatsApp API Cloud Campaigns**: Updated to support multiple list selection
-- **Baileys Campaigns**: Updated to support multiple list selection
-- **SMS Campaigns**: Updated to support multiple list selection
-- **SelectedListsSummary Component**: Shows all selected lists with badges in the review step
-
-### Automatic Campaign Processing Worker
-- **Campaign Trigger Worker**: BullMQ-based worker that automatically processes QUEUED/PENDING/SCHEDULED campaigns every 30 seconds
-- **Shared Service**: Extracted campaign processing logic to `src/services/campaign-processing.service.ts` for reuse
-- **Next.js Instrumentation**: Auto-starts worker on server boot via `src/instrumentation.ts`
-- **Graceful Shutdown**: Proper SIGINT/SIGTERM handlers and Redis connection cleanup
-- **CAS Locking**: Compare-And-Set atomic updates prevent duplicate processing in concurrent environments
-
-### Layout Fixes (Atendimentos Page)
-- **Fixed React hooks error**: Cleared `.next` cache directory to resolve "Invalid hook call" runtime error
-- **Fixed message bubble overflow**: Reduced `max-w` from 75% to 60%, added `break-words`, `min-w-0`, and `[word-break:break-word]`
-- **Fixed footer/input visibility**: Removed `overflow-hidden` from ActiveChat container, adjusted ScrollArea padding to `p-4 pr-3`
-- **Fixed timer text truncation**: Shortened "Tempo restante para resposta" to "Tempo:" for compact display
-- **Auth error handling**: APIs now return 401 (unauthorized) instead of 500 (server error) for expired sessions
-- **Object Storage streaming fix**: Added controller state management to prevent `ERR_INVALID_STATE` errors in ReadableStream
-- **Route-Aware Layout System**: PageLayoutContext derives layout mode from pathname, ensuring /atendimentos uses full-height mode (overflow-hidden, min-h-0) while other pages use default scrollable mode - eliminates SSR flicker and chat input clipping
-- **Contact Details Toggle**: Painel de detalhes do contato agora é oculto por padrão, com botão toggle (PanelRightOpen/Close) ao lado do switch de IA; estado reseta automaticamente ao mudar de conversa
-
-### Dashboard Improvements
-- **Lead Value Toggle**: Botão Eye/EyeOff no card "Valor Total em Leads" para ocultar/mostrar o valor monetário (exibe "R$ ••••••" quando oculto)
-
-### Atendimentos Server-Side Search
-- **API Enhancement**: GET `/api/v1/conversations?search=term` now searches contact names, phone numbers, and message content via PostgreSQL ILIKE
-- **Debounced Input**: 500ms debounce on search input to reduce API calls
-- **Performance**: Server-side filtering handles 2770+ conversations efficiently (~200-300ms response)
-- **UI**: Search bar with clear button (X), displays up to 50 matching results
-- **Cache Bypass**: Search queries bypass cache to ensure fresh results
-
-### Error Handling & Developer Experience
-- **Session Expiry Handling**: `useNotifications` hook silently stops polling when session expires (401), preventing console error spam
-- **Pre-dev Script**: Automatic cache cleanup (`rm -rf .next/cache`) and port conflict resolution (`fuser -k 5000/tcp`) before `npm run dev`
-- **Crypto Singleton**: `globalThis` pattern for ENCRYPTION_KEY warning to show only once per process (may appear during route compilation in dev mode - expected behavior)
-- **BullMQ Warning Silence**: Webpack externals config suppresses "Critical dependency" warning for require.main evaluation
-
-### Kanban Page UI/UX Improvements (December 2025)
-- **Flexbox Layout System**: Replaced fixed viewport height calculations with proper flex-based sizing using min-h-0 pattern throughout the component tree
-- **Column Scroll**: Each stage column has internal ScrollArea for independent scrolling of leads without page-level scroll issues
-- **Responsive Design**: Columns stack vertically on mobile, display horizontally with min-width constraints on desktop (300-320px per column)
-- **Card Visual Improvements**: Compact design with smaller avatars (28px), tighter padding, improved truncation, and subtle shadows
-- **Dark Mode Support**: Stage headers and backgrounds now properly adapt to dark theme with appropriate color variants
-- **Empty State**: Columns show "Arraste leads para cá" placeholder when empty for better UX
-- **Toolbar Responsiveness**: Compact buttons and search bar with adaptive sizing for different screen widths
-
-### Deployment Build Fixes (December 2025)
-- **Empty catch blocks fixed**: Added comments to empty catch blocks in `src/app/objects/[...path]/route.ts` to satisfy ESLint no-empty rule
-- **Global var declarations**: Added eslint-disable comments for required `var` in `declare global` blocks in `src/workers/campaign-trigger.worker.ts`
-- **Unused imports removed**: Cleaned up unused imports (`Server` in server.js, `User` in active-chat.tsx)
-- **Unused variables prefixed**: Added underscore prefix to unused function parameters across server.js, alert.service.ts, openai-service.ts, and next.config.mjs
-- **Dynamic image warnings fixed**: Added eslint-disable comments for `<img>` elements with dynamic URLs (TemplatePreview.tsx, whatsapp-preview.tsx, qr-code-modal.tsx) - these use data URLs or API-provided URLs not suitable for next/image optimization
-- **Build validation**: All ESLint errors and warnings resolved - lint passes with zero warnings
-
-### Empty List Handling for Campaigns (December 2025)
-- **Backend Smart Filtering**: WhatsApp, Baileys, and SMS campaign APIs automatically filter out empty contact lists
-- **Response Metadata**: APIs return `listsUsed` and `listsIgnored` counts for frontend reconciliation
-- **Graceful Degradation**: Campaigns only fail with 400 error if ALL selected lists are empty; otherwise, empty lists are silently ignored
-- **UI Warning System**: MultiListSelector highlights empty lists with amber warning badges and displays a banner summarizing ignored lists
-- **Ownership Validation**: All campaign APIs verify list ownership before processing to prevent unauthorized access
-
-### Validated Features
-- Campaign system: Automatic processing via BullMQ worker (polling every 30s)
-- Meta Webhooks: sent/delivered/read status callbacks working
-- AI automation: Humanized delays (38-98s) with persona-based responses
-- E2E tests: Playwright screenshot validation for Atendimentos page
-- Atendimentos page: Layout fully functional with visible input, proper message display
-- Deployment build: Passes ESLint and TypeScript validation
-- Empty list handling: APIs filter empty lists, return metadata, UI shows warnings

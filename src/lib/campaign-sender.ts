@@ -496,7 +496,9 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
             throw new Error(`Campanha ${campaign.id} deve ter templateId ou message definido.`);
         }
         
-        if (!campaign.contactListIds || campaign.contactListIds.length === 0) {
+        const isRetryMode = campaign.retryContactIds && campaign.retryContactIds.length > 0;
+        
+        if (!isRetryMode && (!campaign.contactListIds || campaign.contactListIds.length === 0)) {
             if (process.env.NODE_ENV !== 'production') console.debug(`Campanha ${campaign.id} concluída: sem listas de contatos.`);
             await db.update(campaigns).set({ status: 'COMPLETED', completedAt: new Date() }).where(eq(campaigns.id, campaign.id));
             return;
@@ -542,15 +544,25 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
             };
         }
         
-        const contactIdsSubquery = db
-            .select({ contactId: contactsToContactLists.contactId })
-            .from(contactsToContactLists)
-            .where(inArray(contactsToContactLists.listId, campaign.contactListIds));
-            
-        let campaignContacts = await db
-            .select()
-            .from(contacts)
-            .where(inArray(contacts.id, contactIdsSubquery));
+        let campaignContacts;
+        
+        if (isRetryMode) {
+            console.log(`[Campanha WhatsApp ${campaign.id}] Modo de reenvio: processando ${campaign.retryContactIds!.length} contatos que falharam`);
+            campaignContacts = await db
+                .select()
+                .from(contacts)
+                .where(inArray(contacts.id, campaign.retryContactIds!));
+        } else {
+            const contactIdsSubquery = db
+                .select({ contactId: contactsToContactLists.contactId })
+                .from(contactsToContactLists)
+                .where(inArray(contactsToContactLists.listId, campaign.contactListIds!));
+                
+            campaignContacts = await db
+                .select()
+                .from(contacts)
+                .where(inArray(contacts.id, contactIdsSubquery));
+        }
         
         // Suporte a offset e limite de contatos via variableMappings
         const variableMappingsRaw = campaign.variableMappings as Record<string, any> || {};
@@ -1250,7 +1262,10 @@ export async function sendSmsCampaign(campaign: typeof campaigns.$inferSelect): 
     try {
         if (!campaign.companyId) throw new Error(`Campaign ${campaign.id} is missing companyId.`);
         if (!campaign.message) throw new Error(`Campaign ${campaign.id} has no message content.`);
-        if (!campaign.contactListIds || campaign.contactListIds.length === 0) {
+        
+        const isRetryMode = campaign.retryContactIds && campaign.retryContactIds.length > 0;
+        
+        if (!isRetryMode && (!campaign.contactListIds || campaign.contactListIds.length === 0)) {
             await db.update(campaigns).set({ status: 'COMPLETED', completedAt: new Date() }).where(eq(campaigns.id, campaign.id));
             if (process.env.NODE_ENV !== 'production') console.debug(`Campanha ${campaign.id} concluída: sem listas de contatos.`);
             return;
@@ -1260,8 +1275,15 @@ export async function sendSmsCampaign(campaign: typeof campaigns.$inferSelect): 
         const [gateway] = await db.select().from(smsGateways).where(eq(smsGateways.id, campaign.smsGatewayId));
         if (!gateway) throw new Error(`Gateway ID ${campaign.smsGatewayId} not found for campaign ${campaign.id}.`);
         
-        const contactIdsSubquery = db.select({ contactId: contactsToContactLists.contactId }).from(contactsToContactLists).where(inArray(contactsToContactLists.listId, campaign.contactListIds));
-        const campaignContacts = await db.selectDistinct({ phone: contacts.phone, id: contacts.id }).from(contacts).where(inArray(contacts.id, contactIdsSubquery));
+        let campaignContacts;
+        
+        if (isRetryMode) {
+            console.log(`[Campanha SMS ${campaign.id}] Modo de reenvio: processando ${campaign.retryContactIds!.length} contatos que falharam`);
+            campaignContacts = await db.selectDistinct({ phone: contacts.phone, id: contacts.id }).from(contacts).where(inArray(contacts.id, campaign.retryContactIds!));
+        } else {
+            const contactIdsSubquery = db.select({ contactId: contactsToContactLists.contactId }).from(contactsToContactLists).where(inArray(contactsToContactLists.listId, campaign.contactListIds!));
+            campaignContacts = await db.selectDistinct({ phone: contacts.phone, id: contacts.id }).from(contacts).where(inArray(contacts.id, contactIdsSubquery));
+        }
 
         if (campaignContacts.length === 0) {
             await db.update(campaigns).set({ status: 'COMPLETED', completedAt: new Date() }).where(eq(campaigns.id, campaign.id));

@@ -1,0 +1,133 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - link "Master IA" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e6] [cursor=pointer]
+        - generic [ref=e9] [cursor=pointer]: Master IA
+      - navigation [ref=e10]:
+        - link "Dashboard" [ref=e11] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e12] [cursor=pointer]
+          - generic [ref=e17] [cursor=pointer]: Dashboard
+        - link "Primeiros Passos" [ref=e18] [cursor=pointer]:
+          - /url: /ajuda
+          - img [ref=e19] [cursor=pointer]
+          - generic [ref=e26] [cursor=pointer]: Primeiros Passos
+        - link "Atendimentos" [ref=e27] [cursor=pointer]:
+          - /url: /atendimentos
+          - img [ref=e28] [cursor=pointer]
+          - generic [ref=e31] [cursor=pointer]: Atendimentos
+        - generic [ref=e33] [cursor=pointer]:
+          - generic [ref=e34] [cursor=pointer]:
+            - img [ref=e35] [cursor=pointer]
+            - generic [ref=e40] [cursor=pointer]: Leads & CRM
+          - img [ref=e41] [cursor=pointer]
+        - generic [ref=e43]:
+          - generic [ref=e44] [cursor=pointer]:
+            - generic [ref=e45] [cursor=pointer]:
+              - img [ref=e46] [cursor=pointer]
+              - generic [ref=e49] [cursor=pointer]: Campanhas
+            - img [ref=e50] [cursor=pointer]
+          - generic [ref=e53]:
+            - link "WhatsApp Business" [ref=e54] [cursor=pointer]:
+              - /url: /campaigns
+              - img [ref=e55] [cursor=pointer]
+              - generic [ref=e57] [cursor=pointer]: WhatsApp Business
+            - link "WhatsApp Normal" [ref=e58] [cursor=pointer]:
+              - /url: /campaigns-baileys
+              - img [ref=e59] [cursor=pointer]
+              - generic [ref=e61] [cursor=pointer]: WhatsApp Normal
+            - link "SMS" [ref=e62] [cursor=pointer]:
+              - /url: /sms
+              - img [ref=e63] [cursor=pointer]
+              - generic [ref=e65] [cursor=pointer]: SMS
+            - link "Templates WhatsApp" [ref=e66] [cursor=pointer]:
+              - /url: /templates-v2
+              - img [ref=e67] [cursor=pointer]
+              - generic [ref=e69] [cursor=pointer]: Templates WhatsApp
+        - generic [ref=e71] [cursor=pointer]:
+          - generic [ref=e72] [cursor=pointer]:
+            - img [ref=e73] [cursor=pointer]
+            - generic [ref=e77] [cursor=pointer]: Automação
+          - img [ref=e78] [cursor=pointer]
+        - generic [ref=e81] [cursor=pointer]:
+          - generic [ref=e82] [cursor=pointer]:
+            - img [ref=e83] [cursor=pointer]
+            - generic [ref=e85] [cursor=pointer]: Canais
+          - img [ref=e86] [cursor=pointer]
+        - link "Galeria" [ref=e88] [cursor=pointer]:
+          - /url: /gallery
+          - img [ref=e89] [cursor=pointer]
+          - generic [ref=e91] [cursor=pointer]: Galeria
+      - navigation [ref=e92]:
+        - link "Configurações" [ref=e93] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e94] [cursor=pointer]
+          - generic [ref=e97] [cursor=pointer]: Configurações
+        - button "Recolher" [ref=e99] [cursor=pointer]:
+          - img [ref=e100] [cursor=pointer]
+          - generic [ref=e102] [cursor=pointer]: Recolher
+    - generic [ref=e103]:
+      - banner [ref=e104]:
+        - generic [ref=e105]:
+          - button "2/2" [ref=e106] [cursor=pointer]:
+            - img [ref=e107] [cursor=pointer]
+            - generic [ref=e110] [cursor=pointer]: 2/2
+          - generic [ref=e111]:
+            - img [ref=e112]
+            - generic [ref=e114]: v2.4.2
+          - button "Notificações" [ref=e115] [cursor=pointer]:
+            - img [ref=e116] [cursor=pointer]
+            - generic [ref=e119] [cursor=pointer]: Notificações
+          - button "DI" [ref=e120] [cursor=pointer]:
+            - generic [ref=e122] [cursor=pointer]: DI
+      - main [ref=e123]:
+        - alert [ref=e125]:
+          - generic [ref=e126]:
+            - generic [ref=e127]:
+              - img [ref=e128]
+              - generic [ref=e130]:
+                - strong [ref=e131]: Vincule sua conta Facebook
+                - generic [ref=e132]: para acessar recursos adicionais e sincronizar dados.
+            - generic [ref=e133]:
+              - button "Conectar" [ref=e134] [cursor=pointer]:
+                - img [ref=e135] [cursor=pointer]
+                - text: Conectar
+              - button "Fechar" [ref=e137] [cursor=pointer]:
+                - img [ref=e138] [cursor=pointer]
+                - generic [ref=e141] [cursor=pointer]: Fechar
+  - button [ref=e158] [cursor=pointer]:
+    - img [ref=e160] [cursor=pointer]
+  - generic:
+    - generic [ref=e162]:
+      - heading "Console Monitor" [level=3] [ref=e163]
+      - generic [ref=e164]:
+        - button [ref=e165] [cursor=pointer]:
+          - img [ref=e166] [cursor=pointer]
+        - button [ref=e169] [cursor=pointer]:
+          - img [ref=e170] [cursor=pointer]
+        - button [ref=e173] [cursor=pointer]:
+          - img [ref=e174] [cursor=pointer]
+    - generic [ref=e177]:
+      - generic [ref=e178]:
+        - button "all" [ref=e179] [cursor=pointer]
+        - button "log" [ref=e180] [cursor=pointer]
+        - button "error" [ref=e181] [cursor=pointer]
+        - button "warn" [ref=e182] [cursor=pointer]
+        - button "info" [ref=e183] [cursor=pointer]
+      - textbox "Search..." [ref=e185]
+    - generic [ref=e186]:
+      - generic:
+        - img
+        - generic [ref=e188]: 11:17:03 PM
+        - generic [ref=e190]:
+          - text: "[Console Monitor] Iniciado - Capturando todos os logs"
+          - generic [ref=e191]: (2x)
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e192]
+```

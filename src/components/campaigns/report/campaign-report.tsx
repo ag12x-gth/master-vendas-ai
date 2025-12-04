@@ -2,9 +2,9 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ReportStatsCards } from '@/components/analytics/report-stats-cards';
@@ -15,6 +15,17 @@ import type { Campaign, CampaignSend } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { createToastNotifier } from '@/lib/toast-helper';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 const ReportSkeleton = (): JSX.Element => (
     <div className="space-y-6">
@@ -42,13 +53,50 @@ interface CampaignReportProps {
 
 
 export function CampaignReport({ campaignId }: CampaignReportProps): JSX.Element {
+  const router = useRouter();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [deliveryReports, setDeliveryReports] = useState<CampaignSend[]>([]);
   const [loading, setLoading] = useState(true);
+  const [retrying, setRetrying] = useState(false);
   const { toast } = useToast();
   const notify = useMemo(() => createToastNotifier(toast), [toast]);
   
   const isSmsCampaign = campaign?.channel === 'SMS';
+  
+  const failedCount = useMemo(() => {
+    return deliveryReports.filter(r => 
+      r.status?.toLowerCase() === 'failed'
+    ).length;
+  }, [deliveryReports]);
+  
+  const canRetry = useMemo(() => {
+    return failedCount > 0 && ['COMPLETED', 'PARTIAL_FAILURE', 'FAILED'].includes(campaign?.status || '');
+  }, [failedCount, campaign?.status]);
+  
+  const handleRetryFailed = async () => {
+    if (!campaign) return;
+    
+    setRetrying(true);
+    try {
+      const res = await fetch(`/api/v1/campaigns/${campaignId}/retry-failed`, {
+        method: 'POST',
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.description || data.error || 'Erro ao criar campanha de reenvio');
+      }
+      
+      notify.success('Campanha de reenvio criada!', data.message);
+      
+      router.push(`/campaigns/${data.campaignId}/report`);
+    } catch (error) {
+      notify.error('Erro ao reenviar', (error as Error).message);
+    } finally {
+      setRetrying(false);
+    }
+  };
   
   useEffect(() => {
     if (!campaignId) return;
@@ -96,12 +144,43 @@ export function CampaignReport({ campaignId }: CampaignReportProps): JSX.Element
         title={`Relatório: ${campaign.name}`}
         description={campaignDate ? `Análise detalhada da campanha enviada em ${new Date(campaignDate).toLocaleString('pt-BR')}.` : 'Análise detalhada da campanha.'}
       >
-        <Link href="/campaigns" passHref>
-          <Button variant="outline">
-            <ArrowLeft className="mr-2" />
-            Voltar para Campanhas
-          </Button>
-        </Link>
+        <div className="flex items-center gap-2">
+          {canRetry && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="default" disabled={retrying}>
+                  {retrying ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                  )}
+                  Reenviar {failedCount} Falhas
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Reenviar mensagens que falharam?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Será criada uma nova campanha com os {failedCount} contatos que falharam anteriormente. 
+                    A campanha original será mantida para histórico.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleRetryFailed}>
+                    Confirmar Reenvio
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+          <Link href="/campaigns" passHref>
+            <Button variant="outline">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Voltar
+            </Button>
+          </Link>
+        </div>
       </PageHeader>
       
       {!isSmsCampaign && <ReportStatsCards campaign={campaign} />}
