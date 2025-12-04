@@ -14,7 +14,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, User } from 'lucide-react';
+import { Search, User, AlertCircle } from 'lucide-react';
 import type { CampaignSend } from '@/lib/types';
 import {
   Card,
@@ -23,6 +23,12 @@ import {
   CardDescription,
   CardContent,
 } from '@/components/ui/card';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 type StatusKey = 'read' | 'delivered' | 'sent' | 'failed' | 'SENT' | 'FAILED' ;
@@ -91,8 +97,26 @@ export function ReportContactsTable({ deliveryReports }: { deliveryReports: Camp
                           {config.text}
                         </Badge>
                     </TableCell>
-                    <TableCell>{report.updatedAt ? new Date(report.updatedAt).toLocaleString('pt-BR') : '-'}</TableCell>
-                    <TableCell className="text-xs text-destructive whitespace-nowrap">{report.failureReason || '-'}</TableCell>
+                    <TableCell className="whitespace-nowrap">{report.updatedAt ? new Date(report.updatedAt).toLocaleString('pt-BR') : '-'}</TableCell>
+                    <TableCell className="max-w-[300px]">
+                      {report.failureReason ? (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-1.5 text-xs text-destructive cursor-help">
+                                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                                <span className="truncate">{report.failureReason}</span>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-sm">
+                              <p className="text-sm">{report.failureReason}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-right">
                         <Link href={`/contacts/${report.contactId}`} passHref>
                             <Button variant="outline" size="sm">
