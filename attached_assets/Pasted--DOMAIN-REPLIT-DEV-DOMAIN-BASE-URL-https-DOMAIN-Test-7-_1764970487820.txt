@@ -1,0 +1,15 @@
+$ DOMAIN=$REPLIT_DEV_DOMAIN BASE_URL="https://$DOMAIN" # Test 7: Webhook Twilio Incoming Call echo "═══════════════════════════════════════════════════════════════" echo "TESTE 7: WEBHOOK TWILIO - CHAMADA RECEBIDA" echo "═══════════════════════════════════════════════════════════════" RESPONSE=$(curl -s -X POST "$BASE_URL/webhooks/twilio/incoming-call" \ -H "Content-Type: application/x-www-form-urlencoded" \ -d "CallSid=CAE2ETEST123&From=+5511999999999&To=+5533329800077&CallStatus=ringing") echo "Response: $RESPONSE" if echo "$RESPONSE" | grep -q "<Response>"; then echo "✅ PASSED: Twilio webhook returned TwiML" else echo "❌ FAILED: Twilio webhook failed" fi echo "" # Test 8: Webhook Twilio Call Status echo "═══════════════════════════════════════════════════════════════" echo "TESTE 8: WEBHOOK TWILIO - STATUS DA CHAMADA" echo "═══════════════════════════════════════════════════════════════" RESPONSE=$(curl -s -X POST "$BASE_URL/webhooks/twilio/call-status" \ -H "Content-Type: application/x-www-form-urlencoded" \ -d "CallSid=CAE2ETEST123&CallStatus=completed&CallDuration=60") echo "Response: $RESPONSE" if echo "$RESPONSE" | grep -q '"success":true'; then echo "✅ PASSED: Twilio status webhook OK" else echo "❌ FAILED: Twilio status webhook failed" fi echo "" # Test 9: Custom Webhook echo "═══════════════════════════════════════════════════════════════" echo "TESTE 9: WEBHOOK CUSTOMIZADO" echo "═══════════════════════════════════════════════════════════════" RESPONSE=$(curl -s -X POST "$BASE_URL/webhooks/custom/demo-org-id" \ -H "Content-Type: application/json" \ -d '{"event": "test", "data": {"message": "E2E Test"}}') echo "Response: $RESPONSE" if echo "$RESPONSE" | grep -q '"success":true'; then echo "✅ PASSED: Custom webhook OK" else echo "❌ FAILED: Custom webhook failed" fi echo "" # Test 10: Calls Analytics echo "═══════════════════════════════════════════════════════════════" echo "TESTE 10: ANALYTICS DE CHAMADAS" echo "═══════════════════════════════════════════════════════════════" RESPONSE=$(curl -s "$BASE_URL/calls/analytics") echo "Response: $RESPONSE" if echo "$RESPONSE" | grep -q '"totalCalls"'; then echo "✅ PASSED: Calls analytics OK" else echo "❌ FAILED: Calls analytics failed" fi echo ""
+ recebido","organizationId":"demo-org-id","receivedAt":"
+2025-12-05T21:34:30.512Z"}
+✅ PASSED: Custom webhook OK
+ 
+════════════════════════════════════════════════════════
+═══════
+TESTE 10: ANALYTICS DE CHAMADAS
+════════════════════════════════════════════════════════
+═══════
+Response: {"totalCalls":1,"totalDuration":0,"avgDuration
+":0,"totalCost":0,"callsByStatus":{"ended":1,"ongoing":0
+,"failed":0}}
+✅ PASSED: Calls analytics OK
+
