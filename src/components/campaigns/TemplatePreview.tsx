@@ -36,6 +36,7 @@ interface TemplatePreviewProps {
   contactFieldsMap?: Record<string, string>; // Para mostrar os nomes dos campos dinâmicos
   mediaUrl?: string | null;
   className?: string;
+  compact?: boolean; // Modo compacto para caber em espaços menores
 }
 
 const CONTACT_SAMPLE_DATA: Record<string, string> = {
@@ -54,6 +55,7 @@ export function TemplatePreview({
   contactFieldsMap = {},
   mediaUrl,
   className = '',
+  compact = false,
 }: TemplatePreviewProps) {
   
   const headerComponent = components?.find(c => c.type === 'HEADER');
@@ -119,11 +121,12 @@ export function TemplatePreview({
 
     if (headerComponent.format && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerComponent.format)) {
       const hasMedia = mediaUrl || headerComponent.example?.header_handle?.[0];
+      const mediaHeightClass = compact ? 'h-32' : 'aspect-video';
       
       return (
         <div className="bg-gray-100 dark:bg-gray-800 rounded-t-2xl overflow-hidden">
           {hasMedia ? (
-            <div className="relative aspect-video bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+            <div className={`relative ${mediaHeightClass} bg-gray-200 dark:bg-gray-700 flex items-center justify-center`}>
               {headerComponent.format === 'IMAGE' && mediaUrl && (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img 
@@ -134,22 +137,22 @@ export function TemplatePreview({
               )}
               {headerComponent.format === 'VIDEO' && (
                 <div className="flex flex-col items-center gap-2 text-gray-600 dark:text-gray-300">
-                  <Video className="h-12 w-12" />
+                  <Video className={compact ? "h-8 w-8" : "h-12 w-12"} />
                   <span className="text-sm">Vídeo anexado</span>
                 </div>
               )}
               {headerComponent.format === 'DOCUMENT' && (
                 <div className="flex flex-col items-center gap-2 text-gray-600 dark:text-gray-300">
-                  <FileText className="h-12 w-12" />
+                  <FileText className={compact ? "h-8 w-8" : "h-12 w-12"} />
                   <span className="text-sm">Documento anexado</span>
                 </div>
               )}
             </div>
           ) : (
-            <div className="aspect-video bg-gray-200 dark:bg-gray-700 flex flex-col items-center justify-center gap-2 text-gray-500">
-              {headerComponent.format === 'IMAGE' && <ImageIcon className="h-12 w-12" />}
-              {headerComponent.format === 'VIDEO' && <Video className="h-12 w-12" />}
-              {headerComponent.format === 'DOCUMENT' && <FileText className="h-12 w-12" />}
+            <div className={`${mediaHeightClass} bg-gray-200 dark:bg-gray-700 flex flex-col items-center justify-center gap-2 text-gray-500`}>
+              {headerComponent.format === 'IMAGE' && <ImageIcon className={compact ? "h-8 w-8" : "h-12 w-12"} />}
+              {headerComponent.format === 'VIDEO' && <Video className={compact ? "h-8 w-8" : "h-12 w-12"} />}
+              {headerComponent.format === 'DOCUMENT' && <FileText className={compact ? "h-8 w-8" : "h-12 w-12"} />}
               <span className="text-sm">Mídia necessária</span>
             </div>
           )}

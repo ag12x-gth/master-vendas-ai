@@ -501,8 +501,8 @@ export function CreateWhatsappCampaignDialog({
                 );
             case 'review':
                 return (
-                    <div className="flex flex-col h-full flex-1">
-                        <div className="space-y-4 text-sm flex-1">
+                    <div className="flex flex-col h-full flex-1 min-h-0">
+                        <div className="space-y-4 text-sm flex-1 overflow-y-auto pr-2 min-h-0">
                             <h4 className="font-semibold text-lg">Revisar e Enviar</h4>
                             <div className="space-y-2">
                                 <p><span className="font-semibold">Nome:</span> {name}</p>
@@ -531,10 +531,11 @@ export function CreateWhatsappCampaignDialog({
                                     variableMappings={variableMappings}
                                     contactFieldsMap={Object.fromEntries(contactFields.map(f => [f.value, f.label]))}
                                     mediaUrl={selectedMedia?.s3Url}
+                                    compact
                                 />
                             </div>
                         </div>
-                        <DialogFooter className="pt-4 border-t mt-auto">
+                        <DialogFooter className="pt-4 border-t mt-auto shrink-0">
                             <Button type="button" variant="secondary" onClick={() => setCurrentStep(steps.length - 2)} disabled={isProcessing}>Voltar</Button>
                             <Button type="submit" disabled={isProcessing || contactListIds.length === 0} onClick={handleSubmit}>
                                 {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
