@@ -145,14 +145,15 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
                 break;
             case 'move_to_stage': {
                 if (!action.value) return;
-                const activeLead = await db.query.kanbanLeads.findFirst({
+                const activeLeadResult = await db.query.kanbanLeads.findFirst({
                     where: eq(kanbanLeads.contactId, contact.id),
                     with: { board: true },
                     orderBy: (kanbanLeads, { desc }) => [desc(kanbanLeads.createdAt)],
                 });
-                if (activeLead) {
+                if (activeLeadResult) {
                     const targetStageId = action.value;
-                    const stages = (activeLead.board.stages || []) as { id: string; title: string; type: 'NEUTRAL' | 'WIN' | 'LOSS' }[];
+                    const boardData = activeLeadResult.board as { stages?: unknown[] };
+                    const stages = (boardData.stages || []) as { id: string; title: string; type: 'NEUTRAL' | 'WIN' | 'LOSS' }[];
                     const targetStage = stages.find(s => s.id === targetStageId);
                     
                     if (!targetStage) {
@@ -167,7 +168,7 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
                     
                     await db.update(kanbanLeads)
                         .set({ stageId: targetStageId })
-                        .where(eq(kanbanLeads.id, activeLead.id));
+                        .where(eq(kanbanLeads.id, activeLeadResult.id));
                     await logAutomation('INFO', `Lead movido para o estágio: ${targetStage.title} (${targetStageId})`, logContext);
                 } else {
                     await logAutomation('WARN', `Contato não possui lead ativo no Kanban. Ação 'move_to_stage' ignorada.`, logContext);
@@ -192,7 +193,7 @@ async function selectIntelligentPersona(
     const logContextBase: LogContext = { companyId, conversationId: conversation.id };
 
     try {
-        const activeLead = await db.query.kanbanLeads.findFirst({
+        const activeLeadResult = await db.query.kanbanLeads.findFirst({
             where: and(
                 eq(kanbanLeads.contactId, contact.id),
             ),
@@ -204,13 +205,14 @@ async function selectIntelligentPersona(
 
         const contactType = conversation.contactType || 'PASSIVE';
 
-        if (activeLead) {
-            await logAutomation('INFO', `Lead encontrado no funil "${activeLead.board.name}" (Tipo: ${activeLead.board.funnelType || 'GENERAL'}, Estágio: ${activeLead.stageId})`, logContextBase);
+        if (activeLeadResult) {
+            const boardData = activeLeadResult.board as { name: string; funnelType?: string };
+            await logAutomation('INFO', `Lead encontrado no funil "${boardData.name}" (Tipo: ${boardData.funnelType || 'GENERAL'}, Estágio: ${activeLeadResult.stageId})`, logContextBase);
 
             const stagePersonaConfig = await db.query.kanbanStagePersonas.findFirst({
                 where: and(
-                    eq(kanbanStagePersonas.boardId, activeLead.boardId),
-                    eq(kanbanStagePersonas.stageId, activeLead.stageId)
+                    eq(kanbanStagePersonas.boardId, activeLeadResult.boardId),
+                    eq(kanbanStagePersonas.stageId, activeLeadResult.stageId)
                 )
             });
 
@@ -220,14 +222,14 @@ async function selectIntelligentPersona(
                     : stagePersonaConfig.passivePersonaId;
 
                 if (selectedPersonaId) {
-                    await logAutomation('INFO', `✅ [Prioridade 1] Agente IA selecionado (nível estágio): Funil="${activeLead.board.name}", Estágio="${activeLead.stageId}", Tipo="${contactType}"`, logContextBase);
+                    await logAutomation('INFO', `✅ [Prioridade 1] Agente IA selecionado (nível estágio): Funil="${boardData.name}", Estágio="${activeLeadResult.stageId}", Tipo="${contactType}"`, logContextBase);
                     return selectedPersonaId;
                 }
             }
 
             const boardPersonaConfig = await db.query.kanbanStagePersonas.findFirst({
                 where: and(
-                    eq(kanbanStagePersonas.boardId, activeLead.boardId),
+                    eq(kanbanStagePersonas.boardId, activeLeadResult.boardId),
                     isNull(kanbanStagePersonas.stageId)
                 )
             });
@@ -238,7 +240,7 @@ async function selectIntelligentPersona(
                     : boardPersonaConfig.passivePersonaId;
 
                 if (selectedPersonaId) {
-                    await logAutomation('INFO', `✅ [Prioridade 2] Agente IA selecionado (nível funil): Funil="${activeLead.board.name}", Tipo="${contactType}"`, logContextBase);
+                    await logAutomation('INFO', `✅ [Prioridade 2] Agente IA selecionado (nível funil): Funil="${boardData.name}", Tipo="${contactType}"`, logContextBase);
                     return selectedPersonaId;
                 }
             }
@@ -501,7 +503,7 @@ async function detectAndProgressLead(
 
     try {
         // Buscar lead ativo
-        const activeLead = await db.query.kanbanLeads.findFirst({
+        const activeLeadQuery = await db.query.kanbanLeads.findFirst({
             where: eq(kanbanLeads.contactId, contact.id),
             with: {
                 board: true
@@ -509,13 +511,14 @@ async function detectAndProgressLead(
             orderBy: (kanbanLeads, { desc }) => [desc(kanbanLeads.createdAt)],
         });
 
-        if (!activeLead) {
+        if (!activeLeadQuery) {
             return; // Sem lead ativo, não há o que qualificar
         }
 
         // Buscar configuração dos estágios do funil
-        const stages = activeLead.board.stages as KanbanStage[];
-        const currentStageIndex = stages.findIndex(s => s.id === activeLead.stageId);
+        const boardData = activeLeadQuery.board as { stages?: unknown[] };
+        const stages = (boardData.stages || []) as KanbanStage[];
+        const currentStageIndex = stages.findIndex(s => s.id === activeLeadQuery.stageId);
         
         if (currentStageIndex === -1 || currentStageIndex >= stages.length - 1) {
             return; // Estágio inválido ou já está no último estágio
@@ -539,7 +542,7 @@ async function detectAndProgressLead(
             
             await db.update(kanbanLeads)
                 .set({ stageId: nextStage.id })
-                .where(eq(kanbanLeads.id, activeLead.id));
+                .where(eq(kanbanLeads.id, activeLeadQuery.id));
             
             await logAutomation('INFO', `🎯 QUALIFICAÇÃO AUTOMÁTICA: Lead "${contact.name}" avançou de "${currentStage.title}" para "${nextStage.title}" | Confiança: ${qualificationSignals.confidence}% | Motivo: ${qualificationSignals.reason}`, logContextBase);
         }
@@ -823,23 +826,25 @@ async function moveLeadToSemanticStage(
 
     try {
         // Buscar lead ativo
-        const activeLead = await db.query.kanbanLeads.findFirst({
+        const activeLeadQuery = await db.query.kanbanLeads.findFirst({
             where: eq(kanbanLeads.contactId, contact.id),
             with: { board: true },
             orderBy: (kanbanLeads, { desc }) => [desc(kanbanLeads.createdAt)],
         });
 
-        if (!activeLead) {
+        if (!activeLeadQuery) {
             await logAutomation('INFO', `Lead não encontrado no Kanban. Ação de mover para stage semântico ignorada.`, logContextBase);
             return false;
         }
 
         // Buscar stage com o semanticType desejado
-        const stages = activeLead.board.stages as KanbanStage[];
+        const boardData = activeLeadQuery.board as { stages?: unknown[]; name?: string };
+        const boardName = boardData.name || 'Sem nome';
+        const stages = (boardData.stages || []) as KanbanStage[];
         const targetStage = stages.find(s => s.semanticType === targetSemanticType);
 
         if (!targetStage) {
-            await logAutomation('WARN', `⚠️ Stage com semanticType="${targetSemanticType}" não encontrado no funil "${activeLead.board.name}". Configure uma etapa com este tipo para ativar a automação.`, logContextBase);
+            await logAutomation('WARN', `⚠️ Stage com semanticType="${targetSemanticType}" não encontrado no funil "${boardName}". Configure uma etapa com este tipo para ativar a automação.`, logContextBase);
             return false;
         }
 
@@ -850,10 +855,10 @@ async function moveLeadToSemanticStage(
         }
 
         // Verificar se já está nesse stage
-        if (activeLead.stageId === targetStage.id) {
+        if (activeLeadQuery.stageId === targetStage.id) {
             // Lead já está no stage correto, mas atualizar notas se houver horário
             if (scheduledTime && targetSemanticType === 'meeting_scheduled') {
-                const noteUpdated = await ensureMeetingNote(activeLead.id, scheduledTime);
+                const noteUpdated = await ensureMeetingNote(activeLeadQuery.id, scheduledTime);
                 if (noteUpdated) {
                     await logAutomation('INFO', `📅 REUNIÃO DETECTADA: Lead "${contact.name}" já está em "${targetStage.title}". Horário atualizado: ${scheduledTime}`, logContextBase);
                     return true;
@@ -864,9 +869,9 @@ async function moveLeadToSemanticStage(
         }
 
         // Preparar atualização do lead com horário se disponível
-        const updateData: any = { stageId: targetStage.id };
+        const updateData: { stageId: string; notes?: string } = { stageId: targetStage.id };
         if (scheduledTime && targetSemanticType === 'meeting_scheduled') {
-            const currentNotes = activeLead.notes || '';
+            const currentNotes = activeLeadQuery.notes || '';
             const newNote = `📅 Reunião agendada: ${scheduledTime}`;
             updateData.notes = currentNotes ? `${newNote}\n\n${currentNotes}` : newNote;
         }
@@ -874,7 +879,7 @@ async function moveLeadToSemanticStage(
         // Mover lead para o stage
         await db.update(kanbanLeads)
             .set(updateData)
-            .where(eq(kanbanLeads.id, activeLead.id));
+            .where(eq(kanbanLeads.id, activeLeadQuery.id));
 
         const evidenceText = evidence.length > 0 ? evidence.join(', ') : 'Detecção automática';
         const timeInfo = scheduledTime ? ` para ${scheduledTime}` : '';
@@ -910,7 +915,10 @@ export async function processIncomingMessageTrigger(conversationId: string, mess
         with: { connection: true, contact: true }
     });
 
-    if (!convoResult || !convoResult.companyId || !convoResult.contact || !convoResult.connection) {
+    const contactData = convoResult?.contact as { id: string; name: string; phone: string } | null;
+    const connectionData = convoResult?.connection as { id: string; assignedPersonaId?: string | null } | null;
+    
+    if (!convoResult || !convoResult.companyId || !contactData || !connectionData) {
         console.error(`[Automation Engine] Contexto inválido para a conversa ${conversationId}. A abortar.`);
         return;
     }
@@ -923,15 +931,15 @@ export async function processIncomingMessageTrigger(conversationId: string, mess
         if (message) {
             const context: AutomationTriggerContext = {
                 companyId: convoResult.companyId,
-                conversation: convoResult as AutomationTriggerContext['conversation'],
-                contact: convoResult.contact,
+                conversation: convoResult as unknown as AutomationTriggerContext['conversation'],
+                contact: contactData as Contact,
                 message: message,
             };
             
             // Seleção inteligente do agente IA baseado em: Funil + Estágio + Tipo de Contato
             const selectedPersonaId = await selectIntelligentPersona(
                 context,
-                convoResult.connection.assignedPersonaId
+                connectionData.assignedPersonaId || null
             );
             
             if (selectedPersonaId) {
@@ -958,7 +966,7 @@ export async function processIncomingMessageTrigger(conversationId: string, mess
             eq(automationRules.isActive, true),
             or(
                 isNull(automationRules.connectionIds),
-                sql`${convoResult.connection.id} = ANY(${automationRules.connectionIds})`
+                sql`${connectionData.id} = ANY(${automationRules.connectionIds})`
             )
         )
     });
@@ -976,8 +984,8 @@ export async function processIncomingMessageTrigger(conversationId: string, mess
     
     const context: AutomationTriggerContext = {
         companyId: convoResult.companyId,
-        conversation: convoResult as AutomationTriggerContext['conversation'],
-        contact: convoResult.contact,
+        conversation: convoResult as unknown as AutomationTriggerContext['conversation'],
+        contact: contactData as Contact,
         message: message,
     };
 

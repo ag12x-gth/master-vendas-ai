@@ -141,7 +141,8 @@ export async function DELETE(request: NextRequest) {
       with: { board: true }
     });
 
-    if (!config || config.board.companyId !== session.user.companyId) {
+    const board = config?.board as { companyId: string } | null;
+    if (!config || !board || board.companyId !== session.user.companyId) {
       return NextResponse.json({ error: 'Configuração não encontrada ou sem permissão' }, { status: 404 });
     }
 

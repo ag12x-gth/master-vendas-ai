@@ -37,11 +37,21 @@ export async function GET(
 
     const contactType = conversation.contactType || 'PASSIVE';
 
-    const activeLead = await db.query.kanbanLeads.findFirst({
-      where: eq(kanbanLeads.contactId, conversation.contact.id),
-      with: { board: true },
-      orderBy: (kanbanLeads, { desc }) => [desc(kanbanLeads.createdAt)]
-    });
+    const contact = conversation.contact as { id: string } | null;
+    const contactId = contact?.id || conversation.contactId;
+
+    let activeLead: { boardId: string; stageId: string; board: { name: string } } | null = null;
+    if (contactId) {
+      const lead = await db.query.kanbanLeads.findFirst({
+        where: eq(kanbanLeads.contactId, contactId),
+        with: { board: true },
+        orderBy: (kanbanLeads, { desc }) => [desc(kanbanLeads.createdAt)]
+      });
+      if (lead) {
+        const board = lead.board as { name: string };
+        activeLead = { boardId: lead.boardId, stageId: lead.stageId, board };
+      }
+    }
 
     if (activeLead) {
       const stageConfig = await db.query.kanbanStagePersonas.findFirst({
@@ -92,10 +102,11 @@ export async function GET(
       }
     }
 
-    if (!effectivePersonaId && conversation.connection?.assignedPersonaId) {
-      effectivePersonaId = conversation.connection.assignedPersonaId;
+    const connection = conversation.connection as { assignedPersonaId?: string | null; config_name?: string } | null;
+    if (!effectivePersonaId && connection?.assignedPersonaId) {
+      effectivePersonaId = connection.assignedPersonaId;
       source = 'connection';
-      details = { connectionName: conversation.connection.config_name };
+      details = { connectionName: connection.config_name };
     }
 
     if (!effectivePersonaId && conversation.assignedPersonaId) {

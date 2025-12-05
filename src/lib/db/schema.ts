@@ -491,7 +491,7 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     message: text('message'),
     contactListIds: text('contact_list_ids').array(),
     retryContactIds: text('retry_contact_ids').array(),
-    parentCampaignId: text('parent_campaign_id').references(() => campaigns.id, { onDelete: 'set null' }),
+    parentCampaignId: text('parent_campaign_id'),
     batchSize: integer('batch_size'),
     batchDelaySeconds: integer('batch_delay_seconds'),
     createdAt: timestamp('created_at').defaultNow().notNull(),

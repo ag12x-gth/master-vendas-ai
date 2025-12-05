@@ -57,9 +57,10 @@ const mockContact: Contact = {
   addressComplement: null,
   addressDistrict: null,
   deletedAt: null,
+  isGroup: false,
 };
 
-const mockConversation: Conversation = {
+const mockConversation = {
   id: 'conv_1',
   companyId: 'company_1',
   contactId: 'contact_1',
@@ -78,7 +79,9 @@ const mockConversation: Conversation = {
   lastMessage: null,
   lastMessageStatus: null,
   connectionName: 'Test Connection',
-};
+  assignedPersonaId: null,
+  contactType: 'PASSIVE' as const,
+} as Conversation;
 
 const mockFullConversation = {
     ...mockConversation,
