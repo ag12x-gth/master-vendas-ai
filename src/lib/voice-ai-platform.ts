@@ -108,10 +108,15 @@ class VoiceAIPlatformClient {
     this.apiKey = process.env.VOICE_AI_PLATFORM_API_KEY || '';
   }
 
-  private async request<T>(
+  async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    method: 'GET' | 'POST' | 'PATCH' | 'DELETE' = 'GET',
+    body?: Record<string, unknown>
   ): Promise<T> {
+    const options: RequestInit = {
+      method,
+      ...(body && { body: JSON.stringify(body) }),
+    };
     const url = `${this.baseUrl}${endpoint}`;
     
     try {
@@ -174,10 +179,7 @@ class VoiceAIPlatformClient {
   }
 
   async createAgent(data: CreateAgentDto): Promise<VoiceAgent> {
-    return this.request<VoiceAgent>('/api/agents', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    return this.request<VoiceAgent>('/api/agents', 'POST', data as unknown as Record<string, unknown>);
   }
 
   async getAgent(id: string): Promise<VoiceAgent> {
@@ -185,16 +187,11 @@ class VoiceAIPlatformClient {
   }
 
   async updateAgent(id: string, data: UpdateAgentDto): Promise<VoiceAgent> {
-    return this.request<VoiceAgent>(`/api/agents/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    });
+    return this.request<VoiceAgent>(`/api/agents/${id}`, 'PATCH', data as unknown as Record<string, unknown>);
   }
 
   async deleteAgent(id: string): Promise<void> {
-    await this.request<void>(`/api/agents/${id}`, {
-      method: 'DELETE',
-    });
+    await this.request<void>(`/api/agents/${id}`, 'DELETE');
   }
 
   async listCalls(params?: { limit?: number; offset?: number }): Promise<VoiceCall[]> {
@@ -210,10 +207,7 @@ class VoiceAIPlatformClient {
   }
 
   async testCall(data: TestCallDto): Promise<{ callId: string; status: string }> {
-    return this.request<{ callId: string; status: string }>('/api/calls/test', {
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
+    return this.request<{ callId: string; status: string }>('/api/calls/test', 'POST', data as unknown as Record<string, unknown>);
   }
 
   async getAnalytics(): Promise<VoiceAnalytics> {
@@ -229,24 +223,15 @@ class VoiceAIPlatformClient {
   }
 
   async testVoiceProvider(): Promise<{ success: boolean; message?: string }> {
-    return this.request<{ success: boolean; message?: string }>(
-      '/api/config/test-voice-provider',
-      { method: 'POST' }
-    );
+    return this.request<{ success: boolean; message?: string }>('/api/config/test-voice-provider', 'POST');
   }
 
   async testTelephonyProvider(): Promise<{ success: boolean; message?: string }> {
-    return this.request<{ success: boolean; message?: string }>(
-      '/api/config/test-telephony-provider',
-      { method: 'POST' }
-    );
+    return this.request<{ success: boolean; message?: string }>('/api/config/test-telephony-provider', 'POST');
   }
 
   async testLLMProvider(): Promise<{ success: boolean; message?: string }> {
-    return this.request<{ success: boolean; message?: string }>(
-      '/api/config/test-llm-provider',
-      { method: 'POST' }
-    );
+    return this.request<{ success: boolean; message?: string }>('/api/config/test-llm-provider', 'POST');
   }
 
   async listOrganizations(): Promise<Array<{ id: string; name: string }>> {
