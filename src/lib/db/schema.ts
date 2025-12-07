@@ -666,6 +666,66 @@ export const vapiTranscripts = pgTable('vapi_transcripts', {
     createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+// ==============================
+// VOICE AI PLATFORM (plataformai.global)
+// ==============================
+
+export const voiceAgents = pgTable('voice_agents', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+    externalId: text('external_id'),
+    name: varchar('name', { length: 255 }).notNull(),
+    type: text('type').notNull().default('inbound'),
+    status: text('status').notNull().default('active'),
+    systemPrompt: text('system_prompt').notNull(),
+    firstMessage: text('first_message'),
+    voiceId: varchar('voice_id', { length: 100 }).default('pt-BR-FranciscaNeural'),
+    llmProvider: varchar('llm_provider', { length: 50 }).default('openai'),
+    llmModel: varchar('llm_model', { length: 50 }).default('gpt-4'),
+    temperature: decimal('temperature', { precision: 3, scale: 2 }).default('0.7'),
+    maxTokens: integer('max_tokens').default(500),
+    interruptSensitivity: decimal('interrupt_sensitivity', { precision: 3, scale: 2 }).default('0.5'),
+    responseDelay: integer('response_delay').default(100),
+    retellAgentId: text('retell_agent_id'),
+    config: jsonb('config'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+    archivedAt: timestamp('archived_at'),
+});
+
+export const voiceCalls = pgTable('voice_calls', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+    agentId: text('agent_id').references(() => voiceAgents.id, { onDelete: 'set null' }),
+    contactId: text('contact_id').references(() => contacts.id, { onDelete: 'set null' }),
+    conversationId: text('conversation_id').references(() => conversations.id, { onDelete: 'set null' }),
+    externalCallId: text('external_call_id'),
+    retellCallId: text('retell_call_id'),
+    twilioCallSid: text('twilio_call_sid'),
+    direction: text('direction').notNull().default('outbound'),
+    fromNumber: varchar('from_number', { length: 20 }),
+    toNumber: varchar('to_number', { length: 20 }).notNull(),
+    customerName: varchar('customer_name', { length: 255 }),
+    status: text('status').notNull().default('initiated'),
+    startedAt: timestamp('started_at'),
+    endedAt: timestamp('ended_at'),
+    duration: integer('duration'),
+    transcript: jsonb('transcript'),
+    recordingUrl: text('recording_url'),
+    summary: text('summary'),
+    qualityScore: decimal('quality_score', { precision: 5, scale: 2 }),
+    sentimentScore: decimal('sentiment_score', { precision: 4, scale: 3 }),
+    latencyMs: integer('latency_ms'),
+    interruptionsCount: integer('interruptions_count'),
+    cost: decimal('cost', { precision: 10, scale: 4 }),
+    resolved: boolean('resolved'),
+    disconnectReason: text('disconnect_reason'),
+    provider: text('provider').notNull().default('voice-ai-platform'),
+    metadata: jsonb('metadata'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
+});
+
 // ===================================
 // RELAÇÕES (DRIZZLE ORM)
 // ===================================
@@ -703,6 +763,32 @@ export const vapiTranscriptsRelations = relations(vapiTranscripts, ({ one }) => 
     }),
 }));
 
+export const voiceAgentsRelations = relations(voiceAgents, ({ one, many }) => ({
+    company: one(companies, {
+        fields: [voiceAgents.companyId],
+        references: [companies.id],
+    }),
+    calls: many(voiceCalls),
+}));
+
+export const voiceCallsRelations = relations(voiceCalls, ({ one }) => ({
+    company: one(companies, {
+        fields: [voiceCalls.companyId],
+        references: [companies.id],
+    }),
+    agent: one(voiceAgents, {
+        fields: [voiceCalls.agentId],
+        references: [voiceAgents.id],
+    }),
+    contact: one(contacts, {
+        fields: [voiceCalls.contactId],
+        references: [contacts.id],
+    }),
+    conversation: one(conversations, {
+        fields: [voiceCalls.conversationId],
+        references: [conversations.id],
+    }),
+}));
 
 // ==============================
 // NOTIFICATION AGENTS & LOGS
