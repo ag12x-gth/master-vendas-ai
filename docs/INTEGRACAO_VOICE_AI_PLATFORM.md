@@ -5,7 +5,7 @@
 | Fase | Status | Descrição |
 |------|--------|-----------|
 | **Fase 1: Infraestrutura Base** | ✅ CONCLUÍDA | Setup, cliente API, tabelas DB, teste de conexão |
-| **Fase 2: APIs de Backend** | ⏳ Pendente | CRUD de agentes, chamadas, webhooks |
+| **Fase 2: APIs de Backend** | ✅ CONCLUÍDA | CRUD de agentes, chamadas, analytics, configuração |
 | **Fase 3: Interface UI** | ⏳ Pendente | Páginas de gestão de agentes |
 | **Fase 4: Webhooks** | ⏳ Pendente | Receptores Retell/Twilio |
 | **Fase 5: Testes** | ⏳ Pendente | Testes E2E |
@@ -17,6 +17,38 @@
 | `src/lib/voice-ai-platform.ts` | Cliente VoiceAIPlatformClient com todos os endpoints |
 | `src/lib/db/schema.ts` | Tabelas `voice_agents` e `voice_calls` |
 | `src/app/api/v1/voice/test-connection/route.ts` | Endpoint para testar conexão |
+
+### Artefatos Criados na Fase 2
+
+| Arquivo | Descrição |
+|---------|-----------|
+| `src/app/api/v1/voice/agents/route.ts` | GET (listar) e POST (criar) agentes |
+| `src/app/api/v1/voice/agents/[id]/route.ts` | GET, PATCH, DELETE por ID |
+| `src/app/api/v1/voice/calls/route.ts` | GET listar chamadas com paginação |
+| `src/app/api/v1/voice/calls/[id]/route.ts` | GET chamada por ID |
+| `src/app/api/v1/voice/calls/test/route.ts` | POST iniciar chamada de teste |
+| `src/app/api/v1/voice/analytics/route.ts` | GET analytics (totalCalls, duration, cost) |
+| `src/app/api/v1/voice/config/route.ts` | GET configuração e status |
+| `src/app/api/v1/voice/config/test-providers/route.ts` | POST testar Retell/Twilio/OpenAI |
+| `src/app/api/v1/voice/config/external-resources/route.ts` | GET organizações, agentes Retell, números Twilio |
+
+### Evidências de Testes da Fase 2 (2025-12-07)
+
+| Teste | Resultado | Evidência |
+|-------|-----------|-----------|
+| Listar Agentes | ✅ OK | 7 agentes retornados |
+| Filtrar por Status | ✅ OK | 1 agente ativo (Suporte AI Premium) |
+| Buscar Agente por ID | ✅ OK | Retorna agente com todos os campos |
+| Criar Agente | ✅ OK | "Agente Fase2 Test" criado |
+| Atualizar Agente | ✅ OK | Nome e temperature alterados |
+| Deletar Agente | ✅ OK | Agente arquivado com sucesso |
+| Listar Chamadas | ✅ OK | 11 chamadas com metadata Retell |
+| Buscar Chamada por ID | ✅ OK | Retorna chamada com dados do agente |
+| Analytics | ✅ OK | 11 chamadas, breakdown por status |
+| Config Status | ✅ OK | Retell/Twilio/OpenAI configurados |
+| External Resources | ✅ OK | 2 orgs, 1 agente Retell, 6 números Twilio |
+| Test Providers | ✅ OK | Retell OK (1 agente), Twilio OK (conta ativa), OpenAI OK (103 modelos) |
+| Validação Zod | ✅ OK | Erros específicos por campo |
 
 ### Configuração de Ambiente
 
