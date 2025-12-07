@@ -32,11 +32,13 @@ interface VoiceAgentDialogProps {
 }
 
 const voiceOptions = [
-  { value: 'pt-BR-FranciscaNeural', label: 'Francisca (Feminino BR)' },
-  { value: 'pt-BR-AntonioNeural', label: 'Antônio (Masculino BR)' },
-  { value: 'pt-BR-TestVoice', label: 'Voz de Teste BR' },
-  { value: '11labs-Adrian', label: '11Labs Adrian' },
-  { value: '11labs-Rachel', label: '11Labs Rachel' },
+  { value: 'cartesia-Hailey-Portugese-Brazilian', label: 'Hailey (Feminino PT-BR Nativo)' },
+  { value: '11labs-Adrian', label: 'Adrian (Masculino Multilíngue)' },
+  { value: '11labs-Rachel', label: 'Rachel (Feminino Multilíngue)' },
+  { value: '11labs-Lily', label: 'Lily (Feminino Multilíngue)' },
+  { value: '11labs-Brian', label: 'Brian (Masculino Multilíngue)' },
+  { value: 'openai-Nova', label: 'Nova (Feminino OpenAI)' },
+  { value: 'openai-Echo', label: 'Echo (Masculino OpenAI)' },
 ];
 
 const modelOptions = [
@@ -53,7 +55,7 @@ export function VoiceAgentDialog({ open, onOpenChange, agent, onSave }: VoiceAge
     type: 'inbound' as 'inbound' | 'outbound' | 'transfer',
     systemPrompt: '',
     firstMessage: '',
-    voiceId: 'pt-BR-FranciscaNeural',
+    voiceId: 'cartesia-Hailey-Portugese-Brazilian',
     llmModel: 'gpt-4',
     temperature: 0.7,
     status: 'active' as 'active' | 'inactive',
@@ -77,7 +79,7 @@ export function VoiceAgentDialog({ open, onOpenChange, agent, onSave }: VoiceAge
         type: 'inbound',
         systemPrompt: '',
         firstMessage: '',
-        voiceId: 'pt-BR-FranciscaNeural',
+        voiceId: 'cartesia-Hailey-Portugese-Brazilian',
         llmModel: 'gpt-4',
         temperature: 0.7,
         status: 'active',
