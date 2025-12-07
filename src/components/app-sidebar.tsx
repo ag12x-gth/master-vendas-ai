@@ -160,6 +160,7 @@ const allNavItems = [
     subItems: [
       { href: '/connections', label: 'WhatsApp Business', icon: Plug, roles: ['admin', 'superadmin'] },
       { href: '/whatsapp-sessoes', label: 'Sessões WhatsApp', icon: BotMessageSquare, roles: ['admin', 'superadmin'] },
+      { href: '/voice-ai', label: 'Voice AI', icon: Phone, roles: ['admin', 'superadmin'] },
       { href: '/voice-calls', label: 'Voice Calls', icon: Phone, roles: ['admin', 'superadmin'] },
     ],
   },
