@@ -249,6 +249,90 @@ class VoiceAIPlatformClient {
       '/api/config/twilio/phone-numbers'
     );
   }
+
+  async createCall(data: {
+    externalCallId: string;
+    agentId: string;
+    direction: 'inbound' | 'outbound';
+    fromNumber: string;
+    toNumber: string;
+    status?: string;
+    metadata?: Record<string, unknown>;
+  }): Promise<VoiceCall> {
+    return this.request<VoiceCall>('/api/calls', 'POST', data as unknown as Record<string, unknown>);
+  }
+
+  async updateCall(callId: string, data: {
+    status?: string;
+    endedAt?: string;
+    duration?: number;
+    transcript?: Array<{ role: string; content: string; timestamp: number }>;
+    recordingUrl?: string;
+    summary?: string;
+    qualityScore?: number;
+    sentimentScore?: number;
+    disconnectReason?: string;
+    metadata?: Record<string, unknown>;
+  }): Promise<VoiceCall> {
+    return this.request<VoiceCall>(`/api/calls/${callId}`, 'PATCH', data as unknown as Record<string, unknown>);
+  }
+
+  async syncCallFromWebhook(data: {
+    externalCallId: string;
+    agentId?: string;
+    direction?: 'inbound' | 'outbound';
+    fromNumber?: string;
+    toNumber?: string;
+    status?: string;
+    endedAt?: string;
+    duration?: number;
+    transcript?: Array<{ role: string; content: string; timestamp: number }>;
+    recordingUrl?: string;
+    summary?: string;
+    qualityScore?: number;
+    sentimentScore?: number;
+    disconnectReason?: string;
+    metadata?: Record<string, unknown>;
+  }): Promise<VoiceCall | null> {
+    try {
+      const existingCalls = await this.listCalls({ limit: 100 });
+      const existingCall = existingCalls.find(c => c.retellCallId === data.externalCallId);
+      
+      if (existingCall) {
+        return this.updateCall(existingCall.id, {
+          status: data.status,
+          endedAt: data.endedAt,
+          duration: data.duration,
+          transcript: data.transcript,
+          recordingUrl: data.recordingUrl,
+          summary: data.summary,
+          qualityScore: data.qualityScore,
+          sentimentScore: data.sentimentScore,
+          disconnectReason: data.disconnectReason,
+          metadata: data.metadata,
+        });
+      } else if (data.agentId && data.fromNumber && data.toNumber) {
+        return this.createCall({
+          externalCallId: data.externalCallId,
+          agentId: data.agentId,
+          direction: data.direction || 'outbound',
+          fromNumber: data.fromNumber,
+          toNumber: data.toNumber,
+          status: data.status,
+          metadata: data.metadata,
+        });
+      }
+      
+      logger.warn('Cannot sync call - missing required fields', { externalCallId: data.externalCallId });
+      return null;
+    } catch (error) {
+      logger.error('Failed to sync call from webhook', { 
+        externalCallId: data.externalCallId, 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      return null;
+    }
+  }
 }
 
 export const voiceAIPlatform = new VoiceAIPlatformClient();

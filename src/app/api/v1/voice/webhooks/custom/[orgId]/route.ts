@@ -170,17 +170,19 @@ async function handleCallStarted(orgId: string, payload: CustomWebhookPayload) {
   logger.info('Custom event: call.started', { orgId, callId: payload.callId });
   
   if (voiceAIPlatform.isConfigured() && payload.callId) {
-    try {
-      await voiceAIPlatform.request('/api/calls/sync', 'POST', {
-        externalCallId: payload.callId,
+    await voiceAIPlatform.syncCallFromWebhook({
+      externalCallId: payload.callId,
+      agentId: payload.agentId,
+      status: 'initiated',
+      direction: payload.data?.direction as 'inbound' | 'outbound' | undefined,
+      fromNumber: payload.data?.fromNumber as string | undefined,
+      toNumber: payload.data?.toNumber as string | undefined,
+      metadata: {
         organizationId: orgId,
-        status: 'initiated',
-        ...payload.data,
         source: 'custom_webhook',
-      });
-    } catch (error) {
-      logger.warn('Failed to sync call.started', { error, orgId, callId: payload.callId });
-    }
+        ...payload.data,
+      },
+    });
   }
 }
 
@@ -188,17 +190,19 @@ async function handleCallEnded(orgId: string, payload: CustomWebhookPayload) {
   logger.info('Custom event: call.ended', { orgId, callId: payload.callId });
   
   if (voiceAIPlatform.isConfigured() && payload.callId) {
-    try {
-      await voiceAIPlatform.request('/api/calls/sync', 'POST', {
-        externalCallId: payload.callId,
+    await voiceAIPlatform.syncCallFromWebhook({
+      externalCallId: payload.callId,
+      status: 'ended',
+      endedAt: payload.data?.endedAt as string | undefined,
+      duration: payload.data?.duration as number | undefined,
+      transcript: payload.data?.transcript as Array<{ role: string; content: string; timestamp: number }> | undefined,
+      recordingUrl: payload.data?.recordingUrl as string | undefined,
+      metadata: {
         organizationId: orgId,
-        status: 'ended',
-        ...payload.data,
         source: 'custom_webhook',
-      });
-    } catch (error) {
-      logger.warn('Failed to sync call.ended', { error, orgId, callId: payload.callId });
-    }
+        ...payload.data,
+      },
+    });
   }
 }
 
@@ -206,16 +210,17 @@ async function handleCallAnalyzed(orgId: string, payload: CustomWebhookPayload) 
   logger.info('Custom event: call.analyzed', { orgId, callId: payload.callId });
   
   if (voiceAIPlatform.isConfigured() && payload.callId) {
-    try {
-      await voiceAIPlatform.request('/api/calls/sync', 'POST', {
-        externalCallId: payload.callId,
+    await voiceAIPlatform.syncCallFromWebhook({
+      externalCallId: payload.callId,
+      summary: payload.data?.summary as string | undefined,
+      sentimentScore: payload.data?.sentimentScore as number | undefined,
+      qualityScore: payload.data?.qualityScore as number | undefined,
+      metadata: {
         organizationId: orgId,
-        analysis: payload.data,
         source: 'custom_webhook',
-      });
-    } catch (error) {
-      logger.warn('Failed to sync call.analyzed', { error, orgId, callId: payload.callId });
-    }
+        analysis: payload.data,
+      },
+    });
   }
 }
 
@@ -227,16 +232,14 @@ async function handleRecordingReady(orgId: string, payload: CustomWebhookPayload
   logger.info('Custom event: recording.ready', { orgId, callId: payload.callId, data: payload.data });
   
   if (voiceAIPlatform.isConfigured() && payload.callId && payload.data?.recordingUrl) {
-    try {
-      await voiceAIPlatform.request('/api/calls/sync', 'POST', {
-        externalCallId: payload.callId,
+    await voiceAIPlatform.syncCallFromWebhook({
+      externalCallId: payload.callId,
+      recordingUrl: payload.data.recordingUrl as string,
+      metadata: {
         organizationId: orgId,
-        recordingUrl: payload.data.recordingUrl,
         source: 'custom_webhook',
-      });
-    } catch (error) {
-      logger.warn('Failed to sync recording.ready', { error, orgId, callId: payload.callId });
-    }
+      },
+    });
   }
 }
 
@@ -244,16 +247,14 @@ async function handleTranscriptReady(orgId: string, payload: CustomWebhookPayloa
   logger.info('Custom event: transcript.ready', { orgId, callId: payload.callId });
   
   if (voiceAIPlatform.isConfigured() && payload.callId && payload.data?.transcript) {
-    try {
-      await voiceAIPlatform.request('/api/calls/sync', 'POST', {
-        externalCallId: payload.callId,
+    await voiceAIPlatform.syncCallFromWebhook({
+      externalCallId: payload.callId,
+      transcript: payload.data.transcript as Array<{ role: string; content: string; timestamp: number }>,
+      metadata: {
         organizationId: orgId,
-        transcript: payload.data.transcript,
         source: 'custom_webhook',
-      });
-    } catch (error) {
-      logger.warn('Failed to sync transcript.ready', { error, orgId, callId: payload.callId });
-    }
+      },
+    });
   }
 }
 
@@ -261,16 +262,17 @@ async function handleAnalysisComplete(orgId: string, payload: CustomWebhookPaylo
   logger.info('Custom event: analysis.complete', { orgId, callId: payload.callId });
   
   if (voiceAIPlatform.isConfigured() && payload.callId && payload.data) {
-    try {
-      await voiceAIPlatform.request('/api/calls/sync', 'POST', {
-        externalCallId: payload.callId,
+    await voiceAIPlatform.syncCallFromWebhook({
+      externalCallId: payload.callId,
+      summary: payload.data.summary as string | undefined,
+      sentimentScore: payload.data.sentimentScore as number | undefined,
+      qualityScore: payload.data.qualityScore as number | undefined,
+      metadata: {
         organizationId: orgId,
-        analysis: payload.data,
         source: 'custom_webhook',
-      });
-    } catch (error) {
-      logger.warn('Failed to sync analysis.complete', { error, orgId, callId: payload.callId });
-    }
+        analysis: payload.data,
+      },
+    });
   }
 }
 

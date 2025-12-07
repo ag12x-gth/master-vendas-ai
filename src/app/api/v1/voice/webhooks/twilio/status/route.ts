@@ -107,38 +107,21 @@ async function handleTwilioStatus(payload: TwilioStatusPayload) {
   });
 
   if (voiceAIPlatform.isConfigured()) {
-    try {
-      const syncData: Record<string, any> = {
-        externalCallId: payload.CallSid,
-        status: normalizedStatus,
-        direction,
-        fromNumber: payload.From || payload.Caller,
-        toNumber: payload.To || payload.Called,
+    await voiceAIPlatform.syncCallFromWebhook({
+      externalCallId: payload.CallSid,
+      status: normalizedStatus,
+      direction,
+      fromNumber: payload.From || payload.Caller,
+      toNumber: payload.To || payload.Called,
+      duration: payload.CallDuration ? parseInt(payload.CallDuration, 10) : undefined,
+      recordingUrl: payload.RecordingUrl,
+      endedAt: normalizedStatus === 'ended' ? (payload.Timestamp || new Date().toISOString()) : undefined,
+      metadata: {
         source: 'twilio_status_webhook',
-      };
-
-      if (payload.CallDuration) {
-        syncData.duration = parseInt(payload.CallDuration, 10);
-      }
-
-      if (payload.RecordingUrl) {
-        syncData.recordingUrl = payload.RecordingUrl;
-      }
-
-      if (payload.ErrorCode) {
-        syncData.errorCode = payload.ErrorCode;
-        syncData.errorMessage = payload.ErrorMessage;
-      }
-
-      if (normalizedStatus === 'ended') {
-        syncData.endedAt = payload.Timestamp || new Date().toISOString();
-      }
-
-      await voiceAIPlatform.request('/api/calls/sync', 'POST', syncData);
-      logger.info('Twilio call status synced to Voice AI Platform', { callSid: payload.CallSid, status: normalizedStatus });
-    } catch (error) {
-      logger.warn('Failed to sync Twilio status to Voice AI Platform (non-blocking)', { error, callSid: payload.CallSid });
-    }
+        errorCode: payload.ErrorCode,
+        errorMessage: payload.ErrorMessage,
+      },
+    });
   }
 }
 

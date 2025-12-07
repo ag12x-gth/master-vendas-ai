@@ -110,21 +110,18 @@ async function handleCallStarted(payload: RetellWebhookPayload) {
   });
 
   if (voiceAIPlatform.isConfigured()) {
-    try {
-      await voiceAIPlatform.request('/api/calls/sync', 'POST', {
-        externalCallId: payload.call_id,
-        agentId: payload.agent_id,
-        status: 'initiated',
-        direction: payload.direction,
-        fromNumber: payload.from_number,
-        toNumber: payload.to_number,
+    await voiceAIPlatform.syncCallFromWebhook({
+      externalCallId: payload.call_id,
+      agentId: payload.agent_id,
+      status: 'initiated',
+      direction: payload.direction,
+      fromNumber: payload.from_number,
+      toNumber: payload.to_number,
+      metadata: {
         startedAt: payload.start_timestamp ? new Date(payload.start_timestamp).toISOString() : new Date().toISOString(),
         source: 'retell_webhook',
-      });
-      logger.info('Call synced to Voice AI Platform', { callId: payload.call_id });
-    } catch (error) {
-      logger.warn('Failed to sync call to Voice AI Platform (non-blocking)', { error, callId: payload.call_id });
-    }
+      },
+    });
   }
 }
 
@@ -136,20 +133,15 @@ async function handleCallEnded(payload: RetellWebhookPayload) {
   });
 
   if (voiceAIPlatform.isConfigured()) {
-    try {
-      await voiceAIPlatform.request('/api/calls/sync', 'POST', {
-        externalCallId: payload.call_id,
-        status: 'ended',
-        endedAt: payload.end_timestamp ? new Date(payload.end_timestamp).toISOString() : new Date().toISOString(),
-        duration: payload.duration_ms ? Math.round(payload.duration_ms / 1000) : 0,
-        recordingUrl: payload.recording_url,
-        transcript: payload.transcript,
-        source: 'retell_webhook',
-      });
-      logger.info('Call end synced to Voice AI Platform', { callId: payload.call_id });
-    } catch (error) {
-      logger.warn('Failed to sync call end to Voice AI Platform (non-blocking)', { error, callId: payload.call_id });
-    }
+    await voiceAIPlatform.syncCallFromWebhook({
+      externalCallId: payload.call_id,
+      status: 'ended',
+      endedAt: payload.end_timestamp ? new Date(payload.end_timestamp).toISOString() : new Date().toISOString(),
+      duration: payload.duration_ms ? Math.round(payload.duration_ms / 1000) : 0,
+      recordingUrl: payload.recording_url,
+      transcript: payload.transcript as Array<{ role: string; content: string; timestamp: number }>,
+      metadata: { source: 'retell_webhook' },
+    });
   }
 }
 
@@ -162,21 +154,25 @@ async function handleCallAnalyzed(payload: RetellWebhookPayload) {
   });
 
   if (voiceAIPlatform.isConfigured() && payload.call_analysis) {
-    try {
-      await voiceAIPlatform.request('/api/calls/sync', 'POST', {
-        externalCallId: payload.call_id,
-        analysis: {
-          summary: payload.call_analysis.call_summary,
-          sentiment: payload.call_analysis.user_sentiment,
-          successful: payload.call_analysis.call_successful,
-          customData: payload.call_analysis.custom_analysis_data,
-        },
+    const sentimentMap: Record<string, number> = {
+      'positive': 1,
+      'neutral': 0,
+      'negative': -1,
+    };
+    const sentimentScore = payload.call_analysis.user_sentiment 
+      ? sentimentMap[payload.call_analysis.user_sentiment] ?? 0 
+      : undefined;
+
+    await voiceAIPlatform.syncCallFromWebhook({
+      externalCallId: payload.call_id,
+      summary: payload.call_analysis.call_summary,
+      sentimentScore,
+      metadata: {
+        successful: payload.call_analysis.call_successful,
+        customData: payload.call_analysis.custom_analysis_data,
         source: 'retell_webhook',
-      });
-      logger.info('Call analysis synced to Voice AI Platform', { callId: payload.call_id });
-    } catch (error) {
-      logger.warn('Failed to sync call analysis to Voice AI Platform (non-blocking)', { error, callId: payload.call_id });
-    }
+      },
+    });
   }
 }
 
