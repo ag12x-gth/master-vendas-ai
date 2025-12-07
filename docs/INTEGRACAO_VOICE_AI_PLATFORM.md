@@ -7,7 +7,7 @@
 | **Fase 1: Infraestrutura Base** | ✅ CONCLUÍDA | Setup, cliente API, tabelas DB, teste de conexão |
 | **Fase 2: APIs de Backend** | ✅ CONCLUÍDA | CRUD de agentes, chamadas, analytics, configuração |
 | **Fase 3: Interface UI** | ✅ CONCLUÍDA | Páginas de gestão de agentes com CRUD completo |
-| **Fase 4: Webhooks** | ⏳ Pendente | Receptores Retell/Twilio |
+| **Fase 4: Webhooks** | ✅ CONCLUÍDA | 4 webhooks implementados (Retell, Twilio Status/Incoming, Custom) |
 | **Fase 5: Testes** | ⏳ Pendente | Testes E2E |
 
 ### Artefatos Criados na Fase 1
@@ -73,6 +73,31 @@
 | KPIs de Agentes | ✅ OK | Mostra ativos, total, receptivos, ativos |
 | Diálogo de Agente | ✅ OK | Formulário com validação e campos |
 | Integração com APIs | ✅ OK | Logs confirmam chamadas CRUD |
+
+### Artefatos Criados na Fase 4
+
+| Arquivo | Descrição |
+|---------|-----------|
+| `src/app/api/v1/voice/webhooks/retell/route.ts` | Webhook Retell (call_started, call_ended, call_analyzed) |
+| `src/app/api/v1/voice/webhooks/twilio/status/route.ts` | Webhook Twilio Status (8 status suportados) |
+| `src/app/api/v1/voice/webhooks/twilio/incoming/route.ts` | Webhook Twilio Incoming (TwiML routing) |
+| `src/app/api/v1/voice/webhooks/custom/[orgId]/route.ts` | Webhook Custom Multi-tenant (7 eventos) |
+
+### Evidências de Testes da Fase 4 (2025-12-07)
+
+| Teste | Resultado | Evidência |
+|-------|-----------|-----------|
+| Retell GET | ✅ OK | Status active, 5 eventos suportados |
+| Retell POST call_started | ✅ OK | CallId processado em 111ms |
+| Retell POST call_ended | ✅ OK | Transcript e recording processados |
+| Retell POST call_analyzed | ✅ OK | Summary + sentiment + custom data |
+| Twilio Status GET | ✅ OK | Status active, 8 status suportados |
+| Twilio Status POST | ✅ OK | TwiML response para completed |
+| Twilio Incoming GET | ✅ OK | Status active, roteamento ativo |
+| Twilio Incoming POST | ✅ OK | TwiML Say + Record (fallback) |
+| Custom GET | ✅ OK | 7 eventos, segurança HMAC |
+| Custom POST call.started | ✅ OK | OrgId demo-org-id processado |
+| Custom POST recording.ready | ✅ OK | Sync com Voice AI Platform |
 
 ### Configuração de Ambiente
 
