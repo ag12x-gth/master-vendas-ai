@@ -37,7 +37,7 @@ export default function VoiceAIPage() {
   const [showAgentDialog, setShowAgentDialog] = useState(false);
   const [editingAgent, setEditingAgent] = useState<VoiceAgent | null>(null);
 
-  const outboundAgents = agents.filter(a => a.status === 'active' && a.type === 'outbound');
+  const availableAgents = agents.filter(a => a.status !== 'archived');
 
   const fetchRecentCalls = useCallback(async () => {
     setLoadingCalls(true);
@@ -211,10 +211,10 @@ export default function VoiceAIPage() {
                   <SelectValue placeholder="Selecione um agente" />
                 </SelectTrigger>
                 <SelectContent>
-                  {outboundAgents.length === 0 ? (
-                    <SelectItem value="none" disabled>Nenhum agente outbound ativo</SelectItem>
+                  {availableAgents.length === 0 ? (
+                    <SelectItem value="none" disabled>Nenhum agente disponível</SelectItem>
                   ) : (
-                    outboundAgents.map(agent => (
+                    availableAgents.map(agent => (
                       <SelectItem key={agent.id} value={agent.id}>
                         <div className="flex items-center gap-2">
                           <Bot className="h-4 w-4" />
