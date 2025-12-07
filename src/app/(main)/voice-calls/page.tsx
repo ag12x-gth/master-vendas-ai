@@ -6,8 +6,10 @@ import { CallKPIDashboard } from '@/components/vapi-voice/CallKPIDashboard';
 import { CallHistoryTable } from '@/components/vapi-voice/CallHistoryTable';
 import { BulkCallDialog } from '@/components/vapi-voice/BulkCallDialog';
 import { VoiceCallsAnalytics } from '@/components/vapi-voice/VoiceCallsAnalytics';
+import { VoiceAgentsTable, VoiceAgentDialog, VoiceAgentKPIs } from '@/components/voice-agents';
 import { useVapiCalls } from '@/hooks/useVapiCalls';
-import { PhoneCall, History, BarChart3 } from 'lucide-react';
+import { useVoiceAgents, VoiceAgent, CreateAgentData, UpdateAgentData } from '@/hooks/useVoiceAgents';
+import { PhoneCall, History, BarChart3, Bot, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +22,18 @@ interface Contact {
 
 export default function VoiceCallsPage() {
   const { metrics, loading } = useVapiCalls(true);
+  const { 
+    agents, 
+    analytics, 
+    loading: agentsLoading, 
+    createAgent, 
+    updateAgent, 
+    deleteAgent 
+  } = useVoiceAgents();
+  
   const [showBulkDialog, setShowBulkDialog] = useState(false);
+  const [showAgentDialog, setShowAgentDialog] = useState(false);
+  const [editingAgent, setEditingAgent] = useState<VoiceAgent | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [_loadingContacts, setLoadingContacts] = useState(false);
   const { toast } = useToast();
@@ -42,18 +55,38 @@ export default function VoiceCallsPage() {
         setContacts(formattedContacts);
       } catch (error) {
         console.error('Erro ao buscar contatos:', error);
-        toast({
-          title: 'Erro ao carregar contatos',
-          description: 'Não foi possível carregar a lista de contatos.',
-          variant: 'destructive',
-        });
       } finally {
         setLoadingContacts(false);
       }
     }
 
     fetchContacts();
-  }, [toast]);
+  }, []);
+
+  const handleEditAgent = (agent: VoiceAgent) => {
+    setEditingAgent(agent);
+    setShowAgentDialog(true);
+  };
+
+  const handleNewAgent = () => {
+    setEditingAgent(null);
+    setShowAgentDialog(true);
+  };
+
+  const handleSaveAgent = async (data: CreateAgentData | UpdateAgentData) => {
+    if (editingAgent) {
+      return await updateAgent(editingAgent.id, data as UpdateAgentData);
+    } else {
+      return await createAgent(data as CreateAgentData);
+    }
+  };
+
+  const handleCloseAgentDialog = (open: boolean) => {
+    setShowAgentDialog(open);
+    if (!open) {
+      setEditingAgent(null);
+    }
+  };
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-6 lg:p-8 pt-6">
@@ -76,7 +109,11 @@ export default function VoiceCallsPage() {
         <TabsList>
           <TabsTrigger value="history">
             <History className="h-4 w-4 mr-2" />
-            Histórico Completo
+            Histórico
+          </TabsTrigger>
+          <TabsTrigger value="agents">
+            <Bot className="h-4 w-4 mr-2" />
+            Agentes de Voz
           </TabsTrigger>
           <TabsTrigger value="analytics">
             <BarChart3 className="h-4 w-4 mr-2" />
@@ -98,6 +135,37 @@ export default function VoiceCallsPage() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="agents" className="space-y-4">
+          <VoiceAgentKPIs 
+            agents={agents} 
+            analytics={analytics} 
+            loading={agentsLoading} 
+          />
+          
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Agentes de Voz</CardTitle>
+                <CardDescription>
+                  Gerencie seus agentes de IA para chamadas de voz
+                </CardDescription>
+              </div>
+              <Button onClick={handleNewAgent}>
+                <Plus className="mr-2 h-4 w-4" />
+                Novo Agente
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <VoiceAgentsTable
+                agents={agents}
+                loading={agentsLoading}
+                onEdit={handleEditAgent}
+                onDelete={deleteAgent}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="analytics" className="space-y-4">
           <VoiceCallsAnalytics />
         </TabsContent>
@@ -107,6 +175,13 @@ export default function VoiceCallsPage() {
         open={showBulkDialog} 
         onOpenChange={setShowBulkDialog}
         contacts={contacts}
+      />
+
+      <VoiceAgentDialog
+        open={showAgentDialog}
+        onOpenChange={handleCloseAgentDialog}
+        agent={editingAgent}
+        onSave={handleSaveAgent}
       />
     </div>
   );

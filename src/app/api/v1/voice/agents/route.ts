@@ -8,9 +8,9 @@ const createAgentSchema = z.object({
   type: z.enum(['inbound', 'outbound', 'transfer']),
   systemPrompt: z.string().min(1, 'System prompt é obrigatório'),
   firstMessage: z.string().optional(),
-  voiceId: z.string().optional(),
-  llmModel: z.string().optional(),
-  temperature: z.number().min(0).max(2).optional(),
+  voiceId: z.string().default('pt-BR-FranciscaNeural'),
+  llmModel: z.string().default('gpt-4'),
+  temperature: z.number().min(0).max(2).default(0.7),
 });
 
 export async function GET(request: NextRequest) {

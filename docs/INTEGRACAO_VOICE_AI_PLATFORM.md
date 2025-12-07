@@ -6,7 +6,7 @@
 |------|--------|-----------|
 | **Fase 1: Infraestrutura Base** | ✅ CONCLUÍDA | Setup, cliente API, tabelas DB, teste de conexão |
 | **Fase 2: APIs de Backend** | ✅ CONCLUÍDA | CRUD de agentes, chamadas, analytics, configuração |
-| **Fase 3: Interface UI** | ⏳ Pendente | Páginas de gestão de agentes |
+| **Fase 3: Interface UI** | ✅ CONCLUÍDA | Páginas de gestão de agentes com CRUD completo |
 | **Fase 4: Webhooks** | ⏳ Pendente | Receptores Retell/Twilio |
 | **Fase 5: Testes** | ⏳ Pendente | Testes E2E |
 
@@ -49,6 +49,30 @@
 | External Resources | ✅ OK | 2 orgs, 1 agente Retell, 6 números Twilio |
 | Test Providers | ✅ OK | Retell OK (1 agente), Twilio OK (conta ativa), OpenAI OK (103 modelos) |
 | Validação Zod | ✅ OK | Erros específicos por campo |
+
+### Artefatos Criados na Fase 3
+
+| Arquivo | Descrição |
+|---------|-----------|
+| `src/hooks/useVoiceAgents.ts` | Hook React para CRUD de agentes e analytics |
+| `src/components/voice-agents/VoiceAgentsTable.tsx` | Tabela de agentes com edição e exclusão |
+| `src/components/voice-agents/VoiceAgentDialog.tsx` | Diálogo para criar/editar agentes |
+| `src/components/voice-agents/VoiceAgentKPIs.tsx` | Cards de métricas de agentes |
+| `src/components/voice-agents/index.ts` | Exportações dos componentes |
+| `src/app/(main)/voice-calls/page.tsx` | Página atualizada com aba "Agentes de Voz" |
+
+### Evidências de Testes da Fase 3 (2025-12-07)
+
+| Teste | Resultado | Evidência |
+|-------|-----------|-----------|
+| Hook useVoiceAgents | ✅ OK | Carrega agentes e analytics automaticamente |
+| Criar Agente via UI | ✅ OK | "Agente Fase3 UI Test" criado |
+| Atualizar Agente via UI | ✅ OK | Nome e temperature alterados |
+| Deletar Agente via UI | ✅ OK | Agente arquivado com sucesso |
+| Tabela de Agentes | ✅ OK | Lista 8 agentes com status e tipo |
+| KPIs de Agentes | ✅ OK | Mostra ativos, total, receptivos, ativos |
+| Diálogo de Agente | ✅ OK | Formulário com validação e campos |
+| Integração com APIs | ✅ OK | Logs confirmam chamadas CRUD |
 
 ### Configuração de Ambiente
 
