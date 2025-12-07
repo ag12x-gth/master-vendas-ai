@@ -68,7 +68,7 @@ export function VoiceAgentDialog({ open, onOpenChange, agent, onSave }: VoiceAge
         type: agent.type,
         systemPrompt: agent.systemPrompt,
         firstMessage: agent.firstMessage || '',
-        voiceId: agent.voiceId || 'pt-BR-FranciscaNeural',
+        voiceId: agent.voiceId || 'cartesia-Hailey-Portugese-Brazilian',
         llmModel: agent.llmModel,
         temperature: agent.temperature,
         status: agent.status === 'archived' ? 'inactive' : agent.status,
@@ -111,6 +111,16 @@ export function VoiceAgentDialog({ open, onOpenChange, agent, onSave }: VoiceAge
           llmModel: formData.llmModel,
           temperature: formData.temperature,
         };
+
+    try {
+      await fetch('/api/v1/voice/retell/sync-voice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ voiceId: formData.voiceId }),
+      });
+    } catch (err) {
+      console.error('Error syncing voice to Retell:', err);
+    }
 
     const result = await onSave(data);
     setSaving(false);
