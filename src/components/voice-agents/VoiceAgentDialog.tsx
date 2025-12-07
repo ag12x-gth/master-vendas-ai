@@ -31,15 +31,10 @@ interface VoiceAgentDialogProps {
   onSave: (data: CreateAgentData | UpdateAgentData) => Promise<VoiceAgent | null>;
 }
 
-const voiceOptions = [
-  { value: 'cartesia-Hailey-Portugese-Brazilian', label: 'Hailey (Feminino PT-BR Nativo)' },
-  { value: '11labs-Adrian', label: 'Adrian (Masculino Multilíngue)' },
-  { value: '11labs-Rachel', label: 'Rachel (Feminino Multilíngue)' },
-  { value: '11labs-Lily', label: 'Lily (Feminino Multilíngue)' },
-  { value: '11labs-Brian', label: 'Brian (Masculino Multilíngue)' },
-  { value: 'openai-Nova', label: 'Nova (Feminino OpenAI)' },
-  { value: 'openai-Echo', label: 'Echo (Masculino OpenAI)' },
-];
+interface VoiceOption {
+  value: string;
+  label: string;
+}
 
 const modelOptions = [
   { value: 'gpt-4', label: 'GPT-4' },
@@ -48,8 +43,17 @@ const modelOptions = [
   { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' },
 ];
 
+const defaultVoices: VoiceOption[] = [
+  { value: 'cartesia-Hailey-Portugese-Brazilian', label: 'Hailey (Feminino PT-BR Nativo)' },
+  { value: '11labs-Adrian', label: 'Adrian (Masculino)' },
+  { value: '11labs-Rachel', label: 'Rachel (Feminino)' },
+  { value: 'openai-Nova', label: 'Nova (OpenAI)' },
+];
+
 export function VoiceAgentDialog({ open, onOpenChange, agent, onSave }: VoiceAgentDialogProps) {
   const [saving, setSaving] = useState(false);
+  const [voiceOptions, setVoiceOptions] = useState<VoiceOption[]>(defaultVoices);
+  const [loadingVoices, setLoadingVoices] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     type: 'inbound' as 'inbound' | 'outbound' | 'transfer',
@@ -60,6 +64,25 @@ export function VoiceAgentDialog({ open, onOpenChange, agent, onSave }: VoiceAge
     temperature: 0.7,
     status: 'active' as 'active' | 'inactive',
   });
+
+  useEffect(() => {
+    if (open && voiceOptions.length <= defaultVoices.length) {
+      setLoadingVoices(true);
+      fetch('/api/v1/voice/retell/voices')
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.data?.length > 0) {
+            const voices = data.data.map((v: { voice_id: string; voice_name: string; provider: string; gender?: string }) => ({
+              value: v.voice_id,
+              label: `${v.voice_name} (${v.provider}${v.gender ? ' - ' + v.gender : ''})`,
+            }));
+            setVoiceOptions(voices);
+          }
+        })
+        .catch(err => console.error('Error fetching voices:', err))
+        .finally(() => setLoadingVoices(false));
+    }
+  }, [open, voiceOptions.length]);
 
   useEffect(() => {
     if (agent) {

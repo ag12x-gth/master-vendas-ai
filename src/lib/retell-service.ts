@@ -1,0 +1,180 @@
+import { logger } from '@/lib/logger';
+
+const RETELL_API_KEY = process.env.RETELL_API_KEY || '';
+const RETELL_BASE_URL = 'https://api.retellai.com';
+
+export interface RetellAgent {
+  agent_id: string;
+  agent_name: string;
+  voice_id: string;
+  language: string;
+  response_engine: {
+    type: string;
+    llm_id?: string;
+  };
+  webhook_url?: string;
+  is_published: boolean;
+  max_call_duration_ms: number;
+  version: number;
+  last_modification_timestamp: number;
+}
+
+export interface RetellVoice {
+  voice_id: string;
+  voice_name: string;
+  provider: string;
+  accent?: string;
+  gender?: string;
+  age?: string;
+  preview_audio_url?: string;
+}
+
+export interface RetellCall {
+  call_id: string;
+  call_type: string;
+  agent_id: string;
+  call_status: string;
+  start_timestamp?: number;
+  end_timestamp?: number;
+  duration_ms?: number;
+  from_number?: string;
+  to_number?: string;
+  direction: string;
+  transcript?: string;
+  recording_url?: string;
+  call_cost?: {
+    combined_cost: number;
+    total_duration_seconds: number;
+  };
+}
+
+export interface CreateAgentParams {
+  agent_name: string;
+  voice_id: string;
+  language?: string;
+  response_engine?: {
+    type: string;
+    llm_id?: string;
+  };
+  webhook_url?: string;
+  begin_message?: string;
+}
+
+export interface UpdateAgentParams {
+  agent_name?: string;
+  voice_id?: string;
+  language?: string;
+  webhook_url?: string;
+}
+
+class RetellService {
+  private apiKey: string;
+  private baseUrl: string;
+
+  constructor() {
+    this.apiKey = RETELL_API_KEY;
+    this.baseUrl = RETELL_BASE_URL;
+  }
+
+  isConfigured(): boolean {
+    return !!this.apiKey;
+  }
+
+  private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    if (!this.isConfigured()) {
+      throw new Error('Retell API não configurada');
+    }
+
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      ...options,
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      logger.error('Retell API error', { endpoint, status: response.status, error: errorBody });
+      throw new Error(`Retell API error: ${response.status} - ${errorBody}`);
+    }
+
+    return response.json();
+  }
+
+  async listAgents(): Promise<RetellAgent[]> {
+    return this.request<RetellAgent[]>('/list-agents');
+  }
+
+  async getAgent(agentId: string): Promise<RetellAgent> {
+    return this.request<RetellAgent>(`/get-agent/${agentId}`);
+  }
+
+  async createAgent(params: CreateAgentParams): Promise<RetellAgent> {
+    return this.request<RetellAgent>('/create-agent', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  }
+
+  async updateAgent(agentId: string, params: UpdateAgentParams): Promise<RetellAgent> {
+    return this.request<RetellAgent>(`/update-agent/${agentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(params),
+    });
+  }
+
+  async deleteAgent(agentId: string): Promise<void> {
+    await this.request(`/delete-agent/${agentId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async listVoices(): Promise<RetellVoice[]> {
+    return this.request<RetellVoice[]>('/list-voices');
+  }
+
+  async listVoicesPtBR(): Promise<RetellVoice[]> {
+    const allVoices = await this.listVoices();
+    const ptBRVoices = allVoices.filter(v => 
+      v.accent?.toLowerCase().includes('brazil') ||
+      v.voice_id.toLowerCase().includes('portugese-brazilian') ||
+      v.voice_id.toLowerCase().includes('portuguese-brazilian')
+    );
+    const multilingualVoices = allVoices.filter(v =>
+      v.provider === 'elevenlabs' || v.provider === 'openai'
+    ).slice(0, 20);
+    
+    const combined = [...ptBRVoices];
+    multilingualVoices.forEach(v => {
+      if (!combined.find(c => c.voice_id === v.voice_id)) {
+        combined.push(v);
+      }
+    });
+    
+    return combined;
+  }
+
+  async listCalls(limit: number = 50): Promise<RetellCall[]> {
+    return this.request<RetellCall[]>(`/list-calls?limit=${limit}`);
+  }
+
+  async getCall(callId: string): Promise<RetellCall> {
+    return this.request<RetellCall>(`/get-call/${callId}`);
+  }
+
+  async createPhoneCall(params: {
+    from_number: string;
+    to_number: string;
+    override_agent_id?: string;
+    metadata?: Record<string, string>;
+  }): Promise<RetellCall> {
+    return this.request<RetellCall>('/v2/create-phone-call', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  }
+}
+
+export const retellService = new RetellService();
