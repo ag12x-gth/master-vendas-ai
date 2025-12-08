@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { campaigns, voiceDeliveryReports, contacts } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, sql } from 'drizzle-orm';
 import { getCompanyIdFromSession } from '@/app/actions';
 
 export const dynamic = 'force-dynamic';
@@ -16,25 +16,24 @@ export async function GET(
     const { campaignId } = params;
 
     // Verify campaign exists and belongs to company
-    const campaign = await db
+    const campaignsResult = await db
       .select({ id: campaigns.id, channel: campaigns.channel })
       .from(campaigns)
       .where(and(eq(campaigns.id, campaignId), eq(campaigns.companyId, companyId)))
-      .limit(1);
+      .all();
 
-    if (!campaign || campaign.length === 0 || campaign[0].channel !== 'VOICE') {
+    if (!campaignsResult || campaignsResult.length === 0 || campaignsResult[0].channel !== 'VOICE') {
       return NextResponse.json(
         { error: 'Campaign not found or is not a voice campaign' },
         { status: 404 }
       );
     }
 
-    // Get all voice delivery reports for this campaign with contact info
-    const reports = await db
+    // Get all voice delivery reports for this campaign
+    const reportsData = await db
       .select({
         id: voiceDeliveryReports.id,
         contactId: voiceDeliveryReports.contactId,
-        phoneNumber: contacts.phone_number,
         status: voiceDeliveryReports.status,
         callOutcome: voiceDeliveryReports.callOutcome,
         duration: voiceDeliveryReports.duration,
@@ -42,10 +41,25 @@ export async function GET(
         disconnectionReason: voiceDeliveryReports.disconnectionReason,
         sentAt: voiceDeliveryReports.sentAt,
         providerCallId: voiceDeliveryReports.providerCallId,
+        phoneNumber: contacts.phone_number,
       })
       .from(voiceDeliveryReports)
       .leftJoin(contacts, eq(voiceDeliveryReports.contactId, contacts.id))
-      .where(eq(voiceDeliveryReports.campaignId, campaignId));
+      .where(eq(voiceDeliveryReports.campaignId, campaignId))
+      .orderBy(sql`${voiceDeliveryReports.sentAt} DESC`);
+
+    const reports = reportsData.map((r) => ({
+      id: r.id,
+      contactId: r.contactId,
+      phoneNumber: r.phoneNumber || 'Desconhecido',
+      status: r.status,
+      callOutcome: r.callOutcome,
+      duration: r.duration,
+      failureReason: r.failureReason,
+      disconnectionReason: r.disconnectionReason,
+      sentAt: r.sentAt,
+      providerCallId: r.providerCallId,
+    }));
 
     // Calculate metrics
     const metrics = {
