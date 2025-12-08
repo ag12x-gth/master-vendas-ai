@@ -62,14 +62,19 @@ Preferred communication style: Simple, everyday language.
 - **Agent Deletion**: Trash icon button on each agent card; AlertDialog confirmation; auto-refreshes list after deletion; sets status to 'archived'.
 - **Agent Status Toggle**: Power button with loading spinner, toast notifications, automatic list refresh.
 - **Agent Status Filter**: Three filter buttons (Todos/Ativos/Inativos) synchronized with pagination.
-- **Chamadas em Curso (Active Calls)**: ALWAYS displays - shows active calls (status: "Chamando..." or "Em andamento") with number, agent, and timestamp. Auto-updates every 2 minutes. Empty state when no active calls.
-- **Campanhas de Voz**: ALWAYS displays - shows ALL voice campaigns with status indicators:
+- **Campanhas de Voz**: PAGINATED display - shows 10 voice campaigns per page with status indicators:
   - Status badges: Enviando (blue pulse), Na fila (yellow), Pausada (orange), Concluída (green), Falha (red), Agendada (purple)
   - Progress bar for "Enviando" campaigns
   - Pause button for SENDING/QUEUED campaigns only
   - Empty state when no campaigns created
   - Sorted by creation date (newest first)
   - Shows creation timestamp
+  - Pagination buttons (Previous/Next) with "Page X of Y" indicator
+  - Click on campaign to open modal with real call data
+  - **Campaign Details Modal** - Shows:
+    - Real metrics from Retell: Total calls, Answered, Not answered
+    - Detailed call list table with: phone number, status, duration, date/time
+    - Status colors: Green (answered), Blue (voicemail), Yellow (no answer), Orange (busy), Red (failed)
 
 ### AI/ML Services
 - **OpenAI**: GPT-3.5-turbo, GPT-4, GPT-4o via `@ai-sdk/openai`.
@@ -84,24 +89,39 @@ Preferred communication style: Simple, everyday language.
 - **Firebase**: (Optional) App Hosting and Secret Manager.
 - **Replit**: Development environment, Object Storage.
 
-## Recent Changes (December 8, 2025 - Session 3)
-1. **Campaign Details Modal** (`src/components/campaigns/campaign-details-modal.tsx`):
-   - Professional modal with detailed campaign information
-   - Channel-aware UI: Voice campaigns show "Chamadas Realizadas/Atendidas/Não Atendidas"
-   - WhatsApp/SMS campaigns show "Enviados/Entregues/Lidos/Falhas"
-   - Progress bar and statistics with percentages
-   - Configuration details: batch size, delay, retry settings
-   - Cronogram with creation, start, completion, scheduling dates
-   - Action buttons: Pause, Resume, Cancel with confirmation dialogs
-   - Retry-failed button hidden for Voice campaigns (not supported)
-   - Click-to-open from campaign cards in Voice AI page
-   - Auto-refresh after actions
-2. **Voice AI Page Integration**:
-   - CampaignDetailsModal integrated with click handlers
-   - stopPropagation on action buttons to prevent modal opening on action clicks
-   - Proper state management for selected campaign
+## Recent Changes (December 8, 2025 - Session 4)
+1. **Removed "Chamadas em Curso" Section** (`src/app/(main)/voice-ai/page.tsx`):
+   - Removed redundant active calls section from Voice AI page
+   - Removed `fetchActiveCalls` function and polling logic
+   - Removed `loadingActiveCalls` state variable
+   - Removed `Activity` icon import from lucide-react
+   - Campaign details modal now shows all call metrics, making active calls display redundant
 
-## Previous Changes (December 8, 2025 - Session 2)
+2. **Implemented Campaign Pagination (10/page)** (`src/app/(main)/voice-ai/page.tsx`):
+   - Added pagination state: `campaignsPage`, `campaignsTotal`
+   - Updated `fetchVoiceCampaigns` to use limit/offset parameters
+   - Frontend limits to 10 campaigns per page
+   - Added Previous/Next pagination buttons at bottom of campaigns list
+   - Shows "Page X of Y" indicator
+   - Button state disabled at first/last page
+
+3. **Created Voice Report API** (`src/app/api/v1/campaigns/{id}/voice-report/route.ts`):
+   - New GET endpoint that returns real voice call data for campaigns
+   - Returns metrics: `{ total, answered, notAnswered, failed }`
+   - Returns detailed call list with phone number, status, duration, outcome, failure reason
+   - Joins `voiceDeliveryReports` with `contacts` table
+   - Maps call outcomes to user-friendly status labels
+   - Sorted by date (most recent first)
+
+4. **Updated Campaign Details Modal** (`src/components/campaigns/campaign-details-modal.tsx`):
+   - Added voice-specific data fetching via new `/voice-report` endpoint
+   - Modal now displays real metrics instead of zeros
+   - Added detailed calls table showing each phone number and its call status
+   - Status badges: Atendida (green), Voicemail (blue), Sem resposta (yellow), Ocupado (orange), Falha (red)
+   - Shows call duration and timestamp for each call
+   - Separate data fetching for voice vs. WhatsApp/SMS campaigns
+
+## Previous Changes (December 8, 2025 - Session 3)
 1. **Archived Agents Filtering**: Added filter to hide deleted agents (status = 'archived') from display.
 2. **Agent Status Toggle Enhanced**: Loading spinner, toast notifications, auto-refresh.
 3. **Agent Status Filter UI**: Three-button filter (Todos/Ativos/Inativos) with pagination reset.

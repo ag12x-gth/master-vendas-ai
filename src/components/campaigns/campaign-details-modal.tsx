@@ -104,25 +104,47 @@ export function CampaignDetailsModal({
   const [details, setDetails] = useState<CampaignDetails | null>(null);
   const [failedCount, setFailedCount] = useState<number>(0);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  const [voiceCallsData, setVoiceCallsData] = useState<any[]>([]);
+  const [voiceMetrics, setVoiceMetrics] = useState<any>(null);
 
   const fetchCampaignDetails = useCallback(async () => {
     if (!campaign?.id) return;
     
     setLoadingDetails(true);
     try {
-      const [detailsRes, failedRes] = await Promise.all([
-        fetch(`/api/v1/campaigns/${campaign.id}`),
-        fetch(`/api/v1/campaigns/${campaign.id}/retry-failed`),
-      ]);
+      const isVoice = campaign?.channel === 'VOICE';
+      
+      if (isVoice) {
+        // For voice campaigns, fetch from voice-report endpoint
+        const voiceRes = await fetch(`/api/v1/campaigns/${campaign.id}/voice-report`);
+        if (voiceRes.ok) {
+          const voiceData = await voiceRes.json();
+          setVoiceMetrics(voiceData.metrics);
+          setVoiceCallsData(voiceData.calls || []);
+          // Update details with voice metrics
+          setDetails({
+            ...campaign,
+            sent: voiceData.metrics.total,
+            delivered: voiceData.metrics.answered,
+            failed: voiceData.metrics.notAnswered,
+          });
+        }
+      } else {
+        // For WhatsApp/SMS campaigns, use original flow
+        const [detailsRes, failedRes] = await Promise.all([
+          fetch(`/api/v1/campaigns/${campaign.id}`),
+          fetch(`/api/v1/campaigns/${campaign.id}/retry-failed`),
+        ]);
 
-      if (detailsRes.ok) {
-        const data = await detailsRes.json();
-        setDetails({ ...campaign, ...data });
-      }
+        if (detailsRes.ok) {
+          const data = await detailsRes.json();
+          setDetails({ ...campaign, ...data });
+        }
 
-      if (failedRes.ok) {
-        const failedData = await failedRes.json();
-        setFailedCount(failedData.failedCount || 0);
+        if (failedRes.ok) {
+          const failedData = await failedRes.json();
+          setFailedCount(failedData.failedCount || 0);
+        }
       }
     } catch (err) {
       console.error('Error fetching campaign details:', err);
@@ -325,29 +347,95 @@ export function CampaignDetailsModal({
               )}
 
               {isVoice ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <Card>
-                    <CardContent className="pt-4 text-center">
-                      <PhoneCall className="h-5 w-5 mx-auto text-green-500 mb-2" />
-                      <p className="text-2xl font-bold">{sentCount.toLocaleString('pt-BR')}</p>
-                      <p className="text-xs text-muted-foreground">Chamadas Realizadas</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="pt-4 text-center">
-                      <CheckCircle className="h-5 w-5 mx-auto text-blue-500 mb-2" />
-                      <p className="text-2xl font-bold">{deliveredCount.toLocaleString('pt-BR')}</p>
-                      <p className="text-xs text-muted-foreground">Atendidas</p>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="pt-4 text-center">
-                      <XCircle className="h-5 w-5 mx-auto text-red-500 mb-2" />
-                      <p className="text-2xl font-bold">{failedDisplay.toLocaleString('pt-BR')}</p>
-                      <p className="text-xs text-muted-foreground">Não Atendidas</p>
-                    </CardContent>
-                  </Card>
-                </div>
+                <>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <Card>
+                      <CardContent className="pt-4 text-center">
+                        <PhoneCall className="h-5 w-5 mx-auto text-green-500 mb-2" />
+                        <p className="text-2xl font-bold">{(voiceMetrics?.total || sentCount).toLocaleString('pt-BR')}</p>
+                        <p className="text-xs text-muted-foreground">Chamadas Realizadas</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-4 text-center">
+                        <CheckCircle className="h-5 w-5 mx-auto text-blue-500 mb-2" />
+                        <p className="text-2xl font-bold">{(voiceMetrics?.answered || deliveredCount).toLocaleString('pt-BR')}</p>
+                        <p className="text-xs text-muted-foreground">Atendidas</p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="pt-4 text-center">
+                        <XCircle className="h-5 w-5 mx-auto text-red-500 mb-2" />
+                        <p className="text-2xl font-bold">{(voiceMetrics?.notAnswered || failedDisplay).toLocaleString('pt-BR')}</p>
+                        <p className="text-xs text-muted-foreground">Não Atendidas</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {voiceCallsData.length > 0 && (
+                    <>
+                      <Separator />
+                      <div className="space-y-3">
+                        <h4 className="font-medium flex items-center gap-2">
+                          <BarChart3 className="h-4 w-4" />
+                          Detalhes das Chamadas
+                        </h4>
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b">
+                                <th className="text-left py-2 px-2">Telefone</th>
+                                <th className="text-left py-2 px-2">Status</th>
+                                <th className="text-left py-2 px-2">Duração</th>
+                                <th className="text-left py-2 px-2">Data/Hora</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {voiceCallsData.map((call, idx) => (
+                                <tr key={idx} className="border-b hover:bg-muted/50">
+                                  <td className="py-2 px-2 font-mono text-xs">{call.phoneNumber}</td>
+                                  <td className="py-2 px-2">
+                                    <Badge
+                                      className={
+                                        call.status === 'answered'
+                                          ? 'bg-green-500'
+                                          : call.status === 'voicemail'
+                                          ? 'bg-blue-500'
+                                          : call.status === 'no_answer'
+                                          ? 'bg-yellow-500'
+                                          : call.status === 'busy'
+                                          ? 'bg-orange-500'
+                                          : 'bg-red-500'
+                                      }
+                                    >
+                                      {call.status === 'answered'
+                                        ? 'Atendida'
+                                        : call.status === 'voicemail'
+                                        ? 'Voicemail'
+                                        : call.status === 'no_answer'
+                                        ? 'Sem resposta'
+                                        : call.status === 'busy'
+                                        ? 'Ocupado'
+                                        : 'Falha'}
+                                    </Badge>
+                                  </td>
+                                  <td className="py-2 px-2 text-muted-foreground">
+                                    {call.duration || '-'}
+                                  </td>
+                                  <td className="py-2 px-2 text-xs text-muted-foreground">
+                                    {call.sentAt
+                                      ? new Date(call.sentAt).toLocaleString('pt-BR')
+                                      : '-'}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <Card>

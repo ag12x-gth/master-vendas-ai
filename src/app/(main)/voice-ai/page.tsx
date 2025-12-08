@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useVoiceAgents, VoiceAgent, CreateAgentData, UpdateAgentData } from '@/hooks/useVoiceAgents';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Phone, Bot, Clock, Plus, Edit, Power, Loader2, PhoneCall, PhoneOff, Users, Activity, RefreshCw, Send, Pause, Square, Play, Trash2 } from 'lucide-react';
+import { Phone, Bot, Clock, Plus, Edit, Power, Loader2, PhoneCall, PhoneOff, Users, RefreshCw, Send, Pause, Square, Play, Trash2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { VoiceAgentDialog, PhoneNumbersManager } from '@/components/voice-agents';
 import { CreateVoiceCampaignDialog } from '@/components/campaigns/create-voice-campaign-dialog';
@@ -37,10 +37,8 @@ export default function VoiceAIPage() {
   const [callStatus, setCallStatus] = useState<CallStatus>('idle');
   const [callError, setCallError] = useState<string>('');
   const [recentCalls, setRecentCalls] = useState<any[]>([]);
-  const [activeCalls, setActiveCalls] = useState<any[]>([]);
   const [voiceCampaigns, setVoiceCampaigns] = useState<any[]>([]);
   const [loadingCalls, setLoadingCalls] = useState(false);
-  const [loadingActiveCalls, setLoadingActiveCalls] = useState(false);
   const [loadingCampaigns, setLoadingCampaigns] = useState(false);
   const [pausingCampaign, setPausingCampaign] = useState<string | null>(null);
   const [showAgentDialog, setShowAgentDialog] = useState(false);
@@ -54,8 +52,11 @@ export default function VoiceAIPage() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [selectedCampaign, setSelectedCampaign] = useState<CampaignDetails | null>(null);
   const [showCampaignDetails, setShowCampaignDetails] = useState(false);
+  const [campaignsPage, setCampaignsPage] = useState(1);
+  const [campaignsTotal, setCampaignsTotal] = useState(0);
   const agentsPerPage = 6;
   const itemsPerPage = 10;
+  const campaignsPerPage = 10;
 
   const availableAgents = agents.filter(a => a.status !== 'archived');
 
@@ -76,42 +77,26 @@ export default function VoiceAIPage() {
     }
   }, [callsPage, itemsPerPage]);
 
-  const fetchActiveCalls = useCallback(async () => {
-    setLoadingActiveCalls(true);
-    try {
-      const response = await fetch('/api/v1/voice/calls?status=ongoing,ringing');
-      if (response.ok) {
-        const data = await response.json();
-        const ongoing = (data.data || []).filter((c: any) => 
-          c.status === 'ongoing' || c.status === 'ringing' || c.status === 'in_progress'
-        );
-        setActiveCalls(ongoing);
-      }
-    } catch (err) {
-      console.error('Error fetching active calls:', err);
-    } finally {
-      setLoadingActiveCalls(false);
-    }
-  }, []);
 
   const fetchVoiceCampaigns = useCallback(async () => {
     setLoadingCampaigns(true);
     try {
-      const response = await fetch('/api/v1/campaigns?channel=VOICE');
+      const offset = (campaignsPage - 1) * campaignsPerPage;
+      const response = await fetch(`/api/v1/campaigns?channel=VOICE&limit=${campaignsPerPage}&offset=${offset}`);
       if (response.ok) {
         const data = await response.json();
-        // Mostrar TODAS as campanhas de voz, ordenadas por data de criação (mais recentes primeiro)
         const campaigns = (data.data || []).sort((a: any, b: any) => 
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         setVoiceCampaigns(campaigns);
+        setCampaignsTotal(data.total || 0);
       }
     } catch (err) {
       console.error('Error fetching voice campaigns:', err);
     } finally {
       setLoadingCampaigns(false);
     }
-  }, []);
+  }, [campaignsPage]);
 
   const pauseCampaign = async (campaignId: string) => {
     setPausingCampaign(campaignId);
@@ -135,15 +120,12 @@ export default function VoiceAIPage() {
 
   useEffect(() => {
     fetchRecentCalls();
-    fetchActiveCalls();
     fetchVoiceCampaigns();
-    const callsInterval = setInterval(fetchActiveCalls, 120000); // 2 minutos
     const campaignsInterval = setInterval(fetchVoiceCampaigns, 30000); // 30 segundos
     return () => {
-      clearInterval(callsInterval);
       clearInterval(campaignsInterval);
     };
-  }, [fetchRecentCalls, fetchActiveCalls, fetchVoiceCampaigns]);
+  }, [fetchRecentCalls, fetchVoiceCampaigns]);
 
   const makeCall = async () => {
     if (!selectedAgentId) {
@@ -399,72 +381,12 @@ export default function VoiceAIPage() {
         </CardContent>
       </Card>
 
-      <Card className="shadow-lg border-2 border-green-500/30 bg-green-50/50 dark:bg-green-950/20">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Activity className="h-5 w-5 text-green-600" />
-            Chamadas em Curso ({activeCalls.length})
-          </CardTitle>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={fetchActiveCalls}
-            disabled={loadingActiveCalls}
-          >
-            <RefreshCw className={`h-4 w-4 ${loadingActiveCalls ? 'animate-spin' : ''}`} />
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {loadingActiveCalls ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            </div>
-          ) : activeCalls.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <PhoneCall className="h-12 w-12 mx-auto mb-2 opacity-50" />
-              <p>Nenhuma chamada em andamento</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {activeCalls.map((call: any) => (
-                <div 
-                  key={call.id} 
-                  className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-full bg-green-100 dark:bg-green-900">
-                      <PhoneCall className="h-4 w-4 text-green-600 animate-pulse" />
-                    </div>
-                    <div>
-                      <p className="font-medium">{call.toNumber || call.to_number || 'Número oculto'}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {agents.find(a => a.id === call.agentId || a.retellAgentId === call.agentId)?.name || 'Agente'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-green-500 text-white animate-pulse">
-                      {call.status === 'ringing' ? 'Chamando...' : 'Em andamento'}
-                    </Badge>
-                    {call.startedAt && (
-                      <span className="text-sm text-muted-foreground">
-                        <Clock className="inline h-3 w-3 mr-1" />
-                        {formatDate(call.startedAt)}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       <Card className="shadow-lg border-2 border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="flex items-center gap-2 text-lg">
             <Send className="h-5 w-5 text-blue-600" />
-            Campanhas de Voz ({voiceCampaigns.length})
+            Campanhas de Voz ({campaignsTotal})
           </CardTitle>
           <Button 
             variant="ghost" 
@@ -488,6 +410,7 @@ export default function VoiceAIPage() {
           ) : (
             <div className="space-y-4">
               {voiceCampaigns.map((campaign: any) => {
+                const campaignsPerPageCount = Math.ceil(campaignsTotal / campaignsPerPage);
                 const isSending = campaign.status === 'SENDING';
                 const isQueued = campaign.status === 'QUEUED';
                 const isPaused = campaign.status === 'PAUSED';
@@ -605,6 +528,30 @@ export default function VoiceAIPage() {
                   </div>
                 );
               })}
+              
+              {Math.ceil(campaignsTotal / campaignsPerPage) > 1 && (
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={campaignsPage === 1}
+                    onClick={() => setCampaignsPage(prev => Math.max(1, prev - 1))}
+                  >
+                    ← Anterior
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    Página {campaignsPage} de {Math.ceil(campaignsTotal / campaignsPerPage)}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={campaignsPage === Math.ceil(campaignsTotal / campaignsPerPage)}
+                    onClick={() => setCampaignsPage(prev => Math.min(Math.ceil(campaignsTotal / campaignsPerPage), prev + 1))}
+                  >
+                    Próximo →
+                  </Button>
+                </div>
+              )}
             </div>
           )}
         </CardContent>
