@@ -10,7 +10,7 @@ import { useVoiceAgents, VoiceAgent, CreateAgentData, UpdateAgentData } from '@/
 import { useToast } from '@/hooks/use-toast';
 import { Phone, Bot, Clock, Plus, Edit, Power, Loader2, PhoneCall, PhoneOff, Users, Activity, RefreshCw, Send, Pause, Square, Play } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { VoiceAgentDialog } from '@/components/voice-agents';
+import { VoiceAgentDialog, PhoneNumbersManager } from '@/components/voice-agents';
 import { CreateVoiceCampaignDialog } from '@/components/campaigns/create-voice-campaign-dialog';
 
 function formatPhoneBR(value: string): string {
@@ -612,6 +612,8 @@ export default function VoiceAIPage() {
           )}
         </CardContent>
       </Card>
+
+      <PhoneNumbersManager />
 
       <VoiceAgentDialog
         open={showAgentDialog}
