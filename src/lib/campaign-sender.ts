@@ -1390,7 +1390,8 @@ import { retellService } from './retell-service';
 import { voiceAgents, voiceCalls, voiceDeliveryReports } from '@/lib/db/schema';
 
 const VOICE_BATCH_SIZE = 20;
-const VOICE_BATCH_DELAY_SECONDS = 25;
+const VOICE_BATCH_DELAY_SECONDS = 50;
+const VOICE_MAX_CONCURRENT = 20; // Limite Retell (plano Pay-As-You-Go)
 
 interface VoiceCallResult {
     success: boolean;
@@ -1527,25 +1528,37 @@ export async function sendVoiceCampaign(campaign: typeof campaigns.$inferSelect)
 
         console.log(`[Campanha Voice ${campaign.id}] Iniciando campanha com ${campaignContacts.length} contatos`);
 
-        const batchSize = campaign.batchSize || VOICE_BATCH_SIZE;
         const batchDelaySeconds = campaign.batchDelaySeconds || VOICE_BATCH_DELAY_SECONDS;
-        const contactBatches = chunkArray(campaignContacts, batchSize);
+        const maxConcurrent = VOICE_MAX_CONCURRENT;
 
         let totalSuccess = 0;
         let totalFailed = 0;
+        let processedIndex = 0;
+        let batchNumber = 0;
 
-        for (const [batchIndex, batch] of contactBatches.entries()) {
+        while (processedIndex < campaignContacts.length) {
             const [currentCampaign] = await db
                 .select({ status: campaigns.status })
                 .from(campaigns)
                 .where(eq(campaigns.id, campaign.id));
 
             if (currentCampaign?.status === 'PAUSED') {
-                console.log(`[Campanha Voice ${campaign.id}] Campanha pausada. Parando no lote ${batchIndex + 1}.`);
+                console.log(`[Campanha Voice ${campaign.id}] Campanha pausada. Parando no contato ${processedIndex + 1}.`);
                 return;
             }
 
-            console.log(`[Campanha Voice ${campaign.id}] Processando lote ${batchIndex + 1}/${contactBatches.length} (${batch.length} contatos)`);
+            const availableSlots = await retellService.getAvailableSlots(maxConcurrent);
+            
+            if (availableSlots === 0) {
+                console.log(`[Campanha Voice ${campaign.id}] Nenhum slot disponível. Aguardando ${batchDelaySeconds}s...`);
+                await sleep(batchDelaySeconds * 1000);
+                continue;
+            }
+
+            const batch = campaignContacts.slice(processedIndex, processedIndex + availableSlots);
+            batchNumber++;
+
+            console.log(`[Campanha Voice ${campaign.id}] Lote ${batchNumber}: ${batch.length} chamadas (slots disponíveis: ${availableSlots})`);
 
             const callPromises = batch.map(contact =>
                 initiateVoiceCall(
@@ -1564,10 +1577,11 @@ export async function sendVoiceCampaign(campaign: typeof campaigns.$inferSelect)
             const batchFailed = results.filter(r => !r.success).length;
             totalSuccess += batchSuccess;
             totalFailed += batchFailed;
+            processedIndex += batch.length;
 
-            console.log(`[Campanha Voice ${campaign.id}] Lote ${batchIndex + 1}: ${batchSuccess} sucesso, ${batchFailed} falhas`);
+            console.log(`[Campanha Voice ${campaign.id}] Lote ${batchNumber}: ${batchSuccess} sucesso, ${batchFailed} falhas. Progresso: ${processedIndex}/${campaignContacts.length}`);
 
-            if (batchIndex < contactBatches.length - 1) {
+            if (processedIndex < campaignContacts.length) {
                 console.log(`[Campanha Voice ${campaign.id}] Aguardando ${batchDelaySeconds}s antes do próximo lote...`);
                 await sleep(batchDelaySeconds * 1000);
             }

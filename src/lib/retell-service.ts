@@ -160,6 +160,28 @@ class RetellService {
     return this.request<RetellCall[]>(`/list-calls?limit=${limit}`);
   }
 
+  async getActiveCalls(): Promise<{ count: number; calls: RetellCall[] }> {
+    try {
+      const recentCalls = await this.listCalls(100);
+      const activeCalls = recentCalls.filter(call => 
+        call.call_status === 'ongoing' || 
+        call.call_status === 'ringing' ||
+        call.call_status === 'in_progress'
+      );
+      return { count: activeCalls.length, calls: activeCalls };
+    } catch (error) {
+      logger.error('Erro ao buscar chamadas ativas', { error });
+      return { count: 0, calls: [] };
+    }
+  }
+
+  async getAvailableSlots(maxConcurrent: number = 20): Promise<number> {
+    const { count } = await this.getActiveCalls();
+    const available = Math.max(0, maxConcurrent - count);
+    logger.info(`Slots disponíveis: ${available} (${count} ativas de ${maxConcurrent} max)`);
+    return available;
+  }
+
   async getCall(callId: string): Promise<RetellCall> {
     return this.request<RetellCall>(`/get-call/${callId}`);
   }
