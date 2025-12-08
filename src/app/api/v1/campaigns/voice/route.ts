@@ -1,16 +1,17 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { campaigns, contactLists, contactsToContactLists, voiceAgents } from '@/lib/db/schema';
+import { campaigns, contactLists, contactsToContactLists } from '@/lib/db/schema';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { z } from 'zod';
 import redis from '@/lib/redis';
 import { inArray, eq, and, sql } from 'drizzle-orm';
+import { voiceAIPlatform } from '@/lib/voice-ai-platform';
 
 const VOICE_CAMPAIGN_QUEUE = 'voice_campaign_queue';
 
 const voiceCampaignSchema = z.object({
   name: z.string().min(1, 'Nome da campanha é obrigatório'),
-  voiceAgentId: z.string().uuid('Selecione um agente de voz válido'),
+  voiceAgentId: z.string().min(1, 'Selecione um agente de voz'),
   schedule: z.string().datetime({ offset: true }).nullable().optional(),
   contactListIds: z.array(z.string().uuid('ID de lista inválido')).min(1, 'Selecione pelo menos uma lista.'),
   enableRetry: z.boolean().optional().default(false),
@@ -43,27 +44,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const { contactListIds, voiceAgentId, schedule, name, enableRetry, maxRetryAttempts, retryDelayMinutes } = parsed.data;
         const isScheduled = !!schedule;
 
-        const [agent] = await db
-            .select({ id: voiceAgents.id, retellAgentId: voiceAgents.retellAgentId })
-            .from(voiceAgents)
-            .where(and(
-                eq(voiceAgents.id, voiceAgentId),
-                eq(voiceAgents.companyId, companyId)
-            ));
+        let agent = null;
+        try {
+            agent = await voiceAIPlatform.getAgent(voiceAgentId);
+        } catch (err) {
+            console.error('[Voice Campaign] Erro ao buscar agente:', err);
+        }
 
         if (!agent) {
             return NextResponse.json({ 
                 error: 'Agente inválido', 
-                description: 'O agente de voz selecionado não existe ou não pertence à sua empresa.' 
+                description: 'O agente de voz selecionado não existe. Verifique se o agente está configurado corretamente.' 
             }, { status: 403 });
         }
 
-        if (!agent.retellAgentId) {
-            return NextResponse.json({ 
-                error: 'Agente não configurado', 
-                description: 'O agente de voz selecionado não está vinculado ao Retell. Configure o agente antes de criar campanhas.' 
-            }, { status: 400 });
-        }
+        const retellAgentId = agent.retellAgentId || voiceAgentId;
 
         const ownedLists = await db
             .select({ id: contactLists.id })
