@@ -1,14 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import { useState, useMemo } from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
+import { useState, useMemo, useCallback } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Users, Search, CheckSquare, Square, List, AlertTriangle } from 'lucide-react';
+import { Users, Search, CheckSquare, Square, List, AlertTriangle, Check } from 'lucide-react';
 import type { ContactList } from '@/lib/types';
 
 interface MultiListSelectorProps {
@@ -41,27 +39,41 @@ export function MultiListSelector({
     return { totalContacts: total, emptySelectedCount: emptyCount };
   }, [lists, selectedIds]);
 
-  const handleToggle = (listId: string) => {
-    if (selectedIds.includes(listId)) {
-      onSelectionChange(selectedIds.filter(id => id !== listId));
+  const handleToggle = useCallback((listId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const isCurrentlySelected = selectedIds.includes(listId);
+    let newIds: string[];
+    
+    if (isCurrentlySelected) {
+      newIds = selectedIds.filter(id => id !== listId);
     } else {
-      onSelectionChange([...selectedIds, listId]);
+      newIds = [...selectedIds, listId];
     }
-  };
+    
+    onSelectionChange(newIds);
+  }, [selectedIds, onSelectionChange]);
 
-  const handleSelectAll = React.useCallback(() => {
+  const handleSelectAll = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     const allFilteredIds = filteredLists.map(l => l.id);
-    const currentSet = new Set(selectedIds);
-    const hasNew = allFilteredIds.some(id => !currentSet.has(id));
-    if (hasNew) {
-      const newSelection = [...new Set([...selectedIds, ...allFilteredIds])];
+    const newSelection = [...new Set([...selectedIds, ...allFilteredIds])];
+    
+    if (newSelection.length !== selectedIds.length) {
       onSelectionChange(newSelection);
     }
   }, [filteredLists, selectedIds, onSelectionChange]);
 
-  const handleDeselectAll = React.useCallback(() => {
+  const handleDeselectAll = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     const filteredIds = new Set(filteredLists.map(l => l.id));
     const newSelection = selectedIds.filter(id => !filteredIds.has(id));
+    
     if (newSelection.length !== selectedIds.length) {
       onSelectionChange(newSelection);
     }
@@ -123,34 +135,38 @@ export function MultiListSelector({
                 return (
                   <div
                     key={list.id}
-                    className={`flex items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-muted/50 transition-colors ${
+                    role="button"
+                    tabIndex={0}
+                    className={`flex items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-muted/50 transition-colors select-none ${
                       isSelected 
                         ? isEmpty 
                           ? 'bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-700' 
                           : 'bg-primary/5 border border-primary/20' 
                         : isEmpty 
-                          ? 'opacity-60' 
-                          : ''
+                          ? 'opacity-60 border border-transparent' 
+                          : 'border border-transparent'
                     }`}
-                    onClick={() => handleToggle(list.id)}
+                    onClick={(e) => handleToggle(list.id, e)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleToggle(list.id, e as unknown as React.MouseEvent);
+                      }
+                    }}
                   >
-                    <Checkbox
-                      id={`list-${list.id}`}
-                      checked={isSelected}
-                      onCheckedChange={(checked) => {
-                        if (checked !== isSelected) {
-                          handleToggle(list.id);
-                        }
-                      }}
-                      onClick={(e) => e.stopPropagation()}
-                    />
+                    <div 
+                      className={`h-4 w-4 rounded border flex items-center justify-center shrink-0 ${
+                        isSelected 
+                          ? 'bg-primary border-primary text-primary-foreground' 
+                          : 'border-input bg-background'
+                      }`}
+                    >
+                      {isSelected && <Check className="h-3 w-3" />}
+                    </div>
                     <div className="flex-1 min-w-0">
-                      <Label
-                        htmlFor={`list-${list.id}`}
-                        className={`font-medium cursor-pointer truncate block ${isEmpty ? 'text-muted-foreground' : ''}`}
-                      >
+                      <span className={`font-medium truncate block text-sm ${isEmpty ? 'text-muted-foreground' : ''}`}>
                         {list.name}
-                      </Label>
+                      </span>
                     </div>
                     <Badge 
                       variant={isEmpty ? "outline" : "secondary"} 
