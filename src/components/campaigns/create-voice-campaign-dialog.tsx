@@ -58,6 +58,9 @@ export function CreateVoiceCampaignDialog({ children, onSaveSuccess }: CreateVoi
   const [scheduleDate, setScheduleDate] = useState<Date | undefined>();
   const [scheduleTime, setScheduleTime] = useState('09:00');
   const [sendNow, setSendNow] = useState(true);
+  const [enableRetry, setEnableRetry] = useState(false);
+  const [maxRetryAttempts, setMaxRetryAttempts] = useState(3);
+  const [retryDelayMinutes, setRetryDelayMinutes] = useState(30);
 
   const [agents, setVoiceAgents] = useState<VoiceAgent[]>([]);
   const [lists, setContactLists] = useState<ContactList[]>([]);
@@ -118,6 +121,9 @@ export function CreateVoiceCampaignDialog({ children, onSaveSuccess }: CreateVoi
       voiceAgentId: selectedAgentId,
       contactListIds: selectedListIds,
       schedule,
+      enableRetry,
+      maxRetryAttempts: enableRetry ? maxRetryAttempts : 0,
+      retryDelayMinutes: enableRetry ? retryDelayMinutes : 30,
     };
 
     try {
@@ -241,9 +247,57 @@ export function CreateVoiceCampaignDialog({ children, onSaveSuccess }: CreateVoi
                 />
               </div>
             </div>
+            <div className="space-y-2 pt-2 border-t">
+              <Label className="text-base font-semibold">Rediscagem Automática</Label>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="enable-retry-checkbox" 
+                  checked={enableRetry} 
+                  onCheckedChange={(checked) => setEnableRetry(!!checked)} 
+                />
+                <Label htmlFor="enable-retry-checkbox">Habilitar rediscagem para quem não atender</Label>
+              </div>
+              {enableRetry && (
+                <div className="flex flex-col sm:flex-row gap-3 mt-2 pl-6">
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Tentativas</Label>
+                    <Select value={String(maxRetryAttempts)} onValueChange={(v) => setMaxRetryAttempts(Number(v))}>
+                      <SelectTrigger className="w-24">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="2">2x</SelectItem>
+                        <SelectItem value="3">3x</SelectItem>
+                        <SelectItem value="4">4x</SelectItem>
+                        <SelectItem value="5">5x</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Intervalo</Label>
+                    <Select value={String(retryDelayMinutes)} onValueChange={(v) => setRetryDelayMinutes(Number(v))}>
+                      <SelectTrigger className="w-28">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="15">15 min</SelectItem>
+                        <SelectItem value="30">30 min</SelectItem>
+                        <SelectItem value="60">1 hora</SelectItem>
+                        <SelectItem value="120">2 horas</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground pl-6">
+                {enableRetry 
+                  ? `Contatos que não atenderem, caixa de mensagens ou ocupado serão rediscados até ${maxRetryAttempts}x com intervalo de ${retryDelayMinutes} minutos.`
+                  : 'Quando desativado, cada contato recebe apenas uma ligação.'}
+              </p>
+            </div>
             <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">
               <p className="font-medium text-foreground mb-1">Rate Limiting</p>
-              <p>As chamadas serão feitas em lotes de 5 ligações simultâneas com intervalo de 10 segundos entre lotes para respeitar os limites da API.</p>
+              <p>As chamadas serão feitas em lotes de até 20 ligações simultâneas com intervalo de 50 segundos entre lotes para respeitar os limites da API.</p>
             </div>
           </div>
           <DialogFooter>

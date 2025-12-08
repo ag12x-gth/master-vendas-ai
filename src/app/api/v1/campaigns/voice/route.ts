@@ -13,6 +13,9 @@ const voiceCampaignSchema = z.object({
   voiceAgentId: z.string().uuid('Selecione um agente de voz válido'),
   schedule: z.string().datetime({ offset: true }).nullable().optional(),
   contactListIds: z.array(z.string()).min(1, 'Selecione pelo menos uma lista.'),
+  enableRetry: z.boolean().optional().default(false),
+  maxRetryAttempts: z.number().min(1).max(5).optional().default(3),
+  retryDelayMinutes: z.number().min(5).max(120).optional().default(30),
 });
 
 export const dynamic = 'force-dynamic';
@@ -27,7 +30,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             return NextResponse.json({ error: 'Dados inválidos.', details: parsed.error.flatten() }, { status: 400 });
         }
 
-        const { contactListIds, voiceAgentId, schedule, name } = parsed.data;
+        const { contactListIds, voiceAgentId, schedule, name, enableRetry, maxRetryAttempts, retryDelayMinutes } = parsed.data;
         const isScheduled = !!schedule;
 
         const [agent] = await db
@@ -99,6 +102,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             contactListIds: finalContactListIds,
             batchSize: 20,
             batchDelaySeconds: 50,
+            enableRetry: enableRetry,
+            maxRetryAttempts: maxRetryAttempts,
+            retryDelayMinutes: retryDelayMinutes,
         }).returning();
 
         if (!newCampaign) {

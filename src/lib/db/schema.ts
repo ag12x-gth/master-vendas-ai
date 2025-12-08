@@ -495,6 +495,9 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     parentCampaignId: text('parent_campaign_id'),
     batchSize: integer('batch_size'),
     batchDelaySeconds: integer('batch_delay_seconds'),
+    enableRetry: boolean('enable_retry').default(false),
+    maxRetryAttempts: integer('max_retry_attempts').default(3),
+    retryDelayMinutes: integer('retry_delay_minutes').default(30),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   });
   

@@ -1540,12 +1540,22 @@ export async function updateVoiceDeliveryWithOutcome(
             return;
         }
         
-        const shouldRetry = ['voicemail', 'no_answer', 'busy'].includes(callOutcome) && 
-                           report.attemptNumber < VOICE_MAX_RETRY_ATTEMPTS;
+        const [campaign] = await db
+            .select({ enableRetry: campaigns.enableRetry, maxRetryAttempts: campaigns.maxRetryAttempts, retryDelayMinutes: campaigns.retryDelayMinutes })
+            .from(campaigns)
+            .where(eq(campaigns.id, report.campaignId))
+            .limit(1);
+        
+        const maxAttempts = campaign?.maxRetryAttempts || VOICE_MAX_RETRY_ATTEMPTS;
+        const retryDelayMins = campaign?.retryDelayMinutes || VOICE_RETRY_DELAY_MINUTES;
+        
+        const shouldRetry = campaign?.enableRetry && 
+                           ['voicemail', 'no_answer', 'busy'].includes(callOutcome) && 
+                           report.attemptNumber < maxAttempts;
         
         let nextRetryAt: Date | null = null;
         if (shouldRetry) {
-            nextRetryAt = new Date(Date.now() + VOICE_RETRY_DELAY_MINUTES * 60 * 1000);
+            nextRetryAt = new Date(Date.now() + retryDelayMins * 60 * 1000);
             
             await scheduleVoiceRetry(
                 report.campaignId,
