@@ -251,40 +251,50 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const normalizedPhone = sanitized ? canonicalizeBrazilPhone(sanitized) : contactData.phone;
 
     const newContact = await db.transaction(async (tx) => {
-        // Build insert object with only defined values (remove undefined fields)
-        const insertData: any = {
+        // Build insert object - ONLY include fields with values (never undefined)
+        const insertValues: Record<string, any> = {
             name: contactData.name,
             phone: normalizedPhone,
             companyId,
         };
         
-        // Add optional fields only if they're defined
-        if (contactData.email !== undefined) insertData.email = contactData.email;
-        if (contactData.avatarUrl !== undefined) insertData.avatarUrl = contactData.avatarUrl;
-        if (contactData.addressStreet !== undefined) insertData.addressStreet = contactData.addressStreet;
-        if (contactData.addressNumber !== undefined) insertData.addressNumber = contactData.addressNumber;
-        if (contactData.addressComplement !== undefined) insertData.addressComplement = contactData.addressComplement;
-        if (contactData.addressDistrict !== undefined) insertData.addressDistrict = contactData.addressDistrict;
-        if (contactData.addressCity !== undefined) insertData.addressCity = contactData.addressCity;
-        if (contactData.addressState !== undefined) insertData.addressState = contactData.addressState;
-        if (contactData.addressZipCode !== undefined) insertData.addressZipCode = contactData.addressZipCode;
-        if (contactData.notes !== undefined) insertData.notes = contactData.notes;
+        // Conditionally add optional fields ONLY if defined
+        // This prevents Drizzle from inserting 'default' for undefined fields
+        if (contactData.email) insertValues.email = contactData.email;
+        if (contactData.avatarUrl) insertValues.avatarUrl = contactData.avatarUrl;
+        if (contactData.addressStreet) insertValues.addressStreet = contactData.addressStreet;
+        if (contactData.addressNumber) insertValues.addressNumber = contactData.addressNumber;
+        if (contactData.addressComplement) insertValues.addressComplement = contactData.addressComplement;
+        if (contactData.addressDistrict) insertValues.addressDistrict = contactData.addressDistrict;
+        if (contactData.addressCity) insertValues.addressCity = contactData.addressCity;
+        if (contactData.addressState) insertValues.addressState = contactData.addressState;
+        if (contactData.addressZipCode) insertValues.addressZipCode = contactData.addressZipCode;
+        if (contactData.notes) insertValues.notes = contactData.notes;
 
+        // Type-safe insert using partial values
         const [createdContact] = await tx
             .insert(contacts)
-            .values(insertData)
+            .values(insertValues as any)
             .returning();
         
         if (!createdContact) {
           throw new Error("Falha ao criar o contato no banco de dados.");
         }
 
+        // Insert tag relationships
         if (tagIds && tagIds.length > 0) {
-            await tx.insert(contactsToTags).values(tagIds.map(tagId => ({ contactId: createdContact.id, tagId })));
+            await tx.insert(contactsToTags).values(tagIds.map(tagId => ({ 
+                contactId: createdContact.id, 
+                tagId 
+            })));
         }
 
+        // Insert list relationships
         if (listIds && listIds.length > 0) {
-            await tx.insert(contactsToContactLists).values(listIds.map(listId => ({ contactId: createdContact.id, listId })));
+            await tx.insert(contactsToContactLists).values(listIds.map(listId => ({ 
+                contactId: createdContact.id, 
+                listId 
+            })));
         }
 
         return createdContact;
