@@ -8,7 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useVoiceAgents, VoiceAgent, CreateAgentData, UpdateAgentData } from '@/hooks/useVoiceAgents';
 import { useToast } from '@/hooks/use-toast';
-import { Phone, Bot, Clock, Plus, Edit, Power, Loader2, PhoneCall, PhoneOff, Users, Activity, RefreshCw } from 'lucide-react';
+import { Phone, Bot, Clock, Plus, Edit, Power, Loader2, PhoneCall, PhoneOff, Users, Activity, RefreshCw, Send, Pause, Square, Play } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 import { VoiceAgentDialog } from '@/components/voice-agents';
 import { CreateVoiceCampaignDialog } from '@/components/campaigns/create-voice-campaign-dialog';
 
@@ -35,8 +36,11 @@ export default function VoiceAIPage() {
   const [callError, setCallError] = useState<string>('');
   const [recentCalls, setRecentCalls] = useState<any[]>([]);
   const [activeCalls, setActiveCalls] = useState<any[]>([]);
+  const [voiceCampaigns, setVoiceCampaigns] = useState<any[]>([]);
   const [loadingCalls, setLoadingCalls] = useState(false);
   const [loadingActiveCalls, setLoadingActiveCalls] = useState(false);
+  const [loadingCampaigns, setLoadingCampaigns] = useState(false);
+  const [pausingCampaign, setPausingCampaign] = useState<string | null>(null);
   const [showAgentDialog, setShowAgentDialog] = useState(false);
   const [editingAgent, setEditingAgent] = useState<VoiceAgent | null>(null);
 
@@ -75,12 +79,55 @@ export default function VoiceAIPage() {
     }
   }, []);
 
+  const fetchVoiceCampaigns = useCallback(async () => {
+    setLoadingCampaigns(true);
+    try {
+      const response = await fetch('/api/v1/campaigns?channel=VOICE');
+      if (response.ok) {
+        const data = await response.json();
+        const active = (data.data || []).filter((c: any) => 
+          ['SENDING', 'QUEUED', 'SCHEDULED', 'PENDING'].includes(c.status)
+        );
+        setVoiceCampaigns(active);
+      }
+    } catch (err) {
+      console.error('Error fetching voice campaigns:', err);
+    } finally {
+      setLoadingCampaigns(false);
+    }
+  }, []);
+
+  const pauseCampaign = async (campaignId: string) => {
+    setPausingCampaign(campaignId);
+    try {
+      const response = await fetch(`/api/v1/campaigns/${campaignId}/pause`, {
+        method: 'PUT',
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao pausar campanha');
+      }
+      toast({ title: 'Sucesso', description: data.message });
+      fetchVoiceCampaigns();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro desconhecido';
+      toast({ title: 'Erro', description: message, variant: 'destructive' });
+    } finally {
+      setPausingCampaign(null);
+    }
+  };
+
   useEffect(() => {
     fetchRecentCalls();
     fetchActiveCalls();
-    const interval = setInterval(fetchActiveCalls, 5000);
-    return () => clearInterval(interval);
-  }, [fetchRecentCalls, fetchActiveCalls]);
+    fetchVoiceCampaigns();
+    const callsInterval = setInterval(fetchActiveCalls, 5000);
+    const campaignsInterval = setInterval(fetchVoiceCampaigns, 10000);
+    return () => {
+      clearInterval(callsInterval);
+      clearInterval(campaignsInterval);
+    };
+  }, [fetchRecentCalls, fetchActiveCalls, fetchVoiceCampaigns]);
 
   const makeCall = async () => {
     if (!selectedAgentId) {
@@ -348,6 +395,100 @@ export default function VoiceAIPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {voiceCampaigns.length > 0 && (
+        <Card className="shadow-lg border-2 border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Send className="h-5 w-5 text-blue-600" />
+              Campanhas de Voz em Curso ({voiceCampaigns.length})
+            </CardTitle>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={fetchVoiceCampaigns}
+              disabled={loadingCampaigns}
+            >
+              <RefreshCw className={`h-4 w-4 ${loadingCampaigns ? 'animate-spin' : ''}`} />
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {voiceCampaigns.map((campaign: any) => {
+                const isSending = campaign.status === 'SENDING';
+                const isQueued = campaign.status === 'QUEUED';
+                const progress = campaign.progress || 0;
+                
+                return (
+                  <div 
+                    key={campaign.id} 
+                    className="p-4 rounded-lg bg-white dark:bg-gray-900 border border-blue-200 dark:border-blue-800"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-full ${isSending ? 'bg-blue-100 dark:bg-blue-900' : 'bg-gray-100 dark:bg-gray-800'}`}>
+                          {isSending ? (
+                            <Send className="h-4 w-4 text-blue-600 animate-pulse" />
+                          ) : isQueued ? (
+                            <Clock className="h-4 w-4 text-yellow-600" />
+                          ) : (
+                            <Clock className="h-4 w-4 text-gray-500" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium">{campaign.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {agents.find(a => a.id === campaign.voiceAgentId)?.name || 'Agente de voz'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className={
+                          isSending ? 'bg-blue-500 text-white animate-pulse' :
+                          isQueued ? 'bg-yellow-500 text-white' :
+                          'bg-gray-500 text-white'
+                        }>
+                          {isSending ? 'Enviando' : isQueued ? 'Na fila' : campaign.status === 'SCHEDULED' ? 'Agendada' : campaign.status}
+                        </Badge>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => pauseCampaign(campaign.id)}
+                          disabled={pausingCampaign === campaign.id}
+                        >
+                          {pausingCampaign === campaign.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <>
+                              <Square className="h-4 w-4 mr-1" />
+                              Parar
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                    {isSending && (
+                      <div className="mt-3">
+                        <div className="flex justify-between text-sm text-muted-foreground mb-1">
+                          <span>Progresso</span>
+                          <span>{progress}%</span>
+                        </div>
+                        <Progress value={progress} className="h-2" />
+                      </div>
+                    )}
+                    {campaign.scheduledAt && !isSending && (
+                      <p className="text-sm text-muted-foreground mt-2">
+                        <Clock className="inline h-3 w-3 mr-1" />
+                        Agendada para: {new Date(campaign.scheduledAt).toLocaleString('pt-BR')}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
