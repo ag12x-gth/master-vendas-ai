@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
 import { campaigns } from '@/lib/db/schema';
 import { eq, and, lte, or, inArray } from 'drizzle-orm';
-import { sendSmsCampaign, sendWhatsappCampaign } from '@/lib/campaign-sender';
+import { sendSmsCampaign, sendWhatsappCampaign, sendVoiceCampaign } from '@/lib/campaign-sender';
 
 export interface CampaignProcessingResult {
   processed: number;
@@ -86,6 +86,9 @@ export async function processPendingCampaigns(): Promise<CampaignProcessingResul
         return 'success';
       } else if (channelUpper === 'SMS') {
         await sendSmsCampaign(campaign);
+        return 'success';
+      } else if (channelUpper === 'VOICE') {
+        await sendVoiceCampaign(campaign);
         return 'success';
       }
 

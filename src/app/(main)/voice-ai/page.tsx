@@ -8,8 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useVoiceAgents, VoiceAgent, CreateAgentData, UpdateAgentData } from '@/hooks/useVoiceAgents';
 import { useToast } from '@/hooks/use-toast';
-import { Phone, Bot, Clock, Plus, Edit, Power, Loader2, PhoneCall, PhoneOff } from 'lucide-react';
+import { Phone, Bot, Clock, Plus, Edit, Power, Loader2, PhoneCall, PhoneOff, Users } from 'lucide-react';
 import { VoiceAgentDialog } from '@/components/voice-agents';
+import { CreateVoiceCampaignDialog } from '@/components/campaigns/create-voice-campaign-dialog';
 
 function formatPhoneBR(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -196,6 +197,12 @@ export default function VoiceAIPage() {
             Faça chamadas inteligentes com IA
           </p>
         </div>
+        <CreateVoiceCampaignDialog>
+          <Button className="bg-primary hover:bg-primary/90">
+            <Users className="mr-2 h-4 w-4" />
+            Campanha em Massa
+          </Button>
+        </CreateVoiceCampaignDialog>
       </div>
 
       <Card className="shadow-lg border-2 border-primary/20">

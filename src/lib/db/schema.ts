@@ -488,6 +488,7 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     smsGatewayId: text('sms_gateway_id').references(() => smsGateways.id),
     smsProviderMailingId: text('sms_provider_mailing_id'),
     smsNextContactIndex: integer('sms_next_contact_index').default(0),
+    voiceAgentId: text('voice_agent_id'),
     message: text('message'),
     contactListIds: text('contact_list_ids').array(),
     retryContactIds: text('retry_contact_ids').array(),
@@ -529,6 +530,19 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     status: varchar('status').notNull(),
     failureReason: text('failure_reason'),
     createdAt: timestamp('created_at').defaultNow(),
+  });
+
+  export const voiceDeliveryReports = pgTable('voice_delivery_reports', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
+    contactId: text('contact_id').notNull().references(() => contacts.id, { onDelete: 'cascade' }),
+    voiceAgentId: text('voice_agent_id'),
+    providerCallId: text('provider_call_id'),
+    status: text('status').notNull(),
+    failureReason: text('failure_reason'),
+    duration: integer('duration'),
+    sentAt: timestamp('sent_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
   });
   
 // ==============================

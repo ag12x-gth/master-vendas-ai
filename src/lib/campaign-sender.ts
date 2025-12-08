@@ -1380,3 +1380,213 @@ export async function sendSmsCampaign(campaign: typeof campaigns.$inferSelect): 
         throw error;
     }
 }
+
+
+// ==========================================
+// VOICE CAMPAIGN SENDER
+// ==========================================
+
+import { retellService } from './retell-service';
+import { voiceAgents, voiceCalls, voiceDeliveryReports } from '@/lib/db/schema';
+
+const VOICE_BATCH_SIZE = 5;
+const VOICE_BATCH_DELAY_SECONDS = 10;
+
+interface VoiceCallResult {
+    success: boolean;
+    contactId: string;
+    callId?: string;
+    error?: string;
+}
+
+async function initiateVoiceCall(
+    agent: { retellAgentId: string; id: string },
+    contact: { id: string; phone: string; name?: string | null },
+    companyId: string,
+    fromNumber: string
+): Promise<VoiceCallResult> {
+    try {
+        let toNumber = contact.phone.replace(/\D/g, '');
+        if (!toNumber.startsWith('+')) {
+            if (!toNumber.startsWith('55')) {
+                toNumber = `+55${toNumber}`;
+            } else {
+                toNumber = `+${toNumber}`;
+            }
+        }
+
+        const retellCall = await retellService.createPhoneCall({
+            from_number: fromNumber,
+            to_number: toNumber,
+            override_agent_id: agent.retellAgentId,
+            metadata: {
+                contact_id: contact.id,
+                company_id: companyId,
+            }
+        });
+
+        await db.insert(voiceCalls).values({
+            companyId,
+            agentId: agent.id,
+            contactId: contact.id,
+            retellCallId: retellCall.call_id,
+            direction: 'outbound',
+            fromNumber,
+            toNumber,
+            customerName: contact.name || undefined,
+            status: retellCall.call_status || 'initiated',
+            provider: 'retell',
+        });
+
+        console.log(`[Voice Campaign] ✅ Chamada iniciada para ${toNumber} | CallID: ${retellCall.call_id}`);
+        return {
+            success: true,
+            contactId: contact.id,
+            callId: retellCall.call_id,
+        };
+    } catch (error) {
+        console.error(`[Voice Campaign] ❌ Erro ao iniciar chamada para ${contact.phone}:`, error);
+        return {
+            success: false,
+            contactId: contact.id,
+            error: (error as Error).message,
+        };
+    }
+}
+
+async function logVoiceDelivery(
+    campaignId: string,
+    voiceAgentId: string,
+    results: VoiceCallResult[]
+): Promise<void> {
+    const reports = results.map(result => ({
+        campaignId,
+        contactId: result.contactId,
+        voiceAgentId,
+        providerCallId: result.callId || null,
+        status: result.success ? 'INITIATED' : 'FAILED',
+        failureReason: result.error || null,
+    }));
+
+    if (reports.length > 0) {
+        await db.insert(voiceDeliveryReports).values(reports);
+    }
+}
+
+export async function sendVoiceCampaign(campaign: typeof campaigns.$inferSelect): Promise<void> {
+    if (campaign.sentAt || campaign.completedAt) {
+        console.log(`[Campanha Voice ${campaign.id}] Já foi completada. Ignorando re-trigger.`);
+        return;
+    }
+
+    await db.update(campaigns).set({ status: 'SENDING' }).where(eq(campaigns.id, campaign.id));
+
+    try {
+        if (!campaign.companyId) throw new Error(`Campaign ${campaign.id} is missing companyId.`);
+        if (!campaign.voiceAgentId) throw new Error(`Campaign ${campaign.id} is missing voiceAgentId.`);
+
+        const [agent] = await db.select().from(voiceAgents).where(eq(voiceAgents.id, campaign.voiceAgentId));
+        if (!agent) throw new Error(`Voice Agent ${campaign.voiceAgentId} not found.`);
+        if (!agent.retellAgentId) throw new Error(`Voice Agent ${campaign.voiceAgentId} is not linked to Retell.`);
+
+        const twilioFromNumber = process.env.TWILIO_PHONE_NUMBER;
+        if (!twilioFromNumber) throw new Error('TWILIO_PHONE_NUMBER environment variable is not configured.');
+
+        const isRetryMode = campaign.retryContactIds && campaign.retryContactIds.length > 0;
+
+        if (!isRetryMode && (!campaign.contactListIds || campaign.contactListIds.length === 0)) {
+            await db.update(campaigns).set({ status: 'COMPLETED', completedAt: new Date() }).where(eq(campaigns.id, campaign.id));
+            console.log(`[Campanha Voice ${campaign.id}] Concluída: sem listas de contatos.`);
+            return;
+        }
+
+        let campaignContacts;
+
+        if (isRetryMode) {
+            console.log(`[Campanha Voice ${campaign.id}] Modo retry: ${campaign.retryContactIds!.length} contatos`);
+            campaignContacts = await db
+                .selectDistinct({ phone: contacts.phone, id: contacts.id, name: contacts.name })
+                .from(contacts)
+                .where(inArray(contacts.id, campaign.retryContactIds!));
+        } else {
+            const contactIdsSubquery = db
+                .select({ contactId: contactsToContactLists.contactId })
+                .from(contactsToContactLists)
+                .where(inArray(contactsToContactLists.listId, campaign.contactListIds!));
+            campaignContacts = await db
+                .selectDistinct({ phone: contacts.phone, id: contacts.id, name: contacts.name })
+                .from(contacts)
+                .where(inArray(contacts.id, contactIdsSubquery));
+        }
+
+        if (campaignContacts.length === 0) {
+            await db.update(campaigns).set({ status: 'COMPLETED', completedAt: new Date() }).where(eq(campaigns.id, campaign.id));
+            console.log(`[Campanha Voice ${campaign.id}] Concluída: sem contatos nas listas.`);
+            return;
+        }
+
+        console.log(`[Campanha Voice ${campaign.id}] Iniciando campanha com ${campaignContacts.length} contatos`);
+
+        const batchSize = campaign.batchSize || VOICE_BATCH_SIZE;
+        const batchDelaySeconds = campaign.batchDelaySeconds || VOICE_BATCH_DELAY_SECONDS;
+        const contactBatches = chunkArray(campaignContacts, batchSize);
+
+        let totalSuccess = 0;
+        let totalFailed = 0;
+
+        for (const [batchIndex, batch] of contactBatches.entries()) {
+            const [currentCampaign] = await db
+                .select({ status: campaigns.status })
+                .from(campaigns)
+                .where(eq(campaigns.id, campaign.id));
+
+            if (currentCampaign?.status === 'PAUSED') {
+                console.log(`[Campanha Voice ${campaign.id}] Campanha pausada. Parando no lote ${batchIndex + 1}.`);
+                return;
+            }
+
+            console.log(`[Campanha Voice ${campaign.id}] Processando lote ${batchIndex + 1}/${contactBatches.length} (${batch.length} contatos)`);
+
+            const callPromises = batch.map(contact =>
+                initiateVoiceCall(
+                    { retellAgentId: agent.retellAgentId!, id: agent.id },
+                    contact,
+                    campaign.companyId!,
+                    twilioFromNumber
+                )
+            );
+
+            const results = await Promise.all(callPromises);
+
+            await logVoiceDelivery(campaign.id, campaign.voiceAgentId!, results);
+
+            const batchSuccess = results.filter(r => r.success).length;
+            const batchFailed = results.filter(r => !r.success).length;
+            totalSuccess += batchSuccess;
+            totalFailed += batchFailed;
+
+            console.log(`[Campanha Voice ${campaign.id}] Lote ${batchIndex + 1}: ${batchSuccess} sucesso, ${batchFailed} falhas`);
+
+            if (batchIndex < contactBatches.length - 1) {
+                console.log(`[Campanha Voice ${campaign.id}] Aguardando ${batchDelaySeconds}s antes do próximo lote...`);
+                await sleep(batchDelaySeconds * 1000);
+            }
+        }
+
+        const finalStatus = totalFailed === 0 ? 'COMPLETED' : 
+                          totalSuccess === 0 ? 'FAILED' : 'PARTIAL_FAILURE';
+
+        await db.update(campaigns).set({
+            status: finalStatus,
+            sentAt: new Date(),
+            completedAt: new Date()
+        }).where(eq(campaigns.id, campaign.id));
+
+        console.log(`[Campanha Voice ${campaign.id}] ✅ Campanha ${finalStatus}. Total: ${campaignContacts.length}, Sucesso: ${totalSuccess}, Falhas: ${totalFailed}`);
+
+    } catch (error) {
+        console.error(`Falha crítica na campanha de voz ${campaign.id}:`, error);
+        await db.update(campaigns).set({ status: 'FAILED' }).where(eq(campaigns.id, campaign.id));
+        throw error;
+    }
+}
