@@ -19,8 +19,7 @@ import { Label } from '../ui/label';
 import { Skeleton } from '../ui/skeleton';
 import { StartConversationDialog } from './start-conversation-dialog';
 import { MultiSelectCreatable } from '../ui/multi-select-creatable';
-import { CallButton } from '@/components/vapi-voice/CallButton';
-import { RecentCallsTable } from '@/components/vapi-voice/RecentCallsTable';
+import { RetellCallButton } from '@/components/voice/RetellCallButton';
 import useSWR from 'swr';
 
 interface EditableSectionProps {
@@ -213,7 +212,7 @@ export function ContactProfile({ contactId }: { contactId: string }) {
       <PageHeader title={loading ? 'Carregando...' : contact?.name || 'Perfil do Contato'} description={loading ? '' : "Perfil detalhado do contato."}>
           <div className="flex items-center gap-2">
             {contact && (
-              <CallButton
+              <RetellCallButton
                 contactId={contact.id}
                 customerName={contact.name}
                 customerNumber={contact.phone}
@@ -388,12 +387,33 @@ const fetcher = async (url: string) => {
 
 function ContactCallHistory({ contactId, contact }: { contactId: string; contact: ExtendedContact | null }) {
   const { data, error, isLoading } = useSWR(
-    contactId ? `/api/vapi/history?contactId=${contactId}&limit=10` : null,
+    contactId ? `/api/v1/voice/history?contactId=${contactId}&limit=10` : null,
     fetcher,
     { refreshInterval: 30000 }
   );
 
   const calls = data?.calls || [];
+
+  const getStatusBadge = (status: string) => {
+    const configs: Record<string, { label: string; className: string }> = {
+      completed: { label: 'Atendida', className: 'bg-green-500' },
+      voicemail: { label: 'Voicemail', className: 'bg-blue-500' },
+      no_answer: { label: 'Sem resposta', className: 'bg-yellow-500' },
+      busy: { label: 'Ocupado', className: 'bg-orange-500' },
+      failed: { label: 'Falha', className: 'bg-red-500' },
+      initiated: { label: 'Iniciada', className: 'bg-blue-400' },
+      unknown: { label: 'Desconhecido', className: 'bg-gray-500' },
+    };
+    const config = configs[status] ?? configs['unknown'];
+    return <Badge className={`${config?.className ?? 'bg-gray-500'} text-white text-xs`}>{config?.label ?? 'Desconhecido'}</Badge>;
+  };
+
+  const formatDuration = (seconds: number) => {
+    if (!seconds) return '-';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return mins > 0 ? `${mins}:${secs.toString().padStart(2, '0')}` : `${secs}s`;
+  };
 
   return (
     <Card>
@@ -403,7 +423,7 @@ function ContactCallHistory({ contactId, contact }: { contactId: string; contact
           Histórico de Ligações
         </CardTitle>
         {contact && (
-          <CallButton
+          <RetellCallButton
             contactId={contact.id}
             customerName={contact.name}
             customerNumber={contact.phone}
@@ -427,8 +447,39 @@ function ContactCallHistory({ contactId, contact }: { contactId: string; contact
             <p>Nenhuma ligação registrada com este contato</p>
             <p className="text-sm mt-1">As ligações realizadas aparecerão aqui</p>
           </div>
+        ) : isLoading ? (
+          <div className="space-y-2">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
         ) : (
-          <RecentCallsTable calls={calls} loading={isLoading} />
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-2 px-2">Status</th>
+                  <th className="text-left py-2 px-2">Duração</th>
+                  <th className="text-left py-2 px-2">Data/Hora</th>
+                  <th className="text-left py-2 px-2">Campanha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {calls.map((call: any) => (
+                  <tr key={call.id} className="border-b hover:bg-muted/50">
+                    <td className="py-2 px-2">{getStatusBadge(call.status)}</td>
+                    <td className="py-2 px-2 text-muted-foreground">{formatDuration(call.duration)}</td>
+                    <td className="py-2 px-2 text-xs text-muted-foreground">
+                      {new Date(call.startedAt).toLocaleString('pt-BR')}
+                    </td>
+                    <td className="py-2 px-2 text-xs text-muted-foreground">
+                      {call.campaignName || 'Manual'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </CardContent>
     </Card>

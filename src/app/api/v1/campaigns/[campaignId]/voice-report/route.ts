@@ -19,10 +19,9 @@ export async function GET(
     const campaignsResult = await db
       .select({ id: campaigns.id, channel: campaigns.channel })
       .from(campaigns)
-      .where(and(eq(campaigns.id, campaignId), eq(campaigns.companyId, companyId)))
-      .all();
+      .where(and(eq(campaigns.id, campaignId), eq(campaigns.companyId, companyId)));
 
-    if (!campaignsResult || campaignsResult.length === 0 || campaignsResult[0].channel !== 'VOICE') {
+    if (!campaignsResult || campaignsResult.length === 0 || campaignsResult[0]?.channel !== 'VOICE') {
       return NextResponse.json(
         { error: 'Campaign not found or is not a voice campaign' },
         { status: 404 }
@@ -41,7 +40,7 @@ export async function GET(
         disconnectionReason: voiceDeliveryReports.disconnectionReason,
         sentAt: voiceDeliveryReports.sentAt,
         providerCallId: voiceDeliveryReports.providerCallId,
-        phoneNumber: contacts.phone_number,
+        phoneNumber: contacts.phone,
       })
       .from(voiceDeliveryReports)
       .leftJoin(contacts, eq(voiceDeliveryReports.contactId, contacts.id))

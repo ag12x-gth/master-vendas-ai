@@ -546,7 +546,7 @@ export const notificationStatusEnum = pgEnum('notification_status', [
 
   export const voiceDeliveryReports = pgTable('voice_delivery_reports', {
     id: text('id').primaryKey().default(sql`gen_random_uuid()`),
-    campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
+    campaignId: text('campaign_id').references(() => campaigns.id, { onDelete: 'cascade' }),
     contactId: text('contact_id').notNull().references(() => contacts.id, { onDelete: 'cascade' }),
     voiceAgentId: text('voice_agent_id'),
     providerCallId: text('provider_call_id'),
