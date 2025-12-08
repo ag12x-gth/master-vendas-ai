@@ -1,15 +1,9 @@
-import { Queue, Worker, QueueEvents } from 'bullmq';
-import Redis from 'ioredis';
 import { processPendingCampaigns } from '@/services/campaign-processing.service';
 
-const QUEUE_NAME = 'campaign-trigger-queue';
-const JOB_NAME = 'process-pending-campaigns';
 const POLLING_INTERVAL_MS = 30000;
 
-let campaignTriggerQueue: Queue | null = null;
-let campaignTriggerWorker: Worker | null = null;
-let campaignTriggerEvents: QueueEvents | null = null;
-let redisConnection: Redis | null = null;
+let pollingInterval: NodeJS.Timeout | null = null;
+let isProcessing = false;
 let isInitialized = false;
 let shutdownHandlersRegistered = false;
 
@@ -18,20 +12,8 @@ declare global {
   var __campaignTriggerWorkerInitialized: boolean | undefined;
   // eslint-disable-next-line no-var
   var __campaignTriggerShutdownRegistered: boolean | undefined;
-}
-
-function getRedisConnection(): Redis | null {
-  const redisUrl = process.env.REDIS_URL;
-  if (!redisUrl) {
-    console.warn('[CampaignTriggerWorker] REDIS_URL não configurada. Worker não iniciará.');
-    return null;
-  }
-
-  return new Redis(redisUrl, {
-    maxRetriesPerRequest: null,
-    enableReadyCheck: false,
-    retryStrategy: (times) => Math.min(times * 100, 3000),
-  });
+  // eslint-disable-next-line no-var
+  var __campaignPollingInterval: NodeJS.Timeout | undefined;
 }
 
 function registerShutdownHandlers(): void {
@@ -52,6 +34,33 @@ function registerShutdownHandlers(): void {
   console.log('[CampaignTriggerWorker] 🔧 Registered shutdown handlers (SIGINT, SIGTERM)');
 }
 
+async function processJob(): Promise<void> {
+  if (isProcessing) {
+    return;
+  }
+
+  isProcessing = true;
+  console.log(`[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...`);
+  const startTime = Date.now();
+
+  try {
+    const result = await processPendingCampaigns();
+    const duration = Date.now() - startTime;
+
+    if (result.processed > 0) {
+      console.log(
+        `[CampaignTriggerWorker] ✅ Job concluído em ${duration}ms: ${result.successful} enviadas, ${result.failed} falhas, ${result.skipped} puladas`
+      );
+    } else {
+      console.log(`[CampaignTriggerWorker] ⏳ Nenhuma campanha pendente (${duration}ms)`);
+    }
+  } catch (error) {
+    console.error('[CampaignTriggerWorker] ❌ Erro no job:', error);
+  } finally {
+    isProcessing = false;
+  }
+}
+
 async function initializeCampaignTriggerWorker(): Promise<boolean> {
   if (global.__campaignTriggerWorkerInitialized) {
     console.log('[CampaignTriggerWorker] Worker já inicializado (hot-reload detectado).');
@@ -62,81 +71,17 @@ async function initializeCampaignTriggerWorker(): Promise<boolean> {
     return true;
   }
 
-  const connection = getRedisConnection();
-  if (!connection) {
-    return false;
-  }
-
-  redisConnection = connection;
-
   try {
     registerShutdownHandlers();
 
-    campaignTriggerQueue = new Queue(QUEUE_NAME, { connection });
-
-    campaignTriggerWorker = new Worker(
-      QUEUE_NAME,
-      async (job) => {
-        if (job.name !== JOB_NAME) return;
-
-        console.log(`[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...`);
-        const startTime = Date.now();
-
-        try {
-          const result = await processPendingCampaigns();
-          const duration = Date.now() - startTime;
-
-          if (result.processed > 0) {
-            console.log(
-              `[CampaignTriggerWorker] ✅ Job concluído em ${duration}ms: ${result.successful} enviadas, ${result.failed} falhas, ${result.skipped} puladas`
-            );
-          }
-
-          return result;
-        } catch (error) {
-          console.error('[CampaignTriggerWorker] ❌ Erro no job:', error);
-          throw error;
-        }
-      },
-      {
-        connection,
-        concurrency: 1,
-        removeOnComplete: { count: 100 },
-        removeOnFail: { count: 50 },
-      }
-    );
-
-    campaignTriggerEvents = new QueueEvents(QUEUE_NAME, { connection });
-
-    campaignTriggerWorker.on('completed', (job) => {
-      const result = job.returnvalue;
-      if (result?.processed > 0) {
-        console.log(`[CampaignTriggerWorker] 📊 Job ${job.id} completado:`, result);
-      }
-    });
-
-    campaignTriggerWorker.on('failed', (job, error) => {
-      console.error(`[CampaignTriggerWorker] ❌ Job ${job?.id} falhou:`, error.message);
-    });
-
-    const existingJobs = await campaignTriggerQueue.getRepeatableJobs();
-    for (const job of existingJobs) {
-      if (job.name === JOB_NAME) {
-        await campaignTriggerQueue.removeRepeatableByKey(job.key);
-      }
+    if (global.__campaignPollingInterval) {
+      clearInterval(global.__campaignPollingInterval);
     }
 
-    await campaignTriggerQueue.add(
-      JOB_NAME,
-      {},
-      {
-        repeat: {
-          every: POLLING_INTERVAL_MS,
-        },
-        removeOnComplete: true,
-        removeOnFail: false,
-      }
-    );
+    await processJob();
+
+    pollingInterval = setInterval(processJob, POLLING_INTERVAL_MS);
+    global.__campaignPollingInterval = pollingInterval;
 
     isInitialized = true;
     global.__campaignTriggerWorkerInitialized = true;
@@ -148,14 +93,6 @@ async function initializeCampaignTriggerWorker(): Promise<boolean> {
     return true;
   } catch (error) {
     console.error('[CampaignTriggerWorker] ❌ Falha ao inicializar:', error);
-
-    if (redisConnection) {
-      try {
-        await redisConnection.quit();
-      } catch (_) { /* ignore close error */ }
-      redisConnection = null;
-    }
-
     return false;
   }
 }
@@ -164,24 +101,14 @@ async function shutdownCampaignTriggerWorker(): Promise<void> {
   console.log('[CampaignTriggerWorker] 🛑 Encerrando worker...');
 
   try {
-    if (campaignTriggerWorker) {
-      await campaignTriggerWorker.close();
-      campaignTriggerWorker = null;
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      pollingInterval = null;
     }
 
-    if (campaignTriggerEvents) {
-      await campaignTriggerEvents.close();
-      campaignTriggerEvents = null;
-    }
-
-    if (campaignTriggerQueue) {
-      await campaignTriggerQueue.close();
-      campaignTriggerQueue = null;
-    }
-
-    if (redisConnection) {
-      await redisConnection.quit();
-      redisConnection = null;
+    if (global.__campaignPollingInterval) {
+      clearInterval(global.__campaignPollingInterval);
+      global.__campaignPollingInterval = undefined;
     }
 
     isInitialized = false;
@@ -196,7 +123,4 @@ async function shutdownCampaignTriggerWorker(): Promise<void> {
 export {
   initializeCampaignTriggerWorker,
   shutdownCampaignTriggerWorker,
-  campaignTriggerQueue,
-  QUEUE_NAME,
-  JOB_NAME,
 };

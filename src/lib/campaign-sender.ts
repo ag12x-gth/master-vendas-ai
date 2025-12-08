@@ -1588,11 +1588,15 @@ export async function updateVoiceDeliveryWithOutcome(
 }
 
 export async function sendVoiceCampaign(campaign: typeof campaigns.$inferSelect): Promise<void> {
+    console.log(`[Campanha Voice ${campaign.id}] ▶️ Iniciando sendVoiceCampaign - status=${campaign.status}, name=${campaign.name}`);
+    
     if (campaign.sentAt || campaign.completedAt) {
         console.log(`[Campanha Voice ${campaign.id}] Já foi completada. Ignorando re-trigger.`);
         return;
     }
 
+    console.log(`[Campanha Voice ${campaign.id}] 📋 Verificações: companyId=${campaign.companyId}, voiceAgentId=${campaign.voiceAgentId}, contactListIds=${JSON.stringify(campaign.contactListIds)}`);
+    
     await db.update(campaigns).set({ status: 'SENDING' }).where(eq(campaigns.id, campaign.id));
 
     try {
