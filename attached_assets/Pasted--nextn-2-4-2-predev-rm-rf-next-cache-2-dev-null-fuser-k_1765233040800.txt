@@ -1,0 +1,394 @@
+
+> nextn@2.4.2 predev
+> rm -rf .next/cache 2>/dev/null; fuser -k 5000/tcp 2>/dev/null || true
+
+
+> nextn@2.4.2 dev
+> next dev -p 5000 --hostname 0.0.0.0
+
+  ▲ Next.js 14.2.33
+  - Local:        http://localhost:5000
+  - Network:      http://0.0.0.0:5000
+  - Environments: .env
+  - Experiments (use with caution):
+    · cpus
+    · instrumentationHook
+
+ ✓ Starting...
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.com/vercel/next.js/issues
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+ ○ Compiling /instrumentation ...
+ ✓ Compiled /instrumentation in 10.3s (1433 modules)
+[Instrumentation] Iniciando serviços do servidor...
+⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).
+[Baileys] Creating new SessionManager singleton (ID: sm_1765232824479_4kriw3)
+[Baileys] SessionManager instance created and stored globally
+🔧 [WebhookQueue] Creating new WebhookQueueService singleton instance
+🔧 [WebhookQueue] Registered shutdown handlers (SIGINT, SIGTERM)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+[CampaignTriggerWorker] 🔧 Registered shutdown handlers (SIGINT, SIGTERM)
+✅ [WebhookQueue] BullMQ Worker started with concurrency: 10
+✅ [WebhookQueue] BullMQ service initialized with Redis-backed queue
+[CampaignTriggerWorker] ✅ Worker iniciado com sucesso. Polling a cada 30s
+[Instrumentation] ✅ Worker de campanhas iniciado com sucesso
+ ✓ Ready in 15.3s
+ ○ Compiling /api/v1/voice/webhooks/retell ...
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+ ✓ Compiled /api/v1/campaigns in 10.6s (3187 modules)
+ ✓ Compiled / in 0ms (2992 modules)
+ ○ Compiling /api/webhooks/meta/[slug] ...
+ ✓ Compiled /api/webhooks/meta/[slug] in 5.5s (3558 modules)
+ POST /api/v1/voice/webhooks/retell 200 in 10213ms
+🔧 [Redis] Creating new HybridRedisClient singleton instance
+🔍 [Redis] Detecting configuration... REDIS_URL=true, Upstash=true
+🚀 Using REDIS_URL for connection...
+🔧 [Redis] Registered shutdown handlers (SIGINT, SIGTERM)
+ POST /api/v1/voice/webhooks/retell 200 in 9924ms
+ ✓ Compiled in 668ms (286 modules)
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:VOICE::: - Fetching from source...
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+[2025-12-08T22:27:26.481Z] [ERROR] Retell webhook processing error {"error":{}}
+[2025-12-08T22:27:26.482Z] [ERROR] Retell webhook processing error {"error":{}}
+[2025-12-08T22:27:26.483Z] [ERROR] Retell webhook processing error {"error":{}}
+[2025-12-08T22:27:26.483Z] [ERROR] Retell webhook processing error {"error":{}}
+✅ Redis connected successfully - Using distributed Redis cache
+📡 Redis endpoint: rediss://default:***@vital-sawfish-40850.upstash.io:6379
+ GET / 307 in 8675ms
+ GET /api/v1/notifications?limit=20 200 in 2191ms
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:VOICE::: - TTL: 300000ms - Total time: 745ms
+ GET /api/v1/campaigns?channel=VOICE&limit=10&offset=0 200 in 16241ms
+ GET /api/v1/notifications?limit=20 200 in 9207ms
+ GET /api/v1/notifications?limit=20 200 in 19636ms
+⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).
+🔧 [WebhookQueue] Creating new WebhookQueueService singleton instance
+🔧 [WebhookQueue] Registered shutdown handlers (SIGINT, SIGTERM)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+🔔 [Meta Webhook] 2025-12-08T22:27:27.625Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [Meta Webhook] Conexão ativa: 5865_Antonio_Roseli_BM (Phone ID: 391262387407327)
+✅ [Meta Webhook] Assinatura HMAC validada
+📦 [Meta Webhook] Payload recebido: {
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "399691246563833",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "556237715865",
+              "phone_number_id": "391262387407327"
+            },
+            "statuses": [
+              {
+                "id": "wamid.HBgNNTUxMTk1OTc5NTQ4NhUCABEYEjUxN0RERkVEOEIwMjIzMUUzNwA=",
+                "status": "read",
+                "timestamp": "1764805504",
+                "recipient_id": "5511959795486",
+                "conversation": {
+                  "id": "cb5015b8a1ae4728245eac961db764f0",
+                  "origin": {
+                    "type": "marketing"
+                  }
+                },
+                "pricing": {
+                  "billable": true,
+                  "pricing_model": "PMP",
+                  "category": "marketing",
+                  "type": "regular"
+                }
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
+✅ [Meta Webhook] 2025-12-08T22:27:27.625Z - Webhook processado com sucesso
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 200 in 3829ms
+ ○ Compiling /dashboard ...
+🛑 [WebhookQueue] Initiating graceful shutdown...
+✅ [WebhookQueue] Graceful shutdown complete
+✅ [WebhookQueue] BullMQ Worker started with concurrency: 10
+✅ [WebhookQueue] BullMQ service initialized with Redis-backed queue
+ ✓ Compiled /dashboard in 11.4s (6880 modules)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+[2025-12-08T22:27:39.022Z] [INFO] Retell webhook received {"event":"call_analyzed","callId":"call_6837edc0c96a3be5548948c5fc0","agentId":"agent_c96d270a5cad5d4608bb72ee08"}
+[2025-12-08T22:27:39.024Z] [INFO] Processing call_analyzed event {"callId":"call_6837edc0c96a3be5548948c5fc0","hasSummary":false}
+[2025-12-08T22:27:39.025Z] [INFO] Retell webhook received {"event":"call_ended","callId":"call_6837edc0c96a3be5548948c5fc0","agentId":"agent_c96d270a5cad5d4608bb72ee08"}
+[2025-12-08T22:27:39.025Z] [INFO] Processing call_ended event {"callId":"call_6837edc0c96a3be5548948c5fc0","durationMs":46291,"disconnectionReason":"user_hangup","recordingUrl":"https://dxc03zgurdly9.cloudfront.net/0a809e8d33c7b2fef873c11b65c67ecc6aba82462ffadc60cc19e78e7ca15806/recording.wav"}
+[2025-12-08T22:27:39.025Z] [INFO] Call outcome determined {"callId":"call_6837edc0c96a3be5548948c5fc0","disconnectionReason":"user_hangup","callOutcome":"human"}
+[2025-12-08T22:27:39.026Z] [INFO] Retell webhook processed {"event":"call_analyzed","callId":"call_6837edc0c96a3be5548948c5fc0","processingTimeMs":6}
+ POST /api/v1/voice/webhooks/retell 200 in 9203ms
+🔔 [Meta Webhook] 2025-12-08T22:27:39.148Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+ POST /api/v1/voice/webhooks/retell 200 in 9827ms
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [Meta Webhook] Conexão ativa: 5865_Antonio_Roseli_BM (Phone ID: 391262387407327)
+✅ [Meta Webhook] Assinatura HMAC validada
+📦 [Meta Webhook] Payload recebido: {
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "399691246563833",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "556237715865",
+              "phone_number_id": "391262387407327"
+            },
+            "contacts": [
+              {
+                "profile": {
+                  "name": "Reinaldo 💎🔍tio patinhas"
+                },
+                "wa_id": "553191531315"
+              }
+            ],
+            "messages": [
+              {
+                "context": {
+                  "forwarded": true
+                },
+                "from": "553191531315",
+                "id": "wamid.HBgMNTUzMTkxNTMxMzE1FQIAEhggQUM4QzFENzgxOTJGRjlCMUIwRTZDNjkwNUQ1MTk2MjMA",
+                "timestamp": "1764865454",
+                "text": {
+                  "body": "https://chat.whatsapp.com/0YC6u4JtzYdK7nMcjfbXLK"
+                },
+                "type": "text"
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
+📨 [Meta Webhook] Nova mensagem de Reinaldo 💎🔍tio patinhas (+553191531315): "https://chat.whatsapp.com/0YC6u4JtzYdK7nMcjfbXLK"
+✅ [Meta Webhook] 2025-12-08T22:27:39.148Z - Webhook processado com sucesso
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 200 in 11185ms
+ GET /dashboard 200 in 12177ms
+[Voice Delivery] ✅ Atualizado report call_6837edc0c96a3be5548948c5fc0: outcome=human, retry=false
+✅ [Meta Webhook] Conexão encontrada: 5865_Antonio_Roseli_BM
+✅ [Meta Webhook] Contato existente encontrado: Reinaldo (ID: 8c894a22-6e97-4f58-ab2f-e5bcded7bb2f)
+[2025-12-08T22:27:39.639Z] [INFO] Retell webhook received {"event":"call_ended","callId":"call_6837edc0c96a3be5548948c5fc0","agentId":"agent_c96d270a5cad5d4608bb72ee08"}
+[2025-12-08T22:27:39.639Z] [INFO] Processing call_ended event {"callId":"call_6837edc0c96a3be5548948c5fc0","durationMs":46291,"disconnectionReason":"user_hangup","recordingUrl":"https://dxc03zgurdly9.cloudfront.net/0a809e8d33c7b2fef873c11b65c67ecc6aba82462ffadc60cc19e78e7ca15806/recording.wav"}
+[2025-12-08T22:27:39.640Z] [INFO] Call outcome determined {"callId":"call_6837edc0c96a3be5548948c5fc0","disconnectionReason":"user_hangup","callOutcome":"human"}
+⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).
+✅ [Meta Webhook] Conversa existente atualizada (ID: ab6401fe-798a-4978-b459-3878a65ef1b2)
+[Voice Delivery] ✅ Atualizado report call_6837edc0c96a3be5548948c5fc0: outcome=human, retry=false
+✅ [Meta Webhook] Mensagem salva no banco (ID: e53fc7a0-fbb7-4ad7-b9c2-27b18aec4691) na conversa ab6401fe-798a-4978-b459-3878a65ef1b2
+[Webhook] Dispatching message_received for message e53fc7a0-fbb7-4ad7-b9c2-27b18aec4691
+[WebhookDispatcher] No active subscriptions for event message_received in company 682b91ea-15ee-42da-8855-70309b237008
+🤖 [Meta Webhook] Disparando automações para conversa ab6401fe-798a-4978-b459-3878a65ef1b2
+[Automation Engine] Gatilho recebido para a conversa ab6401fe-798a-4978-b459-3878a65ef1b2 e mensagem e53fc7a0-fbb7-4ad7-b9c2-27b18aec4691
+[2025-12-08T22:27:39.836Z] [WARN] Cannot sync call - missing required fields {"externalCallId":"call_6837edc0c96a3be5548948c5fc0"}
+[2025-12-08T22:27:39.836Z] [INFO] Retell webhook processed {"event":"call_ended","callId":"call_6837edc0c96a3be5548948c5fc0","processingTimeMs":816}
+🔔 [Meta Webhook] 2025-12-08T22:27:39.886Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+[2025-12-08T22:27:39.918Z] [WARN] Cannot sync call - missing required fields {"externalCallId":"call_6837edc0c96a3be5548948c5fc0"}
+[2025-12-08T22:27:39.918Z] [INFO] Retell webhook processed {"event":"call_ended","callId":"call_6837edc0c96a3be5548948c5fc0","processingTimeMs":280}
+ POST /api/v1/voice/webhooks/retell 200 in 357ms
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [Meta Webhook] Conexão ativa: 5865_Antonio_Roseli_BM (Phone ID: 391262387407327)
+✅ [Meta Webhook] Assinatura HMAC validada
+📦 [Meta Webhook] Payload recebido: {
+  "object": "whatsapp_business_account",
+  "entry": [
+    {
+      "id": "399691246563833",
+      "changes": [
+        {
+          "value": {
+            "messaging_product": "whatsapp",
+            "metadata": {
+              "display_phone_number": "556237715865",
+              "phone_number_id": "391262387407327"
+            },
+            "statuses": [
+              {
+                "id": "wamid.HBgMNTU2Mjk5NzkxMzU2FQIAERgSRjY5QTExRjc2MjkxMzkzQTJCAA==",
+                "status": "read",
+                "timestamp": "1765071453",
+                "recipient_id": "556299791356",
+                "conversation": {
+                  "id": "fef34456551f3e812d6be10da1636563",
+                  "origin": {
+                    "type": "marketing"
+                  }
+                },
+                "pricing": {
+                  "billable": true,
+                  "pricing_model": "PMP",
+                  "category": "marketing",
+                  "type": "regular"
+                }
+              }
+            ]
+          },
+          "field": "messages"
+        }
+      ]
+    }
+  ]
+}
+✅ [Meta Webhook] 2025-12-08T22:27:39.886Z - Webhook processado com sucesso
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 200 in 157ms
+🔧 [WebhookQueue] Creating new WebhookQueueService singleton instance
+🔧 [WebhookQueue] Registered shutdown handlers (SIGINT, SIGTERM)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+[Automation|INFO|Conv:ab6401fe-798a-4978-b459-3878a65ef1b2|Rule:N/A] Lead encontrado no funil "Workshop - Terça" (Tipo: SALES, Estágio: ca2242c3-edf9-43d6-9bc2-f22102b18d80) {}
+[Automation|INFO|Conv:ab6401fe-798a-4978-b459-3878a65ef1b2|Rule:N/A] ✅ [Prioridade 2] Agente IA selecionado (nível funil): Funil="Workshop - Terça", Tipo="PASSIVE" {}
+[Automation|INFO|Conv:ab6401fe-798a-4978-b459-3878a65ef1b2|Rule:N/A] Conversa roteada para o Agente de IA (Persona ID: 7f53341e-f6b7-41cb-b919-f05b82409ba6). {}
+[Automation|INFO|Conv:ab6401fe-798a-4978-b459-3878a65ef1b2|Rule:N/A] Usando persona: Atendimento 1 (Provider: OPENAI, Model: gpt-4o-mini) {}
+[Automation|INFO|Conv:ab6401fe-798a-4978-b459-3878a65ef1b2|Rule:N/A] 🕒 Delay humanizado: 61s (primeira resposta (24h), range: 33-68s) {}
+🛑 [WebhookQueue] Initiating graceful shutdown...
+✅ [WebhookQueue] Graceful shutdown complete
+✅ [WebhookQueue] BullMQ Worker started with concurrency: 10
+✅ [WebhookQueue] BullMQ service initialized with Redis-backed queue
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:VOICE::: - Fetching from source...
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:VOICE::: - TTL: 300000ms - Total time: 38ms
+ GET /api/v1/campaigns?channel=VOICE&limit=10&offset=0 200 in 184ms
+ ○ Compiling /api/v1/dashboard/stats ...
+ ✓ Compiled /api/v1/dashboard/charts in 14.8s (4947 modules)
+ ✓ Compiled (4990 modules)
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:::: - Fetching from source...
+📊 [API CACHE MISS] Key: dashboard-stats:682b91ea-15ee-42da-8855-70309b237008:2025-11-09T00:00:00.000Z:2025-12-08T23:59:59.999Z - Fetching from source...
+ GET /api/v1/dashboard/charts?type=attendance&startDate=2025-11-09T03%3A00%3A00.000Z&endDate=2025-12-08T22%3A27%3A39.142Z 200 in 18529ms
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:::: - TTL: 300000ms - Total time: 265ms
+ GET /api/v1/campaigns 200 in 16942ms
+📊 [API CACHE SET] Key: dashboard-stats:682b91ea-15ee-42da-8855-70309b237008:2025-11-09T00:00:00.000Z:2025-12-08T23:59:59.999Z - TTL: 60000ms - Total time: 270ms
+ GET /api/v1/dashboard/stats?startDate=2025-11-09T03%3A00%3A00.000Z&endDate=2025-12-08T22%3A27%3A39.142Z 200 in 20270ms
+ GET /api/v1/notifications?limit=20 200 in 20295ms
+📊 [API CACHE HIT] Key: dashboard-stats:682b91ea-15ee-42da-8855-70309b237008:2025-11-09T00:00:00.000Z:2025-12-08T23:59:59.999Z - Fetch time: 0ms
+ GET /api/v1/dashboard/stats?startDate=2025-11-09T03%3A00%3A00.000Z&endDate=2025-12-08T22%3A27%3A39.142Z 200 in 47ms
+ GET /api/v1/connections/health 200 in 20564ms
+ GET /api/v1/dashboard/charts?type=attendance&startDate=2025-11-09T03%3A00%3A00.000Z&endDate=2025-12-08T22%3A27%3A39.142Z 200 in 141ms
+📊 [API CACHE HIT] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:::: - Fetch time: 0ms
+ GET /api/v1/campaigns 200 in 76ms
+ GET /api/v1/connections/health 200 in 569ms
+ ○ Compiling /api/v1/ia/metrics ...
+ ✓ Compiled /api/v1/ia/metrics in 634ms (4993 modules)
+📊 [API CACHE MISS] Key: ia-metrics:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+📊 [API CACHE SET] Key: ia-metrics:682b91ea-15ee-42da-8855-70309b237008 - TTL: 30000ms - Total time: 310ms
+ GET /api/v1/ia/metrics 200 in 1199ms
+📊 [API CACHE HIT] Key: ia-metrics:682b91ea-15ee-42da-8855-70309b237008 - Fetch time: 0ms
+ GET /api/v1/ia/metrics 200 in 56ms
+ GET /api/v1/notifications?limit=20 200 in 198ms
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+ GET /api/v1/notifications?limit=20 200 in 173ms
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+ GET /api/v1/notifications?limit=20 200 in 157ms
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:VOICE::: - Fetching from source...
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:VOICE::: - TTL: 300000ms - Total time: 33ms
+ GET /api/v1/campaigns?channel=VOICE&limit=10&offset=0 200 in 106ms
+ GET /api/v1/notifications?limit=20 200 in 192ms
+ GET / 307 in 145ms
+ GET /dashboard 200 in 225ms
+ GET / 307 in 53ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 3.3s (6969 modules)
+ GET /login 200 in 1842ms
+ GET /dashboard 200 in 4022ms
+ ○ Compiling /api/auth/providers-status ...
+ ✓ Compiled /api/auth/providers-status in 2.8s (5017 modules)
+ ✓ Compiled in 1ms (5017 modules)
+ ✓ Compiled in 2ms (5017 modules)
+ ✓ Compiled in 1ms (5017 modules)
+📊 [API CACHE MISS] Key: dashboard-stats:682b91ea-15ee-42da-8855-70309b237008:2025-11-09T00:00:00.000Z:2025-12-08T23:59:59.999Z - Fetching from source...
+📊 [API CACHE COALESCE] Key: dashboard-stats:682b91ea-15ee-42da-8855-70309b237008:2025-11-09T00:00:00.000Z:2025-12-08T23:59:59.999Z - Waiting for existing fetch...
+ GET /api/v1/connections/health 200 in 13588ms
+📊 [API CACHE SET] Key: dashboard-stats:682b91ea-15ee-42da-8855-70309b237008:2025-11-09T00:00:00.000Z:2025-12-08T23:59:59.999Z - TTL: 60000ms - Total time: 582ms
+ GET /api/v1/dashboard/stats?startDate=2025-11-09T03%3A00%3A00.000Z&endDate=2025-12-08T22%3A28%3A26.234Z 200 in 13610ms
+ GET /api/v1/dashboard/stats?startDate=2025-11-09T03%3A00%3A00.000Z&endDate=2025-12-08T22%3A28%3A26.234Z 200 in 13574ms
+ GET /api/v1/connections/health 200 in 13739ms
+[Automation|INFO|Conv:ab6401fe-798a-4978-b459-3878a65ef1b2|Rule:N/A] Incluindo 2 mensagens do histórico (incluindo mensagem atual) {}
+[Automation|INFO|Conv:ab6401fe-798a-4978-b459-3878a65ef1b2|Rule:N/A] Idioma detectado: pt {}
+ ✓ Compiled in 0ms (5017 modules)
+[Automation|INFO|Conv:ab6401fe-798a-4978-b459-3878a65ef1b2|Rule:N/A] Sistema RAG ativo: 20 seções carregadas (1808 tokens estimados) {}
+ GET /api/v1/notifications?limit=20 200 in 14023ms
+ ✓ Compiled in 0ms (5017 modules)
+[Automation|ERROR|Conv:ab6401fe-798a-4978-b459-3878a65ef1b2|Rule:N/A] Falha ao comunicar com a IA: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors. {}
+ GET /api/v1/dashboard/charts?type=attendance&startDate=2025-11-09T03%3A00%3A00.000Z&endDate=2025-12-08T22%3A28%3A26.234Z 200 in 14506ms
+✅ [Meta Webhook] Processamento completo para Reinaldo 💎🔍tio patinhas
+ ✓ Compiled in 1ms (5017 modules)
+ GET /api/v1/notifications?limit=20 200 in 7602ms
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:VOICE::: - Fetching from source...
+📊 [API CACHE MISS] Key: ia-metrics:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:::: - Fetching from source...
+📊 [API CACHE COALESCE] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:::: - Waiting for existing fetch...
+📊 [API CACHE COALESCE] Key: ia-metrics:682b91ea-15ee-42da-8855-70309b237008 - Waiting for existing fetch...
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:VOICE::: - TTL: 300000ms - Total time: 247ms
+ GET /api/v1/campaigns?channel=VOICE&limit=10&offset=0 200 in 12321ms
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:::: - TTL: 300000ms - Total time: 184ms
+ GET /api/v1/campaigns 200 in 13005ms
+ GET /api/v1/campaigns 200 in 13011ms
+ GET /api/v1/dashboard/charts?type=attendance&startDate=2025-11-09T03%3A00%3A00.000Z&endDate=2025-12-08T22%3A28%3A26.234Z 200 in 13285ms
+ GET /login 200 in 6478ms
+📊 [API CACHE SET] Key: ia-metrics:682b91ea-15ee-42da-8855-70309b237008 - TTL: 30000ms - Total time: 1021ms
+ GET /api/v1/ia/metrics 200 in 10153ms
+ GET /api/v1/ia/metrics 200 in 13834ms
+ GET /api/v1/connections/health 200 in 1003ms
+ ⚠ Blocked cross-origin request from 127.0.0.1 to /_next/* resource. To allow this, configure "allowedDevOrigins" in next.config
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 3.9s (3922 modules)
+ GET /api/v1/notifications?limit=20 200 in 6671ms
+ GET /api/v1/notifications?limit=20 200 in 359ms
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+ GET /api/v1/notifications?limit=20 200 in 368ms
+ GET /api/v1/notifications?limit=20 200 in 556ms
+ GET /api/v1/notifications?limit=20 200 in 271ms
