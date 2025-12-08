@@ -89,7 +89,31 @@ Preferred communication style: Simple, everyday language.
 - **Firebase**: (Optional) App Hosting and Secret Manager.
 - **Replit**: Development environment, Object Storage.
 
-## Recent Changes (December 8, 2025 - Session 5)
+## Recent Changes (December 8, 2025 - Session 6)
+1. **RetellCallButton Component** - New "Ligar" button for contact profiles using Retell API:
+   - `src/components/voice/RetellCallButton.tsx`: Button component with confirmation dialog
+   - `src/hooks/useRetellCalls.ts`: React hook for managing Retell call state
+   - `src/app/api/v1/voice/initiate-call/route.ts`: API endpoint to initiate calls
+   - `src/app/api/v1/voice/history/route.ts`: API endpoint for call history by contact
+   - Phone number normalization: Properly handles +55 prefix without duplication
+   - Creates `voiceDeliveryReport` record for direct calls (non-campaign)
+
+2. **Voice Campaign KPIs Fixed**:
+   - Fixed `contacts.phone` field reference (was using non-existent `phone_number`)
+   - Removed invalid `.all()` method from Drizzle queries
+   - Campaign details modal now displays real call metrics
+
+3. **Schema Change - Nullable campaignId**:
+   - `voice_delivery_reports.campaign_id` is now nullable (previously NOT NULL)
+   - Allows direct calls from contact profiles without requiring a campaign
+   - Applied via SQL: `ALTER TABLE voice_delivery_reports ALTER COLUMN campaign_id DROP NOT NULL`
+
+4. **History API Company Filtering Fix**:
+   - Fixed company isolation for non-campaign calls
+   - Uses `campaignCompanyId` OR `contactCompanyId` for filtering
+   - Ensures calls without campaigns still appear in history
+
+## Previous Changes (December 8, 2025 - Session 5)
 1. **🎉 RETELL WEBHOOK REGISTERED** - CRITICAL ISSUE RESOLVED:
    - **Problem**: Voice campaigns initiated successfully, but DB never updated (all records stuck at INITIATED/pending)
    - **Root Cause**: Retell webhook not registered - calls created but no callbacks sent to server
