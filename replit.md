@@ -83,27 +83,26 @@ Preferred communication style: Simple, everyday language.
 - **Firebase**: (Optional) App Hosting and Secret Manager.
 - **Replit**: Development environment, Object Storage.
 
-## Recent Changes (December 8, 2025 - Session 2)
+## Recent Changes (December 8, 2025 - Session 3)
+1. **Campaign Details Modal** (`src/components/campaigns/campaign-details-modal.tsx`):
+   - Professional modal with detailed campaign information
+   - Channel-aware UI: Voice campaigns show "Chamadas Realizadas/Atendidas/Não Atendidas"
+   - WhatsApp/SMS campaigns show "Enviados/Entregues/Lidos/Falhas"
+   - Progress bar and statistics with percentages
+   - Configuration details: batch size, delay, retry settings
+   - Cronogram with creation, start, completion, scheduling dates
+   - Action buttons: Pause, Resume, Cancel with confirmation dialogs
+   - Retry-failed button hidden for Voice campaigns (not supported)
+   - Click-to-open from campaign cards in Voice AI page
+   - Auto-refresh after actions
+2. **Voice AI Page Integration**:
+   - CampaignDetailsModal integrated with click handlers
+   - stopPropagation on action buttons to prevent modal opening on action clicks
+   - Proper state management for selected campaign
+
+## Previous Changes (December 8, 2025 - Session 2)
 1. **Archived Agents Filtering**: Added filter to hide deleted agents (status = 'archived') from display.
-2. **Agent Status Toggle Enhanced**: 
-   - Loading spinner while updating
-   - Toast notifications for success/error
-   - Automatic list refresh after status change
-   - Prevents multiple simultaneous updates
-3. **Agent Status Filter UI**: Three-button filter (Todos/Ativos/Inativos) with pagination reset on filter change.
-4. **Chamadas em Curso (Active Calls) - ALWAYS VISIBLE**:
-   - Section now appears regardless of active call count
-   - Loading spinner while fetching
-   - Empty state: "Nenhuma chamada em andamento" when no active calls
-   - Updates every 5 seconds automatically
-   - Shows: Phone number, Agent name, Status badge, Timestamp
-5. **Campanhas de Voz - ALWAYS VISIBLE**:
-   - Section now appears regardless of campaign count
-   - Fetches ALL voice campaigns (not just active ones)
-   - Status indicators: Enviando, Na fila, Pausada, Concluída, Falha, Agendada
-   - Pause button only for SENDING/QUEUED campaigns
-   - Progress bar for campaigns being sent
-   - Sorted by creation date (newest first)
-   - Shows creation timestamp for all campaigns
-   - Empty state: "Nenhuma campanha de voz criada"
-   - Updates every 10 seconds automatically
+2. **Agent Status Toggle Enhanced**: Loading spinner, toast notifications, auto-refresh.
+3. **Agent Status Filter UI**: Three-button filter (Todos/Ativos/Inativos) with pagination reset.
+4. **Chamadas em Curso (Active Calls) - ALWAYS VISIBLE**: Shows active calls with empty state.
+5. **Campanhas de Voz - ALWAYS VISIBLE**: Shows ALL voice campaigns with status indicators.
