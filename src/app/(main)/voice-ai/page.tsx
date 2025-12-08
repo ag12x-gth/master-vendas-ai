@@ -43,23 +43,28 @@ export default function VoiceAIPage() {
   const [pausingCampaign, setPausingCampaign] = useState<string | null>(null);
   const [showAgentDialog, setShowAgentDialog] = useState(false);
   const [editingAgent, setEditingAgent] = useState<VoiceAgent | null>(null);
+  const [callsPage, setCallsPage] = useState(1);
+  const [callsTotal, setCallsTotal] = useState(0);
+  const itemsPerPage = 10;
 
   const availableAgents = agents.filter(a => a.status !== 'archived');
 
   const fetchRecentCalls = useCallback(async () => {
     setLoadingCalls(true);
     try {
-      const response = await fetch('/api/v1/voice/calls?limit=10');
+      const offset = (callsPage - 1) * itemsPerPage;
+      const response = await fetch(`/api/v1/voice/calls?limit=${itemsPerPage}&offset=${offset}`);
       if (response.ok) {
         const data = await response.json();
         setRecentCalls(data.data || []);
+        setCallsTotal(data.total || 0);
       }
     } catch (err) {
       console.error('Error fetching calls:', err);
     } finally {
       setLoadingCalls(false);
     }
-  }, []);
+  }, [callsPage, itemsPerPage]);
 
   const fetchActiveCalls = useCallback(async () => {
     setLoadingActiveCalls(true);
@@ -577,38 +582,69 @@ export default function VoiceAIPage() {
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
-          ) : recentCalls.length === 0 ? (
+          ) : recentCalls.length === 0 && callsTotal === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Phone className="h-12 w-12 mx-auto mb-2 opacity-50" />
               <p>Nenhuma chamada recente</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b text-left text-sm text-muted-foreground">
-                    <th className="pb-3 font-medium">Data</th>
-                    <th className="pb-3 font-medium">Agente</th>
-                    <th className="pb-3 font-medium">Número</th>
-                    <th className="pb-3 font-medium">Duração</th>
-                    <th className="pb-3 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentCalls.map(call => (
-                    <tr key={call.id} className="border-b last:border-0">
-                      <td className="py-3 text-sm">{formatDate(call.startedAt || call.createdAt)}</td>
-                      <td className="py-3 text-sm">
-                        {agents.find(a => a.id === call.agentId)?.name || '-'}
-                      </td>
-                      <td className="py-3 text-sm font-mono">{call.toNumber}</td>
-                      <td className="py-3 text-sm">{formatDuration(call.duration)}</td>
-                      <td className="py-3">{getStatusBadge(call.status)}</td>
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b text-left text-sm text-muted-foreground">
+                      <th className="pb-3 font-medium">Data</th>
+                      <th className="pb-3 font-medium">Agente</th>
+                      <th className="pb-3 font-medium">Número</th>
+                      <th className="pb-3 font-medium">Duração</th>
+                      <th className="pb-3 font-medium">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {recentCalls.map(call => (
+                      <tr key={call.id} className="border-b last:border-0">
+                        <td className="py-3 text-sm">{formatDate(call.startedAt || call.createdAt)}</td>
+                        <td className="py-3 text-sm">
+                          {agents.find(a => a.id === call.agentId)?.name || '-'}
+                        </td>
+                        <td className="py-3 text-sm font-mono">{call.toNumber}</td>
+                        <td className="py-3 text-sm">{formatDuration(call.duration)}</td>
+                        <td className="py-3">{getStatusBadge(call.status)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              
+              {callsTotal > itemsPerPage && (
+                <div className="mt-6 flex items-center justify-between">
+                  <div className="text-sm text-muted-foreground">
+                    Mostrando {(callsPage - 1) * itemsPerPage + 1} a {Math.min(callsPage * itemsPerPage, callsTotal)} de {callsTotal} chamadas
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCallsPage(p => Math.max(1, p - 1))}
+                      disabled={callsPage === 1 || loadingCalls}
+                    >
+                      Anterior
+                    </Button>
+                    <div className="flex items-center gap-2 px-3 py-1 border rounded-md text-sm">
+                      <span>Página {callsPage} de {Math.ceil(callsTotal / itemsPerPage)}</span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCallsPage(p => p + 1)}
+                      disabled={callsPage >= Math.ceil(callsTotal / itemsPerPage) || loadingCalls}
+                    >
+                      Próxima
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>

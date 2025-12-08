@@ -38,6 +38,7 @@ Preferred communication style: Simple, everyday language.
 - **Atomic Lua Script Rate Limiting**: Using Redis/EnhancedCache.
 - **Proactive Token Monitoring**: Meta access token expiration monitoring.
 - **Deployment Configuration**: VM (Persistent) for Socket.IO, BullMQ, and Baileys; `/health` endpoint; Port 5000.
+- **Voice AI Recent Calls Pagination**: Server-side pagination with offset/limit on `/api/v1/voice/calls` endpoint, supporting up to 10000 total calls calculation for accurate page counts.
 
 ## External Dependencies
 ### Third-Party APIs
@@ -53,6 +54,7 @@ Preferred communication style: Simple, everyday language.
 - **Retell API Notes**: `/v2/list-calls` requires POST method (not GET).
 - **Concurrent Limits**: Retell 20 simultaneous calls (Pay-As-You-Go), Twilio 1 CPS.
 - **Important**: `campaign-sender.ts` must NOT have `'use server'` directive (causes silent failures in BullMQ context).
+- **Recent Calls Pagination** (December 8, 2025): Added server-side pagination with offset/limit; 10 calls per page; total count calculated from first 10000 calls for accurate page calculation.
 
 ### AI/ML Services
 - **OpenAI**: GPT-3.5-turbo, GPT-4, GPT-4o via `@ai-sdk/openai`.
@@ -66,3 +68,12 @@ Preferred communication style: Simple, everyday language.
 - **PostgreSQL**: Neon (hosted database).
 - **Firebase**: (Optional) App Hosting and Secret Manager.
 - **Replit**: Development environment, Object Storage.
+
+## Recent Changes (December 8, 2025)
+1. **Login Page Hydration Fix**: Added `suppressHydrationWarning` wrapper to `VersionBadge` component to resolve React hydration mismatch errors.
+2. **Recent Calls Pagination**: 
+   - Added pagination state management (`callsPage`, `callsTotal`) to Voice AI page
+   - Modified `fetchRecentCalls()` to use offset-based pagination with 10 items per page
+   - Added pagination controls (Previous/Next buttons, current page display) below the calls table
+   - Updated `/api/v1/voice/calls` endpoint to calculate and return accurate total count
+   - Shows "X to Y of Z chamadas" with proper page navigation

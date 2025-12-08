@@ -15,14 +15,19 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50', 10);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
 
+    // Get current page of calls
     const calls = await voiceAIPlatform.listCalls({ limit, offset });
 
-    logger.info('Voice calls listed', { count: calls.length, limit, offset });
+    // Get total count (request with high limit to estimate total)
+    const allCalls = await voiceAIPlatform.listCalls({ limit: 10000, offset: 0 });
+    const total = allCalls.length;
+
+    logger.info('Voice calls listed', { count: calls.length, total, limit, offset });
 
     return NextResponse.json({
       success: true,
       data: calls,
-      total: calls.length,
+      total: total,
       pagination: { limit, offset },
       timestamp: new Date().toISOString(),
     });
