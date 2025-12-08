@@ -98,7 +98,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             scheduledAt: schedule ? new Date(schedule) : null,
             contactListIds: finalContactListIds,
             batchSize: 10,
-            batchDelaySeconds: 10,
+            batchDelaySeconds: 25,
         }).returning();
 
         if (!newCampaign) {

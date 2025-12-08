@@ -1390,7 +1390,7 @@ import { retellService } from './retell-service';
 import { voiceAgents, voiceCalls, voiceDeliveryReports } from '@/lib/db/schema';
 
 const VOICE_BATCH_SIZE = 10;
-const VOICE_BATCH_DELAY_SECONDS = 10;
+const VOICE_BATCH_DELAY_SECONDS = 25;
 
 interface VoiceCallResult {
     success: boolean;
