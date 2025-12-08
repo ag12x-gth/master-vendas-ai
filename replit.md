@@ -39,7 +39,8 @@ Preferred communication style: Simple, everyday language.
 - **Proactive Token Monitoring**: Meta access token expiration monitoring.
 - **Deployment Configuration**: VM (Persistent) for Socket.IO, BullMQ, and Baileys; `/health` endpoint; Port 5000.
 - **Voice AI Recent Calls Pagination**: Server-side pagination with offset/limit on `/api/v1/voice/calls` endpoint.
-- **Voice Agents Management**: Grid view with agent cards, pagination (6 per page), and delete functionality with confirmation dialog.
+- **Voice Agents Management**: Grid view with agent cards, pagination (6 per page), status filter (Todos/Ativos/Inativos), and delete functionality with confirmation dialog.
+- **Agent Status Toggle**: Improved toggle with visual feedback (loading spinner), toast notifications, and automatic list refresh.
 
 ## External Dependencies
 ### Third-Party APIs
@@ -57,7 +58,17 @@ Preferred communication style: Simple, everyday language.
 - **Important**: `campaign-sender.ts` must NOT have `'use server'` directive (causes silent failures in BullMQ context).
 - **Recent Calls Pagination**: Server-side with offset/limit; 10 per page; total count calculated up to 10000 calls.
 - **Agents Pagination**: Grid view with 6 agents per page; Previous/Next buttons; "Page X of Y" indicator.
-- **Agent Deletion**: Trash icon button on each agent card; AlertDialog confirmation; auto-refreshes list after deletion.
+- **Agent Deletion**: Trash icon button on each agent card; AlertDialog confirmation; auto-refreshes list after deletion; sets status to 'archived'.
+- **Agent Status Toggle**: Power button with:
+  - Real-time visual feedback (loading spinner during update)
+  - Toast success/error notifications
+  - Automatic list refresh after status change
+  - Properly syncs with filters (shows/hides based on active/inactive filter)
+- **Agent Status Filter** (NEW - December 8, 2025): 
+  - Three filter buttons: "Todos" (all non-archived), "Ativos" (only active), "Inativos" (only inactive)
+  - Filter state resets pagination to page 1
+  - Paginação (6 agents per page) synchronized with filter selection
+  - Accurate "X de Y agentes" count based on current filter
 
 ### AI/ML Services
 - **OpenAI**: GPT-3.5-turbo, GPT-4, GPT-4o via `@ai-sdk/openai`.
@@ -81,3 +92,17 @@ Preferred communication style: Simple, everyday language.
    - Confirmation dialog prevents accidental deletion
    - Auto-refreshes agents list after deletion
    - Resets pagination to page 1
+   - Sets agent status to 'archived' instead of hard delete
+5. **Fixed Archived Agents Filter**: Added `.filter(a => a.status !== 'archived')` to show only active agents, filtering out deleted ones.
+6. **Agent Status Toggle (NEW)**: Improved `/voice-ai` page agent management
+   - Replaced simple toggle with enhanced `toggleAgentStatus` function
+   - Shows loading spinner while updating status
+   - Toast notifications for success/error feedback
+   - Forces list refresh after status change with `await fetchAgents()`
+   - Prevents multiple simultaneous toggle requests via `togglingAgentId` state
+7. **Agent Status Filter UI (NEW)**: Three-button filter system in "Meus Agentes" section
+   - "Todos" - shows all non-archived agents
+   - "Ativos" - shows only active agents  
+   - "Inativos" - shows only inactive agents
+   - Filter selection resets pagination to page 1 for consistent UX
+   - Pagination (6 per page) correctly counts and displays filtered agents

@@ -49,6 +49,8 @@ export default function VoiceAIPage() {
   const [agentsPage, setAgentsPage] = useState(1);
   const [deletingAgentId, setDeletingAgentId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [togglingAgentId, setTogglingAgentId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const agentsPerPage = 6;
   const itemsPerPage = 10;
 
@@ -190,8 +192,28 @@ export default function VoiceAIPage() {
   };
 
   const toggleAgentStatus = async (agent: VoiceAgent) => {
-    const newStatus = agent.status === 'active' ? 'inactive' : 'active';
-    await updateAgent(agent.id, { status: newStatus });
+    setTogglingAgentId(agent.id);
+    try {
+      const newStatus = agent.status === 'active' ? 'inactive' : 'active';
+      const result = await updateAgent(agent.id, { status: newStatus });
+      if (result) {
+        toast({
+          title: 'Sucesso',
+          description: `Agente ${newStatus === 'active' ? 'ativado' : 'desativado'} com sucesso`,
+        });
+        // Força um recarregamento da lista
+        await fetchAgents();
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro desconhecido';
+      toast({
+        title: 'Erro',
+        description: message,
+        variant: 'destructive',
+      });
+    } finally {
+      setTogglingAgentId(null);
+    }
   };
 
   const handleEditAgent = (agent: VoiceAgent) => {
@@ -520,15 +542,49 @@ export default function VoiceAIPage() {
       )}
 
       <Card className="shadow-md">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Bot className="h-5 w-5" />
-            Meus Agentes
-          </CardTitle>
-          <Button onClick={handleNewAgent} size="sm">
-            <Plus className="mr-1 h-4 w-4" />
-            Novo Agente
-          </Button>
+        <CardHeader className="space-y-4">
+          <div className="flex flex-row items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Bot className="h-5 w-5" />
+              Meus Agentes
+            </CardTitle>
+            <Button onClick={handleNewAgent} size="sm">
+              <Plus className="mr-1 h-4 w-4" />
+              Novo Agente
+            </Button>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant={statusFilter === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setStatusFilter('all');
+                setAgentsPage(1);
+              }}
+            >
+              Todos
+            </Button>
+            <Button
+              variant={statusFilter === 'active' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setStatusFilter('active');
+                setAgentsPage(1);
+              }}
+            >
+              Ativos
+            </Button>
+            <Button
+              variant={statusFilter === 'inactive' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setStatusFilter('inactive');
+                setAgentsPage(1);
+              }}
+            >
+              Inativos
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -549,6 +605,7 @@ export default function VoiceAIPage() {
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {agents
                   .filter(a => a.status !== 'archived')
+                  .filter(a => statusFilter === 'all' || a.status === statusFilter)
                   .slice((agentsPage - 1) * agentsPerPage, agentsPage * agentsPerPage)
                   .map(agent => (
                     <Card key={agent.id} className="shadow-sm hover:shadow-md transition-shadow">
@@ -581,9 +638,14 @@ export default function VoiceAIPage() {
                             variant={agent.status === 'active' ? 'destructive' : 'default'}
                             size="sm"
                             onClick={() => toggleAgentStatus(agent)}
+                            disabled={togglingAgentId === agent.id}
                             className={agent.status === 'active' ? '' : 'bg-green-600 hover:bg-green-700'}
                           >
-                            <Power className="h-4 w-4" />
+                            {togglingAgentId === agent.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Power className="h-4 w-4" />
+                            )}
                           </Button>
                           <Button
                             variant="destructive"
@@ -599,11 +661,13 @@ export default function VoiceAIPage() {
               </div>
 
               {(() => {
-                const activeAgents = agents.filter(a => a.status !== 'archived');
-                return activeAgents.length > agentsPerPage && (
+                const filteredAgents = agents
+                  .filter(a => a.status !== 'archived')
+                  .filter(a => statusFilter === 'all' || a.status === statusFilter);
+                return filteredAgents.length > agentsPerPage && (
                   <div className="mt-6 flex items-center justify-between">
                     <div className="text-sm text-muted-foreground">
-                      Mostrando {(agentsPage - 1) * agentsPerPage + 1} a {Math.min(agentsPage * agentsPerPage, activeAgents.length)} de {activeAgents.length} agentes
+                      Mostrando {(agentsPage - 1) * agentsPerPage + 1} a {Math.min(agentsPage * agentsPerPage, filteredAgents.length)} de {filteredAgents.length} agentes
                     </div>
                     <div className="flex gap-2">
                       <Button
@@ -615,13 +679,13 @@ export default function VoiceAIPage() {
                         Anterior
                       </Button>
                       <div className="flex items-center gap-2 px-3 py-1 border rounded-md text-sm">
-                        <span>Página {agentsPage} de {Math.ceil(activeAgents.length / agentsPerPage)}</span>
+                        <span>Página {agentsPage} de {Math.ceil(filteredAgents.length / agentsPerPage)}</span>
                       </div>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setAgentsPage(p => p + 1)}
-                        disabled={agentsPage >= Math.ceil(activeAgents.length / agentsPerPage)}
+                        disabled={agentsPage >= Math.ceil(filteredAgents.length / agentsPerPage)}
                       >
                         Próxima
                       </Button>
