@@ -52,7 +52,7 @@ Preferred communication style: Simple, everyday language.
 ### Voice AI System (December 8, 2025)
 - **Agent Management**: Voice agents stored in `voice_agents` table with Retell integration.
 - **Agent Lookup Priority**: 1) Local DB `voice_agents`, 2) External Voice AI Platform, 3) Retell auto-discovery.
-- **Campaign Processing**: BullMQ worker polls every 30s; campaigns flow QUEUED → SENDING → COMPLETED/FAILED.
+- **Campaign Processing**: setInterval-based worker polls every 30s (NOT BullMQ repeatable jobs); campaigns flow QUEUED → SENDING → COMPLETED/FAILED. Worker uses `isProcessing` guard for single execution and database compare-and-swap for multi-instance safety.
 - **Retell API Notes**: `/v2/list-calls` requires POST method (not GET).
 - **Concurrent Limits**: Retell 20 simultaneous calls (Pay-As-You-Go), Twilio 1 CPS.
 - **Important**: `campaign-sender.ts` must NOT have `'use server'` directive (causes silent failures in BullMQ context).
