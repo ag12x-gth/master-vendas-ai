@@ -56,12 +56,13 @@ Preferred communication style: Simple, everyday language.
 - **Retell API Notes**: `/v2/list-calls` requires POST method (not GET).
 - **Concurrent Limits**: Retell 20 simultaneous calls (Pay-As-You-Go), Twilio 1 CPS.
 - **Important**: `campaign-sender.ts` must NOT have `'use server'` directive (causes silent failures in BullMQ context).
+- **CRITICAL - Twilio Caller ID**: Only `+553322980007` is verified for outbound calls. Using unverified numbers causes "dial failed" errors.
 - **Recent Calls Pagination**: Server-side with offset/limit; 10 per page; total count calculated up to 10000 calls.
 - **Agents Pagination**: Grid view with 6 agents per page; Previous/Next buttons; "Page X of Y" indicator.
 - **Agent Deletion**: Trash icon button on each agent card; AlertDialog confirmation; auto-refreshes list after deletion; sets status to 'archived'.
 - **Agent Status Toggle**: Power button with loading spinner, toast notifications, automatic list refresh.
 - **Agent Status Filter**: Three filter buttons (Todos/Ativos/Inativos) synchronized with pagination.
-- **Chamadas em Curso (Active Calls)**: ALWAYS displays - shows active calls (status: "Chamando..." or "Em andamento") with number, agent, and timestamp. Auto-updates every 5s. Empty state when no active calls.
+- **Chamadas em Curso (Active Calls)**: ALWAYS displays - shows active calls (status: "Chamando..." or "Em andamento") with number, agent, and timestamp. Auto-updates every 2 minutes. Empty state when no active calls.
 - **Campanhas de Voz**: ALWAYS displays - shows ALL voice campaigns with status indicators:
   - Status badges: Enviando (blue pulse), Na fila (yellow), Pausada (orange), Concluída (green), Falha (red), Agendada (purple)
   - Progress bar for "Enviando" campaigns

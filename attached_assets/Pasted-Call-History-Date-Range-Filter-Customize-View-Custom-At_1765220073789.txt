@@ -1,0 +1,504 @@
+Call History
+Date Range
+
+Filter
+
+Customize View
+
+Custom Attributes
+
+Export
+Time	Duration	Channel Type	Cost	Session ID	End Reason	Session Status	User Sentiment	From	To	Direction	Session Outcome	End to End Latency
+2025-12-08 15:11:02 -03
+0:00
+phone_call
+$0.000
+
+call_dfd3caab30baf47ceaa192d6c4e
+dial failed
+not_connected
+Unknown
++556223980022
++5511915067585
+outbound
+Unsuccessful
+2025-12-08 15:11:01 -03
+0:00
+phone_call
+$0.000
+
+call_aee2c9a862aaf50f058552fab4a
+dial failed
+not_connected
+Unknown
++556223980022
++553891620033
+outbound
+Unsuccessful
+2025-12-08 15:11:00 -03
+0:00
+phone_call
+$0.000
+
+call_43d8ffb955b34dd39730ca6e0fa
+dial failed
+not_connected
+Unknown
++556223980022
++5512996616441
+outbound
+Unsuccessful
+2025-12-08 15:10:59 -03
+0:00
+phone_call
+$0.000
+
+call_3c0f5caa0c14b9716da1db3c6e8
+dial failed
+not_connected
+Unknown
++556223980022
++5564999526701
+outbound
+Unsuccessful
+2025-12-08 15:10:58 -03
+0:00
+phone_call
+$0.000
+
+call_a9afc306929ea74f48762e5a3d9
+dial failed
+not_connected
+Unknown
++556223980022
++5515988035103
+outbound
+Unsuccessful
+2025-12-08 15:10:57 -03
+0:00
+phone_call
+$0.000
+
+call_ffc5c725886a11072b99ca74da4
+dial failed
+not_connected
+Unknown
++556223980022
++5564999526703
+outbound
+Unsuccessful
+2025-12-08 15:10:56 -03
+0:00
+phone_call
+$0.000
+
+call_dd5e9d56b4500e4a76efa9e67ba
+dial failed
+not_connected
+Unknown
++556223980022
++5564999526702
+outbound
+Unsuccessful
+2025-12-08 15:10:55 -03
+0:00
+phone_call
+$0.000
+
+call_1a4901ec7811701ff207cda7038
+dial failed
+not_connected
+Unknown
++556223980022
++5511915067585
+outbound
+Unsuccessful
+2025-12-08 14:07:14 -03
+0:00
+phone_call
+$0.000
+
+call_317d544c95ef5130148120a6dd0
+dial failed
+not_connected
+Unknown
++551123913111
++5564999526701
+outbound
+Unsuccessful
+2025-12-08 14:07:13 -03
+0:00
+phone_call
+$0.000
+
+call_c36297015f67d9934422e534e80
+dial failed
+not_connected
+Unknown
++551123913111
++5515988035103
+outbound
+Unsuccessful
+2025-12-08 14:07:12 -03
+0:00
+phone_call
+$0.000
+
+call_91d94a268fe52935db9440ac7aa
+dial failed
+not_connected
+Unknown
++551123913111
++5564999526703
+outbound
+Unsuccessful
+2025-12-08 14:07:11 -03
+0:00
+phone_call
+$0.000
+
+call_6dad42be2932e5f0ded126b5c3b
+dial failed
+not_connected
+Unknown
++551123913111
++5564999526702
+outbound
+Unsuccessful
+2025-12-08 00:49:31 -03
+0:00
+phone_call
+$0.000
+
+call_520f0a07e82f86f63b32e8e8ea1
+dial failed
+not_connected
+Unknown
++551123913111
++5564999526703
+outbound
+Unsuccessful
+2025-12-08 00:49:29 -03
+0:00
+phone_call
+$0.000
+
+call_62d300199cd9a9429dc6e9b855c
+dial failed
+not_connected
+Unknown
++551123913111
++5564999526702
+outbound
+Unsuccessful
+2025-12-08 00:49:26 -03
+0:00
+phone_call
+$0.000
+
+call_04861dd7964ab003d95ecdca7c8
+dial failed
+not_connected
+Unknown
++551123913111
++5564999526701
+outbound
+Unsuccessful
+2025-12-08 00:49:25 -03
+0:00
+phone_call
+$0.000
+
+call_0eb9d7c6fb99199d1cdb1343732
+dial failed
+not_connected
+Unknown
++551123913111
++5515988035103
+outbound
+Unsuccessful
+2025-12-08 00:44:30 -03
+0:00
+phone_call
+$0.000
+
+call_aaa8c328660387efc5267b420c5
+dial failed
+not_connected
+Unknown
++551123913111
++5511999999999
+outbound
+Unsuccessful
+2025-12-07 20:40:19 -03
+1:18
+phone_call
+$0.156
+
+call_8bd77760e8c8374278d087eca41
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Successful
+982ms
+2025-12-07 20:29:51 -03
+1:00
+phone_call
+$0.120
+
+call_2b5366784c2684096153d5ed94c
+user hangup
+ended
+Positive
++553322980007
++5564999526870
+outbound
+Successful
+794ms
+2025-12-07 20:16:53 -03
+2:11
+phone_call
+$0.262
+
+call_5a7783905914170c27aa1ab8d38
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Successful
+2025-12-07 20:16:30 -03
+0:35
+phone_call
+$0.070
+
+call_e3cc8e147a7e2fe16ca1eea6cc7
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+3158ms
+2025-12-07 20:10:28 -03
+0:45
+phone_call
+$0.090
+
+call_5efa39e6460ac3636a8d0220f14
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+776ms
+2025-12-07 20:02:24 -03
+0:44
+phone_call
+$0.088
+
+call_92807809d1a62c5d0f197c6ba81
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+2172ms
+2025-12-07 20:00:58 -03
+0:39
+phone_call
+$0.078
+
+call_6985e4c043a0e7ba14ec7e78fbd
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+3093ms
+2025-12-07 19:58:22 -03
+0:40
+phone_call
+$0.080
+
+call_96cbcd98429eaf160d6628f275f
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Successful
+2025-12-07 19:30:54 -03
+2:39
+phone_call
+$0.318
+
+call_cf061ad2cde4890e7c24327e9c9
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+2025-12-07 19:01:28 -03
+2:40
+phone_call
+$0.320
+
+call_5ee9d6ca6292f2f25335d738881
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+585ms
+2025-12-07 10:45:33 -03
+0:25
+phone_call
+$0.050
+
+call_d34aca3a2909d6a19555b8ce8a0
+user hangup
+ended
+Neutral
++553322980007
++5512981148823
+outbound
+Unsuccessful
+2025-12-07 10:45:22 -03
+2:41
+phone_call
+$0.322
+
+call_a62075896455501ce0127a50362
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Successful
+3134ms
+2025-12-07 10:42:40 -03
+0:00
+phone_call
+$0.000
+
+call_6cdcec20fc1508090bb24bae73d
+dial no answer
+not_connected
+Unknown
++553322980007
++5512981148823
+outbound
+Unsuccessful
+2025-12-07 10:42:27 -03
+0:00
+phone_call
+$0.000
+
+call_f6f00731e7d070bcd5b900dc580
+dial busy
+not_connected
+Unknown
++553322980007
++5512981148823
+outbound
+Unsuccessful
+2025-12-07 10:42:23 -03
+0:10
+phone_call
+$0.020
+
+call_da21e7446c942e7dd97f3ec901c
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+2025-12-07 10:42:11 -03
+0:57
+phone_call
+$0.114
+
+call_1f6e32367df1b7676df254cdc38
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+2020ms
+2025-12-07 10:23:25 -03
+0:35
+phone_call
+$0.070
+
+call_9ed8b3cd55b211db89c7918880d
+user hangup
+ended
+Neutral
++553322980007
++5512981148823
+outbound
+Unsuccessful
+881ms
+2025-12-07 10:23:07 -03
+2:38
+phone_call
+$0.316
+
+call_3075f64da1018f3daa8d93cf1de
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+2025-12-07 02:49:38 -03
+1:06
+phone_call
+$0.132
+
+call_e6178d16170f7c2269a3a39f11a
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+1372ms
+2025-12-07 01:09:37 -03
+1:09
+phone_call
+$0.138
+
+call_10aee51c17fe1597d951d1d7051
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+3163ms

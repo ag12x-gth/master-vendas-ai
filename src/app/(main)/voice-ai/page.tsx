@@ -137,8 +137,8 @@ export default function VoiceAIPage() {
     fetchRecentCalls();
     fetchActiveCalls();
     fetchVoiceCampaigns();
-    const callsInterval = setInterval(fetchActiveCalls, 5000);
-    const campaignsInterval = setInterval(fetchVoiceCampaigns, 10000);
+    const callsInterval = setInterval(fetchActiveCalls, 120000); // 2 minutos
+    const campaignsInterval = setInterval(fetchVoiceCampaigns, 30000); // 30 segundos
     return () => {
       clearInterval(callsInterval);
       clearInterval(campaignsInterval);
@@ -182,7 +182,7 @@ export default function VoiceAIPage() {
       setTimeout(() => {
         setCallStatus('idle');
         fetchRecentCalls();
-      }, 5000);
+      }, 3000);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro desconhecido';
       setCallStatus('error');
