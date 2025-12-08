@@ -14,7 +14,8 @@ import {
     connections,
     messageTemplates,
     conversations,
-    messages
+    messages,
+    voiceAgents
 } from '@/lib/db/schema';
 import { eq, inArray, and } from 'drizzle-orm';
 import { decrypt } from './crypto';
@@ -1598,14 +1599,53 @@ export async function sendVoiceCampaign(campaign: typeof campaigns.$inferSelect)
         if (!campaign.companyId) throw new Error(`Campaign ${campaign.id} is missing companyId.`);
         if (!campaign.voiceAgentId) throw new Error(`Campaign ${campaign.id} is missing voiceAgentId.`);
 
-        let agent = null;
-        try {
-            agent = await voiceAIPlatform.getAgent(campaign.voiceAgentId);
-        } catch (err) {
-            console.error(`[Campanha Voice ${campaign.id}] Erro ao buscar agente:`, err);
+        // First try to get agent from local database
+        const [localAgent] = await db
+            .select()
+            .from(voiceAgents)
+            .where(eq(voiceAgents.id, campaign.voiceAgentId));
+
+        let agent: { id: string; name: string; retellAgentId: string | null } | null = null;
+        
+        if (localAgent) {
+            console.log(`[Campanha Voice ${campaign.id}] Agente encontrado no banco local: ${localAgent.name}`);
+            agent = {
+                id: localAgent.id,
+                name: localAgent.name,
+                retellAgentId: localAgent.retellAgentId
+            };
+        } else {
+            // Fallback to Voice AI Platform
+            try {
+                const platformAgent = await voiceAIPlatform.getAgent(campaign.voiceAgentId);
+                if (platformAgent) {
+                    agent = platformAgent;
+                }
+            } catch (err) {
+                console.error(`[Campanha Voice ${campaign.id}] Erro ao buscar agente da plataforma:`, err);
+            }
         }
+        
         if (!agent) throw new Error(`Voice Agent ${campaign.voiceAgentId} not found.`);
-        const retellAgentId = agent.retellAgentId || campaign.voiceAgentId;
+        
+        let retellAgentId = agent.retellAgentId;
+        if (!retellAgentId) {
+            console.log(`[Campanha Voice ${campaign.id}] retellAgentId não configurado no agente. Buscando do Retell...`);
+            try {
+                const retellAgents = await retellService.listAgents();
+                if (retellAgents && retellAgents.length > 0) {
+                    const matchingAgent = retellAgents.find(ra => 
+                        ra.agent_name.toLowerCase() === agent!.name.toLowerCase()
+                    );
+                    const selectedAgent = matchingAgent ?? retellAgents[0]!;
+                    retellAgentId = selectedAgent.agent_id;
+                    console.log(`[Campanha Voice ${campaign.id}] Usando agente Retell: ${selectedAgent.agent_name} (${retellAgentId})`);
+                }
+            } catch (err) {
+                console.error(`[Campanha Voice ${campaign.id}] Erro ao buscar agentes Retell:`, err);
+            }
+        }
+        if (!retellAgentId) throw new Error(`Retell Agent ID not found for Voice Agent ${campaign.voiceAgentId}`);
 
         const campaignFromNumber = (campaign.variableMappings as { fromNumber?: string })?.fromNumber;
         const twilioFromNumber = campaignFromNumber || process.env.TWILIO_PHONE_NUMBER;

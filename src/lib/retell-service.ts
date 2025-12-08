@@ -157,7 +157,10 @@ class RetellService {
   }
 
   async listCalls(limit: number = 50): Promise<RetellCall[]> {
-    return this.request<RetellCall[]>(`/list-calls?limit=${limit}`);
+    return this.request<RetellCall[]>('/v2/list-calls', {
+      method: 'POST',
+      body: JSON.stringify({ limit }),
+    });
   }
 
   async getActiveCalls(): Promise<{ count: number; calls: RetellCall[] }> {
