@@ -130,7 +130,11 @@ export function MultiListSelector({
                     <Checkbox
                       id={`list-${list.id}`}
                       checked={isSelected}
-                      onCheckedChange={() => handleToggle(list.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked !== isSelected) {
+                          handleToggle(list.id);
+                        }
+                      }}
                       onClick={(e) => e.stopPropagation()}
                     />
                     <div className="flex-1 min-w-0">
