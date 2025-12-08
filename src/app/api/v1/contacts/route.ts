@@ -251,13 +251,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const normalizedPhone = sanitized ? canonicalizeBrazilPhone(sanitized) : contactData.phone;
 
     const newContact = await db.transaction(async (tx) => {
+        // Build insert object with only defined values (remove undefined fields)
+        const insertData: any = {
+            name: contactData.name,
+            phone: normalizedPhone,
+            companyId,
+        };
+        
+        // Add optional fields only if they're defined
+        if (contactData.email !== undefined) insertData.email = contactData.email;
+        if (contactData.avatarUrl !== undefined) insertData.avatarUrl = contactData.avatarUrl;
+        if (contactData.addressStreet !== undefined) insertData.addressStreet = contactData.addressStreet;
+        if (contactData.addressNumber !== undefined) insertData.addressNumber = contactData.addressNumber;
+        if (contactData.addressComplement !== undefined) insertData.addressComplement = contactData.addressComplement;
+        if (contactData.addressDistrict !== undefined) insertData.addressDistrict = contactData.addressDistrict;
+        if (contactData.addressCity !== undefined) insertData.addressCity = contactData.addressCity;
+        if (contactData.addressState !== undefined) insertData.addressState = contactData.addressState;
+        if (contactData.addressZipCode !== undefined) insertData.addressZipCode = contactData.addressZipCode;
+        if (contactData.notes !== undefined) insertData.notes = contactData.notes;
+
         const [createdContact] = await tx
             .insert(contacts)
-            .values({
-                ...contactData,
-                phone: normalizedPhone,
-                companyId,
-            })
+            .values(insertData)
             .returning();
         
         if (!createdContact) {
