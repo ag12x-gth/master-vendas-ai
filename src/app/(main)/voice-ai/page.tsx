@@ -155,8 +155,11 @@ export default function VoiceAIPage() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('pt-BR', {
+  const formatDate = (dateStr: string | undefined | null) => {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '-';
+    return date.toLocaleDateString('pt-BR', {
       day: '2-digit',
       month: '2-digit',
       hour: '2-digit',
@@ -371,7 +374,7 @@ export default function VoiceAIPage() {
                 <tbody>
                   {recentCalls.map(call => (
                     <tr key={call.id} className="border-b last:border-0">
-                      <td className="py-3 text-sm">{formatDate(call.createdAt)}</td>
+                      <td className="py-3 text-sm">{formatDate(call.startedAt || call.createdAt)}</td>
                       <td className="py-3 text-sm">
                         {agents.find(a => a.id === call.agentId)?.name || '-'}
                       </td>
