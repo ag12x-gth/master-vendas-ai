@@ -12,9 +12,9 @@ const voiceCampaignSchema = z.object({
   name: z.string().min(1, 'Nome da campanha é obrigatório'),
   voiceAgentId: z.string().uuid('Selecione um agente de voz válido'),
   schedule: z.string().datetime({ offset: true }).nullable().optional(),
-  contactListIds: z.array(z.string()).min(1, 'Selecione pelo menos uma lista.'),
+  contactListIds: z.array(z.string().uuid('ID de lista inválido')).min(1, 'Selecione pelo menos uma lista.'),
   enableRetry: z.boolean().optional().default(false),
-  maxRetryAttempts: z.number().min(1).max(5).optional().default(3),
+  maxRetryAttempts: z.number().min(0).max(5).optional().default(3),
   retryDelayMinutes: z.number().min(5).max(120).optional().default(30),
 });
 
@@ -27,7 +27,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const parsed = voiceCampaignSchema.safeParse(body);
 
         if (!parsed.success) {
-            return NextResponse.json({ error: 'Dados inválidos.', details: parsed.error.flatten() }, { status: 400 });
+            console.error('[Voice Campaign] Validação falhou:', JSON.stringify(parsed.error.flatten()));
+            return NextResponse.json({ 
+                error: 'Dados inválidos.', 
+                details: parsed.error.flatten(),
+                receivedData: {
+                    name: typeof body.name,
+                    voiceAgentId: body.voiceAgentId,
+                    contactListIds: body.contactListIds,
+                    schedule: body.schedule
+                }
+            }, { status: 400 });
         }
 
         const { contactListIds, voiceAgentId, schedule, name, enableRetry, maxRetryAttempts, retryDelayMinutes } = parsed.data;

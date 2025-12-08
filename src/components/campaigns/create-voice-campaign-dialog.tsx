@@ -134,7 +134,11 @@ export function CreateVoiceCampaignDialog({ children, onSaveSuccess }: CreateVoi
       });
 
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || 'Falha ao criar campanha de voz.');
+      if (!response.ok) {
+        console.error('[Voice Campaign] API Error:', result);
+        const errorDetails = result.details?.fieldErrors ? Object.entries(result.details.fieldErrors).map(([k, v]) => `${k}: ${(v as string[]).join(', ')}`).join('; ') : '';
+        throw new Error(result.error + (errorDetails ? ` (${errorDetails})` : ''));
+      }
       
       notify.success('Sucesso!', result.message);
       setIsOpen(false);
