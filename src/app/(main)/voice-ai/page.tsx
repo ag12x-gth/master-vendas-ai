@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useVoiceAgents, VoiceAgent, CreateAgentData, UpdateAgentData } from '@/hooks/useVoiceAgents';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Phone, Bot, Clock, Plus, Edit, Power, Loader2, PhoneCall, PhoneOff, Users, Activity, RefreshCw, Send, Pause, Square, Play } from 'lucide-react';
+import { Phone, Bot, Clock, Plus, Edit, Power, Loader2, PhoneCall, PhoneOff, Users, Activity, RefreshCw, Send, Pause, Square, Play, Trash2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { VoiceAgentDialog, PhoneNumbersManager } from '@/components/voice-agents';
 import { CreateVoiceCampaignDialog } from '@/components/campaigns/create-voice-campaign-dialog';
@@ -27,7 +28,7 @@ function unformatPhone(value: string): string {
 type CallStatus = 'idle' | 'calling' | 'ringing' | 'connected' | 'ended' | 'error';
 
 export default function VoiceAIPage() {
-  const { agents, loading, updateAgent, createAgent, fetchAgents } = useVoiceAgents();
+  const { agents, loading, updateAgent, createAgent, fetchAgents, deleteAgent } = useVoiceAgents();
   const { toast } = useToast();
   
   const [selectedAgentId, setSelectedAgentId] = useState<string>('');
@@ -45,6 +46,10 @@ export default function VoiceAIPage() {
   const [editingAgent, setEditingAgent] = useState<VoiceAgent | null>(null);
   const [callsPage, setCallsPage] = useState(1);
   const [callsTotal, setCallsTotal] = useState(0);
+  const [agentsPage, setAgentsPage] = useState(1);
+  const [deletingAgentId, setDeletingAgentId] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const agentsPerPage = 6;
   const itemsPerPage = 10;
 
   const availableAgents = agents.filter(a => a.status !== 'archived');
@@ -205,6 +210,21 @@ export default function VoiceAIPage() {
     } else {
       return await createAgent(data as CreateAgentData);
     }
+  };
+
+  const handleDeleteAgent = async () => {
+    if (!deletingAgentId) return;
+    const success = await deleteAgent(deletingAgentId);
+    if (success) {
+      setShowDeleteDialog(false);
+      setDeletingAgentId(null);
+      setAgentsPage(1);
+    }
+  };
+
+  const confirmDeleteAgent = (agentId: string) => {
+    setDeletingAgentId(agentId);
+    setShowDeleteDialog(true);
   };
 
   const getCallStatusBadge = () => {
@@ -525,47 +545,87 @@ export default function VoiceAIPage() {
               </Button>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {agents.map(agent => (
-                <Card key={agent.id} className="shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="pt-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <Bot className="h-5 w-5 text-primary" />
-                        <span className="font-medium truncate">{agent.name}</span>
-                      </div>
-                      {getStatusBadge(agent.status)}
+            <>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {agents
+                  .slice((agentsPage - 1) * agentsPerPage, agentsPage * agentsPerPage)
+                  .map(agent => (
+                    <Card key={agent.id} className="shadow-sm hover:shadow-md transition-shadow">
+                      <CardContent className="pt-4">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <Bot className="h-5 w-5 text-primary" />
+                            <span className="font-medium truncate">{agent.name}</span>
+                          </div>
+                          {getStatusBadge(agent.status)}
+                        </div>
+                        
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
+                          <Badge variant="outline" className="text-xs">
+                            {agent.type === 'inbound' ? 'Entrada' : agent.type === 'outbound' ? 'Saída' : 'Transferência'}
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditAgent(agent)}
+                            className="flex-1"
+                          >
+                            <Edit className="h-4 w-4 mr-1" />
+                            Editar
+                          </Button>
+                          <Button
+                            variant={agent.status === 'active' ? 'destructive' : 'default'}
+                            size="sm"
+                            onClick={() => toggleAgentStatus(agent)}
+                            className={agent.status === 'active' ? '' : 'bg-green-600 hover:bg-green-700'}
+                          >
+                            <Power className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => confirmDeleteAgent(agent.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+
+              {agents.length > agentsPerPage && (
+                <div className="mt-6 flex items-center justify-between">
+                  <div className="text-sm text-muted-foreground">
+                    Mostrando {(agentsPage - 1) * agentsPerPage + 1} a {Math.min(agentsPage * agentsPerPage, agents.length)} de {agents.length} agentes
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAgentsPage(p => Math.max(1, p - 1))}
+                      disabled={agentsPage === 1}
+                    >
+                      Anterior
+                    </Button>
+                    <div className="flex items-center gap-2 px-3 py-1 border rounded-md text-sm">
+                      <span>Página {agentsPage} de {Math.ceil(agents.length / agentsPerPage)}</span>
                     </div>
-                    
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                      <Badge variant="outline" className="text-xs">
-                        {agent.type === 'inbound' ? 'Entrada' : agent.type === 'outbound' ? 'Saída' : 'Transferência'}
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEditAgent(agent)}
-                        className="flex-1"
-                      >
-                        <Edit className="h-4 w-4 mr-1" />
-                        Editar
-                      </Button>
-                      <Button
-                        variant={agent.status === 'active' ? 'destructive' : 'default'}
-                        size="sm"
-                        onClick={() => toggleAgentStatus(agent)}
-                        className={agent.status === 'active' ? '' : 'bg-green-600 hover:bg-green-700'}
-                      >
-                        <Power className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAgentsPage(p => p + 1)}
+                      disabled={agentsPage >= Math.ceil(agents.length / agentsPerPage)}
+                    >
+                      Próxima
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
@@ -660,6 +720,26 @@ export default function VoiceAIPage() {
         agent={editingAgent}
         onSave={handleSaveAgent}
       />
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Agente?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este agente? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-3 justify-end">
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteAgent}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Excluir
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

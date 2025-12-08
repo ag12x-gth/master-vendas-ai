@@ -38,7 +38,8 @@ Preferred communication style: Simple, everyday language.
 - **Atomic Lua Script Rate Limiting**: Using Redis/EnhancedCache.
 - **Proactive Token Monitoring**: Meta access token expiration monitoring.
 - **Deployment Configuration**: VM (Persistent) for Socket.IO, BullMQ, and Baileys; `/health` endpoint; Port 5000.
-- **Voice AI Recent Calls Pagination**: Server-side pagination with offset/limit on `/api/v1/voice/calls` endpoint, supporting up to 10000 total calls calculation for accurate page counts.
+- **Voice AI Recent Calls Pagination**: Server-side pagination with offset/limit on `/api/v1/voice/calls` endpoint.
+- **Voice Agents Management**: Grid view with agent cards, pagination (6 per page), and delete functionality with confirmation dialog.
 
 ## External Dependencies
 ### Third-Party APIs
@@ -47,14 +48,16 @@ Preferred communication style: Simple, everyday language.
 - **Retell.ai**: Voice AI platform for automated phone calls with voicemail detection.
 - **Twilio**: Phone number provisioning and call routing.
 
-### Voice AI System (December 2025)
+### Voice AI System (December 8, 2025)
 - **Agent Management**: Voice agents stored in `voice_agents` table with Retell integration.
 - **Agent Lookup Priority**: 1) Local DB `voice_agents`, 2) External Voice AI Platform, 3) Retell auto-discovery.
 - **Campaign Processing**: BullMQ worker polls every 30s; campaigns flow QUEUED → SENDING → COMPLETED/FAILED.
 - **Retell API Notes**: `/v2/list-calls` requires POST method (not GET).
 - **Concurrent Limits**: Retell 20 simultaneous calls (Pay-As-You-Go), Twilio 1 CPS.
 - **Important**: `campaign-sender.ts` must NOT have `'use server'` directive (causes silent failures in BullMQ context).
-- **Recent Calls Pagination** (December 8, 2025): Added server-side pagination with offset/limit; 10 calls per page; total count calculated from first 10000 calls for accurate page calculation.
+- **Recent Calls Pagination**: Server-side with offset/limit; 10 per page; total count calculated up to 10000 calls.
+- **Agents Pagination**: Grid view with 6 agents per page; Previous/Next buttons; "Page X of Y" indicator.
+- **Agent Deletion**: Trash icon button on each agent card; AlertDialog confirmation; auto-refreshes list after deletion.
 
 ### AI/ML Services
 - **OpenAI**: GPT-3.5-turbo, GPT-4, GPT-4o via `@ai-sdk/openai`.
@@ -70,10 +73,11 @@ Preferred communication style: Simple, everyday language.
 - **Replit**: Development environment, Object Storage.
 
 ## Recent Changes (December 8, 2025)
-1. **Login Page Hydration Fix**: Added `suppressHydrationWarning` wrapper to `VersionBadge` component to resolve React hydration mismatch errors.
-2. **Recent Calls Pagination**: 
-   - Added pagination state management (`callsPage`, `callsTotal`) to Voice AI page
-   - Modified `fetchRecentCalls()` to use offset-based pagination with 10 items per page
-   - Added pagination controls (Previous/Next buttons, current page display) below the calls table
-   - Updated `/api/v1/voice/calls` endpoint to calculate and return accurate total count
-   - Shows "X to Y of Z chamadas" with proper page navigation
+1. **Login Page Hydration Fix**: Added `suppressHydrationWarning` wrapper to `VersionBadge` component.
+2. **Recent Calls Pagination**: Server-side pagination with 10 items per page; Previous/Next buttons.
+3. **Voice Agents Grid Pagination**: 6 agents per page with pagination controls.
+4. **Delete Agent Feature**: Trash icon button on each agent card with confirmation dialog.
+   - Added `deleteAgent` function from hook
+   - Confirmation dialog prevents accidental deletion
+   - Auto-refreshes agents list after deletion
+   - Resets pagination to page 1
