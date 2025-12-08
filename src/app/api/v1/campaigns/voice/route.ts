@@ -97,7 +97,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             voiceAgentId: voiceAgentId,
             scheduledAt: schedule ? new Date(schedule) : null,
             contactListIds: finalContactListIds,
-            batchSize: 5,
+            batchSize: 10,
             batchDelaySeconds: 10,
         }).returning();
 
