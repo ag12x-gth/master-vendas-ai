@@ -305,9 +305,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json(newContact, { status: 201 });
   } catch (error: any) {
-    if (error.code === '23505' && error.constraint === 'contacts_phone_company_id_unique') {
-        return NextResponse.json({ error: 'Já existe um contato com este telefone.' }, { status: 409 });
+    // Handle Drizzle wrapped errors - the PostgresError is in error.cause
+    const pgError = error.cause || error;
+    const errorCode = pgError?.code || error?.code;
+    const errorConstraint = pgError?.constraint || error?.constraint;
+    
+    // Check for duplicate phone number (unique constraint violation)
+    if (errorCode === '23505' && errorConstraint === 'contacts_phone_company_id_unique') {
+        return NextResponse.json({ 
+            error: 'Já existe um contato com este telefone.' 
+        }, { status: 409 });
     }
+    
+    // Check for any unique constraint violation on phone
+    if (errorCode === '23505' && pgError?.detail?.includes('phone')) {
+        return NextResponse.json({ 
+            error: 'Já existe um contato com este telefone.' 
+        }, { status: 409 });
+    }
+    
     console.error("Erro ao criar contato:", error);
     const errorMessage = error instanceof Error ? error.message : 'Erro interno do servidor.';
     return NextResponse.json({ error: errorMessage, details: (error as Error).stack }, { status: 500 });
