@@ -1,0 +1,52 @@
+
+
+1 of 2 errors
+Next.js (14.2.33) is outdated (learn more)
+
+Unhandled Runtime Error
+Error: Hydration failed because the initial UI does not match what was rendered on the server.
+See more info here: https://nextjs.org/docs/messages/react-hydration-error
+
+Did not expect server HTML to contain a <kpm-field-badge> in <div>.
+
+
+<LoginPage>
+  ...
+Call Stack
+React
+throwOnHydrationMismatch
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (6981:1)
+popHydrationState
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (7384:1)
+completeWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (19764:1)
+completeUnitOfWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25963:1)
+performUnitOfWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25759:1)
+workLoopSync
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25464:1)
+renderRootSync
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25419:1)
+performSyncWorkOnRoot
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24887:1)
+flushSyncWorkAcrossRoots_impl
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (7758:1)
+flushSyncWorkOnAllRoots
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (7718:1)
+commitRootImpl
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (26369:1)
+commitRoot
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (26077:1)
+commitRootWhenReady
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24749:1)
+finishConcurrentRender
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24714:1)
+performConcurrentWorkOnRoot
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24559:1)
+workLoop
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (256:1)
+flushWork
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (225:1)
+MessagePort.performWorkUntilDeadline
+node_modules/next/dist/compiled/scheduler/cjs/scheduler.development.js (534:1)
