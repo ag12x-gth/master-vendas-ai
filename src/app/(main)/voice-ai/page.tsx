@@ -548,6 +548,7 @@ export default function VoiceAIPage() {
             <>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {agents
+                  .filter(a => a.status !== 'archived')
                   .slice((agentsPage - 1) * agentsPerPage, agentsPage * agentsPerPage)
                   .map(agent => (
                     <Card key={agent.id} className="shadow-sm hover:shadow-md transition-shadow">
@@ -597,34 +598,37 @@ export default function VoiceAIPage() {
                   ))}
               </div>
 
-              {agents.length > agentsPerPage && (
-                <div className="mt-6 flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    Mostrando {(agentsPage - 1) * agentsPerPage + 1} a {Math.min(agentsPage * agentsPerPage, agents.length)} de {agents.length} agentes
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setAgentsPage(p => Math.max(1, p - 1))}
-                      disabled={agentsPage === 1}
-                    >
-                      Anterior
-                    </Button>
-                    <div className="flex items-center gap-2 px-3 py-1 border rounded-md text-sm">
-                      <span>Página {agentsPage} de {Math.ceil(agents.length / agentsPerPage)}</span>
+              {(() => {
+                const activeAgents = agents.filter(a => a.status !== 'archived');
+                return activeAgents.length > agentsPerPage && (
+                  <div className="mt-6 flex items-center justify-between">
+                    <div className="text-sm text-muted-foreground">
+                      Mostrando {(agentsPage - 1) * agentsPerPage + 1} a {Math.min(agentsPage * agentsPerPage, activeAgents.length)} de {activeAgents.length} agentes
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setAgentsPage(p => p + 1)}
-                      disabled={agentsPage >= Math.ceil(agents.length / agentsPerPage)}
-                    >
-                      Próxima
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setAgentsPage(p => Math.max(1, p - 1))}
+                        disabled={agentsPage === 1}
+                      >
+                        Anterior
+                      </Button>
+                      <div className="flex items-center gap-2 px-3 py-1 border rounded-md text-sm">
+                        <span>Página {agentsPage} de {Math.ceil(activeAgents.length / agentsPerPage)}</span>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setAgentsPage(p => p + 1)}
+                        disabled={agentsPage >= Math.ceil(activeAgents.length / agentsPerPage)}
+                      >
+                        Próxima
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </>
           )}
         </CardContent>
