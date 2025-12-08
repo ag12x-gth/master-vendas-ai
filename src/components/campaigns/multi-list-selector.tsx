@@ -49,16 +49,23 @@ export function MultiListSelector({
     }
   };
 
-  const handleSelectAll = () => {
+  const handleSelectAll = React.useCallback(() => {
     const allFilteredIds = filteredLists.map(l => l.id);
-    const newSelection = [...new Set([...selectedIds, ...allFilteredIds])];
-    onSelectionChange(newSelection);
-  };
+    const currentSet = new Set(selectedIds);
+    const hasNew = allFilteredIds.some(id => !currentSet.has(id));
+    if (hasNew) {
+      const newSelection = [...new Set([...selectedIds, ...allFilteredIds])];
+      onSelectionChange(newSelection);
+    }
+  }, [filteredLists, selectedIds, onSelectionChange]);
 
-  const handleDeselectAll = () => {
+  const handleDeselectAll = React.useCallback(() => {
     const filteredIds = new Set(filteredLists.map(l => l.id));
-    onSelectionChange(selectedIds.filter(id => !filteredIds.has(id)));
-  };
+    const newSelection = selectedIds.filter(id => !filteredIds.has(id));
+    if (newSelection.length !== selectedIds.length) {
+      onSelectionChange(newSelection);
+    }
+  }, [filteredLists, selectedIds, onSelectionChange]);
 
   const allFilteredSelected = filteredLists.length > 0 && 
     filteredLists.every(list => selectedIds.includes(list.id));

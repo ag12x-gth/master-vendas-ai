@@ -84,7 +84,7 @@ export function CreateVoiceCampaignDialog({ children, onSaveSuccess }: CreateVoi
           const listsData = await listsRes.json();
 
           const activeAgents = (agentsData.data || agentsData || []).filter(
-            (a: VoiceAgent) => a.status !== 'archived' && a.retellAgentId
+            (a: VoiceAgent) => a.status !== 'archived'
           );
           setVoiceAgents(activeAgents);
           setContactLists(listsData.data || []);
