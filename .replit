@@ -111,6 +111,7 @@ DB_DEBUG = "true"
 UPSTASH_REDIS_REST_URL = "https://vital-sawfish-40850.upstash.io"
 ENABLE_BULLMQ_QUEUE = "true"
 VOICE_AI_PLATFORM_URL = "https://plataformai.global"
+TWILIO_PHONE_NUMBER = "+556223980022"
 
 [userenv.production]
 
