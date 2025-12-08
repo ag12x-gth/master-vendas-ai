@@ -1387,7 +1387,8 @@ export async function sendSmsCampaign(campaign: typeof campaigns.$inferSelect): 
 // ==========================================
 
 import { retellService } from './retell-service';
-import { voiceAgents, voiceCalls, voiceDeliveryReports, voiceRetryQueue } from '@/lib/db/schema';
+import { voiceAIPlatform } from './voice-ai-platform';
+import { voiceCalls, voiceDeliveryReports, voiceRetryQueue } from '@/lib/db/schema';
 
 import { VoiceCallOutcome, VOICE_MAX_RETRY_ATTEMPTS, VOICE_RETRY_DELAY_MINUTES } from './voice-utils';
 
@@ -1597,9 +1598,14 @@ export async function sendVoiceCampaign(campaign: typeof campaigns.$inferSelect)
         if (!campaign.companyId) throw new Error(`Campaign ${campaign.id} is missing companyId.`);
         if (!campaign.voiceAgentId) throw new Error(`Campaign ${campaign.id} is missing voiceAgentId.`);
 
-        const [agent] = await db.select().from(voiceAgents).where(eq(voiceAgents.id, campaign.voiceAgentId));
+        let agent = null;
+        try {
+            agent = await voiceAIPlatform.getAgent(campaign.voiceAgentId);
+        } catch (err) {
+            console.error(`[Campanha Voice ${campaign.id}] Erro ao buscar agente:`, err);
+        }
         if (!agent) throw new Error(`Voice Agent ${campaign.voiceAgentId} not found.`);
-        if (!agent.retellAgentId) throw new Error(`Voice Agent ${campaign.voiceAgentId} is not linked to Retell.`);
+        const retellAgentId = agent.retellAgentId || campaign.voiceAgentId;
 
         const twilioFromNumber = process.env.TWILIO_PHONE_NUMBER;
         if (!twilioFromNumber) throw new Error('TWILIO_PHONE_NUMBER environment variable is not configured.');
@@ -1673,7 +1679,7 @@ export async function sendVoiceCampaign(campaign: typeof campaigns.$inferSelect)
 
             const callPromises = batch.map(contact =>
                 initiateVoiceCall(
-                    { retellAgentId: agent.retellAgentId!, id: agent.id },
+                    { retellAgentId: retellAgentId, id: agent.id },
                     contact,
                     campaign.companyId!,
                     twilioFromNumber,

@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useVoiceAgents, VoiceAgent, CreateAgentData, UpdateAgentData } from '@/hooks/useVoiceAgents';
 import { useToast } from '@/hooks/use-toast';
-import { Phone, Bot, Clock, Plus, Edit, Power, Loader2, PhoneCall, PhoneOff, Users } from 'lucide-react';
+import { Phone, Bot, Clock, Plus, Edit, Power, Loader2, PhoneCall, PhoneOff, Users, Activity, RefreshCw } from 'lucide-react';
 import { VoiceAgentDialog } from '@/components/voice-agents';
 import { CreateVoiceCampaignDialog } from '@/components/campaigns/create-voice-campaign-dialog';
 
@@ -34,7 +34,9 @@ export default function VoiceAIPage() {
   const [callStatus, setCallStatus] = useState<CallStatus>('idle');
   const [callError, setCallError] = useState<string>('');
   const [recentCalls, setRecentCalls] = useState<any[]>([]);
+  const [activeCalls, setActiveCalls] = useState<any[]>([]);
   const [loadingCalls, setLoadingCalls] = useState(false);
+  const [loadingActiveCalls, setLoadingActiveCalls] = useState(false);
   const [showAgentDialog, setShowAgentDialog] = useState(false);
   const [editingAgent, setEditingAgent] = useState<VoiceAgent | null>(null);
 
@@ -55,9 +57,30 @@ export default function VoiceAIPage() {
     }
   }, []);
 
+  const fetchActiveCalls = useCallback(async () => {
+    setLoadingActiveCalls(true);
+    try {
+      const response = await fetch('/api/v1/voice/calls?status=ongoing,ringing');
+      if (response.ok) {
+        const data = await response.json();
+        const ongoing = (data.data || []).filter((c: any) => 
+          c.status === 'ongoing' || c.status === 'ringing' || c.status === 'in_progress'
+        );
+        setActiveCalls(ongoing);
+      }
+    } catch (err) {
+      console.error('Error fetching active calls:', err);
+    } finally {
+      setLoadingActiveCalls(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchRecentCalls();
-  }, [fetchRecentCalls]);
+    fetchActiveCalls();
+    const interval = setInterval(fetchActiveCalls, 5000);
+    return () => clearInterval(interval);
+  }, [fetchRecentCalls, fetchActiveCalls]);
 
   const makeCall = async () => {
     if (!selectedAgentId) {
@@ -277,6 +300,58 @@ export default function VoiceAIPage() {
           </div>
         </CardContent>
       </Card>
+
+      {activeCalls.length > 0 && (
+        <Card className="shadow-lg border-2 border-green-500/30 bg-green-50/50 dark:bg-green-950/20">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Activity className="h-5 w-5 text-green-600 animate-pulse" />
+              Chamadas em Curso ({activeCalls.length})
+            </CardTitle>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={fetchActiveCalls}
+              disabled={loadingActiveCalls}
+            >
+              <RefreshCw className={`h-4 w-4 ${loadingActiveCalls ? 'animate-spin' : ''}`} />
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {activeCalls.map((call: any) => (
+                <div 
+                  key={call.id} 
+                  className="flex items-center justify-between p-3 rounded-lg bg-white dark:bg-gray-900 border border-green-200 dark:border-green-800"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-green-100 dark:bg-green-900">
+                      <PhoneCall className="h-4 w-4 text-green-600 animate-pulse" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{call.toNumber || call.to_number || 'Número oculto'}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {agents.find(a => a.id === call.agentId || a.retellAgentId === call.agentId)?.name || 'Agente'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-green-500 text-white animate-pulse">
+                      {call.status === 'ringing' ? 'Chamando...' : 'Em andamento'}
+                    </Badge>
+                    {call.startedAt && (
+                      <span className="text-sm text-muted-foreground">
+                        <Clock className="inline h-3 w-3 mr-1" />
+                        {formatDate(call.startedAt)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="shadow-md">
         <CardHeader className="flex flex-row items-center justify-between">
