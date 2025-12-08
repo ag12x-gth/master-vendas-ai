@@ -13,6 +13,7 @@ import { Phone, Bot, Clock, Plus, Edit, Power, Loader2, PhoneCall, PhoneOff, Use
 import { Progress } from '@/components/ui/progress';
 import { VoiceAgentDialog, PhoneNumbersManager } from '@/components/voice-agents';
 import { CreateVoiceCampaignDialog } from '@/components/campaigns/create-voice-campaign-dialog';
+import { CampaignDetailsModal, CampaignDetails } from '@/components/campaigns/campaign-details-modal';
 
 function formatPhoneBR(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -51,6 +52,8 @@ export default function VoiceAIPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [togglingAgentId, setTogglingAgentId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [selectedCampaign, setSelectedCampaign] = useState<CampaignDetails | null>(null);
+  const [showCampaignDetails, setShowCampaignDetails] = useState(false);
   const agentsPerPage = 6;
   const itemsPerPage = 10;
 
@@ -493,10 +496,21 @@ export default function VoiceAIPage() {
                 const isScheduled = campaign.status === 'SCHEDULED';
                 const progress = campaign.progress || 0;
                 
+                const handleCampaignClick = () => {
+                  const voiceAgent = agents.find(a => a.id === campaign.voiceAgentId);
+                  setSelectedCampaign({
+                    ...campaign,
+                    channel: 'VOICE' as const,
+                    voiceAgentName: voiceAgent?.name || 'Agente de voz',
+                  });
+                  setShowCampaignDetails(true);
+                };
+                
                 return (
                   <div 
                     key={campaign.id} 
-                    className="p-4 rounded-lg bg-white dark:bg-gray-900 border border-blue-200 dark:border-blue-800"
+                    className="p-4 rounded-lg bg-white dark:bg-gray-900 border border-blue-200 dark:border-blue-800 cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={handleCampaignClick}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-3">
@@ -550,7 +564,10 @@ export default function VoiceAIPage() {
                           <Button
                             variant="destructive"
                             size="sm"
-                            onClick={() => pauseCampaign(campaign.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              pauseCampaign(campaign.id);
+                            }}
                             disabled={pausingCampaign === campaign.id}
                           >
                             {pausingCampaign === campaign.id ? (
@@ -860,6 +877,13 @@ export default function VoiceAIPage() {
           </div>
         </AlertDialogContent>
       </AlertDialog>
+
+      <CampaignDetailsModal
+        campaign={selectedCampaign}
+        open={showCampaignDetails}
+        onOpenChange={setShowCampaignDetails}
+        onRefresh={fetchVoiceCampaigns}
+      />
     </div>
   );
 }
