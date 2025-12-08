@@ -12,6 +12,7 @@ const VOICE_CAMPAIGN_QUEUE = 'voice_campaign_queue';
 const voiceCampaignSchema = z.object({
   name: z.string().min(1, 'Nome da campanha é obrigatório'),
   voiceAgentId: z.string().min(1, 'Selecione um agente de voz'),
+  fromNumber: z.string().optional(),
   schedule: z.string().datetime({ offset: true }).nullable().optional(),
   contactListIds: z.array(z.string().uuid('ID de lista inválido')).min(1, 'Selecione pelo menos uma lista.'),
   enableRetry: z.boolean().optional().default(false),
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             }, { status: 400 });
         }
 
-        const { contactListIds, voiceAgentId, schedule, name, enableRetry, maxRetryAttempts, retryDelayMinutes } = parsed.data;
+        const { contactListIds, voiceAgentId, fromNumber, schedule, name, enableRetry, maxRetryAttempts, retryDelayMinutes } = parsed.data;
         const isScheduled = !!schedule;
 
         let agent = null;
@@ -110,6 +111,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             enableRetry: enableRetry,
             maxRetryAttempts: maxRetryAttempts,
             retryDelayMinutes: retryDelayMinutes,
+            variableMappings: fromNumber ? { fromNumber } : undefined,
         }).returning();
 
         if (!newCampaign) {

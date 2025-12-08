@@ -1607,7 +1607,8 @@ export async function sendVoiceCampaign(campaign: typeof campaigns.$inferSelect)
         if (!agent) throw new Error(`Voice Agent ${campaign.voiceAgentId} not found.`);
         const retellAgentId = agent.retellAgentId || campaign.voiceAgentId;
 
-        const twilioFromNumber = process.env.TWILIO_PHONE_NUMBER;
+        const campaignFromNumber = (campaign.variableMappings as { fromNumber?: string })?.fromNumber;
+        const twilioFromNumber = campaignFromNumber || process.env.TWILIO_PHONE_NUMBER;
         if (!twilioFromNumber) throw new Error('TWILIO_PHONE_NUMBER environment variable is not configured.');
 
         const isRetryMode = campaign.retryContactIds && campaign.retryContactIds.length > 0;

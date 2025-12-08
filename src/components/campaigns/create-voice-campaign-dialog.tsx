@@ -42,6 +42,13 @@ interface VoiceAgent {
   retellAgentId: string | null;
 }
 
+interface TwilioNumber {
+  phoneNumber: string;
+  friendlyName: string;
+  voiceEnabled: boolean;
+  registeredInRetell: boolean;
+}
+
 interface CreateVoiceCampaignDialogProps {
   children: React.ReactNode;
   onSaveSuccess?: () => void;
@@ -54,6 +61,7 @@ export function CreateVoiceCampaignDialog({ children, onSaveSuccess }: CreateVoi
 
   const [name, setName] = useState('');
   const [selectedAgentId, setSelectedAgentId] = useState<string>('');
+  const [selectedPhoneNumber, setSelectedPhoneNumber] = useState<string>('');
   const [selectedListIds, setSelectedListIds] = useState<string[]>([]);
   const [scheduleDate, setScheduleDate] = useState<Date | undefined>();
   const [scheduleTime, setScheduleTime] = useState('09:00');
@@ -63,6 +71,7 @@ export function CreateVoiceCampaignDialog({ children, onSaveSuccess }: CreateVoi
   const [retryDelayMinutes, setRetryDelayMinutes] = useState(30);
 
   const [agents, setVoiceAgents] = useState<VoiceAgent[]>([]);
+  const [phoneNumbers, setPhoneNumbers] = useState<TwilioNumber[]>([]);
   const [lists, setContactLists] = useState<ContactList[]>([]);
   
   const { toast } = useToast();
@@ -74,23 +83,31 @@ export function CreateVoiceCampaignDialog({ children, onSaveSuccess }: CreateVoi
       setIsLoading(true);
       const fetchPrereqs = async () => {
         try {
-          const [agentsRes, listsRes] = await Promise.all([
+          const [agentsRes, listsRes, phonesRes] = await Promise.all([
             fetch('/api/v1/voice/agents'),
             fetch('/api/v1/lists?limit=0'),
+            fetch('/api/v1/voice/phone-numbers'),
           ]);
           if (!agentsRes.ok || !listsRes.ok) throw new Error('Falha ao carregar dados necessários.');
           
           const agentsData = await agentsRes.json();
           const listsData = await listsRes.json();
+          const phonesData = phonesRes.ok ? await phonesRes.json() : { data: [] };
 
           const activeAgents = (agentsData.data || agentsData || []).filter(
             (a: VoiceAgent) => a.status !== 'archived'
           );
           setVoiceAgents(activeAgents);
           setContactLists(listsData.data || []);
+          
+          const voiceNumbers = (phonesData.data || []).filter((p: TwilioNumber) => p.voiceEnabled);
+          setPhoneNumbers(voiceNumbers);
 
           if (activeAgents.length > 0) {
             setSelectedAgentId(activeAgents[0].id);
+          }
+          if (voiceNumbers.length > 0) {
+            setSelectedPhoneNumber(voiceNumbers[0].phoneNumber);
           }
         } catch (error) {
           notify.error('Erro', (error as Error).message);
@@ -119,6 +136,7 @@ export function CreateVoiceCampaignDialog({ children, onSaveSuccess }: CreateVoi
     const payload = {
       name,
       voiceAgentId: selectedAgentId,
+      fromNumber: selectedPhoneNumber,
       contactListIds: selectedListIds,
       schedule,
       enableRetry,
@@ -207,6 +225,42 @@ export function CreateVoiceCampaignDialog({ children, onSaveSuccess }: CreateVoi
                   </SelectContent>
                 </Select>
               )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="from-number">Número de Origem (Twilio)</Label>
+              {phoneNumbers.length === 0 && !isLoading ? (
+                <p className="text-sm text-muted-foreground">
+                  Nenhum número Twilio disponível.
+                </p>
+              ) : (
+                <Select 
+                  value={selectedPhoneNumber} 
+                  onValueChange={setSelectedPhoneNumber}
+                >
+                  <SelectTrigger id="from-number" className={!selectedPhoneNumber ? 'text-muted-foreground' : ''}>
+                    <SelectValue placeholder="Selecione um número">
+                      {selectedPhoneNumber || 'Selecione um número'}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {phoneNumbers.map(phone => (
+                      <SelectItem key={phone.phoneNumber} value={phone.phoneNumber}>
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-3 w-3" />
+                          <span>{phone.phoneNumber}</span>
+                          <span className="text-muted-foreground text-xs">({phone.friendlyName})</span>
+                          {phone.registeredInRetell && (
+                            <span className="text-green-600 text-xs">Retell</span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Este número aparecerá como originador das chamadas.
+              </p>
             </div>
             <div className="space-y-2">
               <Label>Listas de Contatos (selecione uma ou mais)</Label>
