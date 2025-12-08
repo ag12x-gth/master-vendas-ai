@@ -1387,7 +1387,9 @@ export async function sendSmsCampaign(campaign: typeof campaigns.$inferSelect): 
 // ==========================================
 
 import { retellService } from './retell-service';
-import { voiceAgents, voiceCalls, voiceDeliveryReports } from '@/lib/db/schema';
+import { voiceAgents, voiceCalls, voiceDeliveryReports, voiceRetryQueue } from '@/lib/db/schema';
+
+import { VoiceCallOutcome, VOICE_MAX_RETRY_ATTEMPTS, VOICE_RETRY_DELAY_MINUTES } from './voice-utils';
 
 const VOICE_BATCH_SIZE = 20;
 const VOICE_BATCH_DELAY_SECONDS = 50;
@@ -1398,13 +1400,15 @@ interface VoiceCallResult {
     contactId: string;
     callId?: string;
     error?: string;
+    attemptNumber: number;
 }
 
 async function initiateVoiceCall(
     agent: { retellAgentId: string; id: string },
     contact: { id: string; phone: string; name?: string | null },
     companyId: string,
-    fromNumber: string
+    fromNumber: string,
+    attemptNumber: number = 1
 ): Promise<VoiceCallResult> {
     try {
         let toNumber = contact.phone.replace(/\D/g, '');
@@ -1416,13 +1420,14 @@ async function initiateVoiceCall(
             }
         }
 
-        const retellCall = await retellService.createPhoneCall({
+        const retellCall = await retellService.createPhoneCallWithVoicemailDetection({
             from_number: fromNumber,
             to_number: toNumber,
             override_agent_id: agent.retellAgentId,
             metadata: {
                 contact_id: contact.id,
                 company_id: companyId,
+                attempt_number: String(attemptNumber),
             }
         });
 
@@ -1437,20 +1442,23 @@ async function initiateVoiceCall(
             customerName: contact.name || undefined,
             status: retellCall.call_status || 'initiated',
             provider: 'retell',
+            metadata: { attemptNumber },
         });
 
-        console.log(`[Voice Campaign] ✅ Chamada iniciada para ${toNumber} | CallID: ${retellCall.call_id}`);
+        console.log(`[Voice Campaign] ✅ Chamada iniciada para ${toNumber} | CallID: ${retellCall.call_id} | Tentativa: ${attemptNumber}`);
         return {
             success: true,
             contactId: contact.id,
             callId: retellCall.call_id,
+            attemptNumber,
         };
     } catch (error) {
-        console.error(`[Voice Campaign] ❌ Erro ao iniciar chamada para ${contact.phone}:`, error);
+        console.error(`[Voice Campaign] ❌ Erro ao iniciar chamada para ${contact.phone} (tentativa ${attemptNumber}):`, error);
         return {
             success: false,
             contactId: contact.id,
             error: (error as Error).message,
+            attemptNumber,
         };
     }
 }
@@ -1466,11 +1474,104 @@ async function logVoiceDelivery(
         voiceAgentId,
         providerCallId: result.callId || null,
         status: result.success ? 'INITIATED' : 'FAILED',
+        callOutcome: 'pending' as const,
+        attemptNumber: result.attemptNumber,
         failureReason: result.error || null,
     }));
 
     if (reports.length > 0) {
         await db.insert(voiceDeliveryReports).values(reports);
+    }
+}
+
+
+export async function scheduleVoiceRetry(
+    campaignId: string,
+    contactId: string,
+    voiceAgentId: string,
+    companyId: string,
+    currentAttempt: number,
+    lastAttemptReason: string
+): Promise<boolean> {
+    const nextAttempt = currentAttempt + 1;
+    
+    if (nextAttempt > VOICE_MAX_RETRY_ATTEMPTS) {
+        console.log(`[Voice Retry] Máximo de tentativas atingido para contato ${contactId}. Não será reagendado.`);
+        return false;
+    }
+    
+    const scheduledAt = new Date(Date.now() + VOICE_RETRY_DELAY_MINUTES * 60 * 1000);
+    
+    try {
+        await db.insert(voiceRetryQueue).values({
+            campaignId,
+            contactId,
+            voiceAgentId,
+            companyId,
+            attemptNumber: nextAttempt,
+            scheduledAt,
+            status: 'pending',
+            lastAttemptReason,
+        }).onConflictDoNothing();
+        
+        console.log(`[Voice Retry] ✅ Agendada tentativa ${nextAttempt} para contato ${contactId} em ${scheduledAt.toISOString()}`);
+        return true;
+    } catch (error) {
+        console.error(`[Voice Retry] ❌ Erro ao agendar retry para contato ${contactId}:`, error);
+        return false;
+    }
+}
+
+export async function updateVoiceDeliveryWithOutcome(
+    providerCallId: string,
+    callOutcome: VoiceCallOutcome,
+    disconnectionReason: string | null,
+    duration: number | null
+): Promise<void> {
+    try {
+        const [report] = await db
+            .select()
+            .from(voiceDeliveryReports)
+            .where(eq(voiceDeliveryReports.providerCallId, providerCallId))
+            .limit(1);
+        
+        if (!report) {
+            console.warn(`[Voice Delivery] Report não encontrado para callId ${providerCallId}`);
+            return;
+        }
+        
+        const shouldRetry = ['voicemail', 'no_answer', 'busy'].includes(callOutcome) && 
+                           report.attemptNumber < VOICE_MAX_RETRY_ATTEMPTS;
+        
+        let nextRetryAt: Date | null = null;
+        if (shouldRetry) {
+            nextRetryAt = new Date(Date.now() + VOICE_RETRY_DELAY_MINUTES * 60 * 1000);
+            
+            await scheduleVoiceRetry(
+                report.campaignId,
+                report.contactId,
+                report.voiceAgentId || '',
+                '',
+                report.attemptNumber,
+                disconnectionReason || callOutcome
+            );
+        }
+        
+        await db
+            .update(voiceDeliveryReports)
+            .set({
+                callOutcome,
+                disconnectionReason,
+                duration,
+                nextRetryAt,
+                status: callOutcome === 'human' ? 'COMPLETED' : 
+                        shouldRetry ? 'RETRY_SCHEDULED' : 'FAILED',
+            })
+            .where(eq(voiceDeliveryReports.providerCallId, providerCallId));
+        
+        console.log(`[Voice Delivery] ✅ Atualizado report ${providerCallId}: outcome=${callOutcome}, retry=${shouldRetry}`);
+    } catch (error) {
+        console.error(`[Voice Delivery] ❌ Erro ao atualizar report ${providerCallId}:`, error);
     }
 }
 
@@ -1565,7 +1666,8 @@ export async function sendVoiceCampaign(campaign: typeof campaigns.$inferSelect)
                     { retellAgentId: agent.retellAgentId!, id: agent.id },
                     contact,
                     campaign.companyId!,
-                    twilioFromNumber
+                    twilioFromNumber,
+                    1
                 )
             );
 

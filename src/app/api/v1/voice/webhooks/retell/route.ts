@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { voiceAIPlatform } from '@/lib/voice-ai-platform';
 import { logger } from '@/lib/logger';
 import { z } from 'zod';
+import { mapDisconnectionReasonToOutcome } from '@/lib/voice-utils';
+import { updateVoiceDeliveryWithOutcome } from '@/lib/campaign-sender';
 
 const retellWebhookSchema = z.object({
   event: z.enum(['call_started', 'call_ended', 'call_analyzed', 'agent_response', 'user_transcript']),
@@ -13,6 +15,7 @@ const retellWebhookSchema = z.object({
   start_timestamp: z.number().optional(),
   end_timestamp: z.number().optional(),
   duration_ms: z.number().optional(),
+  disconnection_reason: z.string().optional(),
   transcript: z.array(z.object({
     role: z.string(),
     content: z.string(),
@@ -126,21 +129,51 @@ async function handleCallStarted(payload: RetellWebhookPayload) {
 }
 
 async function handleCallEnded(payload: RetellWebhookPayload) {
+  const disconnectionReason = payload.disconnection_reason || null;
+  const durationSeconds = payload.duration_ms ? Math.round(payload.duration_ms / 1000) : null;
+  
   logger.info('Processing call_ended event', {
     callId: payload.call_id,
     durationMs: payload.duration_ms,
+    disconnectionReason,
     recordingUrl: payload.recording_url,
   });
+
+  const callOutcome = mapDisconnectionReasonToOutcome(disconnectionReason);
+  
+  logger.info('Call outcome determined', {
+    callId: payload.call_id,
+    disconnectionReason,
+    callOutcome,
+  });
+
+  try {
+    await updateVoiceDeliveryWithOutcome(
+      payload.call_id,
+      callOutcome,
+      disconnectionReason,
+      durationSeconds
+    );
+  } catch (error) {
+    logger.error('Failed to update voice delivery with outcome', {
+      callId: payload.call_id,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
 
   if (voiceAIPlatform.isConfigured()) {
     await voiceAIPlatform.syncCallFromWebhook({
       externalCallId: payload.call_id,
       status: 'ended',
       endedAt: payload.end_timestamp ? new Date(payload.end_timestamp).toISOString() : new Date().toISOString(),
-      duration: payload.duration_ms ? Math.round(payload.duration_ms / 1000) : 0,
+      duration: durationSeconds || 0,
       recordingUrl: payload.recording_url,
       transcript: payload.transcript as Array<{ role: string; content: string; timestamp: number }>,
-      metadata: { source: 'retell_webhook' },
+      metadata: { 
+        source: 'retell_webhook',
+        disconnectionReason,
+        callOutcome,
+      },
     });
   }
 }

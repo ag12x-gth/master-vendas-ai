@@ -191,10 +191,31 @@ class RetellService {
     to_number: string;
     override_agent_id?: string;
     metadata?: Record<string, string>;
+    voicemail_detection?: {
+      provider: 'twilio';
+      voicemail_detection_timeout_ms?: number;
+      max_voicemail_duration_seconds?: number;
+    };
   }): Promise<RetellCall> {
     return this.request<RetellCall>('/v2/create-phone-call', {
       method: 'POST',
       body: JSON.stringify(params),
+    });
+  }
+
+  async createPhoneCallWithVoicemailDetection(params: {
+    from_number: string;
+    to_number: string;
+    override_agent_id?: string;
+    metadata?: Record<string, string>;
+  }): Promise<RetellCall> {
+    return this.createPhoneCall({
+      ...params,
+      voicemail_detection: {
+        provider: 'twilio',
+        voicemail_detection_timeout_ms: 10000,
+        max_voicemail_duration_seconds: 12,
+      },
     });
   }
 }

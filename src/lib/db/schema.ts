@@ -532,6 +532,15 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     createdAt: timestamp('created_at').defaultNow(),
   });
 
+  export const voiceCallOutcomeEnum = pgEnum('voice_call_outcome', [
+    'human',
+    'voicemail',
+    'no_answer',
+    'busy',
+    'failed',
+    'pending'
+  ]);
+
   export const voiceDeliveryReports = pgTable('voice_delivery_reports', {
     id: text('id').primaryKey().default(sql`gen_random_uuid()`),
     campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
@@ -539,11 +548,39 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     voiceAgentId: text('voice_agent_id'),
     providerCallId: text('provider_call_id'),
     status: text('status').notNull(),
+    callOutcome: voiceCallOutcomeEnum('call_outcome').default('pending'),
+    attemptNumber: integer('attempt_number').default(1).notNull(),
+    nextRetryAt: timestamp('next_retry_at'),
     failureReason: text('failure_reason'),
     duration: integer('duration'),
+    disconnectionReason: text('disconnection_reason'),
     sentAt: timestamp('sent_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull().$onUpdate(() => new Date()),
   });
+
+  export const voiceRetryStatusEnum = pgEnum('voice_retry_status', [
+    'pending',
+    'processing',
+    'completed',
+    'failed',
+    'cancelled'
+  ]);
+
+  export const voiceRetryQueue = pgTable('voice_retry_queue', {
+    id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+    campaignId: text('campaign_id').notNull().references(() => campaigns.id, { onDelete: 'cascade' }),
+    contactId: text('contact_id').notNull().references(() => contacts.id, { onDelete: 'cascade' }),
+    voiceAgentId: text('voice_agent_id').notNull(),
+    companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+    attemptNumber: integer('attempt_number').notNull(),
+    scheduledAt: timestamp('scheduled_at').notNull(),
+    status: voiceRetryStatusEnum('status').default('pending').notNull(),
+    lastAttemptReason: text('last_attempt_reason'),
+    processedAt: timestamp('processed_at'),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  }, (table) => ({
+    campaignContactUnique: unique('voice_retry_queue_campaign_contact_attempt').on(table.campaignId, table.contactId, table.attemptNumber),
+  }));
   
 // ==============================
 // CRM INTEGRATIONS
