@@ -97,10 +97,11 @@ export default function VoiceAIPage() {
       const response = await fetch('/api/v1/campaigns?channel=VOICE');
       if (response.ok) {
         const data = await response.json();
-        const active = (data.data || []).filter((c: any) => 
-          ['SENDING', 'QUEUED', 'SCHEDULED', 'PENDING'].includes(c.status)
+        // Mostrar TODAS as campanhas de voz, ordenadas por data de criação (mais recentes primeiro)
+        const campaigns = (data.data || []).sort((a: any, b: any) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
-        setVoiceCampaigns(active);
+        setVoiceCampaigns(campaigns);
       }
     } catch (err) {
       console.error('Error fetching voice campaigns:', err);
@@ -395,23 +396,32 @@ export default function VoiceAIPage() {
         </CardContent>
       </Card>
 
-      {activeCalls.length > 0 && (
-        <Card className="shadow-lg border-2 border-green-500/30 bg-green-50/50 dark:bg-green-950/20">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Activity className="h-5 w-5 text-green-600 animate-pulse" />
-              Chamadas em Curso ({activeCalls.length})
-            </CardTitle>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={fetchActiveCalls}
-              disabled={loadingActiveCalls}
-            >
-              <RefreshCw className={`h-4 w-4 ${loadingActiveCalls ? 'animate-spin' : ''}`} />
-            </Button>
-          </CardHeader>
-          <CardContent>
+      <Card className="shadow-lg border-2 border-green-500/30 bg-green-50/50 dark:bg-green-950/20">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Activity className="h-5 w-5 text-green-600" />
+            Chamadas em Curso ({activeCalls.length})
+          </CardTitle>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={fetchActiveCalls}
+            disabled={loadingActiveCalls}
+          >
+            <RefreshCw className={`h-4 w-4 ${loadingActiveCalls ? 'animate-spin' : ''}`} />
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {loadingActiveCalls ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : activeCalls.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <PhoneCall className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p>Nenhuma chamada em andamento</p>
+            </div>
+          ) : (
             <div className="space-y-3">
               {activeCalls.map((call: any) => (
                 <div 
@@ -443,31 +453,44 @@ export default function VoiceAIPage() {
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
 
-      {voiceCampaigns.length > 0 && (
-        <Card className="shadow-lg border-2 border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Send className="h-5 w-5 text-blue-600" />
-              Campanhas de Voz em Curso ({voiceCampaigns.length})
-            </CardTitle>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={fetchVoiceCampaigns}
-              disabled={loadingCampaigns}
-            >
-              <RefreshCw className={`h-4 w-4 ${loadingCampaigns ? 'animate-spin' : ''}`} />
-            </Button>
-          </CardHeader>
-          <CardContent>
+      <Card className="shadow-lg border-2 border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Send className="h-5 w-5 text-blue-600" />
+            Campanhas de Voz ({voiceCampaigns.length})
+          </CardTitle>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={fetchVoiceCampaigns}
+            disabled={loadingCampaigns}
+          >
+            <RefreshCw className={`h-4 w-4 ${loadingCampaigns ? 'animate-spin' : ''}`} />
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {loadingCampaigns ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : voiceCampaigns.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Send className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p>Nenhuma campanha de voz criada</p>
+            </div>
+          ) : (
             <div className="space-y-4">
               {voiceCampaigns.map((campaign: any) => {
                 const isSending = campaign.status === 'SENDING';
                 const isQueued = campaign.status === 'QUEUED';
+                const isPaused = campaign.status === 'PAUSED';
+                const isCompleted = campaign.status === 'COMPLETED';
+                const isFailed = campaign.status === 'FAILED';
+                const isScheduled = campaign.status === 'SCHEDULED';
                 const progress = campaign.progress || 0;
                 
                 return (
@@ -477,13 +500,25 @@ export default function VoiceAIPage() {
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-full ${isSending ? 'bg-blue-100 dark:bg-blue-900' : 'bg-gray-100 dark:bg-gray-800'}`}>
+                        <div className={`p-2 rounded-full ${
+                          isSending ? 'bg-blue-100 dark:bg-blue-900' : 
+                          isPaused ? 'bg-orange-100 dark:bg-orange-900' :
+                          isCompleted ? 'bg-green-100 dark:bg-green-900' :
+                          isFailed ? 'bg-red-100 dark:bg-red-900' :
+                          'bg-gray-100 dark:bg-gray-800'
+                        }`}>
                           {isSending ? (
                             <Send className="h-4 w-4 text-blue-600 animate-pulse" />
-                          ) : isQueued ? (
-                            <Clock className="h-4 w-4 text-yellow-600" />
+                          ) : isCompleted ? (
+                            <PhoneCall className="h-4 w-4 text-green-600" />
+                          ) : isFailed ? (
+                            <PhoneOff className="h-4 w-4 text-red-600" />
                           ) : (
-                            <Clock className="h-4 w-4 text-gray-500" />
+                            <Clock className={`h-4 w-4 ${
+                              isQueued ? 'text-yellow-600' : 
+                              isPaused ? 'text-orange-600' :
+                              'text-gray-500'
+                            }`} />
                           )}
                         </div>
                         <div>
@@ -497,25 +532,37 @@ export default function VoiceAIPage() {
                         <Badge className={
                           isSending ? 'bg-blue-500 text-white animate-pulse' :
                           isQueued ? 'bg-yellow-500 text-white' :
+                          isPaused ? 'bg-orange-500 text-white' :
+                          isCompleted ? 'bg-green-500 text-white' :
+                          isFailed ? 'bg-red-500 text-white' :
+                          isScheduled ? 'bg-purple-500 text-white' :
                           'bg-gray-500 text-white'
                         }>
-                          {isSending ? 'Enviando' : isQueued ? 'Na fila' : campaign.status === 'SCHEDULED' ? 'Agendada' : campaign.status}
+                          {isSending ? 'Enviando' : 
+                           isQueued ? 'Na fila' : 
+                           isPaused ? 'Pausada' :
+                           isCompleted ? 'Concluída' :
+                           isFailed ? 'Falha' :
+                           isScheduled ? 'Agendada' : 
+                           campaign.status}
                         </Badge>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => pauseCampaign(campaign.id)}
-                          disabled={pausingCampaign === campaign.id}
-                        >
-                          {pausingCampaign === campaign.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <>
-                              <Square className="h-4 w-4 mr-1" />
-                              Parar
-                            </>
-                          )}
-                        </Button>
+                        {(isSending || isQueued) && (
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => pauseCampaign(campaign.id)}
+                            disabled={pausingCampaign === campaign.id}
+                          >
+                            {pausingCampaign === campaign.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <>
+                                <Square className="h-4 w-4 mr-1" />
+                                Parar
+                              </>
+                            )}
+                          </Button>
+                        )}
                       </div>
                     </div>
                     {isSending && (
@@ -527,19 +574,24 @@ export default function VoiceAIPage() {
                         <Progress value={progress} className="h-2" />
                       </div>
                     )}
-                    {campaign.scheduledAt && !isSending && (
+                    {isScheduled && campaign.scheduledAt && (
                       <p className="text-sm text-muted-foreground mt-2">
                         <Clock className="inline h-3 w-3 mr-1" />
                         Agendada para: {new Date(campaign.scheduledAt).toLocaleString('pt-BR')}
+                      </p>
+                    )}
+                    {campaign.createdAt && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Criada em {new Date(campaign.createdAt).toLocaleString('pt-BR')}
                       </p>
                     )}
                   </div>
                 );
               })}
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
+        </CardContent>
+      </Card>
 
       <Card className="shadow-md">
         <CardHeader className="space-y-4">

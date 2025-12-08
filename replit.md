@@ -59,16 +59,16 @@ Preferred communication style: Simple, everyday language.
 - **Recent Calls Pagination**: Server-side with offset/limit; 10 per page; total count calculated up to 10000 calls.
 - **Agents Pagination**: Grid view with 6 agents per page; Previous/Next buttons; "Page X of Y" indicator.
 - **Agent Deletion**: Trash icon button on each agent card; AlertDialog confirmation; auto-refreshes list after deletion; sets status to 'archived'.
-- **Agent Status Toggle**: Power button with:
-  - Real-time visual feedback (loading spinner during update)
-  - Toast success/error notifications
-  - Automatic list refresh after status change
-  - Properly syncs with filters (shows/hides based on active/inactive filter)
-- **Agent Status Filter** (NEW - December 8, 2025): 
-  - Three filter buttons: "Todos" (all non-archived), "Ativos" (only active), "Inativos" (only inactive)
-  - Filter state resets pagination to page 1
-  - Paginação (6 agents per page) synchronized with filter selection
-  - Accurate "X de Y agentes" count based on current filter
+- **Agent Status Toggle**: Power button with loading spinner, toast notifications, automatic list refresh.
+- **Agent Status Filter**: Three filter buttons (Todos/Ativos/Inativos) synchronized with pagination.
+- **Chamadas em Curso (Active Calls)**: ALWAYS displays - shows active calls (status: "Chamando..." or "Em andamento") with number, agent, and timestamp. Auto-updates every 5s. Empty state when no active calls.
+- **Campanhas de Voz**: ALWAYS displays - shows ALL voice campaigns with status indicators:
+  - Status badges: Enviando (blue pulse), Na fila (yellow), Pausada (orange), Concluída (green), Falha (red), Agendada (purple)
+  - Progress bar for "Enviando" campaigns
+  - Pause button for SENDING/QUEUED campaigns only
+  - Empty state when no campaigns created
+  - Sorted by creation date (newest first)
+  - Shows creation timestamp
 
 ### AI/ML Services
 - **OpenAI**: GPT-3.5-turbo, GPT-4, GPT-4o via `@ai-sdk/openai`.
@@ -83,26 +83,27 @@ Preferred communication style: Simple, everyday language.
 - **Firebase**: (Optional) App Hosting and Secret Manager.
 - **Replit**: Development environment, Object Storage.
 
-## Recent Changes (December 8, 2025)
-1. **Login Page Hydration Fix**: Added `suppressHydrationWarning` wrapper to `VersionBadge` component.
-2. **Recent Calls Pagination**: Server-side pagination with 10 items per page; Previous/Next buttons.
-3. **Voice Agents Grid Pagination**: 6 agents per page with pagination controls.
-4. **Delete Agent Feature**: Trash icon button on each agent card with confirmation dialog.
-   - Added `deleteAgent` function from hook
-   - Confirmation dialog prevents accidental deletion
-   - Auto-refreshes agents list after deletion
-   - Resets pagination to page 1
-   - Sets agent status to 'archived' instead of hard delete
-5. **Fixed Archived Agents Filter**: Added `.filter(a => a.status !== 'archived')` to show only active agents, filtering out deleted ones.
-6. **Agent Status Toggle (NEW)**: Improved `/voice-ai` page agent management
-   - Replaced simple toggle with enhanced `toggleAgentStatus` function
-   - Shows loading spinner while updating status
-   - Toast notifications for success/error feedback
-   - Forces list refresh after status change with `await fetchAgents()`
-   - Prevents multiple simultaneous toggle requests via `togglingAgentId` state
-7. **Agent Status Filter UI (NEW)**: Three-button filter system in "Meus Agentes" section
-   - "Todos" - shows all non-archived agents
-   - "Ativos" - shows only active agents  
-   - "Inativos" - shows only inactive agents
-   - Filter selection resets pagination to page 1 for consistent UX
-   - Pagination (6 per page) correctly counts and displays filtered agents
+## Recent Changes (December 8, 2025 - Session 2)
+1. **Archived Agents Filtering**: Added filter to hide deleted agents (status = 'archived') from display.
+2. **Agent Status Toggle Enhanced**: 
+   - Loading spinner while updating
+   - Toast notifications for success/error
+   - Automatic list refresh after status change
+   - Prevents multiple simultaneous updates
+3. **Agent Status Filter UI**: Three-button filter (Todos/Ativos/Inativos) with pagination reset on filter change.
+4. **Chamadas em Curso (Active Calls) - ALWAYS VISIBLE**:
+   - Section now appears regardless of active call count
+   - Loading spinner while fetching
+   - Empty state: "Nenhuma chamada em andamento" when no active calls
+   - Updates every 5 seconds automatically
+   - Shows: Phone number, Agent name, Status badge, Timestamp
+5. **Campanhas de Voz - ALWAYS VISIBLE**:
+   - Section now appears regardless of campaign count
+   - Fetches ALL voice campaigns (not just active ones)
+   - Status indicators: Enviando, Na fila, Pausada, Concluída, Falha, Agendada
+   - Pause button only for SENDING/QUEUED campaigns
+   - Progress bar for campaigns being sent
+   - Sorted by creation date (newest first)
+   - Shows creation timestamp for all campaigns
+   - Empty state: "Nenhuma campanha de voz criada"
+   - Updates every 10 seconds automatically
