@@ -185,9 +185,14 @@ export function CreateVoiceCampaignDialog({ children, onSaveSuccess }: CreateVoi
                   Nenhum agente de voz configurado. Configure um agente na seção Voice AI.
                 </p>
               ) : (
-                <Select value={selectedAgentId} onValueChange={setSelectedAgentId} required>
-                  <SelectTrigger id="voice-agent">
-                    <SelectValue placeholder="Selecione um agente de voz" />
+                <Select 
+                  value={selectedAgentId} 
+                  onValueChange={setSelectedAgentId}
+                >
+                  <SelectTrigger id="voice-agent" className={!selectedAgentId ? 'text-muted-foreground' : ''}>
+                    <SelectValue placeholder="Selecione um agente de voz">
+                      {selectedAgentId ? agents.find(a => a.id === selectedAgentId)?.name : 'Selecione um agente de voz'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {agents.map(agent => (

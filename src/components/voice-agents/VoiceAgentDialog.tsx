@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select';
 import { Slider } from '@/components/ui/slider';
 import { VoiceAgent, CreateAgentData, UpdateAgentData } from '@/hooks/useVoiceAgents';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Volume2, VolumeX, Pause } from 'lucide-react';
 
 interface VoiceAgentDialogProps {
   open: boolean;
@@ -34,6 +34,7 @@ interface VoiceAgentDialogProps {
 interface VoiceOption {
   value: string;
   label: string;
+  previewUrl?: string;
 }
 
 const modelOptions = [
@@ -54,6 +55,8 @@ export function VoiceAgentDialog({ open, onOpenChange, agent, onSave }: VoiceAge
   const [saving, setSaving] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState<VoiceOption[]>(defaultVoices);
   const [loadingVoices, setLoadingVoices] = useState(false);
+  const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
+  const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     type: 'inbound' as 'inbound' | 'outbound' | 'transfer',
@@ -72,9 +75,10 @@ export function VoiceAgentDialog({ open, onOpenChange, agent, onSave }: VoiceAge
         .then(res => res.json())
         .then(data => {
           if (data.success && data.data?.length > 0) {
-            const voices = data.data.map((v: { voice_id: string; voice_name: string; provider: string; gender?: string }) => ({
+            const voices = data.data.map((v: { voice_id: string; voice_name: string; provider: string; gender?: string; preview_audio_url?: string }) => ({
               value: v.voice_id,
               label: `${v.voice_name} (${v.provider}${v.gender ? ' - ' + v.gender : ''})`,
+              previewUrl: v.preview_audio_url,
             }));
             setVoiceOptions(voices);
           }
@@ -83,6 +87,39 @@ export function VoiceAgentDialog({ open, onOpenChange, agent, onSave }: VoiceAge
         .finally(() => setLoadingVoices(false));
     }
   }, [open, voiceOptions.length]);
+
+  useEffect(() => {
+    return () => {
+      if (audioRef) {
+        audioRef.pause();
+        audioRef.src = '';
+      }
+    };
+  }, [audioRef]);
+
+  const playVoicePreview = (voiceId: string) => {
+    const voice = voiceOptions.find(v => v.value === voiceId);
+    if (!voice?.previewUrl) return;
+
+    if (playingVoiceId === voiceId && audioRef) {
+      audioRef.pause();
+      setPlayingVoiceId(null);
+      return;
+    }
+
+    if (audioRef) {
+      audioRef.pause();
+    }
+
+    const audio = new Audio(voice.previewUrl);
+    audio.onended = () => setPlayingVoiceId(null);
+    audio.onerror = () => setPlayingVoiceId(null);
+    audio.play();
+    setAudioRef(audio);
+    setPlayingVoiceId(voiceId);
+  };
+
+  const selectedVoice = voiceOptions.find(v => v.value === formData.voiceId);
 
   useEffect(() => {
     if (agent) {
@@ -248,21 +285,39 @@ export function VoiceAgentDialog({ open, onOpenChange, agent, onSave }: VoiceAge
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="voiceId">Voz</Label>
-                <Select
-                  value={formData.voiceId}
-                  onValueChange={(value) => setFormData({ ...formData, voiceId: value })}
-                >
-                  <SelectTrigger id="voiceId">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {voiceOptions.map((voice) => (
-                      <SelectItem key={voice.value} value={voice.value}>
-                        {voice.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex gap-2">
+                  <Select
+                    value={formData.voiceId}
+                    onValueChange={(value) => setFormData({ ...formData, voiceId: value })}
+                  >
+                    <SelectTrigger id="voiceId" className="flex-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {voiceOptions.map((voice) => (
+                        <SelectItem key={voice.value} value={voice.value}>
+                          {voice.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => playVoicePreview(formData.voiceId)}
+                    disabled={!selectedVoice?.previewUrl}
+                    title={selectedVoice?.previewUrl ? 'Ouvir voz' : 'Preview indisponível'}
+                  >
+                    {playingVoiceId === formData.voiceId ? (
+                      <Pause className="h-4 w-4" />
+                    ) : selectedVoice?.previewUrl ? (
+                      <Volume2 className="h-4 w-4" />
+                    ) : (
+                      <VolumeX className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </Button>
+                </div>
               </div>
 
               <div className="grid gap-2">
