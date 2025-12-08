@@ -116,7 +116,7 @@ export async function POST(request: Request) {
       }, { status: 500 });
     }
 
-    const response = await fetch('https://api.retellai.com/create-phone-number', {
+    const response = await fetch('https://api.retellai.com/import-phone-number', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${retellApiKey}`,
@@ -124,12 +124,7 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify({
         phone_number: phoneNumber,
-        phone_number_type: 'custom',
-        nickname: nickname || phoneNumber,
-        sip_outbound_trunk_config: {
-          termination_uri: terminationUri,
-          transport: 'TCP',
-        },
+        termination_uri: terminationUri,
       }),
     });
 
