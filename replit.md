@@ -89,7 +89,24 @@ Preferred communication style: Simple, everyday language.
 - **Firebase**: (Optional) App Hosting and Secret Manager.
 - **Replit**: Development environment, Object Storage.
 
-## Recent Changes (December 8, 2025 - Session 4)
+## Recent Changes (December 8, 2025 - Session 5)
+1. **🎉 RETELL WEBHOOK REGISTERED** - CRITICAL ISSUE RESOLVED:
+   - **Problem**: Voice campaigns initiated successfully, but DB never updated (all records stuck at INITIATED/pending)
+   - **Root Cause**: Retell webhook not registered - calls created but no callbacks sent to server
+   - **Solution**: Registered webhook URL in Retell agent configuration
+   - **Webhook Details**:
+     - URL: `https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/voice/webhooks/retell`
+     - Agent: `agent_c96d270a5cad5d4608bb72ee08` (Assistente Brasil, pt-BR)
+     - Events: `call_started`, `call_ended`, `call_analyzed`
+   - **Impact**: Now Retell will send callbacks to server, which will:
+     - Trigger `handleCallEnded` function in webhook handler
+     - Call `updateVoiceDeliveryWithOutcome` to update DB with real status
+     - Update `call_outcome`, `duration`, `disconnectionReason` fields
+     - Schedule retries if needed
+   - **Verification**: Webhook confirmed via GET agent endpoint - webhook_url is set
+   - **Next Step**: Run test campaign - all call statuses will now update in real-time
+
+## Previous Changes (December 8, 2025 - Session 4)
 1. **Removed "Chamadas em Curso" Section** (`src/app/(main)/voice-ai/page.tsx`):
    - Removed redundant active calls section from Voice AI page
    - Removed `fetchActiveCalls` function and polling logic
