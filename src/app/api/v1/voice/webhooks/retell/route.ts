@@ -7,28 +7,35 @@ import { updateVoiceDeliveryWithOutcome } from '@/lib/campaign-sender';
 
 const retellWebhookSchema = z.object({
   event: z.enum(['call_started', 'call_ended', 'call_analyzed', 'agent_response', 'user_transcript']),
-  call_id: z.string(),
-  agent_id: z.string().optional(),
-  from_number: z.string().optional(),
-  to_number: z.string().optional(),
-  direction: z.enum(['inbound', 'outbound']).optional(),
-  start_timestamp: z.number().optional(),
-  end_timestamp: z.number().optional(),
-  duration_ms: z.number().optional(),
-  disconnection_reason: z.string().optional(),
-  transcript: z.array(z.object({
-    role: z.string(),
-    content: z.string(),
-    timestamp: z.number().optional(),
-  })).optional(),
-  recording_url: z.string().optional(),
+  call: z.object({
+    call_id: z.string(),
+    call_type: z.string().optional(),
+    agent_id: z.string().optional(),
+    agent_name: z.string().optional(),
+    from_number: z.string().optional(),
+    to_number: z.string().optional(),
+    direction: z.enum(['inbound', 'outbound']).optional(),
+    start_timestamp: z.number().optional(),
+    end_timestamp: z.number().optional(),
+    duration_ms: z.number().optional(),
+    call_status: z.string().optional(),
+    disconnection_reason: z.string().optional(),
+    transcript: z.string().optional(),
+    transcript_object: z.array(z.object({
+      role: z.string().optional(),
+      content: z.string().optional(),
+      timestamp: z.number().optional(),
+    })).optional(),
+    recording_url: z.string().optional(),
+    custom_sip_headers: z.record(z.any()).optional(),
+    metadata: z.record(z.any()).optional(),
+  }),
   call_analysis: z.object({
     call_summary: z.string().optional(),
     user_sentiment: z.string().optional(),
     call_successful: z.boolean().optional(),
     custom_analysis_data: z.record(z.any()).optional(),
   }).optional(),
-  metadata: z.record(z.any()).optional(),
 });
 
 type RetellWebhookPayload = z.infer<typeof retellWebhookSchema>;
@@ -41,8 +48,8 @@ export async function POST(request: NextRequest) {
     
     logger.info('Retell webhook received', { 
       event: body.event,
-      callId: body.call_id,
-      agentId: body.agent_id,
+      callId: body.call?.call_id,
+      agentId: body.call?.agent_id,
     });
 
     const validation = retellWebhookSchema.safeParse(body);
@@ -72,7 +79,7 @@ export async function POST(request: NextRequest) {
         break;
       case 'agent_response':
       case 'user_transcript':
-        logger.debug('Retell streaming event received', { event: payload.event, callId: payload.call_id });
+        logger.debug('Retell streaming event received', { event: payload.event, callId: payload.call.call_id });
         break;
       default:
         logger.warn('Unknown Retell event', { event: payload.event });
@@ -82,14 +89,14 @@ export async function POST(request: NextRequest) {
     
     logger.info('Retell webhook processed', { 
       event: payload.event,
-      callId: payload.call_id,
+      callId: payload.call.call_id,
       processingTimeMs: processingTime,
     });
 
     return NextResponse.json({
       success: true,
       event: payload.event,
-      callId: payload.call_id,
+      callId: payload.call.call_id,
       processingTimeMs: processingTime,
       timestamp: new Date().toISOString(),
     });
@@ -104,24 +111,25 @@ export async function POST(request: NextRequest) {
 }
 
 async function handleCallStarted(payload: RetellWebhookPayload) {
+  const callData = payload.call;
   logger.info('Processing call_started event', {
-    callId: payload.call_id,
-    agentId: payload.agent_id,
-    fromNumber: payload.from_number,
-    toNumber: payload.to_number,
-    direction: payload.direction,
+    callId: callData.call_id,
+    agentId: callData.agent_id,
+    fromNumber: callData.from_number,
+    toNumber: callData.to_number,
+    direction: callData.direction,
   });
 
   if (voiceAIPlatform.isConfigured()) {
     await voiceAIPlatform.syncCallFromWebhook({
-      externalCallId: payload.call_id,
-      agentId: payload.agent_id,
+      externalCallId: callData.call_id,
+      agentId: callData.agent_id,
       status: 'initiated',
-      direction: payload.direction,
-      fromNumber: payload.from_number,
-      toNumber: payload.to_number,
+      direction: callData.direction as 'inbound' | 'outbound' | undefined,
+      fromNumber: callData.from_number,
+      toNumber: callData.to_number,
       metadata: {
-        startedAt: payload.start_timestamp ? new Date(payload.start_timestamp).toISOString() : new Date().toISOString(),
+        startedAt: callData.start_timestamp ? new Date(callData.start_timestamp).toISOString() : new Date().toISOString(),
         source: 'retell_webhook',
       },
     });
@@ -129,46 +137,47 @@ async function handleCallStarted(payload: RetellWebhookPayload) {
 }
 
 async function handleCallEnded(payload: RetellWebhookPayload) {
-  const disconnectionReason = payload.disconnection_reason || null;
-  const durationSeconds = payload.duration_ms ? Math.round(payload.duration_ms / 1000) : null;
+  const callData = payload.call;
+  const disconnectionReason = callData.disconnection_reason || null;
+  const durationSeconds = callData.duration_ms ? Math.round(callData.duration_ms / 1000) : null;
   
   logger.info('Processing call_ended event', {
-    callId: payload.call_id,
-    durationMs: payload.duration_ms,
+    callId: callData.call_id,
+    durationMs: callData.duration_ms,
     disconnectionReason,
-    recordingUrl: payload.recording_url,
+    recordingUrl: callData.recording_url,
   });
 
   const callOutcome = mapDisconnectionReasonToOutcome(disconnectionReason);
   
   logger.info('Call outcome determined', {
-    callId: payload.call_id,
+    callId: callData.call_id,
     disconnectionReason,
     callOutcome,
   });
 
   try {
     await updateVoiceDeliveryWithOutcome(
-      payload.call_id,
+      callData.call_id,
       callOutcome,
       disconnectionReason,
       durationSeconds
     );
   } catch (error) {
     logger.error('Failed to update voice delivery with outcome', {
-      callId: payload.call_id,
+      callId: callData.call_id,
       error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 
   if (voiceAIPlatform.isConfigured()) {
     await voiceAIPlatform.syncCallFromWebhook({
-      externalCallId: payload.call_id,
+      externalCallId: callData.call_id,
       status: 'ended',
-      endedAt: payload.end_timestamp ? new Date(payload.end_timestamp).toISOString() : new Date().toISOString(),
+      endedAt: callData.end_timestamp ? new Date(callData.end_timestamp).toISOString() : new Date().toISOString(),
       duration: durationSeconds || 0,
-      recordingUrl: payload.recording_url,
-      transcript: payload.transcript as Array<{ role: string; content: string; timestamp: number }>,
+      recordingUrl: callData.recording_url,
+      transcript: callData.transcript_object as Array<{ role: string; content: string; timestamp: number }>,
       metadata: { 
         source: 'retell_webhook',
         disconnectionReason,
@@ -179,8 +188,9 @@ async function handleCallEnded(payload: RetellWebhookPayload) {
 }
 
 async function handleCallAnalyzed(payload: RetellWebhookPayload) {
+  const callData = payload.call;
   logger.info('Processing call_analyzed event', {
-    callId: payload.call_id,
+    callId: callData.call_id,
     hasSummary: !!payload.call_analysis?.call_summary,
     sentiment: payload.call_analysis?.user_sentiment,
     successful: payload.call_analysis?.call_successful,
@@ -197,7 +207,7 @@ async function handleCallAnalyzed(payload: RetellWebhookPayload) {
       : undefined;
 
     await voiceAIPlatform.syncCallFromWebhook({
-      externalCallId: payload.call_id,
+      externalCallId: callData.call_id,
       summary: payload.call_analysis.call_summary,
       sentimentScore,
       metadata: {
