@@ -43,6 +43,16 @@ Preferred communication style: Simple, everyday language.
 ### Third-Party APIs
 - **Meta/WhatsApp Business Platform**: Graph API for WhatsApp Cloud API.
 - **Baileys WhatsApp Library**: `@whiskeysockets/baileys`.
+- **Retell.ai**: Voice AI platform for automated phone calls with voicemail detection.
+- **Twilio**: Phone number provisioning and call routing.
+
+### Voice AI System (December 2025)
+- **Agent Management**: Voice agents stored in `voice_agents` table with Retell integration.
+- **Agent Lookup Priority**: 1) Local DB `voice_agents`, 2) External Voice AI Platform, 3) Retell auto-discovery.
+- **Campaign Processing**: BullMQ worker polls every 30s; campaigns flow QUEUED → SENDING → COMPLETED/FAILED.
+- **Retell API Notes**: `/v2/list-calls` requires POST method (not GET).
+- **Concurrent Limits**: Retell 20 simultaneous calls (Pay-As-You-Go), Twilio 1 CPS.
+- **Important**: `campaign-sender.ts` must NOT have `'use server'` directive (causes silent failures in BullMQ context).
 
 ### AI/ML Services
 - **OpenAI**: GPT-3.5-turbo, GPT-4, GPT-4o via `@ai-sdk/openai`.

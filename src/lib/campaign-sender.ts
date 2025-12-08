@@ -1,5 +1,5 @@
 // src/lib/campaign-sender.ts
-'use server';
+// NOTE: Removed 'use server' directive - this file is called from BullMQ Worker
 
 import { db } from '@/lib/db';
 import { 
@@ -1612,14 +1612,18 @@ export async function sendVoiceCampaign(campaign: typeof campaigns.$inferSelect)
             agent = {
                 id: localAgent.id,
                 name: localAgent.name,
-                retellAgentId: localAgent.retellAgentId
+                retellAgentId: localAgent.retellAgentId ?? null
             };
         } else {
             // Fallback to Voice AI Platform
             try {
                 const platformAgent = await voiceAIPlatform.getAgent(campaign.voiceAgentId);
                 if (platformAgent) {
-                    agent = platformAgent;
+                    agent = {
+                        id: platformAgent.id,
+                        name: platformAgent.name,
+                        retellAgentId: platformAgent.retellAgentId ?? null
+                    };
                 }
             } catch (err) {
                 console.error(`[Campanha Voice ${campaign.id}] Erro ao buscar agente da plataforma:`, err);
