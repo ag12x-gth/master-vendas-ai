@@ -58,8 +58,8 @@ const contactCreateSchema = z.object({
     (val) => (val === '' || val === null || val === undefined) ? undefined : val,
     z.string().optional()
   ),
-  listIds: z.array(z.string()).optional(),
-  tagIds: z.array(z.string()).optional(),
+  listIds: z.array(z.string()).min(1, 'Selecione pelo menos uma lista'),
+  tagIds: z.array(z.string()).min(1, 'Selecione pelo menos uma tag'),
 });
 
 

@@ -73,6 +73,23 @@ export function AddContactDialog({ children, onSaveSuccess }: AddContactDialogPr
         const formData = new FormData(e.currentTarget);
         const phone = `+${selectedDDI}${phoneInput}`;
     
+        // Validação client-side dos campos obrigatórios
+        const name = formData.get('contact-name');
+        if (!name || typeof name !== 'string' || name.trim() === '') {
+            notify.error("Erro de validação", "Nome é obrigatório");
+            return;
+        }
+
+        if (selectedTagIds.length === 0) {
+            notify.error("Erro de validação", "Selecione pelo menos uma tag");
+            return;
+        }
+
+        if (selectedListIds.length === 0) {
+            notify.error("Erro de validação", "Selecione pelo menos uma lista");
+            return;
+        }
+    
         const getFormValue = (key: string) => {
             const value = formData.get(key);
             return value && typeof value === 'string' && value.trim() !== '' ? value : undefined;
@@ -185,7 +202,7 @@ export function AddContactDialog({ children, onSaveSuccess }: AddContactDialogPr
                         <div className="space-y-4 pt-4 border-t">
                             <Label>Segmentação</Label>
                             <div className="space-y-2">
-                                <Label htmlFor="tags">Tags</Label>
+                                <Label htmlFor="tags"><span className="text-red-500">*</span> Tags</Label>
                                 <MultiSelectCreatable
                                     selected={selectedTagIds}
                                     onChange={setSelectedTagIds}
@@ -195,7 +212,7 @@ export function AddContactDialog({ children, onSaveSuccess }: AddContactDialogPr
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="lists">Listas</Label>
+                                <Label htmlFor="lists"><span className="text-red-500">*</span> Listas</Label>
                                  <MultiSelectCreatable
                                     selected={selectedListIds}
                                     onChange={setSelectedListIds}
