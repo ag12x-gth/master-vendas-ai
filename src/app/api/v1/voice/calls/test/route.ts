@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { z } from 'zod';
 
-const VOICE_AI_PLATFORM_URL = process.env.VOICE_AI_PLATFORM_URL || 'https://plataformai.global';
-const VOICE_AI_PLATFORM_API_KEY = process.env.VOICE_AI_PLATFORM_API_KEY || '';
-const RETELL_FROM_NUMBER = '+553322980007';
+const RETELL_API_KEY = process.env.RETELL_API_KEY || '';
+const RETELL_FROM_NUMBER = process.env.TWILIO_PHONE_NUMBER || '+553322980007';
 const RETELL_AGENT_ID = 'agent_c96d270a5cad5d4608bb72ee08';
 
 const testCallSchema = z.object({
@@ -23,9 +22,9 @@ function formatPhoneNumber(phone: string): string {
 
 export async function POST(request: NextRequest) {
   try {
-    if (!VOICE_AI_PLATFORM_API_KEY) {
+    if (!RETELL_API_KEY) {
       return NextResponse.json(
-        { error: 'Voice AI Platform não configurado' },
+        { error: 'Retell API Key não configurado' },
         { status: 503 }
       );
     }
@@ -42,16 +41,16 @@ export async function POST(request: NextRequest) {
 
     const toNumber = formatPhoneNumber(validation.data.toNumber);
 
-    const response = await fetch(`${VOICE_AI_PLATFORM_URL}/api/integrations/retell/calls`, {
+    const response = await fetch('https://api.retellai.com/v2/create-phone-call', {
       method: 'POST',
       headers: {
-        'X-API-KEY': VOICE_AI_PLATFORM_API_KEY,
+        'Authorization': `Bearer ${RETELL_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        fromNumber: RETELL_FROM_NUMBER,
-        toNumber: toNumber,
-        agentId: RETELL_AGENT_ID,
+        from_number: RETELL_FROM_NUMBER,
+        to_number: toNumber,
+        override_agent_id: validation.data.agentId || RETELL_AGENT_ID,
       }),
     });
 

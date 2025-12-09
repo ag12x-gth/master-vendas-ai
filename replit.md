@@ -36,24 +36,28 @@ The platform is built with a modern web stack, featuring **Next.js 14** (App Rou
 - **Google Cloud Storage**: Alternative file storage.
 - **Upstash**: Provides Redis for caching and message queuing.
 
-## Recent Changes (December 9, 2025 - Session 8)
+## Recent Changes (December 9, 2025 - Session 8-9)
 1. **MIGRAÇÃO COMPLETA PARA BANCO LOCAL** - API externa removida:
    - Eliminada dependência de `voiceAIPlatform` (plataformai.global) de todos os endpoints
    - Todos os webhooks, calls, agents, e analytics agora usam banco de dados local
    - Tabelas usadas: `voiceCalls`, `voiceAgents`, `voiceDeliveryReports` via Drizzle ORM
 
-2. **CORREÇÃO TwiML INBOUND** - Áudio bidirecional funcionando:
-   - **Problema anterior**: TwiML usava `<Dial><Sip>` (incorreto para Retell)
-   - **Solução**: Agora usa `<Connect><Stream url="wss://..." track="both_tracks">`
-   - `track="both_tracks"`: Habilita áudio bidirecional (inbound + outbound)
-   - Audio encoding: mulaw, sample_rate: 8000, audio_websocket_protocol: twilio
+2. **TwiML INBOUND COM SIP URI** - Método oficial Retell:
+   - **Método correto**: `<Dial><Sip>sip:{call_id}@sip.retellai.com</Sip></Dial>`
+   - Documentação Retell recomenda "Dial to SIP URI" quando não usando Elastic SIP Trunking
+   - Audio: mulaw encoding, 8000 Hz sample rate, Twilio WebSocket protocol
 
-3. **Arquivos principais atualizados**:
-   - `webhooks/retell/route.ts`: Atualiza voiceCalls via Drizzle
-   - `webhooks/twilio/incoming/route.ts`: TwiML com `<Connect><Stream track="both_tracks">`
-   - `calls/route.ts`, `agents/route.ts`, `analytics/route.ts`: Banco de dados local
+3. **PROBLEMA IDENTIFICADO - Webhooks do Twilio**:
+   - ❌ "Call status changes" estava apontando para API antiga: `https://plataformai.global/api/webhooks/telephony/call-status`
+   - ✅ **SOLUÇÃO**: Atualizar no Twilio Console para apontar para o novo endpoint local
+   - Novo webhook: `{app_url}/api/v1/voice/webhooks/twilio/status` (POST)
+   - Este webhook atualiza duração, status e gravações no banco de dados local
 
-4. **Configuração de inbound validada**:
-   - Agente: "Assistente Inbound Brasil" (agent_c96d270a5cad5d4608bb72ee08)
-   - Twilio Phone: +553322980007
-   - Webhook URL: `https://{domain}/api/v1/voice/webhooks/twilio/incoming`
+4. **Código limpo**:
+   - `src/app/api/v1/voice/calls/test/route.ts`: Removido dependência de API antiga, agora usa Retell API diretamente
+   - Arquivo `voice-ai-platform.ts` ainda contém classe legada (comentado para referência futura)
+
+5. **Status Atual**:
+   - ✅ Inbound webhook recebe chamadas e as registra no Retell
+   - ✅ TwiML retorna SIP URI correto
+   - ⏳ Aguardando atualização manual do webhook de status no Twilio Console
