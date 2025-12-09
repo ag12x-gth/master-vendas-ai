@@ -253,14 +253,14 @@ async function handleIncomingCall(payload: TwilioIncomingPayload): Promise<strin
 
       await logInboundCall(payload, localAgent, retellCall.call_id);
       
-      // CRITICAL: Use <Connect><Stream> for bidirectional audio streaming with Retell
-      // track="both_tracks" enables receiving inbound audio AND sending outbound audio
-      // This establishes a WebSocket connection for real-time audio exchange
+      // Use Retell's SIP endpoint for bidirectional audio
+      // This is the recommended method per Retell documentation
+      // The call_id is used to route audio to the correct Retell agent
       return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Connect>
-    <Stream url="wss://api.retellai.com/audio-websocket/${retellCall.call_id}" track="both_tracks" />
-  </Connect>
+  <Dial>
+    <Sip>sip:${retellCall.call_id}@5t4n6j0wnrl.sip.livekit.cloud</Sip>
+  </Dial>
 </Response>`;
     } else {
       logger.error('[Inbound] Failed to register call with Retell', {
