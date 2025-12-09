@@ -13,10 +13,10 @@ const sendEmail = async (
   to: string,
   name: string,
   resetLink: string,
-  token: string
+  _token: string
 ) => {
   // Usar integração de email do Replit
-  const emailContent = `
+  const _emailContent = `
 Olá ${name},
 
 Recebemos uma solicitação para resetar sua senha no sistema Master IA Oficial.

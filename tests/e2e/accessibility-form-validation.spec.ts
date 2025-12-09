@@ -9,7 +9,7 @@ test.describe('BUG-A002: Form Validation (Zod)', () => {
     await page.waitForURL('/dashboard', { timeout: 15000 });
   });
 
-  test('Webhook API - should validate required fields (Zod)', async ({ page, request }) => {
+  test('Webhook API - should validate required fields (Zod)', async ({ _page, request }) => {
     const response = await request.post('/api/v1/webhooks', {
       data: {
         name: '',
@@ -30,7 +30,7 @@ test.describe('BUG-A002: Form Validation (Zod)', () => {
     console.log('Erro retornado:', body.error || body.message);
   });
 
-  test('Contact API - should validate phone format (Zod)', async ({ page, request }) => {
+  test('Contact API - should validate phone format (Zod)', async ({ _page, request }) => {
     const response = await request.post('/api/v1/contacts', {
       data: {
         name: 'Test Contact',
@@ -50,7 +50,7 @@ test.describe('BUG-A002: Form Validation (Zod)', () => {
     console.log('✅ SUCCESS: API validou formato de telefone/email com Zod');
   });
 
-  test('Campaign API - should validate required connection (Zod)', async ({ page, request }) => {
+  test('Campaign API - should validate required connection (Zod)', async ({ _page, request }) => {
     const response = await request.post('/api/v1/campaigns/whatsapp', {
       data: {
         connectionId: '',
@@ -70,7 +70,7 @@ test.describe('BUG-A002: Form Validation (Zod)', () => {
     console.log('✅ SUCCESS: API validou campos obrigatórios de campanha com Zod');
   });
 
-  test('Automation API - should validate rule structure (Zod)', async ({ page, request }) => {
+  test('Automation API - should validate rule structure (Zod)', async ({ _page, request }) => {
     const response = await request.post('/api/v1/automations', {
       data: {
         name: '',
@@ -111,7 +111,7 @@ test.describe('BUG-A002: Form Validation (Zod)', () => {
     console.log('✅ SUCCESS: API de autenticação validou formato de email com Zod');
   });
 
-  test('Tag API - should validate tag name (Zod)', async ({ page, request }) => {
+  test('Tag API - should validate tag name (Zod)', async ({ _page, request }) => {
     const response = await request.post('/api/v1/tags', {
       data: {
         name: '',

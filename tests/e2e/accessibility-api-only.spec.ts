@@ -122,8 +122,6 @@ test.describe('BUG-A002: API Zod Validation (No Auth Required)', () => {
 test.describe('Infrastructure Validation', () => {
   
   test('Count files using toast hook', async () => {
-    const fs = require('fs');
-    const path = require('path');
     const { execSync } = require('child_process');
     
     const count = execSync(

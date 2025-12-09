@@ -1,4 +1,4 @@
-import { test, expect, Page, BrowserContext } from '@playwright/test';
+import { test, Page } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -41,7 +41,7 @@ interface BugReport {
 const bugsFound: BugReport[] = [];
 
 async function takeScreenshot(page: Page, name: string, viewport: string): Promise<string> {
-  const timestamp = Date.now();
+  const _timestamp = Date.now();
   const filename = `${viewport}-${name}.png`;
   const filepath = path.join(SCREENSHOT_DIR, filename);
   await page.screenshot({ path: filepath, fullPage: true });

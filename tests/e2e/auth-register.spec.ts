@@ -74,7 +74,7 @@ test.describe('Cadastro de Novo Usuário - E2E', () => {
     await page.goto('http://localhost:5000/login');
     
     const currentUrl = page.url();
-    const isRedirectedFromLogin = currentUrl.includes('/dashboard') || currentUrl.includes('/login');
+    const _isRedirectedFromLogin = currentUrl.includes('/dashboard') || currentUrl.includes('/login');
     
     console.log('✅ Verificação de autenticação concluída');
   });

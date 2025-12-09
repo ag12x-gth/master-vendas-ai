@@ -76,7 +76,7 @@ test.describe('AI Metrics and Performance System - End-to-End Tests', () => {
       expect(metricsVisible).toBeTruthy();
       
       // Verificar se o gráfico de atividade está presente
-      const chartVisible = await page.locator('.recharts-wrapper, [class*="chart"]').isVisible({ timeout: 5000 }).catch(() => false);
+      const _chartVisible = await page.locator('.recharts-wrapper, [class*="chart"]').isVisible({ timeout: 5000 }).catch(() => false);
       
       console.log('✅ Task 2: Aba de Performance exibindo métricas corretamente');
     } else {

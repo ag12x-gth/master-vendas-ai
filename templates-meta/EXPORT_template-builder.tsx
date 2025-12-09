@@ -52,7 +52,7 @@ interface TemplateBuilderProps {
 export function TemplateBuilder({
   onSave,
   initialData,
-  connectionId,
+  _connectionId,
 }: TemplateBuilderProps) {
   const [template, setTemplate] = useState<TemplateData>({
     name: initialData?.name || '',

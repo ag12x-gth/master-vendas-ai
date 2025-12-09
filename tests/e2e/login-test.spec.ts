@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test('Login flow - preencher credenciais e clicar em Entrar', async ({ page }) => {
   await page.goto('/login');

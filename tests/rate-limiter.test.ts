@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { Mock } from 'vitest';
 
 /**
  * REGRESSION TESTS: Rate Limiter - Sliding Window Implementation

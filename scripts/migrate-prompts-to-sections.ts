@@ -108,7 +108,7 @@ async function migratePersonaPrompts() {
     console.log('📝 Criando novas seções modulares:\n');
 
     for (const section of ANTONIO_FOGACA_PROMPT_SECTIONS) {
-      const inserted = await db.insert(personaPromptSections).values({
+      const _inserted = await db.insert(personaPromptSections).values({
         personaId: antonioPersonaId,
         ...section,
       }).returning();

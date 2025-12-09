@@ -20,7 +20,7 @@ function detectLanguageFlags(text: string): { pt: boolean; es: boolean; en: bool
 
 function splitByLanguageFlags(prompt: string): Section[] {
   const sections: Section[] = [];
-  const languages = detectLanguageFlags(prompt);
+  const _languages = detectLanguageFlags(prompt);
   
   const ptMatch = prompt.match(/🇧🇷([\s\S]*?)(?=🇪🇸|🇺🇸|$)/);
   const esMatch = prompt.match(/🇪🇸([\s\S]*?)(?=🇧🇷|🇺🇸|$)/);
