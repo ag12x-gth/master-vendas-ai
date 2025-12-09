@@ -1,0 +1,107 @@
+2025-12-09T12:08:21Z info: Deployment: 883af976-bd17-4b1c-b3ba-8e932c5693f9
+2025-12-09T12:08:21Z info: Build: 65f2e210-1063-437e-9fda-d25308c57044
+2025-12-09T12:08:21Z info: Running Security Scan
+2025-12-09T12:08:39Z info: Security Scan Complete
+2025-12-09T12:08:39Z info: Connecting to builder
+2025-12-09T12:08:39Z info: Builder connected
+2025-12-09T12:08:40Z info: Installing packages
+--> npm install
+
+
+up to date, audited 1192 packages in 5s
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.6.4
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.4
+npm notice To update run: npm install -g npm@11.6.4
+npm notice
+
+2025-12-09T12:08:46Z info: Starting Build
+
+> nextn@2.4.2 build
+> NODE_OPTIONS='--max-old-space-size=4096' SKIP_LINT=false next build
+
+
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.com/vercel/next.js/issues
+
+  ▲ Next.js 14.2.33
+
+    · instrumentationHook
+
+   Creating an optimized production build ...
+
+ ✓ Compiled successfully
+
+   Linting and checking validity of types ...
+
+
+Failed to compile.
+
+
+./src/app/(main)/voice-ai/page.tsx
+12:102  Warning: 'Pause' is defined but never used.  unused-imports/no-unused-imports
+12:117  Warning: 'Play' is defined but never used.  unused-imports/no-unused-imports
+413:23  Warning: 'campaignsPerPageCount' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/(main)/voice-calls/page.tsx
+39:11  Warning: 'toast' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/campaigns/voice/route.ts
+61:15  Warning: 'retellAgentId' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/voice/config/external-resources/route.ts
+8:27  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/voice/config/route.ts
+4:27  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/voice/config/test-providers/route.ts
+117:28  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/voice/history/route.ts
+5:25  Warning: 'or' is defined but never used.  unused-imports/no-unused-imports
+5:29  Warning: 'isNull' is defined but never used.  unused-imports/no-unused-imports
+5:37  Warning: 'sql' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/v1/voice/initiate-call/route.ts
+14:37  Error: Unnecessary escape character: \(.  no-useless-escape
+14:39  Error: Unnecessary escape character: \).  no-useless-escape
+14:41  Error: Unnecessary escape character: \..  no-useless-escape
+
+./src/app/api/v1/voice/phone-numbers/route.ts
+101:26  Warning: 'nickname' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/voice/test-connection/route.ts
+70:27  Warning: 'request' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/campaigns/campaign-details-modal.tsx
+39:3  Warning: 'Users' is defined but never used.  unused-imports/no-unused-imports
+
+./src/components/vapi-voice/CallButton.tsx
+34:3  Warning: 'context' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+35:3  Warning: 'conversationId' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/voice-agents/VoiceAgentDialog.tsx
+57:10  Warning: 'loadingVoices' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/voice-agents/VoiceAgentKPIs.tsx
+4:42  Warning: 'DollarSign' is defined but never used.  unused-imports/no-unused-imports
+
+./src/components/voice-agents/phone-numbers-manager.tsx
+8:30  Warning: 'XCircle' is defined but never used.  unused-imports/no-unused-imports
+
+./src/lib/campaign-sender.ts
+1396:7  Warning: 'VOICE_BATCH_SIZE' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/scripts/final-validation.ts
+7:7  Warning: 'TARGET_NUMBER' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/scripts/list-available-numbers.ts
+6:7  Warning: 'AGENT_ID' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/services/voice-retry.service.ts
+5:10  Warning: 'VOICE_MAX_RETRY_ATTEMPTS' is defined but never used.  unused-imports/no-unused-imports
+5:36  Warning: 'VOICE_RETRY_DELAY_MINUTES' is defined but never used.  unused-imports/no-unused-imports
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+
