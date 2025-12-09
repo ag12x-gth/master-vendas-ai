@@ -121,18 +121,25 @@ async function handleCallStarted(payload: RetellWebhookPayload) {
   });
 
   if (voiceAIPlatform.isConfigured()) {
-    await voiceAIPlatform.syncCallFromWebhook({
-      externalCallId: callData.call_id,
-      agentId: callData.agent_id,
-      status: 'initiated',
-      direction: callData.direction as 'inbound' | 'outbound' | undefined,
-      fromNumber: callData.from_number,
-      toNumber: callData.to_number,
-      metadata: {
-        startedAt: callData.start_timestamp ? new Date(callData.start_timestamp).toISOString() : new Date().toISOString(),
-        source: 'retell_webhook',
-      },
-    });
+    try {
+      await voiceAIPlatform.syncCallFromWebhook({
+        externalCallId: callData.call_id,
+        agentId: callData.agent_id,
+        status: 'initiated',
+        direction: callData.direction as 'inbound' | 'outbound' | undefined,
+        fromNumber: callData.from_number,
+        toNumber: callData.to_number,
+        metadata: {
+          startedAt: callData.start_timestamp ? new Date(callData.start_timestamp).toISOString() : new Date().toISOString(),
+          source: 'retell_webhook',
+        },
+      });
+    } catch (error) {
+      logger.warn('Failed to sync call_started to external platform', {
+        callId: callData.call_id,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
   }
 }
 
@@ -171,19 +178,26 @@ async function handleCallEnded(payload: RetellWebhookPayload) {
   }
 
   if (voiceAIPlatform.isConfigured()) {
-    await voiceAIPlatform.syncCallFromWebhook({
-      externalCallId: callData.call_id,
-      status: 'ended',
-      endedAt: callData.end_timestamp ? new Date(callData.end_timestamp).toISOString() : new Date().toISOString(),
-      duration: durationSeconds || 0,
-      recordingUrl: callData.recording_url,
-      transcript: callData.transcript_object as Array<{ role: string; content: string; timestamp: number }>,
-      metadata: { 
-        source: 'retell_webhook',
-        disconnectionReason,
-        callOutcome,
-      },
-    });
+    try {
+      await voiceAIPlatform.syncCallFromWebhook({
+        externalCallId: callData.call_id,
+        status: 'ended',
+        endedAt: callData.end_timestamp ? new Date(callData.end_timestamp).toISOString() : new Date().toISOString(),
+        duration: durationSeconds || 0,
+        recordingUrl: callData.recording_url,
+        transcript: callData.transcript_object as Array<{ role: string; content: string; timestamp: number }>,
+        metadata: { 
+          source: 'retell_webhook',
+          disconnectionReason,
+          callOutcome,
+        },
+      });
+    } catch (error) {
+      logger.warn('Failed to sync call_ended to external platform', {
+        callId: callData.call_id,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
   }
 }
 
@@ -197,25 +211,32 @@ async function handleCallAnalyzed(payload: RetellWebhookPayload) {
   });
 
   if (voiceAIPlatform.isConfigured() && payload.call_analysis) {
-    const sentimentMap: Record<string, number> = {
-      'positive': 1,
-      'neutral': 0,
-      'negative': -1,
-    };
-    const sentimentScore = payload.call_analysis.user_sentiment 
-      ? sentimentMap[payload.call_analysis.user_sentiment] ?? 0 
-      : undefined;
+    try {
+      const sentimentMap: Record<string, number> = {
+        'positive': 1,
+        'neutral': 0,
+        'negative': -1,
+      };
+      const sentimentScore = payload.call_analysis.user_sentiment 
+        ? sentimentMap[payload.call_analysis.user_sentiment] ?? 0 
+        : undefined;
 
-    await voiceAIPlatform.syncCallFromWebhook({
-      externalCallId: callData.call_id,
-      summary: payload.call_analysis.call_summary,
-      sentimentScore,
-      metadata: {
-        successful: payload.call_analysis.call_successful,
-        customData: payload.call_analysis.custom_analysis_data,
-        source: 'retell_webhook',
-      },
-    });
+      await voiceAIPlatform.syncCallFromWebhook({
+        externalCallId: callData.call_id,
+        summary: payload.call_analysis.call_summary,
+        sentimentScore,
+        metadata: {
+          successful: payload.call_analysis.call_successful,
+          customData: payload.call_analysis.custom_analysis_data,
+          source: 'retell_webhook',
+        },
+      });
+    } catch (error) {
+      logger.warn('Failed to sync call_analyzed to external platform', {
+        callId: callData.call_id,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
   }
 }
 
