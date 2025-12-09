@@ -48,7 +48,8 @@ export async function POST(request: NextRequest) {
 
     let selectedAgentId = agentId;
     if (!selectedAgentId) {
-      const agents = await db
+      // Try to get agent from database first
+      const dbAgents = await db
         .select()
         .from(voiceAgents)
         .where(and(
@@ -57,36 +58,72 @@ export async function POST(request: NextRequest) {
         ))
         .limit(1);
 
-      if (agents.length === 0) {
-        const retellAgents = await retellService.listAgents();
-        
-        // Procurar agente específico conhecido (Assistente-2)
-        let selectedAgent = retellAgents.find(a => a.agent_name === 'Assistente-2');
-        
-        // Se não encontrar, usar o primeiro disponível
-        if (!selectedAgent) {
-          selectedAgent = retellAgents[0];
+      if (dbAgents.length > 0) {
+        const dbAgent = dbAgents[0];
+        if (dbAgent) {
+          selectedAgentId = dbAgent.retellAgentId || dbAgent.externalId || '';
+          if (!selectedAgentId) {
+            logger.warn('DB agent found but no Retell ID', { agentId: dbAgent.id });
+          } else {
+            logger.info('Using agent from database', { 
+              agentId: selectedAgentId, 
+              agentName: dbAgent.name 
+            });
+          }
         }
-        
-        if (selectedAgent) {
-          selectedAgentId = selectedAgent.agent_id;
-          logger.info('Using Retell agent from API', { 
-            agentId: selectedAgentId, 
-            agentName: selectedAgent.agent_name 
-          });
-        } else {
-          return NextResponse.json(
-            { error: 'Nenhum agente de voz disponível. Crie um agente primeiro.' },
-            { status: 400 }
+      }
+      
+      // If no agent from DB, or DB agent has no Retell ID, fetch from Retell API
+      if (!selectedAgentId) {
+        try {
+          const retellAgents = await retellService.listAgents();
+          
+          if (retellAgents.length === 0) {
+            return NextResponse.json(
+              { error: 'Nenhum agente de voz disponível na Retell API.' },
+              { status: 400 }
+            );
+          }
+          
+          // Prefer "Assistente-2" if available, otherwise use first published agent
+          let selectedAgent = retellAgents.find(a => 
+            a.agent_name === 'Assistente-2' && a.is_published
           );
-        }
-      } else {
-        const firstAgent = agents[0];
-        selectedAgentId = firstAgent?.retellAgentId || firstAgent?.externalId || '';
-        if (!selectedAgentId) {
+          
+          if (!selectedAgent) {
+            // Try any published agent
+            selectedAgent = retellAgents.find(a => a.is_published);
+          }
+          
+          if (!selectedAgent) {
+            // If no published agent, use first available (might fail but will give clear error)
+            selectedAgent = retellAgents[0];
+            logger.warn('No published agent found, using first available', { 
+              agentName: selectedAgent?.agent_name,
+              agentId: selectedAgent?.agent_id,
+              isPublished: selectedAgent?.is_published
+            });
+          }
+          
+          if (selectedAgent) {
+            selectedAgentId = selectedAgent.agent_id;
+            logger.info('Using Retell agent from API', { 
+              agentId: selectedAgentId, 
+              agentName: selectedAgent.agent_name,
+              isPublished: selectedAgent.is_published
+            });
+          } else {
+            return NextResponse.json(
+              { error: 'Nenhum agente de voz disponível. Crie um agente primeiro.' },
+              { status: 400 }
+            );
+          }
+        } catch (apiError) {
+          const errorMsg = apiError instanceof Error ? apiError.message : 'Unknown error';
+          logger.error('Error fetching agents from Retell API', { error: errorMsg });
           return NextResponse.json(
-            { error: 'Agente não tem ID do Retell configurado. Verifique a configuração do agente.' },
-            { status: 400 }
+            { error: `Erro ao buscar agentes: ${errorMsg}` },
+            { status: 500 }
           );
         }
       }
