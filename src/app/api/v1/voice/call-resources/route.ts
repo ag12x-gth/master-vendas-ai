@@ -10,7 +10,18 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(_request: NextRequest) {
   try {
-    const companyId = await getCompanyIdFromSession();
+    let companyId: string;
+    try {
+      companyId = await getCompanyIdFromSession();
+    } catch (sessionError) {
+      logger.warn('No session found, returning empty resources', { error: sessionError });
+      return NextResponse.json({
+        phoneNumbers: [],
+        retellAgents: [],
+        whatsappConnections: [],
+        smsGateways: [],
+      });
+    }
 
     // Fetch Retell agents first (needed to map to phone numbers)
     let agentsMap = new Map<string, { name: string; version: number }>();
@@ -101,11 +112,12 @@ export async function GET(_request: NextRequest) {
         phoneNumber: connections.phone,
         connectionType: connections.connectionType,
         status: connections.status,
+        isActive: connections.isActive,
       })
       .from(connections)
       .where(and(
         eq(connections.companyId, companyId),
-        eq(connections.status, 'connected')
+        eq(connections.isActive, true)
       ));
 
     const whatsappConnections = whatsappConnectionsData.map(conn => ({
@@ -114,7 +126,13 @@ export async function GET(_request: NextRequest) {
       phoneNumber: conn.phoneNumber,
       type: conn.connectionType === 'meta_api' ? 'meta_api' : 'baileys',
       status: conn.status,
+      isActive: conn.isActive,
     }));
+
+    logger.info('Fetched WhatsApp connections', {
+      count: whatsappConnections.length,
+      connections: whatsappConnections.map(c => ({ id: c.id, name: c.name, type: c.type })),
+    });
 
     // Fetch SMS gateways
     const smsGatewaysList = await db
