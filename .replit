@@ -113,6 +113,7 @@ ENABLE_BULLMQ_QUEUE = "true"
 VOICE_AI_PLATFORM_URL = "https://plataformai.global"
 TWILIO_PHONE_NUMBER = "+553322980007"
 TWILIO_SIP_TERMINATION_URI = "retell-1765080490561.pstn.twilio.com"
+NEXT_PUBLIC_APP_URL = "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev"
 
 [userenv.production]
 
