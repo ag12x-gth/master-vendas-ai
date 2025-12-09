@@ -31,7 +31,7 @@ async function checkAgentConfiguration() {
   try {
     console.log('\n📊 RETELL AGENT CONFIGURATION CHECK\n');
     console.log(`Agent ID: ${AGENT_ID}`);
-    console.log(`API Key: ${RETELL_API_KEY.substring(0, 10)}...`);
+    console.log(`API Key: ${RETELL_API_KEY!.substring(0, 10)}...`);
     console.log('-------------------------------------------\n');
 
     // List all agents first
