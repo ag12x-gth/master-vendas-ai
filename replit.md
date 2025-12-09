@@ -38,68 +38,61 @@ The platform is built with a modern web stack, featuring **Next.js 14** (App Rou
 
 ## Recent Changes (December 9, 2025 - Session 10)
 1. **INBOUND CALL WEBHOOK ATIVADO** ✅:
-   - Webhook `/api/v1/voice/webhooks/twilio/incoming` está FUNCIONANDO
-   - Twilio chama o webhook com sucesso quando número +55 33 2298-0007 recebe ligação
+   - Webhook `/api/v1/voice/webhooks/twilio/incoming` recebe chamadas com sucesso
    - App registra chamada em `voiceCalls` table com status "initiated"
    - Retell API `register-phone-call` retorna `call_id` válido
    - TwiML com SIP URI é gerado corretamente: `sip:{call_id}@sip.retellai.com`
+   - Twilio chama endpoint e webhook de status funcionando
 
-2. **PROBLEMA ATUAL - Rejeição SIP em 2-3 segundos**:
-   - ❌ Chamadas recebem status "completed" em 2-3s sem conectar ao agente de voz
-   - ❌ Ouvinte recebe mensagem "número não pode receber essa chamada" do Twilio
-   - **Causa provável**: Agente Retell `agent_c96d270a5cad5d4608bb72ee08` não está configurado para aceitar inbound via SIP
+2. **PROBLEMA RESTANTE - Agent Retell não aceita SIP inbound**:
+   - ❌ Chamadas completam em 2-3s sem conectar ao agente
+   - ⚠️ Agente Retell v5 tem `is_published: false` (versões anteriores têm `is_published: true`)
+   - Causa: Agent não está configurado para aceitar conexões SIP inbound
 
-3. **DIAGNÓSTICO - Stack Funcionando**:
-   - ✅ Twilio recebendo ligações
-   - ✅ Webhook incoming disparando corretamente
-   - ✅ Banco de dados registrando chamadas (voiceCalls)
-   - ✅ Retell API respondendo e criando call_ids
-   - ✅ TwiML SIP URI sendo retornado
-   - ⏳ **FALTA**: Agente Retell estar PUBLISHED e aceitar inbound SIP
+3. **AÇÕES TOMADAS**:
+   - ✅ Verificado que Retell API funciona (endpoint correto: `/list-agents`)
+   - ✅ Identificado que há múltiplas versões do agente (v0-v5)
+   - ✅ Versões publicadas (v0-v4) existem e estão ativas
+   - ⚠️ Tentativa de atualizar v5 para published não funcionou via PATCH
 
-4. **Webhooks Configurados**:
+4. **Webhooks Confirmados**:
    - ✅ "A call comes in": `/api/v1/voice/webhooks/twilio/incoming` (POST)
    - ✅ "Call status changes": `/api/v1/voice/webhooks/twilio/status` (POST)
-   - Ambos no Twilio Console confirmados
+   - ✅ Ambos no Twilio Console com URLs corretas
 
-## Next Steps (TODO)
-1. **SOLUÇÃO 1 - Dashboard Retell (Rápido)**:
+## Next Steps (Para Próxima Sessão)
+1. **Dashboard Retell - Rollback (RECOMENDADO)**:
    - Acesse: https://dashboard.retell.ai
-   - Procure agente "Assistente Inbound Brasil"
-   - Verifique se Status = "Published"
-   - Confirme se Voice, System Prompt, e LLM estão configurados
-   - Se não, recrie o agente
+   - Agent: "Assistente Brasil" (ID: agent_c96d270a5cad5d4608bb72ee08)
+   - Faça rollback de v5 para v4 (que está published)
+   - Ou delete v5 e deixe v4 como ativa
 
-2. **SOLUÇÃO 2 - Recriar Agente Retell via Código**:
-   - Criar endpoint `/api/v1/voice/agents/sync` que:
-     - Busca agente inbound do banco local
-     - Cria novo agent no Retell com config completa
-     - Atualiza `retell_agent_id` no banco local
-     - Sincroniza voice_id, system_prompt, first_message
-   - Este endpoint será mais robusto para sincronização contínua
+2. **OU Autonomous Mode - Solução Completa**:
+   - Criar novo agente completo com config correta desde o início
+   - Usar endpoint de sincronização automática para manter sincronizado
+   - Implementar versionamento de agentes
 
-3. **TESTE FINAL**:
-   - Após agente Retell estar PUBLISHED
-   - Ligar para +55 33 2298-0007
+3. **Teste Final**:
+   - Após agent estar published: ligar para +55 33 2298-0007
    - Esperar ouvir: "Olá! Bem-vindo ao Master IA..."
-   - Verificar logs: `[Inbound] ✅ Call registered with Retell - Routing to SIP URI`
+   - Verificar logs: `[Inbound] ✅ Call registered with Retell`
 
-## Current Agent Configuration
-- **DB Agent**: Assistente Inbound Brasil (type=inbound, status=active)
-- **Retell Agent ID**: agent_c96d270a5cad5d4608bb72ee08
-- **System Prompt**: "Você é um assistente de vendas profissional brasileiro..."
-- **First Message**: "Olá! Em que posso ajudar você hoje?"
-- **Voice**: pt-BR-FranciscaNeural (Azure)
-- **LLM Model**: gpt-4-turbo
+## Current Status
+- **API Endpoints**: ✅ Todos funcionando (incoming webhook, status webhook, Retell integration)
+- **Database**: ✅ Voice calls sendo registradas corretamente
+- **TwiML**: ✅ SIP URI gerado e retornado corretamente
+- **Agent Retell**: ⚠️ Não publicado/não aceita SIP inbound
+- **Twilio**: ✅ Webhooks configurados e chamando corretamente
 
 ## Testing Credentials
 - **Twilio Number**: +55 33 2298-0007
-- **Test Phone**: +55 64 99952-6870 (final 6870)
-- **Dashboard**: https://dashboard.retell.ai
+- **Test Phone**: +55 64 99952-6870 (seu celular)
+- **Retell Dashboard**: https://dashboard.retell.ai
 - **Twilio Console**: https://console.twilio.com
+- **Agent ID**: agent_c96d270a5cad5d4608bb72ee08
+- **Workspace ID**: org_JY55cp5S9pRJjrV
 
 ## Code Files Changed
 - `src/app/api/v1/voice/webhooks/twilio/incoming/route.ts` - ✅ Endpoint funcional
 - `src/app/api/v1/voice/webhooks/twilio/status/route.ts` - ✅ Endpoint funcional
 - `src/lib/db/schema.ts` - ✅ Tables voiceCalls, voiceAgents estruturadas
-- New: `src/app/api/v1/voice/agents/sync/route.ts` - Para sincronização automática (próxima sessão)
