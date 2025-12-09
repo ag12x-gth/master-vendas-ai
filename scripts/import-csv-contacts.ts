@@ -24,7 +24,7 @@ async function main() {
     
     if (!phone || phone.length < 10 || isNaN(Number(phone))) continue;
     
-    let formattedPhone = '+55' + phone.replace(/\D/g, '');
+    const formattedPhone = '+55' + phone.replace(/\D/g, '');
     if (formattedPhone.length < 13) continue;
     
     if (seen.has(formattedPhone)) continue;

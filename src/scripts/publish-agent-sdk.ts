@@ -34,7 +34,7 @@ async function publishAgentWithSDK() {
     
     const updatedAgent = await client.agent.update(AGENT_ID, {
       is_published: true,
-    });
+    } as any);
 
     console.log('Resposta do SDK:');
     console.log('Nome:', updatedAgent.agent_name);
