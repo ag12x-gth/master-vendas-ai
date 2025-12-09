@@ -2,7 +2,6 @@ import { db } from '@/lib/db';
 import { voiceRetryQueue, voiceAgents, contacts, voiceDeliveryReports, voiceCalls, campaigns } from '@/lib/db/schema';
 import { eq, lte, and } from 'drizzle-orm';
 import { retellService } from '@/lib/retell-service';
-import { VOICE_MAX_RETRY_ATTEMPTS, VOICE_RETRY_DELAY_MINUTES } from '@/lib/voice-utils';
 
 const VOICE_MAX_CONCURRENT = 20;
 

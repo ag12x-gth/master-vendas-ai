@@ -36,7 +36,6 @@ export default function VoiceCallsPage() {
   const [editingAgent, setEditingAgent] = useState<VoiceAgent | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [_loadingContacts, setLoadingContacts] = useState(false);
-  const { _toast } = useToast();
 
   useEffect(() => {
     async function fetchContacts() {
