@@ -253,13 +253,13 @@ async function handleIncomingCall(payload: TwilioIncomingPayload): Promise<strin
 
       await logInboundCall(payload, localAgent, retellCall.call_id);
       
-      // Use Twilio Media Streams with WebSocket to Retell
-      // This establishes bidirectional audio streaming
+      // Use Dial to SIP URI method - recommended by Retell documentation
+      // SIP URI format: sip:{call_id}@sip.retellai.com
       return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Connect>
-    <Stream url="wss://api.retellai.com/audio-websocket/${retellCall.call_id}" />
-  </Connect>
+  <Dial>
+    <Sip>sip:${retellCall.call_id}@sip.retellai.com</Sip>
+  </Dial>
 </Response>`;
     } else {
       logger.error('[Inbound] Failed to register call with Retell', {
