@@ -25,6 +25,7 @@ async function analyzeCalls() {
 
     for (let i = 0; i < Math.min(calls.length, 10); i++) {
       const call = calls[i];
+      if (!call) continue;
       const duration = call.end_timestamp && call.start_timestamp
         ? Math.round((call.end_timestamp - call.start_timestamp) / 1000)
         : 0;

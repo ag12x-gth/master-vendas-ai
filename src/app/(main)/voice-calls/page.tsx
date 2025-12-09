@@ -12,7 +12,6 @@ import { useVoiceAgents, VoiceAgent, CreateAgentData, UpdateAgentData } from '@/
 import { PhoneCall, History, BarChart3, Bot, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState, useEffect } from 'react';
-import { useToast } from '@/hooks/use-toast';
 
 interface Contact {
   id: string;
