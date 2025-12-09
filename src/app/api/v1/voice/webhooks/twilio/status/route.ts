@@ -25,6 +25,11 @@ const twilioStatusSchema = z.object({
   ParentCallSid: z.string().optional(),
   ErrorCode: z.string().optional(),
   ErrorMessage: z.string().optional(),
+  SipResponseCode: z.string().optional(),
+  DialCallSid: z.string().optional(),
+  DialCallDuration: z.string().optional(),
+  DialCallStatus: z.string().optional(),
+  SipCallId: z.string().optional(),
 });
 
 type TwilioStatusPayload = z.infer<typeof twilioStatusSchema>;
@@ -44,6 +49,11 @@ export async function POST(request: NextRequest) {
       status: body.CallStatus,
       from: body.From,
       to: body.To,
+      sipResponseCode: body.SipResponseCode,
+      dialCallStatus: body.DialCallStatus,
+      dialCallDuration: body.DialCallDuration,
+      errorCode: body.ErrorCode,
+      errorMessage: body.ErrorMessage,
     });
 
     const validation = twilioStatusSchema.safeParse(body);

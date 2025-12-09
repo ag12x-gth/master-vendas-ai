@@ -1,0 +1,102 @@
+- waiting-children: 0
+ ✓ Compiled / in 10.5s (2059 modules)
+ GET / 307 in 11139ms
+ ✓ Compiled in 670ms (286 modules)
+ ○ Compiling /dashboard ...
+ ✓ Compiled /dashboard in 14.2s (5726 modules)
+🔧 [Redis] Creating new HybridRedisClient singleton instance
+🔍 [Redis] Detecting configuration... REDIS_URL=true, Upstash=true
+🚀 Using REDIS_URL for connection...
+🔧 [Redis] Registered shutdown handlers (SIGINT, SIGTERM)
+ GET /dashboard 200 in 14912ms
+✅ Redis connected successfully - Using distributed Redis cache
+📡 Redis endpoint: rediss://default:***@vital-sawfish-40850.upstash.io:6379
+[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...
+[CampaignTriggerWorker] ⏳ Nenhuma campanha pendente (41ms)
+ ○ Compiling /api/v1/connections/health ...
+ ✓ Compiled /api/v1/dashboard/stats in 9.9s (3817 modules)
+ ✓ Compiled (3828 modules)
+ GET /api/v1/notifications?limit=20 200 in 11933ms
+📊 [API CACHE MISS] Key: dashboard-stats:682b91ea-15ee-42da-8855-70309b237008:2025-11-10T00:00:00.000Z:2025-12-09T23:59:59.999Z - Fetching from source...
+📊 [API CACHE SET] Key: dashboard-stats:682b91ea-15ee-42da-8855-70309b237008:2025-11-10T00:00:00.000Z:2025-12-09T23:59:59.999Z - TTL: 60000ms - Total time: 232ms
+ GET /api/v1/dashboard/stats?startDate=2025-11-10T03%3A00%3A00.000Z&endDate=2025-12-09T08%3A11%3A12.058Z 200 in 12257ms
+📊 [API CACHE HIT] Key: dashboard-stats:682b91ea-15ee-42da-8855-70309b237008:2025-11-10T00:00:00.000Z:2025-12-09T23:59:59.999Z - Fetch time: 0ms
+ GET /api/v1/dashboard/stats?startDate=2025-11-10T03%3A00%3A00.000Z&endDate=2025-12-09T08%3A11%3A12.058Z 200 in 61ms
+ GET /api/v1/connections/health 200 in 12662ms
+ GET /api/v1/connections/health 200 in 73ms
+ ○ Compiling /api/v1/ia/metrics ...
+ ✓ Compiled /api/v1/ia/metrics in 1020ms (3830 modules)
+ ✓ Compiled /api/v1/dashboard/charts in 0ms (3833 modules)
+ ✓ Compiled in 0ms (3869 modules)
+ ✓ Compiled in 1ms (3869 modules)
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:::: - Fetching from source...
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:::: - TTL: 300000ms - Total time: 90ms
+ GET /api/v1/campaigns 200 in 7699ms
+ ✓ Compiled in 0ms (3869 modules)
+📊 [API CACHE MISS] Key: ia-metrics:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+ ✓ Compiled in 1ms (3869 modules)
+ GET /api/v1/dashboard/charts?type=attendance&startDate=2025-11-10T03%3A00%3A00.000Z&endDate=2025-12-09T08%3A11%3A12.058Z 200 in 8059ms
+📊 [API CACHE SET] Key: ia-metrics:682b91ea-15ee-42da-8855-70309b237008 - TTL: 30000ms - Total time: 750ms
+ GET /api/v1/ia/metrics 200 in 8753ms
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:::: - Fetching from source...
+📊 [API CACHE MISS] Key: ia-metrics:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:10:::: - TTL: 300000ms - Total time: 64ms
+ GET /api/v1/campaigns 200 in 1580ms
+ GET /api/v1/dashboard/charts?type=attendance&startDate=2025-11-10T03%3A00%3A00.000Z&endDate=2025-12-09T08%3A11%3A12.058Z 200 in 314ms
+📊 [API CACHE SET] Key: ia-metrics:682b91ea-15ee-42da-8855-70309b237008 - TTL: 30000ms - Total time: 323ms
+ GET /api/v1/ia/metrics 200 in 553ms
+[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...
+[CampaignTriggerWorker] ⏳ Nenhuma campanha pendente (34ms)
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+ GET /api/v1/notifications?limit=20 200 in 161ms
+ ○ Compiling /api/v1/voice/webhooks/twilio/incoming ...
+ ✓ Compiled /api/v1/voice/webhooks/twilio/incoming in 2.1s (3872 modules)
+[2025-12-09T08:11:54.300Z] [INFO] [Inbound] Twilio incoming call webhook received {"callSid":"CA56d4c4b6397ffaf79229cf2ce3e19dbc","from":"+5564999526870","to":"+553322980007","callerCity":"Rio Verde","callerCountry":"BR"}
+[2025-12-09T08:11:54.302Z] [INFO] [Inbound] Processing incoming call {"callSid":"CA56d4c4b6397ffaf79229cf2ce3e19dbc","from":"+5564999526870","to":"+553322980007","callerLocation":"Rio Verde, GO, BR"}
+[2025-12-09T08:11:54.333Z] [INFO] [Inbound] Found active inbound agent in local database {"agentId":"ae247715-1ec5-4749-bd50-94781f42b4d7","agentName":"Assistente Inbound Brasil","retellAgentId":"agent_fcfcf7f9c84e377b0a1711c0bb","companyId":"682b91ea-15ee-42da-8855-70309b237008"}
+[2025-12-09T08:11:54.333Z] [INFO] [Inbound] Registering call with Retell API... {"agentId":"ae247715-1ec5-4749-bd50-94781f42b4d7","retellAgentId":"agent_fcfcf7f9c84e377b0a1711c0bb","callSid":"CA56d4c4b6397ffaf79229cf2ce3e19dbc"}
+[2025-12-09T08:11:54.403Z] [INFO] [Inbound] Found published agent version from phone number config {"version":10}
+[2025-12-09T08:11:54.403Z] [INFO] [Inbound] Using published agent version for call registration {"agentId":"agent_fcfcf7f9c84e377b0a1711c0bb","version":10}
+[2025-12-09T08:11:54.460Z] [INFO] [Inbound] Retell call registered successfully {"callId":"call_fccbe5e271f624f8041a1e56a59","agentId":"agent_fcfcf7f9c84e377b0a1711c0bb"}
+[2025-12-09T08:11:54.460Z] [INFO] [Inbound] ✅ Call registered with Retell - Routing to SIP URI {"retellCallId":"call_fccbe5e271f624f8041a1e56a59","agentId":"ae247715-1ec5-4749-bd50-94781f42b4d7","callSid":"CA56d4c4b6397ffaf79229cf2ce3e19dbc","sipUri":"sip:call_fccbe5e271f624f8041a1e56a59@sip.retellai.com"}
+[2025-12-09T08:11:54.498Z] [INFO] [Inbound] Call logged to database {"callSid":"CA56d4c4b6397ffaf79229cf2ce3e19dbc","retellCallId":"call_fccbe5e271f624f8041a1e56a59","agentId":"ae247715-1ec5-4749-bd50-94781f42b4d7"}
+[2025-12-09T08:11:54.498Z] [INFO] [Inbound] Twilio incoming call webhook processed {"callSid":"CA56d4c4b6397ffaf79229cf2ce3e19dbc","from":"+5564999526870","to":"+553322980007","processingTimeMs":199}
+ POST /api/v1/voice/webhooks/twilio/incoming 200 in 2459ms
+ ○ Compiling /api/v1/voice/webhooks/twilio/status ...
+ ✓ Compiled /api/v1/voice/webhooks/twilio/status in 5.4s (4990 modules)
+ ✓ Compiled (4992 modules)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+[2025-12-09T08:12:03.445Z] [INFO] Retell webhook received {"event":"call_analyzed","callId":"call_fccbe5e271f624f8041a1e56a59","agentId":"agent_fcfcf7f9c84e377b0a1711c0bb"}
+[2025-12-09T08:12:03.446Z] [INFO] Processing call_analyzed event {"callId":"call_fccbe5e271f624f8041a1e56a59","hasSummary":false}
+[2025-12-09T08:12:03.447Z] [INFO] Retell webhook received {"event":"call_ended","callId":"call_fccbe5e271f624f8041a1e56a59","agentId":"agent_fcfcf7f9c84e377b0a1711c0bb"}
+[2025-12-09T08:12:03.447Z] [INFO] Processing call_ended event {"callId":"call_fccbe5e271f624f8041a1e56a59","durationMs":0,"disconnectionReason":"user_hangup"}
+[2025-12-09T08:12:03.447Z] [INFO] Call outcome determined {"callId":"call_fccbe5e271f624f8041a1e56a59","disconnectionReason":"user_hangup","callOutcome":"human"}
+[2025-12-09T08:12:03.448Z] [INFO] Retell webhook processed {"event":"call_analyzed","callId":"call_fccbe5e271f624f8041a1e56a59","processingTimeMs":4}
+ POST /api/v1/voice/webhooks/retell 200 in 6532ms
+[2025-12-09T08:12:03.459Z] [INFO] Twilio status webhook received {"callSid":"CA56d4c4b6397ffaf79229cf2ce3e19dbc","status":"completed","from":"+5564999526870","to":"+553322980007"}
+[2025-12-09T08:12:03.460Z] [INFO] Processing Twilio status {"callSid":"CA56d4c4b6397ffaf79229cf2ce3e19dbc","twilioStatus":"completed","normalizedStatus":"ended","direction":"inbound","duration":"0"}
+[Voice Delivery] Report não encontrado para callId call_fccbe5e271f624f8041a1e56a59
+[2025-12-09T08:12:03.491Z] [INFO] Twilio status - updated local DB {"callSid":"CA56d4c4b6397ffaf79229cf2ce3e19dbc","status":"ended"}
+[2025-12-09T08:12:03.491Z] [INFO] Twilio status webhook processed {"callSid":"CA56d4c4b6397ffaf79229cf2ce3e19dbc","status":"completed","processingTimeMs":33}
+ POST /api/v1/voice/webhooks/twilio/status 200 in 6385ms
+[2025-12-09T08:12:03.508Z] [INFO] Call ended - updated local DB {"callId":"call_fccbe5e271f624f8041a1e56a59","durationSeconds":null,"callOutcome":"human"}
+[2025-12-09T08:12:03.508Z] [INFO] Retell webhook processed {"event":"call_ended","callId":"call_fccbe5e271f624f8041a1e56a59","processingTimeMs":63}
+ POST /api/v1/voice/webhooks/retell 200 in 6600ms
+[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...
+[CampaignTriggerWorker] ⏳ Nenhuma campanha pendente (36ms)
+ GET /api/v1/notifications?limit=20 200 in 179ms

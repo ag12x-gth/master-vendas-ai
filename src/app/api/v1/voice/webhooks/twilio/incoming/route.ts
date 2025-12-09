@@ -36,6 +36,34 @@ interface RetellRegisterCallResponse {
   call_type?: string;
 }
 
+async function getPublishedAgentVersion(agentId: string, retellApiKey: string): Promise<number | null> {
+  try {
+    const response = await fetch('https://api.retellai.com/list-phone-numbers', {
+      headers: { 'Authorization': `Bearer ${retellApiKey}` },
+    });
+    
+    if (!response.ok) {
+      logger.warn('[Inbound] Failed to fetch phone numbers for version lookup');
+      return null;
+    }
+    
+    const numbers = await response.json();
+    const configuredNumber = numbers.find((n: any) => n.inbound_agent_id === agentId);
+    
+    if (configuredNumber?.inbound_agent_version) {
+      logger.info('[Inbound] Found published agent version from phone number config', {
+        version: configuredNumber.inbound_agent_version,
+      });
+      return configuredNumber.inbound_agent_version;
+    }
+    
+    return null;
+  } catch (error) {
+    logger.warn('[Inbound] Error fetching published agent version', { error });
+    return null;
+  }
+}
+
 async function registerRetellCall(
   agentId: string,
   fromNumber: string,
@@ -49,21 +77,35 @@ async function registerRetellCall(
   }
 
   try {
+    const publishedVersion = await getPublishedAgentVersion(agentId, retellApiKey);
+    
+    const payload: Record<string, any> = {
+      agent_id: agentId,
+      audio_encoding: 'mulaw',
+      audio_websocket_protocol: 'twilio',
+      sample_rate: 8000,
+      from_number: fromNumber,
+      to_number: toNumber,
+      direction: 'inbound',
+    };
+    
+    if (publishedVersion) {
+      payload.agent_version = publishedVersion;
+      logger.info('[Inbound] Using published agent version for call registration', {
+        agentId,
+        version: publishedVersion,
+      });
+    } else {
+      logger.warn('[Inbound] No published version found, using default (may fail if agent not published)');
+    }
+    
     const response = await fetch('https://api.retellai.com/v2/register-phone-call', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${retellApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        agent_id: agentId,
-        audio_encoding: 'mulaw',
-        audio_websocket_protocol: 'twilio',
-        sample_rate: 8000,
-        from_number: fromNumber,
-        to_number: toNumber,
-        direction: 'inbound',
-      }),
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
@@ -255,12 +297,14 @@ async function handleIncomingCall(payload: TwilioIncomingPayload): Promise<strin
       await logInboundCall(payload, localAgent, retellCall.call_id);
       
       // Use Dial to SIP URI method - Officially documented by Retell AI
-      // SIP URI format: sip:{call_id}@sip.retellai.com
-      // This is the recommended approach when not using Elastic SIP Trunking
+      // SIP URI format: sip:{call_id}@sip.retellai.com;transport=tcp
+      // Using TCP transport as recommended by Retell documentation
+      // Timeout set to 60 seconds to allow sufficient time for SIP connection
+      // Action callback to capture SIP response codes for debugging
       return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Dial>
-    <Sip>sip:${retellCall.call_id}@sip.retellai.com</Sip>
+  <Dial timeout="60" answerOnBridge="true" action="/api/v1/voice/webhooks/twilio/dial-callback">
+    <Sip>sip:${retellCall.call_id}@sip.retellai.com;transport=tcp</Sip>
   </Dial>
 </Response>`;
     } else {
