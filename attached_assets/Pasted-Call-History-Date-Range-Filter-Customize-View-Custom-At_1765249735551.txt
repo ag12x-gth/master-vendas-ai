@@ -1,0 +1,666 @@
+Call History
+Date Range
+
+Filter
+
+Customize View
+
+Custom Attributes
+
+Export
+Time	Duration	Channel Type	Cost	Session ID	End Reason	Session Status	User Sentiment	From	To	Direction	Session Outcome	End to End Latency
+2025-12-09 00:07:11 -03
+0:00
+phone_call
+$0.000
+
+call_05f07d0ccc61a597f56df7cfc60
+user hangup
+ended
+Unknown
++5564999526870
++553322980007
+inbound
+Unsuccessful
+2025-12-09 00:05:37 -03
+0:00
+phone_call
+$0.000
+
+call_f3c655da3935fcb544bf2bb7e64
+user hangup
+ended
+Unknown
++5564999526870
++553322980007
+inbound
+Unsuccessful
+2025-12-08 23:55:43 -03
+0:00
+phone_call
+$0.000
+
+call_bcaee37bb2bc1c2e041616711cf
+user hangup
+ended
+Unknown
++5564999526870
++553322980007
+inbound
+Unsuccessful
+2025-12-08 23:55:37 -03
+0:00
+phone_call
+$0.000
+
+call_315ddead7d6912d657eca21cbdb
+user hangup
+ended
+Unknown
++5564999526870
++553322980007
+inbound
+Unsuccessful
+2025-12-08 23:55:32 -03
+0:00
+phone_call
+$0.000
+
+call_b1010f2abb410c0d432f2ec142a
+user hangup
+ended
+Unknown
++5564999526870
++553322980007
+inbound
+Unsuccessful
+2025-12-08 23:49:53 -03
+0:00
+phone_call
+$0.000
+
+call_eb6aedd94237a44fc286f795c9c
+user hangup
+ended
+Unknown
++5564999526870
++553322980007
+inbound
+Unsuccessful
+2025-12-08 23:48:04 -03
+0:00
+phone_call
+$0.000
+
+call_7b99e5bc0aaad7c3f1be58c99dd
+user hangup
+ended
+Unknown
++5564999526870
++553322980007
+inbound
+Unsuccessful
+2025-12-08 23:47:54 -03
+0:00
+phone_call
+$0.000
+
+call_5e483adbe4a63bddc12c082896c
+user hangup
+ended
+Unknown
++5564999526870
++553322980007
+inbound
+Unsuccessful
+2025-12-08 23:47:48 -03
+0:00
+phone_call
+$0.000
+
+call_62ebe3e1e225321ccd0bc4c8fd6
+user hangup
+ended
+Unknown
++5564999526870
++553322980007
+inbound
+Unsuccessful
+2025-12-08 22:46:41 -03
+2:07
+phone_call
+$0.254
+
+call_efa566aa50613ea1beb8d667ce2
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+1276ms
+2025-12-08 22:44:41 -03
+0:00
+phone_call
+$0.000
+
+call_957dc434927a0abfd07d17f7186
+dial no answer
+not_connected
+Unknown
++553322980007
++5511976281856
+outbound
+Unsuccessful
+2025-12-08 21:05:07 -03
+0:00
+phone_call
+$0.000
+
+call_48390523dd5f25159e3a0efe413
+dial no answer
+not_connected
+Unknown
++553322980007
++5511915067585
+outbound
+Unsuccessful
+2025-12-08 21:05:04 -03
+0:00
+phone_call
+$0.000
+
+call_0b26c03751242936357e3f3edba
+dial no answer
+not_connected
+Unknown
++553322980007
++5564999781822
+outbound
+Unsuccessful
+2025-12-08 21:05:03 -03
+0:00
+phone_call
+$0.000
+
+call_85dd98ff161e01e4ca166a9c6e4
+dial no answer
+not_connected
+Unknown
++553322980007
++5512996616441
+outbound
+Unsuccessful
+2025-12-08 21:04:59 -03
+0:11
+phone_call
+$0.022
+
+call_c72cc2b53d99926396a5bbb6477
+user hangup
+ended
+Neutral
++553322980007
++5564999526703
+outbound
+Unsuccessful
+2025-12-08 21:04:53 -03
+2:24
+phone_call
+$0.288
+
+call_91a2427b3bd22d3fe129d5242a4
+user hangup
+ended
+Positive
++553322980007
++5511939567739
+outbound
+Successful
+984ms
+2025-12-08 21:04:51 -03
+0:00
+phone_call
+$0.000
+
+call_907608e4da44ed788fc896446af
+dial busy
+not_connected
+Unknown
++553322980007
++5512981148823
+outbound
+Unsuccessful
+2025-12-08 21:04:48 -03
+0:00
+phone_call
+$0.000
+
+call_69f1e32cd2af8d87814df252a6f
+telephony provider permission denied
+not_connected
+Unknown
++553322980007
++5532988654795
+outbound
+Unsuccessful
+2025-12-08 21:04:41 -03
+0:00
+phone_call
+$0.000
+
+call_aa2d6b7b5df7e8485f671191a84
+telephony provider permission denied
+not_connected
+Unknown
++553322980007
++5564999526702
+outbound
+Unsuccessful
+2025-12-08 21:04:41 -03
+0:00
+phone_call
+$0.000
+
+call_90f46d843da19d6204e413cae64
+telephony provider permission denied
+not_connected
+Unknown
++553322980007
++5511915067585
+outbound
+Unsuccessful
+2025-12-08 21:04:41 -03
+0:11
+phone_call
+$0.022
+
+call_94c7be52777095e91a304848db2
+user hangup
+ended
+Neutral
++553322980007
++5562999259311
+outbound
+Unsuccessful
+2025-12-08 21:04:39 -03
+0:00
+phone_call
+$0.000
+
+call_0e3a4b70777f1eb7ccdab38d83a
+telephony provider permission denied
+not_connected
+Unknown
++553322980007
++5564999526701
+outbound
+Unsuccessful
+2025-12-08 21:04:34 -03
+2:08
+phone_call
+$0.256
+
+call_881202ff44e6b8ddfca2bf42dc5
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+1031ms
+2025-12-08 21:04:31 -03
+0:00
+phone_call
+$0.000
+
+call_4a2af51a9b1a174300cf82a8431
+invalid destination
+not_connected
+Unknown
++553322980007
++553891620033
+outbound
+Unsuccessful
+2025-12-08 20:48:52 -03
+0:00
+phone_call
+$0.000
+
+call_09db1fb217c35e48051bb9b0f5e
+dial no answer
+not_connected
+Unknown
++553322980007
++5564999781822
+outbound
+Unsuccessful
+2025-12-08 20:48:35 -03
+0:00
+phone_call
+$0.000
+
+call_dcce68a24aaa513c9d6a0d6314b
+dial busy
+not_connected
+Unknown
++553322980007
++5512981148823
+outbound
+Unsuccessful
+2025-12-08 20:48:30 -03
+0:00
+phone_call
+$0.000
+
+call_7e9077c8f75d29b63e2d5ad94ff
+dial busy
+not_connected
+Unknown
++553322980007
++5512981148823
+outbound
+Unsuccessful
+2025-12-08 20:48:30 -03
+0:11
+phone_call
+$0.022
+
+call_a3006c68d85d9aedb1b81c38df3
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+2025-12-08 20:48:29 -03
+0:00
+phone_call
+$0.000
+
+call_eb4cccaf183f818682f322a2efb
+dial no answer
+not_connected
+Unknown
++553322980007
++5564999526870
+outbound
+Unsuccessful
+2025-12-08 20:48:29 -03
+0:11
+phone_call
+$0.022
+
+call_2726c81c88cfd39c8663caec967
+user hangup
+ended
+Neutral
++553322980007
++5562999259311
+outbound
+Unsuccessful
+2025-12-08 20:48:28 -03
+0:00
+phone_call
+$0.000
+
+call_62c9a47cab56b9b040db2b379b7
+telephony provider permission denied
+not_connected
+Unknown
++553322980007
++5532988654795
+outbound
+Unsuccessful
+2025-12-08 20:48:27 -03
+0:00
+phone_call
+$0.000
+
+call_d94d182abc6c6a35f5304f74c4e
+dial busy
+not_connected
+Unknown
++553322980007
++5512981148823
+outbound
+Unsuccessful
+2025-12-08 20:48:26 -03
+0:00
+phone_call
+$0.000
+
+call_362c44b93ec8fbe2e225b47a1a7
+dial busy
+not_connected
+Unknown
++553322980007
++5512981148823
+outbound
+Unsuccessful
+2025-12-08 20:48:22 -03
+0:00
+phone_call
+$0.000
+
+call_10149a2dd81922cb18720c0e02e
+dial no answer
+not_connected
+Unknown
++553322980007
++5564999781822
+outbound
+Unsuccessful
+2025-12-08 20:48:20 -03
+0:11
+phone_call
+$0.022
+
+call_5ca21f0271272a7f8880fa4f8d5
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+2025-12-08 20:48:20 -03
+0:00
+phone_call
+$0.000
+
+call_c20b944f7e19610c815e42a0b69
+telephony provider permission denied
+not_connected
+Unknown
++553322980007
++5532988654795
+outbound
+Unsuccessful
+2025-12-08 20:48:20 -03
+0:00
+phone_call
+$0.000
+
+call_2bd2213cae81973aa364c40cd1e
+dial no answer
+not_connected
+Unknown
++553322980007
++5564999781822
+outbound
+Unsuccessful
+2025-12-08 20:48:18 -03
+0:00
+phone_call
+$0.000
+
+call_9117eee97e5d6bf6b10c8d90d28
+telephony provider permission denied
+not_connected
+Unknown
++553322980007
++5532988654795
+outbound
+Unsuccessful
+2025-12-08 20:48:17 -03
+0:00
+phone_call
+$0.000
+
+call_a8ac8343eb54e0d7cb410ca82bd
+dial no answer
+not_connected
+Unknown
++553322980007
++5562999259311
+outbound
+Unsuccessful
+2025-12-08 20:48:16 -03
+0:11
+phone_call
+$0.022
+
+call_fa0a301179c11bc405d5805cfa2
+user hangup
+ended
+Neutral
++553322980007
++5564999781822
+outbound
+Unsuccessful
+2025-12-08 20:48:15 -03
+0:11
+phone_call
+$0.022
+
+call_f23fc5fabb26e4b93454e40542f
+user hangup
+ended
+Neutral
++553322980007
++5564999526870
+outbound
+Unsuccessful
+2025-12-08 20:48:14 -03
+0:00
+phone_call
+$0.000
+
+call_4ffc450227b7165f343194d4871
+telephony provider permission denied
+not_connected
+Unknown
++553322980007
++5532988654795
+outbound
+Unsuccessful
+2025-12-08 20:48:13 -03
+0:10
+phone_call
+$0.020
+
+call_93ceea0ac3444ac2243fb1c6068
+user hangup
+ended
+Neutral
++553322980007
++5564999526703
+outbound
+Unsuccessful
+2025-12-08 20:48:12 -03
+0:11
+phone_call
+$0.022
+
+call_a6aba2765399ccfe8ab242ec9ac
+user hangup
+ended
+Neutral
++553322980007
++5562999259311
+outbound
+Unsuccessful
+2025-12-08 20:48:11 -03
+2:08
+phone_call
+$0.256
+
+call_ddd5e9979e365bc3efa8022ef19
+user hangup
+ended
+Neutral
++553322980007
++5511939567739
+outbound
+Unsuccessful
+907ms
+2025-12-08 20:48:10 -03
+0:16
+phone_call
+$0.032
+
+call_b48d97af4fd64c63a3d3f43fdae
+user hangup
+ended
+Neutral
++553322980007
++5512981148823
+outbound
+Unsuccessful
+2025-12-08 20:48:10 -03
+0:22
+phone_call
+$0.044
+
+call_f0f75fac3f4572773b7c432a488
+user hangup
+ended
+Neutral
++553322980007
++5562999259311
+outbound
+Unsuccessful
+793ms
+2025-12-08 20:48:08 -03
+0:13
+phone_call
+$0.026
+
+call_4e9fed56f2a71a031e7dad4353e
+user hangup
+ended
+Neutral
++553322980007
++5511939567739
+outbound
+Unsuccessful
+2025-12-08 20:48:07 -03
+0:00
+phone_call
+$0.000
+
+call_22a6896226db0afcab51c37f44d
+telephony provider permission denied
+not_connected
+Unknown
++553322980007
++5532988654795
+outbound
+Unsuccessful
+2025-12-08 20:48:07 -03
+0:14
+phone_call
+$0.028
+
+call_5713a0d637c07af67d05d632ae9
+user hangup
+ended
+Neutral
++553322980007
++5511939567739
+outbound
+Successful
