@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { voiceAIPlatform } from '@/lib/voice-ai-platform';
+import { db } from '@/lib/db';
+import { voiceCalls } from '@/lib/db/schema';
 import { logger } from '@/lib/logger';
 import { z } from 'zod';
 import crypto from 'crypto';
+import { eq } from 'drizzle-orm';
 
 const customWebhookSchema = z.object({
   event: z.string(),
@@ -146,81 +148,85 @@ async function handleCustomEvent(orgId: string, payload: CustomWebhookPayload) {
     await handler(orgId, payload);
   } else {
     logger.info('Unhandled custom event type', { orgId, event: payload.event });
-    
-    if (voiceAIPlatform.isConfigured()) {
-      try {
-        await voiceAIPlatform.request('/api/webhooks/events', 'POST', {
-          organizationId: orgId,
-          event: payload.event,
-          data: payload.data,
-          callId: payload.callId,
-          agentId: payload.agentId,
-          metadata: payload.metadata,
-          receivedAt: new Date().toISOString(),
-          source: 'master_ia_custom_webhook',
-        });
-      } catch (error) {
-        logger.warn('Failed to forward custom event to Voice AI Platform', { error, orgId, event: payload.event });
-      }
-    }
   }
 }
 
 async function handleCallStarted(orgId: string, payload: CustomWebhookPayload) {
   logger.info('Custom event: call.started', { orgId, callId: payload.callId });
   
-  if (voiceAIPlatform.isConfigured() && payload.callId) {
-    await voiceAIPlatform.syncCallFromWebhook({
-      externalCallId: payload.callId,
-      agentId: payload.agentId,
-      status: 'initiated',
-      direction: payload.data?.direction as 'inbound' | 'outbound' | undefined,
-      fromNumber: payload.data?.fromNumber as string | undefined,
-      toNumber: payload.data?.toNumber as string | undefined,
-      metadata: {
-        organizationId: orgId,
-        source: 'custom_webhook',
-        ...payload.data,
-      },
+  if (payload.callId) {
+    const existingCall = await db.query.voiceCalls.findFirst({
+      where: eq(voiceCalls.externalCallId, payload.callId),
     });
+    
+    if (existingCall) {
+      await db.update(voiceCalls)
+        .set({
+          status: 'in_progress',
+          startedAt: new Date(),
+          metadata: {
+            ...(existingCall.metadata as object || {}),
+            organizationId: orgId,
+            source: 'custom_webhook',
+            ...payload.data,
+          },
+        })
+        .where(eq(voiceCalls.id, existingCall.id));
+    }
   }
 }
 
 async function handleCallEnded(orgId: string, payload: CustomWebhookPayload) {
   logger.info('Custom event: call.ended', { orgId, callId: payload.callId });
   
-  if (voiceAIPlatform.isConfigured() && payload.callId) {
-    await voiceAIPlatform.syncCallFromWebhook({
-      externalCallId: payload.callId,
-      status: 'ended',
-      endedAt: payload.data?.endedAt as string | undefined,
-      duration: payload.data?.duration as number | undefined,
-      transcript: payload.data?.transcript as Array<{ role: string; content: string; timestamp: number }> | undefined,
-      recordingUrl: payload.data?.recordingUrl as string | undefined,
-      metadata: {
-        organizationId: orgId,
-        source: 'custom_webhook',
-        ...payload.data,
-      },
+  if (payload.callId) {
+    const existingCall = await db.query.voiceCalls.findFirst({
+      where: eq(voiceCalls.externalCallId, payload.callId),
     });
+    
+    if (existingCall) {
+      await db.update(voiceCalls)
+        .set({
+          status: 'ended',
+          endedAt: payload.data?.endedAt ? new Date(payload.data.endedAt as string) : new Date(),
+          duration: payload.data?.duration as number | undefined,
+          transcript: payload.data?.transcript,
+          recordingUrl: payload.data?.recordingUrl as string | undefined,
+          metadata: {
+            ...(existingCall.metadata as object || {}),
+            organizationId: orgId,
+            source: 'custom_webhook',
+            ...payload.data,
+          },
+        })
+        .where(eq(voiceCalls.id, existingCall.id));
+    }
   }
 }
 
 async function handleCallAnalyzed(orgId: string, payload: CustomWebhookPayload) {
   logger.info('Custom event: call.analyzed', { orgId, callId: payload.callId });
   
-  if (voiceAIPlatform.isConfigured() && payload.callId) {
-    await voiceAIPlatform.syncCallFromWebhook({
-      externalCallId: payload.callId,
-      summary: payload.data?.summary as string | undefined,
-      sentimentScore: payload.data?.sentimentScore as number | undefined,
-      qualityScore: payload.data?.qualityScore as number | undefined,
-      metadata: {
-        organizationId: orgId,
-        source: 'custom_webhook',
-        analysis: payload.data,
-      },
+  if (payload.callId) {
+    const existingCall = await db.query.voiceCalls.findFirst({
+      where: eq(voiceCalls.externalCallId, payload.callId),
     });
+    
+    if (existingCall) {
+      await db.update(voiceCalls)
+        .set({
+          summary: payload.data?.summary as string | undefined,
+          sentimentScore: payload.data?.sentimentScore?.toString(),
+          qualityScore: payload.data?.qualityScore?.toString(),
+          metadata: {
+            ...(existingCall.metadata as object || {}),
+            organizationId: orgId,
+            source: 'custom_webhook',
+            analysis: payload.data,
+          },
+        })
+        .where(eq(voiceCalls.id, existingCall.id));
+    }
   }
 }
 
@@ -231,48 +237,62 @@ async function handleAgentStatusChanged(orgId: string, payload: CustomWebhookPay
 async function handleRecordingReady(orgId: string, payload: CustomWebhookPayload) {
   logger.info('Custom event: recording.ready', { orgId, callId: payload.callId, data: payload.data });
   
-  if (voiceAIPlatform.isConfigured() && payload.callId && payload.data?.recordingUrl) {
-    await voiceAIPlatform.syncCallFromWebhook({
-      externalCallId: payload.callId,
-      recordingUrl: payload.data.recordingUrl as string,
-      metadata: {
-        organizationId: orgId,
-        source: 'custom_webhook',
-      },
+  if (payload.callId && payload.data?.recordingUrl) {
+    const existingCall = await db.query.voiceCalls.findFirst({
+      where: eq(voiceCalls.externalCallId, payload.callId),
     });
+    
+    if (existingCall) {
+      await db.update(voiceCalls)
+        .set({
+          recordingUrl: payload.data.recordingUrl as string,
+        })
+        .where(eq(voiceCalls.id, existingCall.id));
+    }
   }
 }
 
 async function handleTranscriptReady(orgId: string, payload: CustomWebhookPayload) {
   logger.info('Custom event: transcript.ready', { orgId, callId: payload.callId });
   
-  if (voiceAIPlatform.isConfigured() && payload.callId && payload.data?.transcript) {
-    await voiceAIPlatform.syncCallFromWebhook({
-      externalCallId: payload.callId,
-      transcript: payload.data.transcript as Array<{ role: string; content: string; timestamp: number }>,
-      metadata: {
-        organizationId: orgId,
-        source: 'custom_webhook',
-      },
+  if (payload.callId && payload.data?.transcript) {
+    const existingCall = await db.query.voiceCalls.findFirst({
+      where: eq(voiceCalls.externalCallId, payload.callId),
     });
+    
+    if (existingCall) {
+      await db.update(voiceCalls)
+        .set({
+          transcript: payload.data.transcript,
+        })
+        .where(eq(voiceCalls.id, existingCall.id));
+    }
   }
 }
 
 async function handleAnalysisComplete(orgId: string, payload: CustomWebhookPayload) {
   logger.info('Custom event: analysis.complete', { orgId, callId: payload.callId });
   
-  if (voiceAIPlatform.isConfigured() && payload.callId && payload.data) {
-    await voiceAIPlatform.syncCallFromWebhook({
-      externalCallId: payload.callId,
-      summary: payload.data.summary as string | undefined,
-      sentimentScore: payload.data.sentimentScore as number | undefined,
-      qualityScore: payload.data.qualityScore as number | undefined,
-      metadata: {
-        organizationId: orgId,
-        source: 'custom_webhook',
-        analysis: payload.data,
-      },
+  if (payload.callId && payload.data) {
+    const existingCall = await db.query.voiceCalls.findFirst({
+      where: eq(voiceCalls.externalCallId, payload.callId),
     });
+    
+    if (existingCall) {
+      await db.update(voiceCalls)
+        .set({
+          summary: payload.data.summary as string | undefined,
+          sentimentScore: payload.data.sentimentScore?.toString(),
+          qualityScore: payload.data.qualityScore?.toString(),
+          metadata: {
+            ...(existingCall.metadata as object || {}),
+            organizationId: orgId,
+            source: 'custom_webhook',
+            analysis: payload.data,
+          },
+        })
+        .where(eq(voiceCalls.id, existingCall.id));
+    }
   }
 }
 

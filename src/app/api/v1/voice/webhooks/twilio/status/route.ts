@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { voiceAIPlatform } from '@/lib/voice-ai-platform';
 import { logger } from '@/lib/logger';
 import { z } from 'zod';
+import { db } from '@/lib/db';
+import { voiceCalls } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 const twilioStatusSchema = z.object({
   CallSid: z.string(),
@@ -106,21 +108,29 @@ async function handleTwilioStatus(payload: TwilioStatusPayload) {
     duration: payload.CallDuration,
   });
 
-  if (voiceAIPlatform.isConfigured()) {
-    await voiceAIPlatform.syncCallFromWebhook({
-      externalCallId: payload.CallSid,
+  try {
+    await db
+      .update(voiceCalls)
+      .set({
+        status: normalizedStatus,
+        duration: payload.CallDuration ? parseInt(payload.CallDuration, 10) : undefined,
+        recordingUrl: payload.RecordingUrl,
+        endedAt: normalizedStatus === 'ended' ? new Date() : undefined,
+        metadata: {
+          source: 'twilio_status_webhook',
+          errorCode: payload.ErrorCode,
+          errorMessage: payload.ErrorMessage,
+        },
+      })
+      .where(eq(voiceCalls.externalCallId, payload.CallSid));
+    
+    logger.info('Twilio status - updated local DB', { 
+      callSid: payload.CallSid, 
       status: normalizedStatus,
-      direction,
-      fromNumber: payload.From || payload.Caller,
-      toNumber: payload.To || payload.Called,
-      duration: payload.CallDuration ? parseInt(payload.CallDuration, 10) : undefined,
-      recordingUrl: payload.RecordingUrl,
-      endedAt: normalizedStatus === 'ended' ? (payload.Timestamp || new Date().toISOString()) : undefined,
-      metadata: {
-        source: 'twilio_status_webhook',
-        errorCode: payload.ErrorCode,
-        errorMessage: payload.ErrorMessage,
-      },
+    });
+  } catch (error) {
+    logger.debug('No local call record to update for Twilio status', {
+      callSid: payload.CallSid,
     });
   }
 }

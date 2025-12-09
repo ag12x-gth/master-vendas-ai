@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { voiceAIPlatform, UpdateAgentDto } from '@/lib/voice-ai-platform';
+import { db } from '@/lib/db';
+import { voiceAgents } from '@/lib/db/schema';
 import { logger } from '@/lib/logger';
+import { getCompanyIdFromSession } from '@/app/actions';
+import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 
 const updateAgentSchema = z.object({
@@ -12,23 +15,32 @@ const updateAgentSchema = z.object({
   llmModel: z.string().optional(),
   temperature: z.number().min(0).max(2).optional(),
   status: z.enum(['active', 'inactive']).optional(),
+  retellAgentId: z.string().optional(),
 });
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!voiceAIPlatform.isConfigured()) {
+    const companyId = await getCompanyIdFromSession();
+    const { id } = await params;
+
+    const agent = await db.query.voiceAgents.findFirst({
+      where: and(
+        eq(voiceAgents.id, id),
+        eq(voiceAgents.companyId, companyId)
+      ),
+    });
+
+    if (!agent) {
       return NextResponse.json(
-        { error: 'Voice AI Platform não configurado' },
-        { status: 503 }
+        { error: 'Agente não encontrado' },
+        { status: 404 }
       );
     }
 
-    const agent = await voiceAIPlatform.getAgent(params.id);
-
-    logger.info('Voice agent fetched', { agentId: params.id });
+    logger.info('Voice agent fetched', { agentId: id });
 
     return NextResponse.json({
       success: true,
@@ -36,15 +48,7 @@ export async function GET(
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    logger.error('Error fetching voice agent', { agentId: params.id, error });
-    
-    if (error instanceof Error && error.message.includes('404')) {
-      return NextResponse.json(
-        { error: 'Agente não encontrado' },
-        { status: 404 }
-      );
-    }
-
+    logger.error('Error fetching voice agent', { error });
     return NextResponse.json(
       { error: 'Falha ao buscar agente de voz', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -54,13 +58,23 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!voiceAIPlatform.isConfigured()) {
+    const companyId = await getCompanyIdFromSession();
+    const { id } = await params;
+
+    const existingAgent = await db.query.voiceAgents.findFirst({
+      where: and(
+        eq(voiceAgents.id, id),
+        eq(voiceAgents.companyId, companyId)
+      ),
+    });
+
+    if (!existingAgent) {
       return NextResponse.json(
-        { error: 'Voice AI Platform não configurado' },
-        { status: 503 }
+        { error: 'Agente não encontrado' },
+        { status: 404 }
       );
     }
 
@@ -74,27 +88,37 @@ export async function PATCH(
       );
     }
 
-    const updateData: UpdateAgentDto = validation.data;
-    const agent = await voiceAIPlatform.updateAgent(params.id, updateData);
+    const updateData: Record<string, unknown> = {};
+    const validatedData = validation.data;
+    
+    if (validatedData.name !== undefined) updateData.name = validatedData.name;
+    if (validatedData.type !== undefined) updateData.type = validatedData.type;
+    if (validatedData.systemPrompt !== undefined) updateData.systemPrompt = validatedData.systemPrompt;
+    if (validatedData.firstMessage !== undefined) updateData.firstMessage = validatedData.firstMessage;
+    if (validatedData.voiceId !== undefined) updateData.voiceId = validatedData.voiceId;
+    if (validatedData.llmModel !== undefined) updateData.llmModel = validatedData.llmModel;
+    if (validatedData.temperature !== undefined) updateData.temperature = validatedData.temperature.toString();
+    if (validatedData.status !== undefined) updateData.status = validatedData.status;
+    if (validatedData.retellAgentId !== undefined) updateData.retellAgentId = validatedData.retellAgentId;
 
-    logger.info('Voice agent updated', { agentId: params.id, updates: Object.keys(updateData) });
+    const [updatedAgent] = await db.update(voiceAgents)
+      .set(updateData)
+      .where(and(
+        eq(voiceAgents.id, id),
+        eq(voiceAgents.companyId, companyId)
+      ))
+      .returning();
+
+    logger.info('Voice agent updated', { agentId: id, updates: Object.keys(updateData) });
 
     return NextResponse.json({
       success: true,
-      data: agent,
+      data: updatedAgent,
       message: 'Agente atualizado com sucesso',
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    logger.error('Error updating voice agent', { agentId: params.id, error });
-    
-    if (error instanceof Error && error.message.includes('404')) {
-      return NextResponse.json(
-        { error: 'Agente não encontrado' },
-        { status: 404 }
-      );
-    }
-
+    logger.error('Error updating voice agent', { error });
     return NextResponse.json(
       { error: 'Falha ao atualizar agente de voz', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
@@ -104,19 +128,37 @@ export async function PATCH(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    if (!voiceAIPlatform.isConfigured()) {
+    const companyId = await getCompanyIdFromSession();
+    const { id } = await params;
+
+    const existingAgent = await db.query.voiceAgents.findFirst({
+      where: and(
+        eq(voiceAgents.id, id),
+        eq(voiceAgents.companyId, companyId)
+      ),
+    });
+
+    if (!existingAgent) {
       return NextResponse.json(
-        { error: 'Voice AI Platform não configurado' },
-        { status: 503 }
+        { error: 'Agente não encontrado' },
+        { status: 404 }
       );
     }
 
-    await voiceAIPlatform.deleteAgent(params.id);
+    await db.update(voiceAgents)
+      .set({ 
+        archivedAt: new Date(),
+        status: 'inactive',
+      })
+      .where(and(
+        eq(voiceAgents.id, id),
+        eq(voiceAgents.companyId, companyId)
+      ));
 
-    logger.info('Voice agent deleted', { agentId: params.id });
+    logger.info('Voice agent deleted (archived)', { agentId: id });
 
     return NextResponse.json({
       success: true,
@@ -124,15 +166,7 @@ export async function DELETE(
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    logger.error('Error deleting voice agent', { agentId: params.id, error });
-    
-    if (error instanceof Error && error.message.includes('404')) {
-      return NextResponse.json(
-        { error: 'Agente não encontrado' },
-        { status: 404 }
-      );
-    }
-
+    logger.error('Error deleting voice agent', { error });
     return NextResponse.json(
       { error: 'Falha ao excluir agente de voz', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }

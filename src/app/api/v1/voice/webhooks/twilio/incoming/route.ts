@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { voiceAIPlatform } from '@/lib/voice-ai-platform';
 import { logger } from '@/lib/logger';
 import { db } from '@/lib/db';
 import { voiceAgents, voiceCalls } from '@/lib/db/schema';
@@ -230,29 +229,6 @@ async function handleIncomingCall(payload: TwilioIncomingPayload): Promise<strin
     callerLocation: `${payload.CallerCity || 'Unknown'}, ${payload.CallerState || ''}, ${payload.CallerCountry || ''}`.trim(),
   });
 
-  if (voiceAIPlatform.isConfigured()) {
-    try {
-      await voiceAIPlatform.request('/api/calls/sync', 'POST', {
-        externalCallId: payload.CallSid,
-        status: 'initiated',
-        direction: 'inbound',
-        fromNumber: payload.From,
-        toNumber: payload.To,
-        metadata: {
-          callerCity: payload.CallerCity,
-          callerState: payload.CallerState,
-          callerCountry: payload.CallerCountry,
-          forwardedFrom: payload.ForwardedFrom,
-          stirVerstat: payload.StirVerstat,
-        },
-        source: 'twilio_incoming_webhook',
-      });
-      logger.info('[Inbound] Call synced to Voice AI Platform', { callSid: payload.CallSid });
-    } catch (error) {
-      logger.warn('[Inbound] Failed to sync to Voice AI Platform (non-blocking)', { error, callSid: payload.CallSid });
-    }
-  }
-
   const localAgent = await getActiveInboundVoiceAgent();
 
   if (localAgent && localAgent.retellAgentId) {
@@ -269,7 +245,7 @@ async function handleIncomingCall(payload: TwilioIncomingPayload): Promise<strin
     );
 
     if (retellCall && retellCall.call_id) {
-      logger.info('[Inbound] ✅ Call registered with Retell - Routing to WebSocket', { 
+      logger.info('[Inbound] ✅ Call registered with Retell - Routing to WebSocket Stream', { 
         retellCallId: retellCall.call_id,
         agentId: localAgent.id,
         callSid: payload.CallSid,
@@ -277,11 +253,14 @@ async function handleIncomingCall(payload: TwilioIncomingPayload): Promise<strin
 
       await logInboundCall(payload, localAgent, retellCall.call_id);
       
+      // CRITICAL: Use <Connect><Stream> for bidirectional audio streaming with Retell
+      // track="both_tracks" enables receiving inbound audio AND sending outbound audio
+      // This establishes a WebSocket connection for real-time audio exchange
       return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Dial>
-    <Sip>sip:${retellCall.call_id}@sip.retellai.com</Sip>
-  </Dial>
+  <Connect>
+    <Stream url="wss://api.retellai.com/audio-websocket/${retellCall.call_id}" track="both_tracks" />
+  </Connect>
 </Response>`;
     } else {
       logger.error('[Inbound] Failed to register call with Retell', {
@@ -289,39 +268,6 @@ async function handleIncomingCall(payload: TwilioIncomingPayload): Promise<strin
         agentId: localAgent.retellAgentId,
       });
     }
-  }
-
-  try {
-    if (voiceAIPlatform.isConfigured()) {
-      logger.info('[Inbound] No local agent found or Retell registration failed, trying Voice AI Platform as fallback...');
-      const agents = await voiceAIPlatform.listAgents();
-      const activeInboundAgent = agents.find(a => a.type === 'inbound' && a.status === 'active');
-      
-      if (activeInboundAgent && activeInboundAgent.retellAgentId) {
-        const retellCall = await registerRetellCall(
-          activeInboundAgent.retellAgentId,
-          payload.From,
-          payload.To
-        );
-
-        if (retellCall && retellCall.call_id) {
-          logger.info('[Inbound] Routing to Retell agent from Voice AI Platform (fallback)', { 
-            retellCallId: retellCall.call_id,
-            agentId: activeInboundAgent.id,
-            callSid: payload.CallSid,
-          });
-          
-          return `<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Dial>
-    <Sip>sip:${retellCall.call_id}@sip.retellai.com</Sip>
-  </Dial>
-</Response>`;
-        }
-      }
-    }
-  } catch (error) {
-    logger.warn('[Inbound] Voice AI Platform fallback failed', { error });
   }
 
   logger.warn('[Inbound] No active inbound agent found or registration failed - returning voicemail response', {
@@ -376,7 +322,8 @@ export async function GET() {
         type: localAgent.type,
         status: localAgent.status,
       } : null,
-      voiceAIPlatformConfigured: voiceAIPlatform.isConfigured(),
+      twimlMethod: 'Connect+Stream (WebSocket bidirectional audio)',
+      retellWebSocketUrl: 'wss://api.retellai.com/audio-websocket/{call_id}',
     },
     instructions: {
       step1: 'Create an inbound voice agent in the Voice AI page with type="inbound" and status="active"',

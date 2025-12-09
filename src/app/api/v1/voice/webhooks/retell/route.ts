@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { voiceAIPlatform } from '@/lib/voice-ai-platform';
 import { logger } from '@/lib/logger';
 import { z } from 'zod';
 import { mapDisconnectionReasonToOutcome } from '@/lib/voice-utils';
 import { updateVoiceDeliveryWithOutcome } from '@/lib/campaign-sender';
+import { db } from '@/lib/db';
+import { voiceCalls } from '@/lib/db/schema';
+import { eq } from 'drizzle-orm';
 
 const retellWebhookSchema = z.object({
   event: z.enum(['call_started', 'call_ended', 'call_analyzed', 'agent_response', 'user_transcript']),
@@ -120,26 +122,21 @@ async function handleCallStarted(payload: RetellWebhookPayload) {
     direction: callData.direction,
   });
 
-  if (voiceAIPlatform.isConfigured()) {
-    try {
-      await voiceAIPlatform.syncCallFromWebhook({
-        externalCallId: callData.call_id,
-        agentId: callData.agent_id,
-        status: 'initiated',
-        direction: callData.direction as 'inbound' | 'outbound' | undefined,
-        fromNumber: callData.from_number,
-        toNumber: callData.to_number,
-        metadata: {
-          startedAt: callData.start_timestamp ? new Date(callData.start_timestamp).toISOString() : new Date().toISOString(),
-          source: 'retell_webhook',
-        },
-      });
-    } catch (error) {
-      logger.warn('Failed to sync call_started to external platform', {
-        callId: callData.call_id,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
-    }
+  // Update local database if call exists (for inbound calls logged during webhook)
+  try {
+    await db
+      .update(voiceCalls)
+      .set({
+        status: 'ongoing',
+        startedAt: callData.start_timestamp ? new Date(callData.start_timestamp) : new Date(),
+      })
+      .where(eq(voiceCalls.retellCallId, callData.call_id));
+    
+    logger.info('Call started - updated local DB', { callId: callData.call_id });
+  } catch (error) {
+    logger.debug('No local call record to update for call_started (may be outbound campaign)', {
+      callId: callData.call_id,
+    });
   }
 }
 
@@ -163,6 +160,7 @@ async function handleCallEnded(payload: RetellWebhookPayload) {
     callOutcome,
   });
 
+  // Update voice delivery reports (for campaigns)
   try {
     await updateVoiceDeliveryWithOutcome(
       callData.call_id,
@@ -177,27 +175,33 @@ async function handleCallEnded(payload: RetellWebhookPayload) {
     });
   }
 
-  if (voiceAIPlatform.isConfigured()) {
-    try {
-      await voiceAIPlatform.syncCallFromWebhook({
-        externalCallId: callData.call_id,
+  // Update local voice_calls table (for inbound/direct calls)
+  try {
+    await db
+      .update(voiceCalls)
+      .set({
         status: 'ended',
-        endedAt: callData.end_timestamp ? new Date(callData.end_timestamp).toISOString() : new Date().toISOString(),
-        duration: durationSeconds || 0,
+        endedAt: callData.end_timestamp ? new Date(callData.end_timestamp) : new Date(),
+        duration: durationSeconds,
         recordingUrl: callData.recording_url,
-        transcript: callData.transcript_object as Array<{ role: string; content: string; timestamp: number }>,
-        metadata: { 
-          source: 'retell_webhook',
-          disconnectionReason,
+        transcript: callData.transcript,
+        disconnectReason: disconnectionReason,
+        metadata: {
           callOutcome,
+          transcript_object: callData.transcript_object,
         },
-      });
-    } catch (error) {
-      logger.warn('Failed to sync call_ended to external platform', {
-        callId: callData.call_id,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
-    }
+      })
+      .where(eq(voiceCalls.retellCallId, callData.call_id));
+    
+    logger.info('Call ended - updated local DB', { 
+      callId: callData.call_id, 
+      durationSeconds,
+      callOutcome,
+    });
+  } catch (error) {
+    logger.debug('No local call record to update for call_ended', {
+      callId: callData.call_id,
+    });
   }
 }
 
@@ -210,7 +214,8 @@ async function handleCallAnalyzed(payload: RetellWebhookPayload) {
     successful: payload.call_analysis?.call_successful,
   });
 
-  if (voiceAIPlatform.isConfigured() && payload.call_analysis) {
+  // Update local voice_calls table with analysis data
+  if (payload.call_analysis) {
     try {
       const sentimentMap: Record<string, number> = {
         'positive': 1,
@@ -221,20 +226,27 @@ async function handleCallAnalyzed(payload: RetellWebhookPayload) {
         ? sentimentMap[payload.call_analysis.user_sentiment] ?? 0 
         : undefined;
 
-      await voiceAIPlatform.syncCallFromWebhook({
-        externalCallId: callData.call_id,
-        summary: payload.call_analysis.call_summary,
-        sentimentScore,
-        metadata: {
-          successful: payload.call_analysis.call_successful,
-          customData: payload.call_analysis.custom_analysis_data,
-          source: 'retell_webhook',
-        },
+      await db
+        .update(voiceCalls)
+        .set({
+          summary: payload.call_analysis.call_summary,
+          metadata: {
+            successful: payload.call_analysis.call_successful,
+            customData: payload.call_analysis.custom_analysis_data,
+            sentimentScore: sentimentScore,
+            source: 'retell_webhook',
+          },
+        })
+        .where(eq(voiceCalls.retellCallId, callData.call_id));
+      
+      logger.info('Call analyzed - updated local DB with analysis', { 
+        callId: callData.call_id,
+        sentiment: payload.call_analysis.user_sentiment,
+        successful: payload.call_analysis.call_successful,
       });
     } catch (error) {
-      logger.warn('Failed to sync call_analyzed to external platform', {
+      logger.debug('No local call record to update for call_analyzed', {
         callId: callData.call_id,
-        error: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   }

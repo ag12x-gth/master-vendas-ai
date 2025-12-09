@@ -1,33 +1,42 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { voiceAIPlatform } from '@/lib/voice-ai-platform';
+import { db } from '@/lib/db';
+import { voiceCalls } from '@/lib/db/schema';
 import { logger } from '@/lib/logger';
+import { getCompanyIdFromSession } from '@/app/actions';
+import { eq, desc, sql } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
-    if (!voiceAIPlatform.isConfigured()) {
-      return NextResponse.json(
-        { error: 'Voice AI Platform não configurado' },
-        { status: 503 }
-      );
-    }
-
+    const companyId = await getCompanyIdFromSession();
+    
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50', 10);
     const offset = parseInt(searchParams.get('offset') || '0', 10);
 
-    // Get current page of calls
-    const calls = await voiceAIPlatform.listCalls({ limit, offset });
+    const calls = await db.query.voiceCalls.findMany({
+      where: eq(voiceCalls.companyId, companyId),
+      orderBy: [desc(voiceCalls.createdAt)],
+      limit,
+      offset,
+      with: {
+        agent: true,
+        contact: true,
+      },
+    });
 
-    // Get total count (request with high limit to estimate total)
-    const allCalls = await voiceAIPlatform.listCalls({ limit: 10000, offset: 0 });
-    const total = allCalls.length;
+    const countResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(voiceCalls)
+      .where(eq(voiceCalls.companyId, companyId));
+
+    const total = Number(countResult[0]?.count ?? 0);
 
     logger.info('Voice calls listed', { count: calls.length, total, limit, offset });
 
     return NextResponse.json({
       success: true,
       data: calls,
-      total: total,
+      total,
       pagination: { limit, offset },
       timestamp: new Date().toISOString(),
     });

@@ -1,34 +1,53 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { voiceAIPlatform } from '@/lib/voice-ai-platform';
+import { db } from '@/lib/db';
+import { voiceAgents } from '@/lib/db/schema';
 import { logger } from '@/lib/logger';
+import { getCompanyIdFromSession } from '@/app/actions';
+import { eq } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
-    if (!voiceAIPlatform.isConfigured()) {
-      return NextResponse.json(
-        { error: 'Voice AI Platform não configurado' },
-        { status: 503 }
-      );
-    }
+    const companyId = await getCompanyIdFromSession();
+    
+    const retellApiKey = process.env.RETELL_API_KEY;
+    const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
+    const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
 
-    const [organizations, retellAgents, twilioPhoneNumbers] = await Promise.all([
-      voiceAIPlatform.listOrganizations().catch(() => []),
-      voiceAIPlatform.listRetellAgents().catch(() => []),
-      voiceAIPlatform.listTwilioPhoneNumbers().catch(() => []),
-    ]);
+    const agents = await db.query.voiceAgents.findMany({
+      where: eq(voiceAgents.companyId, companyId),
+    });
+
+    const retellAgents = agents.filter(a => a.retellAgentId);
+
+    const configStatus = {
+      retell: {
+        configured: !!retellApiKey,
+        agentCount: retellAgents.length,
+      },
+      twilio: {
+        configured: !!(twilioAccountSid && twilioAuthToken),
+      },
+    };
 
     logger.info('External resources fetched', { 
-      organizations: organizations.length,
       retellAgents: retellAgents.length,
-      twilioPhoneNumbers: twilioPhoneNumbers.length 
+      retellConfigured: configStatus.retell.configured,
+      twilioConfigured: configStatus.twilio.configured,
     });
 
     return NextResponse.json({
       success: true,
       data: {
-        organizations,
-        retellAgents,
-        twilioPhoneNumbers,
+        organizations: [],
+        retellAgents: retellAgents.map(a => ({
+          id: a.id,
+          name: a.name,
+          retellAgentId: a.retellAgentId,
+          voiceId: a.voiceId,
+          status: a.status,
+        })),
+        twilioPhoneNumbers: [],
+        configStatus,
       },
       timestamp: new Date().toISOString(),
     });

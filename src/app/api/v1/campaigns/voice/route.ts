@@ -1,11 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { campaigns, contactLists, contactsToContactLists } from '@/lib/db/schema';
+import { campaigns, contactLists, contactsToContactLists, voiceAgents } from '@/lib/db/schema';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { z } from 'zod';
 import redis from '@/lib/redis';
 import { inArray, eq, and, sql } from 'drizzle-orm';
-import { voiceAIPlatform } from '@/lib/voice-ai-platform';
 
 const VOICE_CAMPAIGN_QUEUE = 'voice_campaign_queue';
 
@@ -45,12 +44,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const { contactListIds, voiceAgentId, fromNumber, schedule, name, enableRetry, maxRetryAttempts, retryDelayMinutes } = parsed.data;
         const isScheduled = !!schedule;
 
-        let agent = null;
-        try {
-            agent = await voiceAIPlatform.getAgent(voiceAgentId);
-        } catch (err) {
-            console.error('[Voice Campaign] Erro ao buscar agente:', err);
-        }
+        const agent = await db.query.voiceAgents.findFirst({
+            where: and(
+                eq(voiceAgents.id, voiceAgentId),
+                eq(voiceAgents.companyId, companyId)
+            ),
+        });
 
         if (!agent) {
             return NextResponse.json({ 

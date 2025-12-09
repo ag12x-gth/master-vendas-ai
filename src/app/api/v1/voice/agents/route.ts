@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { voiceAIPlatform, CreateAgentDto } from '@/lib/voice-ai-platform';
+import { db } from '@/lib/db';
+import { voiceAgents } from '@/lib/db/schema';
 import { logger } from '@/lib/logger';
+import { getCompanyIdFromSession } from '@/app/actions';
+import { eq, and, isNull, desc } from 'drizzle-orm';
 import { z } from 'zod';
 
 const createAgentSchema = z.object({
@@ -11,33 +14,40 @@ const createAgentSchema = z.object({
   voiceId: z.string().default('pt-BR-FranciscaNeural'),
   llmModel: z.string().default('gpt-4'),
   temperature: z.number().min(0).max(2).default(0.7),
+  retellAgentId: z.string().optional(),
 });
 
 export async function GET(request: NextRequest) {
   try {
-    if (!voiceAIPlatform.isConfigured()) {
-      return NextResponse.json(
-        { error: 'Voice AI Platform não configurado' },
-        { status: 503 }
-      );
-    }
-
+    const companyId = await getCompanyIdFromSession();
+    
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
 
-    const agents = await voiceAIPlatform.listAgents();
+    let whereCondition = and(
+      eq(voiceAgents.companyId, companyId),
+      isNull(voiceAgents.archivedAt)
+    );
     
-    let filteredAgents = agents;
-    if (status && ['active', 'inactive', 'archived'].includes(status)) {
-      filteredAgents = agents.filter(a => a.status === status);
+    if (status && ['active', 'inactive'].includes(status)) {
+      whereCondition = and(
+        eq(voiceAgents.companyId, companyId),
+        eq(voiceAgents.status, status),
+        isNull(voiceAgents.archivedAt)
+      );
     }
 
-    logger.info('Voice agents listed', { count: filteredAgents.length, status });
+    const agents = await db.query.voiceAgents.findMany({
+      where: whereCondition,
+      orderBy: [desc(voiceAgents.createdAt)],
+    });
+
+    logger.info('Voice agents listed', { count: agents.length, status });
 
     return NextResponse.json({
       success: true,
-      data: filteredAgents,
-      total: filteredAgents.length,
+      data: agents,
+      total: agents.length,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
@@ -51,13 +61,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    if (!voiceAIPlatform.isConfigured()) {
-      return NextResponse.json(
-        { error: 'Voice AI Platform não configurado' },
-        { status: 503 }
-      );
-    }
-
+    const companyId = await getCompanyIdFromSession();
+    
     const body = await request.json();
     const validation = createAgentSchema.safeParse(body);
 
@@ -68,14 +73,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const agentData: CreateAgentDto = validation.data;
-    const agent = await voiceAIPlatform.createAgent(agentData);
+    const { name, type, systemPrompt, firstMessage, voiceId, llmModel, temperature, retellAgentId } = validation.data;
 
-    logger.info('Voice agent created', { agentId: agent.id, name: agent.name });
+    const [newAgent] = await db.insert(voiceAgents).values({
+      companyId,
+      name,
+      type,
+      systemPrompt,
+      firstMessage,
+      voiceId,
+      llmModel,
+      temperature: temperature.toString(),
+      retellAgentId,
+      status: 'active',
+    }).returning();
+
+    if (!newAgent) {
+      throw new Error('Failed to create agent');
+    }
+    
+    logger.info('Voice agent created', { agentId: newAgent.id, name: newAgent.name });
 
     return NextResponse.json({
       success: true,
-      data: agent,
+      data: newAgent,
       message: 'Agente criado com sucesso',
       timestamp: new Date().toISOString(),
     }, { status: 201 });

@@ -1,23 +1,80 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { voiceAIPlatform } from '@/lib/voice-ai-platform';
 import { logger } from '@/lib/logger';
+import { db } from '@/lib/db';
+import { voiceCalls, voiceDeliveryReports } from '@/lib/db/schema';
+import { sql, gte } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
-    if (!voiceAIPlatform.isConfigured()) {
-      return NextResponse.json(
-        { error: 'Voice AI Platform não configurado' },
-        { status: 503 }
-      );
-    }
+    const { searchParams } = new URL(request.url);
+    const days = parseInt(searchParams.get('days') || '30', 10);
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - days);
 
-    const analytics = await voiceAIPlatform.getAnalytics();
+    const [callStatsResult, deliveryStatsResult] = await Promise.all([
+      db
+        .select({
+          totalCalls: sql<number>`COUNT(*)`,
+          totalDuration: sql<number>`COALESCE(SUM(duration), 0)`,
+          avgDuration: sql<number>`COALESCE(AVG(duration), 0)`,
+          inboundCalls: sql<number>`COUNT(*) FILTER (WHERE direction = 'inbound')`,
+          outboundCalls: sql<number>`COUNT(*) FILTER (WHERE direction = 'outbound')`,
+          endedCalls: sql<number>`COUNT(*) FILTER (WHERE status = 'ended')`,
+          failedCalls: sql<number>`COUNT(*) FILTER (WHERE status = 'failed')`,
+        })
+        .from(voiceCalls)
+        .where(gte(voiceCalls.createdAt, startDate)),
+      
+      db
+        .select({
+          total: sql<number>`COUNT(*)`,
+          answered: sql<number>`COUNT(*) FILTER (WHERE call_outcome = 'answered')`,
+          notAnswered: sql<number>`COUNT(*) FILTER (WHERE call_outcome = 'not_answered')`,
+          voicemail: sql<number>`COUNT(*) FILTER (WHERE call_outcome = 'voicemail')`,
+          busy: sql<number>`COUNT(*) FILTER (WHERE call_outcome = 'busy')`,
+          failed: sql<number>`COUNT(*) FILTER (WHERE call_outcome = 'failed')`,
+        })
+        .from(voiceDeliveryReports),
+    ]);
 
-    logger.info('Voice analytics fetched', { totalCalls: analytics.totalCalls });
+    const stats = callStatsResult[0];
+    const delivery = deliveryStatsResult[0];
+
+    logger.info('Voice analytics fetched from local DB', { 
+      totalCalls: stats?.totalCalls ?? 0,
+      days,
+    });
 
     return NextResponse.json({
       success: true,
-      data: analytics,
+      data: {
+        totalCalls: Number(stats?.totalCalls ?? 0),
+        totalDuration: Number(stats?.totalDuration ?? 0),
+        avgDuration: Number(stats?.avgDuration ?? 0),
+        totalCost: 0,
+        callsByStatus: {
+          ended: Number(stats?.endedCalls ?? 0),
+          failed: Number(stats?.failedCalls ?? 0),
+        },
+        callsByDirection: {
+          inbound: Number(stats?.inboundCalls ?? 0),
+          outbound: Number(stats?.outboundCalls ?? 0),
+        },
+        campaignDelivery: {
+          total: Number(delivery?.total ?? 0),
+          answered: Number(delivery?.answered ?? 0),
+          notAnswered: Number(delivery?.notAnswered ?? 0),
+          voicemail: Number(delivery?.voicemail ?? 0),
+          busy: Number(delivery?.busy ?? 0),
+          failed: Number(delivery?.failed ?? 0),
+        },
+        period: {
+          days,
+          startDate: startDate.toISOString(),
+          endDate: new Date().toISOString(),
+        },
+      },
+      source: 'local_database',
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
