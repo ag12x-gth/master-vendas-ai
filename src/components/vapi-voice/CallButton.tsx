@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useVapiCalls } from '@/hooks/useVapiCalls';
+import { useRetellCalls } from '@/hooks/useRetellCalls';
 import { useToast } from '@/hooks/use-toast';
 import { createToastNotifier } from '@/lib/toast-helper';
 
@@ -40,7 +40,7 @@ export function CallButton({
 }: CallButtonProps) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [isInitiating, setIsInitiating] = useState(false);
-  const { initiateCall } = useVapiCalls();
+  const { initiateCall } = useRetellCalls();
   const { toast } = useToast();
   const notify = useMemo(() => createToastNotifier(toast), [toast]);
 
@@ -50,8 +50,6 @@ export function CallButton({
     const result = await initiateCall({
       phoneNumber: customerNumber,
       customerName,
-      context: context || `Chamada iniciada para ${customerName} via Master IA`,
-      conversationId,
       contactId,
     });
 

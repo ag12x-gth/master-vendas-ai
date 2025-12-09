@@ -134,14 +134,13 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
         if (!contact) return;
         setIsCalling(true);
         try {
-            const response = await fetch('/api/vapi/initiate-call', {
+            const response = await fetch('/api/v1/voice/initiate-call', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     phoneNumber: contact.phone,
                     customerName: contact.name,
-                    context: notes || 'Cliente solicitou atendimento via voz.',
-                    conversationId: contact.id
+                    contactId: contact.id,
                 }),
             });
 
@@ -151,7 +150,7 @@ export const ContactDetailsPanel = ({ contactId }: { contactId: string | undefin
             }
 
             const result = await response.json();
-            notify.success('📞 Chamada Iniciada!', `Ligando para ${contact.name}. ID: ${result.callId}`);
+            notify.success('Chamada Iniciada!', `Ligando para ${contact.name}. ID: ${result.callId}`);
         } catch (error) {
             notify.error('Erro ao Iniciar Chamada', (error as Error).message);
         } finally {
