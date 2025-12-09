@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Phone, CheckCircle, XCircle, Loader2, RefreshCw, Plus } from 'lucide-react';
+import { Phone, CheckCircle, Loader2, RefreshCw, Plus } from 'lucide-react';
 
 interface PhoneNumber {
   phoneNumber: string;

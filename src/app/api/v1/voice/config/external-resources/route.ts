@@ -5,7 +5,7 @@ import { logger } from '@/lib/logger';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { eq } from 'drizzle-orm';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();
     

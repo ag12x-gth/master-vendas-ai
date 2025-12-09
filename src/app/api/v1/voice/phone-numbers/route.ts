@@ -98,7 +98,7 @@ export async function POST(request: Request) {
   try {
     await getCompanyIdFromSession();
     const body = await request.json();
-    const { phoneNumber, nickname } = body;
+    const { phoneNumber, _nickname } = body;
 
     if (!phoneNumber) {
       return NextResponse.json({ error: 'Número de telefone é obrigatório' }, { status: 400 });

@@ -36,7 +36,6 @@ import {
   XCircle,
   AlertCircle,
   Calendar,
-  Users,
   Target,
   Loader2,
   PhoneCall,

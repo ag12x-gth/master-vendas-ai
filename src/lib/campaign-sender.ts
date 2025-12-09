@@ -1393,7 +1393,7 @@ import { voiceCalls, voiceDeliveryReports, voiceRetryQueue } from '@/lib/db/sche
 
 import { VoiceCallOutcome, VOICE_MAX_RETRY_ATTEMPTS, VOICE_RETRY_DELAY_MINUTES } from './voice-utils';
 
-const VOICE_BATCH_SIZE = 20;
+const _VOICE_BATCH_SIZE = 20;
 const VOICE_BATCH_DELAY_SECONDS = 50;
 const VOICE_MAX_CONCURRENT = 20; // Limite Retell (plano Pay-As-You-Go)
 
@@ -1542,11 +1542,11 @@ export async function updateVoiceDeliveryWithOutcome(
             return;
         }
         
-        const [campaign] = await db
+        const [campaign] = report.campaignId ? await db
             .select({ enableRetry: campaigns.enableRetry, maxRetryAttempts: campaigns.maxRetryAttempts, retryDelayMinutes: campaigns.retryDelayMinutes })
             .from(campaigns)
             .where(eq(campaigns.id, report.campaignId))
-            .limit(1);
+            .limit(1) : [];
         
         const maxAttempts = campaign?.maxRetryAttempts || VOICE_MAX_RETRY_ATTEMPTS;
         const retryDelayMins = campaign?.retryDelayMinutes || VOICE_RETRY_DELAY_MINUTES;
@@ -1556,7 +1556,7 @@ export async function updateVoiceDeliveryWithOutcome(
                            report.attemptNumber < maxAttempts;
         
         let nextRetryAt: Date | null = null;
-        if (shouldRetry) {
+        if (shouldRetry && report.campaignId) {
             nextRetryAt = new Date(Date.now() + retryDelayMins * 60 * 1000);
             
             await scheduleVoiceRetry(

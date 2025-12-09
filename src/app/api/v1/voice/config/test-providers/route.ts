@@ -114,7 +114,7 @@ async function testLLMProvider(): Promise<{ success: boolean; message: string; d
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const [voiceResult, telephonyResult, llmResult] = await Promise.all([
       testRetellProvider(),

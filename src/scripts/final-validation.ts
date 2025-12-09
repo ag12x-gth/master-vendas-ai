@@ -4,7 +4,7 @@ config();
 
 const RETELL_API_KEY = process.env.RETELL_API_KEY;
 const AGENT_ID = 'agent_fcfcf7f9c84e377b0a1711c0bb';
-const TARGET_NUMBER = '+553322980007';
+const _TARGET_NUMBER = '+553322980007';
 
 async function finalValidation() {
   if (!RETELL_API_KEY) {

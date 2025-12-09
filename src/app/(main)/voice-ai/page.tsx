@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useVoiceAgents, VoiceAgent, CreateAgentData, UpdateAgentData } from '@/hooks/useVoiceAgents';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { Phone, Bot, Clock, Plus, Edit, Power, Loader2, PhoneCall, PhoneOff, Users, RefreshCw, Send, Pause, Square, Play, Trash2 } from 'lucide-react';
+import { Phone, Bot, Clock, Plus, Edit, Power, Loader2, PhoneCall, PhoneOff, Users, RefreshCw, Send, Square, Trash2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { VoiceAgentDialog, PhoneNumbersManager } from '@/components/voice-agents';
 import { CreateVoiceCampaignDialog } from '@/components/campaigns/create-voice-campaign-dialog';
@@ -410,7 +410,7 @@ export default function VoiceAIPage() {
           ) : (
             <div className="space-y-4">
               {voiceCampaigns.map((campaign: any) => {
-                const campaignsPerPageCount = Math.ceil(campaignsTotal / campaignsPerPage);
+                const _campaignsPerPageCount = Math.ceil(campaignsTotal / campaignsPerPage);
                 const isSending = campaign.status === 'SENDING';
                 const isQueued = campaign.status === 'QUEUED';
                 const isPaused = campaign.status === 'PAUSED';

@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Bot, Phone, PhoneOff, Activity, DollarSign } from 'lucide-react';
+import { Bot, Phone, PhoneOff, Activity } from 'lucide-react';
 import { VoiceAgent, VoiceAnalytics } from '@/hooks/useVoiceAgents';
 import { Skeleton } from '@/components/ui/skeleton';
 

@@ -54,7 +54,7 @@ const defaultVoices: VoiceOption[] = [
 export function VoiceAgentDialog({ open, onOpenChange, agent, onSave }: VoiceAgentDialogProps) {
   const [saving, setSaving] = useState(false);
   const [voiceOptions, setVoiceOptions] = useState<VoiceOption[]>(defaultVoices);
-  const [loadingVoices, setLoadingVoices] = useState(false);
+  const [_loadingVoices, setLoadingVoices] = useState(false);
   const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
   const [audioRef, setAudioRef] = useState<HTMLAudioElement | null>(null);
   const [formData, setFormData] = useState({

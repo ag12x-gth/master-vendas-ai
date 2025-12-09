@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { db } from '@/lib/db';
 import { voiceDeliveryReports, contacts, campaigns } from '@/lib/db/schema';
-import { eq, and, desc, or, isNull, sql } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 
 export const dynamic = 'force-dynamic';
 

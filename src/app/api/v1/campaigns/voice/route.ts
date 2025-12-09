@@ -58,7 +58,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             }, { status: 403 });
         }
 
-        const retellAgentId = agent.retellAgentId || voiceAgentId;
+        const _retellAgentId = agent.retellAgentId || voiceAgentId;
 
         const ownedLists = await db
             .select({ id: contactLists.id })

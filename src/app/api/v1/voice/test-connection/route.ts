@@ -67,7 +67,7 @@ async function testTwilioConnection(): Promise<{ success: boolean; message: stri
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const results: Record<string, unknown> = {};
     const errors: Record<string, string> = {};

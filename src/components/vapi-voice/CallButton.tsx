@@ -19,8 +19,8 @@ interface CallButtonProps {
   contactId?: string;
   customerName: string;
   customerNumber: string;
-  context?: string;
-  conversationId?: string;
+  _context?: string;
+  _conversationId?: string;
   variant?: 'default' | 'outline' | 'ghost' | 'link' | 'destructive' | 'secondary';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   className?: string;
@@ -31,8 +31,8 @@ export function CallButton({
   contactId,
   customerName,
   customerNumber,
-  context = '',
-  conversationId,
+  _context = '',
+  _conversationId,
   variant = 'default',
   size = 'default',
   className,
