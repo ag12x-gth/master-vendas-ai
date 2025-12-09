@@ -35,8 +35,8 @@ async function analyzeCalls() {
       console.log(`    Status: ${call.call_status}`);
       console.log(`    Duration: ${duration}s`);
       console.log(`    Disconnect: ${call.disconnection_reason || 'N/A'}`);
-      console.log(`    From: ${call.from_number || 'N/A'}`);
-      console.log(`    To: ${call.to_number || 'N/A'}`);
+      console.log(`    From: ${(call as any).from_number || 'N/A'}`);
+      console.log(`    To: ${(call as any).to_number || 'N/A'}`);
       console.log(`    Agent: ${call.agent_id}`);
       
       if (duration === 0 && call.call_status === 'ended') {
