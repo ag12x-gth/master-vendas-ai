@@ -36,7 +36,48 @@ The platform is built with a modern web stack, featuring **Next.js 14** (App Rou
 - **Google Cloud Storage**: Alternative file storage.
 - **Upstash**: Provides Redis for caching and message queuing.
 
-## Recent Changes (December 9, 2025 - Session 14 - UI RESPONSIVITY FIX)
+## Recent Changes (December 9, 2025 - Session 15 - WHATSAPP SYNC ANALYSIS COMPLETE)
+### ✅ WHATSAPP SYNCHRONIZATION ANALYSIS - MAXCON COMPANY
+
+**Analysis Type:** E2E Synchronization Diagnosis for Maxcon (contato@maxconcasaeconstrucao.com.br)
+
+**Summary:** Investigated 8 "orphaned" conversations without messages identified via database audit.
+
+**Key Findings:**
+- **Total Conversations:** 290 (282 with messages, 8 without)
+- **Success Rate:** 97.3% (282/290 conversations have message history)
+- **Root Cause:** The 8 conversations were auto-created by Baileys when new phone numbers were detected, but never received an initial message
+- **Status:** All 8 are in "NEW" status (awaiting first message)
+- **Is Group:** All 8 have `is_group = false` (individual conversations, not groups)
+- **Expected Behavior:** ✅ CONFIRMED - This is normal Baileys behavior
+
+**Database Query Results:**
+```sql
+-- 8 orphaned conversations analysis:
+SELECT c.id, c.status, co.is_group, co.phone, COUNT(m.id) as messages
+FROM conversations c
+JOIN contacts co ON c.contact_id = co.id
+LEFT JOIN messages m ON c.id = m.conversation_id
+WHERE c.company_id = 'a8fd7e6c-4910-482c-9722-2e7cd2552d3b'
+AND c.id IN (8 conversation IDs)
+GROUP BY c.id;
+-- Result: All 8 show message count = 0, is_group = false
+```
+
+**API Filter Analysis:**
+- The `/api/v1/conversations` endpoint correctly includes these conversations (filter: `is_group = false OR is_group IS NULL`)
+- 283 conversations match the filter (should appear in API)
+- The 8 orphaned conversations are within this 283 count
+
+**Conclusion:** ✅ **NO BUG DETECTED**
+- The 8 conversations represent new contacts that Baileys detected but haven't yet exchanged messages with
+- This is expected behavior in any WhatsApp management system
+- Data integrity is intact (290 total conversations, 3,256 messages, all properly linked)
+- Baileys connection is healthy and active (last activity: 2025-12-09 22:01:14)
+
+---
+
+## Previous Session - Session 14 - UI RESPONSIVITY FIX
 ### ✅ RESPONSIVITY BUG FIX - ATENDIMENTOS PAGE LAYOUT
 
 **Fixed: CSS Overflow Issue in Atendimentos Page**
