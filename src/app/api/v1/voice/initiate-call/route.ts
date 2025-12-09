@@ -59,9 +59,21 @@ export async function POST(request: NextRequest) {
 
       if (agents.length === 0) {
         const retellAgents = await retellService.listAgents();
-        const firstRetellAgent = retellAgents[0];
-        if (firstRetellAgent) {
-          selectedAgentId = firstRetellAgent.agent_id;
+        
+        // Procurar agente específico conhecido (Assistente-2)
+        let selectedAgent = retellAgents.find(a => a.agent_name === 'Assistente-2');
+        
+        // Se não encontrar, usar o primeiro disponível
+        if (!selectedAgent) {
+          selectedAgent = retellAgents[0];
+        }
+        
+        if (selectedAgent) {
+          selectedAgentId = selectedAgent.agent_id;
+          logger.info('Using Retell agent from API', { 
+            agentId: selectedAgentId, 
+            agentName: selectedAgent.agent_name 
+          });
         } else {
           return NextResponse.json(
             { error: 'Nenhum agente de voz disponível. Crie um agente primeiro.' },

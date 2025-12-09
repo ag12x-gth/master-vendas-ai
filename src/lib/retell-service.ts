@@ -96,8 +96,23 @@ class RetellService {
 
     if (!response.ok) {
       const errorBody = await response.text();
-      logger.error('Retell API error', { endpoint, status: response.status, error: errorBody });
-      throw new Error(`Retell API error: ${response.status} - ${errorBody}`);
+      logger.error('Retell API error', { 
+        endpoint, 
+        status: response.status, 
+        error: errorBody,
+        apiKeyPrefix: this.apiKey.substring(0, 10)
+      });
+      
+      // Tentar parsear erro JSON
+      let errorMessage = errorBody;
+      try {
+        const errorJson = JSON.parse(errorBody);
+        errorMessage = errorJson.message || errorBody;
+      } catch (e) {
+        // Manter errorBody como string
+      }
+      
+      throw new Error(`Retell API error: ${response.status} - ${errorMessage}`);
     }
 
     return response.json();
