@@ -88,11 +88,6 @@ async function registerRetellCall(
     
     const versionToUse = publishedVersion || 10;
     payload.agent_version = versionToUse;
-    logger.info('[Inbound] Using agent version for call registration', {
-      agentId,
-      version: versionToUse,
-      source: publishedVersion ? 'phone_config' : 'fallback_v10',
-    });
     
     logger.info('[Inbound] Registering call with Retell (Method 2 - Dial to SIP URI)', {
       payload,
