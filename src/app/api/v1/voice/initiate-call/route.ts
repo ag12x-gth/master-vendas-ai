@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER || '+553322980007';
 
 function normalizePhoneNumber(phone: string): string {
-  let cleaned = phone.replace(/[\s\-\(\)\.]/g, '');
+  let cleaned = phone.replace(/[\s\-().]/g, '');
   
   if (cleaned.startsWith('+')) {
     return cleaned;
