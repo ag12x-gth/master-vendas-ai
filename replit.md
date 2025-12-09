@@ -89,7 +89,34 @@ Preferred communication style: Simple, everyday language.
 - **Firebase**: (Optional) App Hosting and Secret Manager.
 - **Replit**: Development environment, Object Storage.
 
-## Recent Changes (December 8, 2025 - Session 6)
+## Recent Changes (December 9, 2025 - Session 7)
+1. **Inbound Call Handling System** - AI agent answers incoming calls:
+   - Modified `src/app/api/v1/voice/webhooks/twilio/incoming/route.ts`
+   - `getActiveInboundVoiceAgent()`: Queries local DB for active inbound agents
+   - `logInboundCall()`: Records inbound calls to `voice_calls` table
+   - Now uses local database instead of external voiceAIPlatform (which returned 404)
+   - Maintains backwards compatibility with voiceAIPlatform as non-blocking fallback
+   - Returns TwiML with Retell WebSocket: `<Connect><Stream url="wss://api.retellai.com/audio-websocket/{retellAgentId}">`
+   - GET endpoint shows configuration status and setup instructions
+
+2. **Inbound Voice Agent Created**:
+   - ID: `ae247715-1ec5-4749-bd50-94781f42b4d7`
+   - Name: "Assistente Inbound Brasil"
+   - Type: "inbound", Status: "active"
+   - Uses same Retell agent: `agent_c96d270a5cad5d4608bb72ee08`
+
+3. **Twilio Webhook Configuration** (REQUIRED for inbound calls to work):
+   - Webhook URL: `https://{domain}/api/v1/voice/webhooks/twilio/incoming`
+   - Phone Number: `+553322980007`
+   - Configure in Twilio Console > Phone Numbers > Voice Configuration
+   - Set "A call comes in" to the webhook URL with HTTP POST
+
+4. **VAPI to Retell Migration Completed**:
+   - `CallButton.tsx`: Uses `useRetellCalls` hook instead of `useVapiCalls`
+   - `contact-details-panel.tsx`: Uses Retell endpoint `/api/v1/voice/initiate-call`
+   - `initiate-call` API: Fixed to use `retellAgentId` instead of `externalId`
+
+## Previous Changes (December 8, 2025 - Session 6)
 1. **RetellCallButton Component** - New "Ligar" button for contact profiles using Retell API:
    - `src/components/voice/RetellCallButton.tsx`: Button component with confirmation dialog
    - `src/hooks/useRetellCalls.ts`: React hook for managing Retell call state
