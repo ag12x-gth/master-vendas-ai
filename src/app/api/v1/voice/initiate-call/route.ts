@@ -19,9 +19,18 @@ function normalizePhoneNumber(phone: string): string {
   
   cleaned = cleaned.replace(/\D/g, '');
   
-  if (!cleaned.startsWith('55')) {
-    cleaned = '55' + cleaned;
+  // Remove country code 55 if present at the start
+  if (cleaned.startsWith('55') && cleaned.length > 11) {
+    cleaned = cleaned.substring(2);
   }
+  
+  // Remove leading zeros (trunk prefix) - e.g., 011 becomes 11
+  while (cleaned.startsWith('0')) {
+    cleaned = cleaned.substring(1);
+  }
+  
+  // Add Brazil country code
+  cleaned = '55' + cleaned;
   
   return '+' + cleaned;
 }
@@ -30,7 +39,11 @@ export async function POST(request: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();
     const body = await request.json();
-    const { phoneNumber, customerName, contactId, agentId } = body;
+    const { phoneNumber, customerName, contactId, agentId, fromNumber } = body;
+    
+    const callerNumber = fromNumber && fromNumber.startsWith('+') 
+      ? fromNumber 
+      : TWILIO_PHONE_NUMBER;
 
     if (!phoneNumber) {
       return NextResponse.json(
@@ -135,11 +148,11 @@ export async function POST(request: NextRequest) {
       phoneNumber: formattedNumber,
       customerName,
       agentId: selectedAgentId,
-      fromNumber: TWILIO_PHONE_NUMBER,
+      fromNumber: callerNumber,
     });
 
     const call = await retellService.createPhoneCallWithVoicemailDetection({
-      from_number: TWILIO_PHONE_NUMBER,
+      from_number: callerNumber,
       to_number: formattedNumber,
       override_agent_id: selectedAgentId,
       metadata: {

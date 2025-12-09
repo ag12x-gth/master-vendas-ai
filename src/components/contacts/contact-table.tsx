@@ -38,7 +38,7 @@ import {
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import Link from 'next/link';
-import { CallButton } from '@/components/vapi-voice/CallButton';
+import { CommunicationButton } from '@/components/contacts/communication-modal';
 import { BulkCallDialog } from '@/components/vapi-voice/BulkCallDialog';
 import { useDebounce } from '@/hooks/use-debounce';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -53,10 +53,8 @@ const ContactGrid = memo(({ contacts, onRowClick }: { contacts: ExtendedContact[
             {contacts.map(contact => (
                 <Card key={contact.id} className="hover:shadow-lg transition-shadow relative">
                     <div className="absolute top-2 right-2 z-10">
-                        <CallButton
-                            contactId={contact.id}
-                            customerName={contact.name}
-                            customerNumber={contact.phone}
+                        <CommunicationButton
+                            contact={contact}
                             trigger={
                                 <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
                                     <Phone className="h-4 w-4" />
@@ -128,10 +126,8 @@ const ContactTableView = memo(({ contacts, onRowClick, selectedRows, onSelectedR
                                     ))}
                                 </div>
                              </div>
-                             <CallButton
-                                contactId={contact.id}
-                                customerName={contact.name}
-                                customerNumber={contact.phone}
+                             <CommunicationButton
+                                contact={contact}
                                 trigger={
                                     <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
                                         <Phone className="h-4 w-4" />
@@ -214,10 +210,8 @@ const ContactTableView = memo(({ contacts, onRowClick, selectedRows, onSelectedR
                                         <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent>
-                                        <CallButton
-                                            contactId={contact.id}
-                                            customerName={contact.name}
-                                            customerNumber={contact.phone}
+                                        <CommunicationButton
+                                            contact={contact}
                                             trigger={
                                                 <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                                                     <Phone className="mr-2 h-4 w-4" /> Ligar

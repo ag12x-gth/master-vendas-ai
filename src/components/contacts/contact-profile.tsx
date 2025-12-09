@@ -19,7 +19,7 @@ import { Label } from '../ui/label';
 import { Skeleton } from '../ui/skeleton';
 import { StartConversationDialog } from './start-conversation-dialog';
 import { MultiSelectCreatable } from '../ui/multi-select-creatable';
-import { RetellCallButton } from '@/components/voice/RetellCallButton';
+import { CommunicationButton } from '@/components/contacts/communication-modal';
 import useSWR from 'swr';
 
 interface EditableSectionProps {
@@ -212,10 +212,8 @@ export function ContactProfile({ contactId }: { contactId: string }) {
       <PageHeader title={loading ? 'Carregando...' : contact?.name || 'Perfil do Contato'} description={loading ? '' : "Perfil detalhado do contato."}>
           <div className="flex items-center gap-2">
             {contact && (
-              <RetellCallButton
-                contactId={contact.id}
-                customerName={contact.name}
-                customerNumber={contact.phone}
+              <CommunicationButton
+                contact={contact}
                 trigger={
                   <Button variant="default">
                     <PhoneCall className="mr-2 h-4 w-4" />
@@ -423,10 +421,8 @@ function ContactCallHistory({ contactId, contact }: { contactId: string; contact
           Histórico de Ligações
         </CardTitle>
         {contact && (
-          <RetellCallButton
-            contactId={contact.id}
-            customerName={contact.name}
-            customerNumber={contact.phone}
+          <CommunicationButton
+            contact={contact}
             trigger={
               <Button variant="outline" size="sm">
                 <PhoneCall className="mr-2 h-4 w-4" />
