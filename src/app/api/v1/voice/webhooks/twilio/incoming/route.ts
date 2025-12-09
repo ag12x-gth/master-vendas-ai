@@ -81,23 +81,22 @@ async function registerRetellCall(
     
     const payload: Record<string, any> = {
       agent_id: agentId,
-      audio_encoding: 'mulaw',
-      audio_websocket_protocol: 'twilio',
-      sample_rate: 8000,
       from_number: fromNumber,
       to_number: toNumber,
       direction: 'inbound',
     };
     
-    if (publishedVersion) {
-      payload.agent_version = publishedVersion;
-      logger.info('[Inbound] Using published agent version for call registration', {
-        agentId,
-        version: publishedVersion,
-      });
-    } else {
-      logger.warn('[Inbound] No published version found, using default (may fail if agent not published)');
-    }
+    const versionToUse = publishedVersion || 10;
+    payload.agent_version = versionToUse;
+    logger.info('[Inbound] Using agent version for call registration', {
+      agentId,
+      version: versionToUse,
+      source: publishedVersion ? 'phone_config' : 'fallback_v10',
+    });
+    
+    logger.info('[Inbound] Registering call with Retell (Method 2 - Dial to SIP URI)', {
+      payload,
+    });
     
     const response = await fetch('https://api.retellai.com/v2/register-phone-call', {
       method: 'POST',
@@ -287,24 +286,24 @@ async function handleIncomingCall(payload: TwilioIncomingPayload): Promise<strin
     );
 
     if (retellCall && retellCall.call_id) {
-      logger.info('[Inbound] ✅ Call registered with Retell - Routing to SIP URI', { 
+      // Method 2: Dial to SIP URI using LiveKit SIP server with UDP (default transport)
+      // Try without explicit transport to let Twilio negotiate
+      const sipUri = `sip:${retellCall.call_id}@5t4n6j0wnrl.sip.livekit.cloud`;
+      logger.info('[Inbound] ✅ Call registered with Retell - Routing to SIP URI (Retell Method 2)', { 
         retellCallId: retellCall.call_id,
         agentId: localAgent.id,
         callSid: payload.CallSid,
-        sipUri: `sip:${retellCall.call_id}@sip.retellai.com`,
+        sipUri,
       });
 
       await logInboundCall(payload, localAgent, retellCall.call_id);
       
-      // Use Dial to SIP URI method - Officially documented by Retell AI
-      // SIP URI format: sip:{call_id}@sip.retellai.com;transport=tcp
-      // Using TCP transport as recommended by Retell documentation
-      // Timeout set to 60 seconds to allow sufficient time for SIP connection
-      // Action callback to capture SIP response codes for debugging
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev';
+      
       return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Dial timeout="60" answerOnBridge="true" action="/api/v1/voice/webhooks/twilio/dial-callback">
-    <Sip>sip:${retellCall.call_id}@sip.retellai.com;transport=tcp</Sip>
+  <Dial timeout="60" action="${baseUrl}/api/v1/voice/webhooks/twilio/dial-callback">
+    <Sip statusCallback="${baseUrl}/api/v1/voice/webhooks/twilio/sip-status" statusCallbackEvent="initiated ringing answered completed">${sipUri}</Sip>
   </Dial>
 </Response>`;
     } else {
