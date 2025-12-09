@@ -188,11 +188,12 @@ export function CommunicationModal({ contact, open, onOpenChange }: Communicatio
   const canSubmit = () => {
     if (!contact) return false;
     switch (channel) {
-      case 'voice':
+      case 'voice': {
         const selectedPhone = resources?.phoneNumbers.find(p => p.phoneNumber === selectedPhoneNumber);
         return !!selectedPhone?.inboundAgentId;
+      }
       case 'whatsapp':
-        return !!selectedConnectionId && resources?.whatsappConnections.length! > 0;
+        return !!selectedConnectionId && (resources?.whatsappConnections.length ?? 0) > 0;
       case 'sms':
         return !!selectedGatewayId && smsMessage.trim().length > 0;
       default:

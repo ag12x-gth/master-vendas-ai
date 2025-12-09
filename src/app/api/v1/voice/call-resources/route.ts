@@ -24,7 +24,7 @@ export async function GET(_request: NextRequest) {
     }
 
     // Fetch Retell agents first (needed to map to phone numbers)
-    let agentsMap = new Map<string, { name: string; version: number }>();
+    const agentsMap = new Map<string, { name: string; version: number }>();
     let retellAgents: {
       id: string;
       name: string;
