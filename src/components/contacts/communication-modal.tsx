@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Phone, MessageCircle, MessageSquare, Loader2, PhoneCall } from 'lucide-react';
+import { Phone, MessageCircle, MessageSquare, Loader2, PhoneCall, Smartphone, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -20,15 +20,49 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { createToastNotifier } from '@/lib/toast-helper';
 import type { Contact } from '@/lib/types';
 
+interface PhoneNumberResource {
+  phoneNumber: string;
+  friendlyName: string;
+  nickname?: string;
+  inboundAgentId?: string;
+  inboundAgentName?: string;
+  inboundAgentVersion?: number;
+  outboundAgentId?: string;
+  outboundAgentName?: string;
+  outboundAgentVersion?: number;
+}
+
+interface RetellAgent {
+  id: string;
+  name: string;
+  version: number;
+  isPublished: boolean;
+}
+
+interface WhatsAppConnection {
+  id: string;
+  name: string;
+  phoneNumber?: string | null;
+  type: 'meta_api' | 'baileys';
+  status: string;
+}
+
+interface SMSGateway {
+  id: string;
+  name: string;
+  provider: string;
+}
+
 interface CallResources {
-  phoneNumbers: { phoneNumber: string; friendlyName: string }[];
-  retellAgents: { id: string; name: string; isPublished: boolean }[];
-  whatsappConnections: { id: string; name: string; phoneNumber: string | null }[];
-  smsGateways: { id: string; name: string; provider: string }[];
+  phoneNumbers: PhoneNumberResource[];
+  retellAgents: RetellAgent[];
+  whatsappConnections: WhatsAppConnection[];
+  smsGateways: SMSGateway[];
 }
 
 interface CommunicationModalProps {
@@ -46,9 +80,9 @@ export function CommunicationModal({ contact, open, onOpenChange }: Communicatio
   
   const [channel, setChannel] = useState<CommunicationChannel>('voice');
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState<string>('');
-  const [selectedAgentId, setSelectedAgentId] = useState<string>('');
   const [selectedConnectionId, setSelectedConnectionId] = useState<string>('');
   const [selectedGatewayId, setSelectedGatewayId] = useState<string>('');
+  const [smsMessage, setSmsMessage] = useState<string>('');
 
   const { toast } = useToast();
   const notify = useMemo(() => createToastNotifier(toast), [toast]);
@@ -70,9 +104,6 @@ export function CommunicationModal({ contact, open, onOpenChange }: Communicatio
       if (data.phoneNumbers.length > 0 && data.phoneNumbers[0]) {
         setSelectedPhoneNumber(data.phoneNumbers[0].phoneNumber);
       }
-      if (data.retellAgents.length > 0 && data.retellAgents[0]) {
-        setSelectedAgentId(data.retellAgents[0].id);
-      }
       if (data.whatsappConnections.length > 0 && data.whatsappConnections[0]) {
         setSelectedConnectionId(data.whatsappConnections[0].id);
       }
@@ -89,6 +120,14 @@ export function CommunicationModal({ contact, open, onOpenChange }: Communicatio
   const handleVoiceCall = async () => {
     if (!contact) return;
     
+    const selectedPhone = resources?.phoneNumbers.find(p => p.phoneNumber === selectedPhoneNumber);
+    const agentId = selectedPhone?.inboundAgentId;
+    
+    if (!agentId) {
+      notify.error('Erro', 'Este número não possui agente configurado');
+      return;
+    }
+    
     setIsProcessing(true);
     try {
       const response = await fetch('/api/v1/voice/initiate-call', {
@@ -98,7 +137,7 @@ export function CommunicationModal({ contact, open, onOpenChange }: Communicatio
           phoneNumber: contact.phone,
           customerName: contact.name,
           contactId: contact.id,
-          agentId: selectedAgentId,
+          agentId: agentId,
           fromNumber: selectedPhoneNumber,
         }),
       });
@@ -124,6 +163,10 @@ export function CommunicationModal({ contact, open, onOpenChange }: Communicatio
   };
 
   const handleSms = () => {
+    if (!smsMessage.trim()) {
+      notify.error('Erro', 'Digite uma mensagem');
+      return;
+    }
     notify.info('SMS', 'Use a funcionalidade de Campanhas SMS para enviar mensagens.');
     onOpenChange(false);
   };
@@ -146,19 +189,26 @@ export function CommunicationModal({ contact, open, onOpenChange }: Communicatio
     if (!contact) return false;
     switch (channel) {
       case 'voice':
-        return !!selectedAgentId;
+        const selectedPhone = resources?.phoneNumbers.find(p => p.phoneNumber === selectedPhoneNumber);
+        return !!selectedPhone?.inboundAgentId;
       case 'whatsapp':
-        return !!selectedConnectionId;
+        return !!selectedConnectionId && resources?.whatsappConnections.length! > 0;
       case 'sms':
-        return !!selectedGatewayId;
+        return !!selectedGatewayId && smsMessage.trim().length > 0;
       default:
         return false;
     }
   };
 
+  const charCount = smsMessage.length;
+  const maxChars = 159;
+  const isOverLimit = charCount > maxChars;
+
+  const selectedPhoneData = resources?.phoneNumbers.find(p => p.phoneNumber === selectedPhoneNumber);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <PhoneCall className="h-5 w-5 text-primary" />
@@ -224,94 +274,146 @@ export function CommunicationModal({ contact, open, onOpenChange }: Communicatio
                       <SelectValue placeholder="Selecione o número" />
                     </SelectTrigger>
                     <SelectContent>
-                      {resources?.phoneNumbers.map((phone) => (
-                        <SelectItem key={phone.phoneNumber} value={phone.phoneNumber}>
-                          {phone.friendlyName} ({phone.phoneNumber})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Agente de IA (Retell)</Label>
-                  <Select value={selectedAgentId} onValueChange={setSelectedAgentId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o agente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {resources?.retellAgents.length === 0 ? (
+                      {resources?.phoneNumbers.length === 0 ? (
                         <SelectItem value="none" disabled>
-                          Nenhum agente publicado
+                          Nenhum número disponível
                         </SelectItem>
                       ) : (
-                        resources?.retellAgents.map((agent) => (
-                          <SelectItem key={agent.id} value={agent.id}>
-                            {agent.name}
+                        resources?.phoneNumbers.map((phone) => (
+                          <SelectItem key={phone.phoneNumber} value={phone.phoneNumber}>
+                            <div className="flex flex-col">
+                              <span>{phone.friendlyName || phone.phoneNumber}</span>
+                              {phone.inboundAgentName && (
+                                <span className="text-xs text-muted-foreground">
+                                  Agente: {phone.inboundAgentName} (v{phone.inboundAgentVersion})
+                                </span>
+                              )}
+                            </div>
                           </SelectItem>
                         ))
                       )}
                     </SelectContent>
                   </Select>
-                  {resources?.retellAgents.length === 0 && (
-                    <p className="text-sm text-muted-foreground">
-                      Nenhum agente Retell publicado encontrado. Publique um agente primeiro.
-                    </p>
-                  )}
                 </div>
 
-                <div className="p-3 rounded-lg bg-muted/50 text-sm">
+                {selectedPhoneData?.inboundAgentName ? (
+                  <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 text-sm space-y-1">
+                    <p className="font-medium text-green-900 dark:text-green-100">
+                      ✓ Agente Configurado
+                    </p>
+                    <p className="text-green-800 dark:text-green-200">
+                      {selectedPhoneData.inboundAgentName} (v{selectedPhoneData.inboundAgentVersion})
+                    </p>
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 text-sm">
+                    <p className="text-yellow-800 dark:text-yellow-200">
+                      ⚠️ Este número não possui agente configurado
+                    </p>
+                  </div>
+                )}
+
+                <div className="p-3 rounded-lg bg-muted/50 text-sm space-y-1">
+                  <p><strong>Contato:</strong> {contact?.name}</p>
                   <p><strong>Destino:</strong> {contact?.phone}</p>
                 </div>
               </>
             )}
 
             {channel === 'whatsapp' && (
-              <div className="space-y-2">
-                <Label>Conexão WhatsApp</Label>
-                <Select value={selectedConnectionId} onValueChange={setSelectedConnectionId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione a conexão" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {resources?.whatsappConnections.length === 0 ? (
-                      <SelectItem value="none" disabled>
-                        Nenhuma conexão ativa
-                      </SelectItem>
-                    ) : (
-                      resources?.whatsappConnections.map((conn) => (
-                        <SelectItem key={conn.id} value={conn.id}>
-                          {conn.name} {conn.phoneNumber && `(${conn.phoneNumber})`}
+              <>
+                <div className="space-y-2">
+                  <Label>Conexão WhatsApp</Label>
+                  <Select value={selectedConnectionId} onValueChange={setSelectedConnectionId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a conexão" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {resources?.whatsappConnections.length === 0 ? (
+                        <SelectItem value="none" disabled>
+                          Nenhuma conexão ativa
                         </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
+                      ) : (
+                        resources?.whatsappConnections.map((conn) => (
+                          <SelectItem key={conn.id} value={conn.id}>
+                            <div className="flex items-center gap-2">
+                              {conn.type === 'baileys' ? (
+                                <Smartphone className="h-4 w-4 text-blue-500" />
+                              ) : (
+                                <Lock className="h-4 w-4 text-green-500" />
+                              )}
+                              <div className="flex flex-col">
+                                <span>{conn.name}</span>
+                                {conn.phoneNumber && (
+                                  <span className="text-xs text-muted-foreground">
+                                    {conn.type === 'baileys' ? 'Baileys' : 'Meta API'} · {conn.phoneNumber}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="p-3 rounded-lg bg-muted/50 text-sm space-y-1">
+                  <p><strong>Contato:</strong> {contact?.name}</p>
+                  <p><strong>Destino:</strong> {contact?.phone}</p>
+                </div>
+              </>
             )}
 
             {channel === 'sms' && (
-              <div className="space-y-2">
-                <Label>Gateway SMS</Label>
-                <Select value={selectedGatewayId} onValueChange={setSelectedGatewayId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o gateway" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {resources?.smsGateways.length === 0 ? (
-                      <SelectItem value="none" disabled>
-                        Nenhum gateway ativo
-                      </SelectItem>
-                    ) : (
-                      resources?.smsGateways.map((gw) => (
-                        <SelectItem key={gw.id} value={gw.id}>
-                          {gw.name} ({gw.provider})
+              <>
+                <div className="space-y-2">
+                  <Label>Gateway SMS</Label>
+                  <Select value={selectedGatewayId} onValueChange={setSelectedGatewayId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o gateway" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {resources?.smsGateways.length === 0 ? (
+                        <SelectItem value="none" disabled>
+                          Nenhum gateway ativo
                         </SelectItem>
-                      ))
+                      ) : (
+                        resources?.smsGateways.map((gw) => (
+                          <SelectItem key={gw.id} value={gw.id}>
+                            {gw.name} ({gw.provider})
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Mensagem (máximo {maxChars} caracteres)</Label>
+                  <Textarea
+                    placeholder="Digite sua mensagem aqui..."
+                    value={smsMessage}
+                    onChange={(e) => setSmsMessage(e.target.value.slice(0, maxChars))}
+                    className="min-h-24 resize-none"
+                  />
+                  <div className="flex justify-between text-xs">
+                    <span className={`font-medium ${isOverLimit ? 'text-red-500' : 'text-muted-foreground'}`}>
+                      {charCount}/{maxChars} caracteres
+                    </span>
+                    {charCount > 0 && (
+                      <span className={`${charCount <= maxChars ? 'text-green-500' : 'text-red-500'}`}>
+                        {charCount <= maxChars ? '✓' : '✗ Limite excedido'}
+                      </span>
                     )}
-                  </SelectContent>
-                </Select>
-              </div>
+                  </div>
+                </div>
+
+                <div className="p-3 rounded-lg bg-muted/50 text-sm space-y-1">
+                  <p><strong>Contato:</strong> {contact?.name}</p>
+                  <p><strong>Destino:</strong> {contact?.phone}</p>
+                </div>
+              </>
             )}
           </div>
         )}

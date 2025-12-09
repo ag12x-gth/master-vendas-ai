@@ -8,20 +8,19 @@ import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
-const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER || '+553322980007';
-
 export async function GET(_request: NextRequest) {
   try {
     const companyId = await getCompanyIdFromSession();
 
-    const phoneNumbers = [{
-      phoneNumber: TWILIO_PHONE_NUMBER,
-      friendlyName: 'Número Principal',
-      voiceEnabled: true,
-      smsEnabled: true,
-    }];
+    // Fetch Retell agents first (needed to map to phone numbers)
+    let agentsMap = new Map<string, { name: string; version: number }>();
+    let retellAgents: {
+      id: string;
+      name: string;
+      version: number;
+      isPublished: boolean;
+    }[] = [];
 
-    let retellAgents: { id: string; name: string; isPublished: boolean }[] = [];
     if (retellService.isConfigured()) {
       try {
         const agents = await retellService.listAgents();
@@ -30,18 +29,78 @@ export async function GET(_request: NextRequest) {
           .map(a => ({
             id: a.agent_id,
             name: a.agent_name,
+            version: a.version,
             isPublished: a.is_published,
           }));
+
+        // Create map for quick agent lookup
+        agents.forEach(a => {
+          agentsMap.set(a.agent_id, {
+            name: a.agent_name,
+            version: a.version,
+          });
+        });
       } catch (error) {
         logger.warn('Failed to fetch Retell agents', { error });
       }
     }
 
-    const whatsappConnections = await db
+    // Fetch Retell phone numbers with agent bindings
+    let phoneNumbers: {
+      phoneNumber: string;
+      friendlyName: string;
+      nickname?: string;
+      inboundAgentId?: string;
+      inboundAgentName?: string;
+      inboundAgentVersion?: number;
+      outboundAgentId?: string;
+      outboundAgentName?: string;
+      outboundAgentVersion?: number;
+    }[] = [];
+
+    if (retellService.isConfigured()) {
+      try {
+        const retellNumbers = await retellService.listPhoneNumbers();
+        phoneNumbers = retellNumbers.map(rn => {
+          const inboundAgent = rn.inbound_agent_id
+            ? agentsMap.get(rn.inbound_agent_id)
+            : undefined;
+          const outboundAgent = rn.outbound_agent_id
+            ? agentsMap.get(rn.outbound_agent_id)
+            : undefined;
+
+          return {
+            phoneNumber: rn.phone_number,
+            friendlyName: rn.phone_number_pretty || rn.phone_number,
+            nickname: rn.nickname,
+            inboundAgentId: rn.inbound_agent_id,
+            inboundAgentName: inboundAgent?.name,
+            inboundAgentVersion: rn.inbound_agent_version || inboundAgent?.version,
+            outboundAgentId: rn.outbound_agent_id,
+            outboundAgentName: outboundAgent?.name,
+            outboundAgentVersion: rn.outbound_agent_version || outboundAgent?.version,
+          };
+        });
+
+        logger.info('Fetched Retell phone numbers', {
+          count: phoneNumbers.length,
+          numbers: phoneNumbers.map(n => n.phoneNumber),
+        });
+      } catch (error) {
+        logger.warn('Failed to fetch Retell phone numbers', { error });
+        // Fallback to empty list
+        phoneNumbers = [];
+      }
+    }
+
+    // Fetch WhatsApp connections with type
+    const whatsappConnectionsData = await db
       .select({
         id: connections.id,
         name: connections.config_name,
         phoneNumber: connections.phone,
+        connectionType: connections.connectionType,
+        status: connections.status,
       })
       .from(connections)
       .where(and(
@@ -49,6 +108,15 @@ export async function GET(_request: NextRequest) {
         eq(connections.status, 'connected')
       ));
 
+    const whatsappConnections = whatsappConnectionsData.map(conn => ({
+      id: conn.id,
+      name: conn.name,
+      phoneNumber: conn.phoneNumber,
+      type: conn.connectionType === 'meta_api' ? 'meta_api' : 'baileys',
+      status: conn.status,
+    }));
+
+    // Fetch SMS gateways
     const smsGatewaysList = await db
       .select({
         id: smsGateways.id,

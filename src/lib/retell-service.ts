@@ -48,6 +48,18 @@ export interface RetellCall {
   };
 }
 
+export interface RetellPhoneNumber {
+  phone_number: string;
+  phone_number_pretty: string;
+  phone_number_type: string;
+  inbound_agent_id?: string;
+  outbound_agent_id?: string;
+  inbound_agent_version?: number;
+  outbound_agent_version?: number;
+  area_code?: number;
+  nickname?: string;
+}
+
 export interface CreateAgentParams {
   agent_name: string;
   voice_id: string;
@@ -235,6 +247,10 @@ class RetellService {
         max_voicemail_duration_seconds: 12,
       },
     });
+  }
+
+  async listPhoneNumbers(): Promise<RetellPhoneNumber[]> {
+    return this.request<RetellPhoneNumber[]>('/list-phone-numbers');
   }
 }
 
