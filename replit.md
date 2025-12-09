@@ -36,6 +36,68 @@ The platform is built with a modern web stack, featuring **Next.js 14** (App Rou
 - **Google Cloud Storage**: Alternative file storage.
 - **Upstash**: Provides Redis for caching and message queuing.
 
+## Recent Changes (December 9, 2025 - Session 16 - USER AUTHENTICATION FIX COMPLETE)
+### ✅ USER AUTHENTICATION & EMAIL VERIFICATION - COMPLETE
+
+**Task:** Fix login issues for 2 users: `jocelmafaria.audicon@gmail.com` and `solsolucoesculturais@gmail.com`
+
+**Actions Completed (FASE 1-5):**
+
+**FASE 1: Rate Limiting Analysis** ✅
+- Config: 5 login attempts per 15 minutes per IP for /auth/ routes
+- Redis (Upstash) manages counters; in-memory fallback available
+- solsolucoesculturais@gmail.com was blocked (429) after exceeding limits
+- **Solution:** Rate limit resets automatically every 15 minutes
+
+**FASE 2: Email Integration Verification** ✅
+- Replit Mail integration active and functional
+- File: `src/utils/replitmail.ts`
+- Uses REPL_IDENTITY or WEB_REPL_RENEWAL tokens
+- Endpoint: https://connectors.replit.com/api/v2/mailer/send
+
+**FASE 3: Email Verification Tokens Discovered** ✅
+- jocelmafaria.audicon@gmail.com: Token EXPIRED (2025-11-30)
+- solsolucoesculturais@gmail.com: Token VALID (2025-12-10)
+- Both needed new tokens and email resend
+
+**FASE 4: Tokens Regenerated & Emails Sent** ✅
+```
+jocelmafaria.audicon@gmail.com:
+  ✅ Old token deleted
+  ✅ New token generated: d3b4847f... (SHA-256)
+  ✅ Expires: 2025-12-10 23:08:45 (24h validity)
+  ✅ Verification email sent
+
+solsolucoesculturais@gmail.com:
+  ✅ Old token deleted
+  ✅ New token generated: b999fad5... (SHA-256)
+  ✅ Expires: 2025-12-10 23:08:46 (24h validity)
+  ✅ Verification email sent
+```
+
+**FASE 5: Email Verification Flow** ✅
+- Users receive email with verification link
+- Link format: `/verify-email?token={TOKEN}`
+- Endpoint: POST `/api/auth/verify-email`
+- Process: Token validated → `email_verified` set to true → Auto-login enabled
+- Both users can now log in after clicking email link
+
+**Database Confirmation:**
+```sql
+-- Both users confirmed with new tokens:
+jocelmafaria.audicon@gmail.com (fae8f96f-ac1f-47de-9103-f49bc98acdaf)
+  - email_verified: NULL (pending - will update after email click)
+  - token_hash: d3b4847f39eb9e34... ✅ NEW
+  
+solsolucoesculturais@gmail.com (6760c0bd-3b46-44c2-b2a2-46213550f5b4)
+  - email_verified: NULL (pending - will update after email click)
+  - token_hash: b999fad5f0ec6d60... ✅ NEW
+```
+
+**Script Used:** `/scripts/resend-verification-emails.ts` (executed and cleaned up)
+
+---
+
 ## Recent Changes (December 9, 2025 - Session 15 - WHATSAPP SYNC ANALYSIS COMPLETE)
 ### ✅ WHATSAPP SYNCHRONIZATION ANALYSIS - MAXCON COMPANY
 
