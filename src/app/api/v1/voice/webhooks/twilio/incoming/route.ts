@@ -245,22 +245,23 @@ async function handleIncomingCall(payload: TwilioIncomingPayload): Promise<strin
     );
 
     if (retellCall && retellCall.call_id) {
-      logger.info('[Inbound] ✅ Call registered with Retell - Routing to WebSocket Stream', { 
+      logger.info('[Inbound] ✅ Call registered with Retell - Routing to SIP URI', { 
         retellCallId: retellCall.call_id,
         agentId: localAgent.id,
         callSid: payload.CallSid,
+        sipUri: `sip:${retellCall.call_id}@sip.retellai.com`,
       });
 
       await logInboundCall(payload, localAgent, retellCall.call_id);
       
-      // Use Connect + Stream method for bidirectional audio via WebSocket
-      // This method works directly without SIP configuration
-      // track="both_tracks" enables bidirectional audio (caller hears AI, AI hears caller)
+      // Use Dial to SIP URI method - Officially documented by Retell AI
+      // SIP URI format: sip:{call_id}@sip.retellai.com
+      // This is the recommended approach when not using Elastic SIP Trunking
       return `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Connect>
-    <Stream url="wss://api.retellai.com/audio-websocket/${retellCall.call_id}" />
-  </Connect>
+  <Dial>
+    <Sip>sip:${retellCall.call_id}@sip.retellai.com</Sip>
+  </Dial>
 </Response>`;
     } else {
       logger.error('[Inbound] Failed to register call with Retell', {
