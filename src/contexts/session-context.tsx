@@ -38,7 +38,7 @@ function MainContentInner({ children }: { children: ReactNode }): JSX.Element {
     : 'flex-1 overflow-y-auto bg-muted/40 p-3 sm:p-4 md:p-4 lg:p-4 pb-20 md:pb-4';
 
   const contentWrapperClasses = isFullHeight
-    ? 'flex-1 min-h-0 w-full max-w-full'
+    ? 'flex-1 min-h-0 w-full max-w-full overflow-hidden'
     : 'w-full max-w-full';
 
   return (

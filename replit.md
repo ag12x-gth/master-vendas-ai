@@ -36,7 +36,22 @@ The platform is built with a modern web stack, featuring **Next.js 14** (App Rou
 - **Google Cloud Storage**: Alternative file storage.
 - **Upstash**: Provides Redis for caching and message queuing.
 
-## Recent Changes (December 9, 2025 - Session 13 - ALL 6 NUMBERS 100% TESTED & OPERATIONAL)
+## Recent Changes (December 9, 2025 - Session 14 - UI RESPONSIVITY FIX)
+### ✅ RESPONSIVITY BUG FIX - ATENDIMENTOS PAGE LAYOUT
+
+**Fixed: CSS Overflow Issue in Atendimentos Page**
+
+Applied CSS constraints to prevent container overflow:
+1. **session-context.tsx** (line 41): Added `overflow-hidden` to contentWrapperClasses in full-height mode
+2. **atendimentos-client.tsx** (line 13): Added `w-full max-w-full overflow-hidden` to main container
+
+This ensures the conversation list and chat area respect their parent container boundaries and don't overflow beyond the viewport width.
+
+**Compilation Status:** ✅ SUCCESSFUL - Next.js recompiled without errors, Fast Refresh confirmed working
+
+---
+
+## Previous Session - Session 13 - ALL 6 NUMBERS 100% TESTED & OPERATIONAL
 ### ✅ VOICE INBOUND SYSTEM - ALL 6 NUMBERS FULLY TESTED & CONFIRMED
 
 **System Status: 🟢 PRODUCTION READY - ALL 6 NUMBERS TESTED & OPERATIONAL**
