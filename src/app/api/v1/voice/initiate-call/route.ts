@@ -70,7 +70,13 @@ export async function POST(request: NextRequest) {
         }
       } else {
         const firstAgent = agents[0];
-        selectedAgentId = firstAgent?.externalId || firstAgent?.id || '';
+        selectedAgentId = firstAgent?.retellAgentId || firstAgent?.externalId || '';
+        if (!selectedAgentId) {
+          return NextResponse.json(
+            { error: 'Agente não tem ID do Retell configurado. Verifique a configuração do agente.' },
+            { status: 400 }
+          );
+        }
       }
     }
 
