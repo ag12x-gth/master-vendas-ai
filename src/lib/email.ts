@@ -127,7 +127,7 @@ const getEmailVerificationTemplate = (name: string, verificationLink: string): s
                   </div>
               </div>
               <div class="footer">
-                  <p>Master IA @ ${new Date().getFullYear()}</p>
+                  <p>Master IA @ 2026</p>
               </div>
           </div>
       </body>
