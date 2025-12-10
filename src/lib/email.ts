@@ -3,6 +3,7 @@
 'use server';
 
 import { sendEmail as sendReplitEmail } from '@/utils/replitmail';
+import { sendEmailViaNodemailer } from '@/utils/nodemailer-service';
 import { getBaseUrl } from '@/utils/get-base-url';
 
 const getWelcomeEmailTemplate = (name: string): string => {
@@ -164,29 +165,45 @@ export const sendPasswordResetEmail = async (to: string, name: string, resetLink
 };
 
 export const sendEmailVerificationLink = async (to: string, name: string, verificationLink: string): Promise<void> => {
+    const subject = 'Verifique seu e-mail no Master IA';
+    const html = getEmailVerificationTemplate(name, verificationLink);
+    const text = `Olá ${name}, clique no link para verificar seu email: ${verificationLink}`;
+    
+    let nodemailerError: Error | null = null;
+    
     try {
-        const subject = 'Verifique seu e-mail no Master IA';
-        const html = getEmailVerificationTemplate(name, verificationLink);
+        // Tentar Nodemailer primeiro (mais confiável)
+        console.log(`[EMAIL] Tentando enviar via Nodemailer para ${to}...`);
+        const sent = await sendEmailViaNodemailer(to, subject, html, text);
         
+        if (sent) {
+            console.log(`✅ Email de verificação enviado com sucesso para ${to}`);
+            return;
+        }
+    } catch (error) {
+        nodemailerError = error instanceof Error ? error : new Error(String(error));
+        console.warn(`⚠️ Nodemailer falhou:`, nodemailerError.message);
+    }
+    
+    // Fallback: Tentar Replit Mail
+    try {
+        console.log(`[EMAIL] Fallback: Tentando enviar via Replit Mail para ${to}...`);
         const response = await sendReplitEmail({
             to,
             subject,
             html,
-            text: `Olá ${name}, clique no link para verificar seu email: ${verificationLink}`,
+            text,
         });
         
-        console.log(`✅ Email de verificação enviado para ${to}`);
-        console.log(`📧 Resposta do Replit Mail:`, {
+        console.log(`✅ Email de verificação enviado via Replit Mail para ${to}`);
+        console.log(`📧 Resposta:`, {
             accepted: response.accepted,
             rejected: response.rejected,
-            messageId: response.messageId,
         });
-    } catch (error) {
-        console.error(`❌ Erro ao enviar email de verificação para ${to}:`, error);
-        console.error(`📧 Detalhes do erro:`, {
-            message: error instanceof Error ? error.message : 'Erro desconhecido',
-            error: error
-        });
-        throw error;
+    } catch (replitError) {
+        console.error(`❌ Ambos os serviços falharam para ${to}`);
+        if (nodemailerError) console.error(`Nodemailer:`, nodemailerError.message);
+        console.error(`Replit Mail:`, replitError instanceof Error ? replitError.message : String(replitError));
+        throw new Error('Falha ao enviar email de verificação');
     }
 };
