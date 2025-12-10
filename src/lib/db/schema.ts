@@ -1482,3 +1482,102 @@ export const emailEventsRelations = relations(emailEvents, ({ one }) => ({
     references: [companies.id],
   }),
 }));
+
+// ==============================
+// ADMIN DASHBOARD: FEATURES & PERMISSIONS
+// ==============================
+
+export const featureEnum = pgEnum('feature_type', [
+  'CRM_BASIC',
+  'CRM_ADVANCED',
+  'WHATSAPP_API',
+  'WHATSAPP_BAILEYS',
+  'SMS',
+  'VOICE_AI',
+  'EMAIL_SENDING',
+  'EMAIL_TRACKING',
+  'AI_AUTOMATION',
+  'CAMPAIGNS',
+  'ANALYTICS',
+]);
+
+export const features = pgTable('features', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  key: featureEnum('key').notNull().unique(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const companyFeatureAccess = pgTable('company_feature_access', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+  featureId: text('feature_id').notNull().references(() => features.id, { onDelete: 'cascade' }),
+  isActive: boolean('is_active').default(true).notNull(),
+  accessLevel: varchar('access_level', { length: 50 }).default('full').notNull(), // 'full', 'limited', 'readonly'
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  companyFeatureUnique: unique('company_feature_access_unique').on(table.companyId, table.featureId),
+}));
+
+export const userPermissions = pgTable('user_permissions', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  featureId: text('feature_id').notNull().references(() => features.id, { onDelete: 'cascade' }),
+  permissionLevel: varchar('permission_level', { length: 50 }).default('use').notNull(), // 'use', 'manage', 'admin'
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  userFeatureUnique: unique('user_permissions_unique').on(table.userId, table.featureId),
+}));
+
+export const adminAuditLogs = pgTable('admin_audit_logs', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'set null' }),
+  action: varchar('action', { length: 100 }).notNull(), // create_user, delete_user, update_feature, etc
+  resource: varchar('resource', { length: 100 }).notNull(), // users, companies, features, permissions
+  resourceId: text('resource_id'),
+  metadata: jsonb('metadata'), // extra info about the action
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+// ==============================
+// RELATIONS: FEATURES & PERMISSIONS
+// ==============================
+
+export const featuresRelations = relations(features, ({ many }) => ({
+  companyFeatureAccess: many(companyFeatureAccess),
+  userPermissions: many(userPermissions),
+}));
+
+export const companyFeatureAccessRelations = relations(companyFeatureAccess, ({ one }) => ({
+  company: one(companies, {
+    fields: [companyFeatureAccess.companyId],
+    references: [companies.id],
+  }),
+  feature: one(features, {
+    fields: [companyFeatureAccess.featureId],
+    references: [features.id],
+  }),
+}));
+
+export const userPermissionsRelations = relations(userPermissions, ({ one }) => ({
+  user: one(users, {
+    fields: [userPermissions.userId],
+    references: [users.id],
+  }),
+  feature: one(features, {
+    fields: [userPermissions.featureId],
+    references: [features.id],
+  }),
+}));
+
+export const adminAuditLogsRelations = relations(adminAuditLogs, ({ one }) => ({
+  user: one(users, {
+    fields: [adminAuditLogs.userId],
+    references: [users.id],
+  }),
+}));
