@@ -161,6 +161,30 @@ export function IncomingWebhooksManager() {
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
+  const handleDeleteWebhook = async (webhookId: string, webhookName: string) => {
+    try {
+      const response = await fetch('/api/v1/webhooks/incoming', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: webhookId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erro ao deletar webhook');
+      }
+
+      // Remove from local state
+      setConfigs(configs.filter(config => config.id !== webhookId));
+      notifier.success(`Webhook "${webhookName}" deletado com sucesso`);
+    } catch (error) {
+      notifier.error(
+        error instanceof Error ? error.message : 'Erro ao deletar webhook'
+      );
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -363,7 +387,10 @@ export function IncomingWebhooksManager() {
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                                  <AlertDialogAction 
+                                    onClick={() => handleDeleteWebhook(config.id, config.name)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
                                     Deletar
                                   </AlertDialogAction>
                                 </AlertDialogFooter>

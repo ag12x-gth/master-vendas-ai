@@ -134,3 +134,60 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+/**
+ * DELETE /api/v1/webhooks/incoming
+ * Delete an incoming webhook configuration
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    const companyId = await getCompanyIdFromSession();
+    if (!companyId) {
+      return NextResponse.json(
+        { error: 'Não autenticado' },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const webhookId = body.id || body.webhookId;
+
+    if (!webhookId) {
+      return NextResponse.json(
+        { error: 'ID do webhook é obrigatório' },
+        { status: 400 }
+      );
+    }
+
+    // Verify the webhook belongs to this company before deleting
+    const verifyResult = await conn`
+      SELECT id FROM incoming_webhook_configs 
+      WHERE id = ${webhookId} AND company_id = ${companyId} LIMIT 1
+    `;
+
+    if (!verifyResult || (verifyResult as any).length === 0) {
+      return NextResponse.json(
+        { error: 'Webhook não encontrado' },
+        { status: 404 }
+      );
+    }
+
+    // Delete the webhook
+    await conn`
+      DELETE FROM incoming_webhook_configs 
+      WHERE id = ${webhookId} AND company_id = ${companyId}
+    `;
+
+    return NextResponse.json({
+      success: true,
+      message: 'Webhook deletado com sucesso',
+      id: webhookId,
+    }, { status: 200 });
+  } catch (error) {
+    console.error('[Incoming Webhooks] DELETE error:', error);
+    return NextResponse.json(
+      { error: 'Erro ao deletar webhook' },
+      { status: 500 }
+    );
+  }
+}
