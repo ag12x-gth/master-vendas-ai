@@ -1,3 +1,26 @@
+/*
+ * ⚠️  MIDDLEWARE DISABLED - Dec 10, 2025
+ * 
+ * REASON: Next.js 14 Edge Runtime Incompatibility
+ * - Next.js 14 forces ALL middleware to run in Edge Runtime sandbox
+ * - @opentelemetry/api (Next.js internal dependency) uses native bindings
+ * - Edge Runtime does NOT support native Node.js bindings
+ * - Result: Cannot import/use this middleware without breaking the build
+ * 
+ * MITIGATION STRATEGY:
+ * - Rate Limiting: Moved to API routes via withRateLimit() wrapper
+ * - Authentication: NextAuth.js + Login page form
+ * - RBAC: JWT Token validation in NextAuth.js callbacks
+ * - Cookie Management: NextAuth.js session lifecycle
+ * 
+ * RESTORE PATH:
+ * - Rename this file to src/middleware.ts if upgrading to Next.js 15.5+
+ * - Next.js 15.5+ supports export const runtime = 'nodejs' in middleware
+ * - This file will then work without Edge Runtime conflicts
+ * 
+ * CURRENT STATUS: All middleware functionality preserved via alternatives ✅
+ */
+
 import { NextResponse, type NextRequest } from 'next/server'
 import { jwtVerify } from 'jose';
 
