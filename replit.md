@@ -121,16 +121,16 @@ to: X (✅ email original do usuário)
 Email enviado com sucesso ✅
 ```
 
-#### Validação:
+#### Validação FINAL:
 - ✅ LSP Errors: 0 (sem erros de compilação)
 - ✅ Servidor: Iniciando com sucesso
-- ✅ Resend API: Usando domínio verificado (noreply@resend.dev)
-- ✅ Email destinatário: Sempre para o email do usuário (ou TEST_EMAIL em DEV)
+- ✅ Resend API: Usando domínio verificado (noreply@masteria.app)
+- ✅ Domínio masteria.app: VERIFICADO no Resend (Status: Verified)
+- ✅ Email destinatário: Sempre para o email original do usuário
 - ✅ Nunca encaminha para admin
-- ✅ Suporta fallback em desenvolvimento para testes
+- ✅ Suporta fallback em desenvolvimento
 
-#### Roadmap Futuro:
-- Verificar domínio masteria.app no Resend para usar from: noreply@masteria.app em produção
+#### Próximos Passos (Roadmap):
 - Adicionar templates customizados de email com branding
 - Logs detalhados de entrega (Resend webhooks)
 - Dashboard de status de emails enviados

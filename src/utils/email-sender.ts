@@ -26,11 +26,11 @@ export async function sendVerificationEmail(
       return false;
     }
 
-    // Em desenvolvimento: usar email de teste verificado
-    // Em produção: usar domínio masteria.app (quando estiver verificado)
+    // Domínio masteria.app está verificado - usar em produção
+    // Em desenvolvimento: usar email de teste para evitar spam
     const isProduction = process.env.NODE_ENV === 'production';
     const toEmail = isProduction ? userEmail : TEST_EMAIL;
-    const fromEmail = 'noreply@resend.dev'; // Domínio verificado que funciona em dev e prod
+    const fromEmail = isProduction ? 'noreply@masteria.app' : 'noreply@masteria.app';
 
     const result = await resend.emails.send({
       from: fromEmail,
@@ -73,7 +73,7 @@ export async function sendPasswordResetEmail(
 
     const isProduction = process.env.NODE_ENV === 'production';
     const toEmail = isProduction ? userEmail : TEST_EMAIL;
-    const fromEmail = 'noreply@resend.dev';
+    const fromEmail = isProduction ? 'noreply@masteria.app' : 'noreply@masteria.app';
 
     const result = await resend.emails.send({
       from: fromEmail,
@@ -115,7 +115,7 @@ export async function sendWelcomeEmail(
 
     const isProduction = process.env.NODE_ENV === 'production';
     const toEmail = isProduction ? userEmail : TEST_EMAIL;
-    const fromEmail = 'noreply@resend.dev';
+    const fromEmail = isProduction ? 'noreply@masteria.app' : 'noreply@masteria.app';
 
     const result = await resend.emails.send({
       from: fromEmail,
