@@ -11,7 +11,8 @@ const nextConfig = {
   
   experimental: {
     cpus: 1,
-    instrumentationHook: true,
+    // ✅ DESABILITAR instrumentationHook - causa webpack errors ao tentar compilar
+    // Node.js modules para o cliente. Worker é inicializado via /api/internal/init-worker
   },
   
   // Otimizações de produção
@@ -53,9 +54,11 @@ const nextConfig = {
   },
   
   webpack: (config, { dev, isServer }) => {
-    if (isServer) {
-      config.externals = config.externals || [];
-      if (Array.isArray(config.externals)) {
+    // ✅ FASE 3: Webpack Externals para Node-only modules
+    config.externals = config.externals || [];
+    if (Array.isArray(config.externals)) {
+      if (isServer) {
+        // Server-only externals
         config.externals.push({
           'bullmq': 'commonjs bullmq',
         });
