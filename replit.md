@@ -70,6 +70,47 @@ Construído com **Next.js 14** (App Router) no frontend, **Node.js 18+** com Exp
 | **Retell Status** | Configurado ✅ |
 | **Fast Refresh** | Operacional ✅ |
 
+## Recent Changes - USER FRIENDLY ERROR MESSAGE (Dec 10, 2025)
+
+### ✅ MENSAGEM DE ERRO AMIGÁVEL - VERIFICAÇÃO DE EMAIL
+
+#### Mudanças Implementadas:
+| Arquivo | Linha | Mudança | Status |
+|---------|-------|---------|--------|
+| **src/app/api/auth/login/route.ts** | 55-58 | Substituído "email_nao_verificado" | ✅ |
+| **src/app/api/v1/auth/login/route.ts** | 53-57 | Substituído "email_nao_verificado" | ✅ |
+
+#### Antes (Código Técnico):
+```json
+{
+  "error": "email_nao_verificado",
+  "status": 403
+}
+```
+
+#### Depois (Mensagem Amigável):
+```json
+{
+  "error": "Confirmação de NÃO-ROBÔ! 🤖\nTe enviei um e-mail para confirmar que é você mesmo, e não uma IA ;D",
+  "status": 403
+}
+```
+
+#### Teste Realizado:
+- ✅ Usuário criado: `interface_test_1765393452@masteria.app`
+- ✅ Login SEM verificação de email
+- ✅ Mensagem retornada com sucesso
+- ✅ Interface mostra mensagem no toast (notificação)
+- ✅ Sem quebra do sistema
+
+#### Resultado:
+- ✅ Mensagem profissional e amigável
+- ✅ Emoji 🤖 para engajamento visual
+- ✅ Explicação clara do que aconteceu
+- ✅ 100% compatível com código existente
+
+---
+
 ## Recent Changes - CUSTOM DOMAIN MASTERIA.APP (Dec 10, 2025)
 
 ### ✅ LINK DE VERIFICAÇÃO AGORA USA MASTERIA.APP (SEM REPLIT)

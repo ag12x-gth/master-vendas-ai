@@ -51,7 +51,7 @@ async function handler(request: NextRequest) {
         }
 
         if (!user.emailVerified) {
-          return NextResponse.json({ error: 'email_nao_verificado', user }, { status: 403 });
+          return NextResponse.json({ error: 'Confirmação de NÃO-ROBÔ! 🤖\nTe enviei um e-mail para confirmar que é você mesmo, e não uma IA ;D', user }, { status: 403 });
         }
         
         // 3. Gerar um timestamp único para este login (ajuda a invalidar sessões anteriores)
