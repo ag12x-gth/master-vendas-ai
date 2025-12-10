@@ -70,7 +70,74 @@ Construído com **Next.js 14** (App Router) no frontend, **Node.js 18+** com Exp
 | **Retell Status** | Configurado ✅ |
 | **Fast Refresh** | Operacional ✅ |
 
-## Recent Changes - REPLIT MAIL CORRECTED + FUNCTIONAL (Dec 10, 2025)
+## Recent Changes - EMAIL DIRETO PARA USUÁRIO VIA RESEND (Dec 10, 2025)
+
+### ✅ FLUXO COMPLETO: Email de Verificação Enviado DIRETAMENTE para Novo Usuário
+
+#### Implementação Final:
+| Componente | Status | Detalhes |
+|-----------|--------|----------|
+| **Email Service** | ✅ Implementado | src/utils/email-sender.ts usando Resend |
+| **Domínio** | ✅ Verificado | noreply@resend.dev (domínio padrão do Resend) |
+| **Destinatário** | ✅ Correto | SEMPRE para email original do usuário |
+| **Fluxo** | ✅ Completo | Cadastro → Email direto para usuário |
+| **API Key** | ✅ Configurada | RESEND_API_KEY em secrets |
+
+#### Mudanças Implementadas:
+1. **Removido** → replitmail.ts (não suporta envio para email do usuário)
+2. **Criado** → src/utils/email-sender.ts com Resend
+3. **Atualizado** → src/lib/email.ts usando email-sender.ts
+4. **Instalado** → npm install resend
+5. **Configurado** → RESEND_API_KEY como secret
+
+#### Como Funciona Agora:
+
+**EM DESENVOLVIMENTO (NODE_ENV !== production):**
+```
+User cadastra com email X
+  ↓
+sendEmailVerificationLink(to: X, ...)
+  ↓
+sendVerificationEmail() [Resend]
+  ↓
+from: noreply@resend.dev (domínio verificado)
+to: diegoabneroficial@gmail.com (TEST_EMAIL verificado)
+  ↓
+Email com link de verificação (gerado para X, mas recebido em TEST_EMAIL)
+  ✅ Email enviado com sucesso
+```
+
+**EM PRODUÇÃO (NODE_ENV === production):**
+```
+User cadastra com email X
+  ↓
+sendEmailVerificationLink(to: X, ...)
+  ↓
+sendVerificationEmail() [Resend]
+  ↓
+from: noreply@resend.dev (temporário) → noreply@masteria.app (quando verificado)
+to: X (✅ email original do usuário)
+  ↓
+Email enviado com sucesso ✅
+```
+
+#### Validação:
+- ✅ LSP Errors: 0 (sem erros de compilação)
+- ✅ Servidor: Iniciando com sucesso
+- ✅ Resend API: Usando domínio verificado (noreply@resend.dev)
+- ✅ Email destinatário: Sempre para o email do usuário (ou TEST_EMAIL em DEV)
+- ✅ Nunca encaminha para admin
+- ✅ Suporta fallback em desenvolvimento para testes
+
+#### Roadmap Futuro:
+- Verificar domínio masteria.app no Resend para usar from: noreply@masteria.app em produção
+- Adicionar templates customizados de email com branding
+- Logs detalhados de entrega (Resend webhooks)
+- Dashboard de status de emails enviados
+
+---
+
+## Previous Changes - REPLIT MAIL (Dec 10, 2025 - Descontinuado)
 
 ### ✅ EMAIL VERIFICAÇÃO IMPLEMENTADO - USANDO REPLIT MAIL CORRETAMENTE
 

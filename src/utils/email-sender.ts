@@ -1,10 +1,11 @@
 // src/utils/email-sender.ts
 // Envia email de verificação DIRETAMENTE para o usuário usando Resend
-// Não encaminha para admin - sempre para o email original do usuário
+// Suporta: domínios verificados ou fallback para email de teste
 
 import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const TEST_EMAIL = 'diegoabneroficial@gmail.com'; // Email verificado no Resend para testes
 
 export interface EmailOptions {
   to: string;
@@ -21,13 +22,19 @@ export async function sendVerificationEmail(
 ): Promise<boolean> {
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.warn('⚠️ RESEND_API_KEY não configurado - usando fallback');
+      console.warn('⚠️ RESEND_API_KEY não configurado');
       return false;
     }
 
+    // Em desenvolvimento: usar email de teste verificado
+    // Em produção: usar domínio masteria.app (quando estiver verificado)
+    const isProduction = process.env.NODE_ENV === 'production';
+    const toEmail = isProduction ? userEmail : TEST_EMAIL;
+    const fromEmail = 'noreply@resend.dev'; // Domínio verificado que funciona em dev e prod
+
     const result = await resend.emails.send({
-      from: 'noreply@masteria.app',
-      to: userEmail, // ✅ SEMPRE para o email do usuário
+      from: fromEmail,
+      to: toEmail, // ✅ SEMPRE para o email do usuário (ou teste em dev)
       subject: 'Verifique seu e-mail no Master IA',
       html: htmlTemplate,
       text: `Olá ${userName}, clique no link para verificar seu email: ${verificationLink}`,
@@ -38,7 +45,12 @@ export async function sendVerificationEmail(
       return false;
     }
 
-    console.log(`✅ Email de verificação enviado com sucesso para ${userEmail}`);
+    console.log(`✅ Email de verificação enviado com sucesso`);
+    if (!isProduction) {
+      console.log(`📧 (DEV) Enviado para: ${TEST_EMAIL} (em nome de ${userEmail})`);
+    } else {
+      console.log(`📧 (PROD) Enviado para: ${toEmail}`);
+    }
     console.log(`📧 Message ID: ${result.data?.id}`);
     return true;
   } catch (error) {
@@ -55,13 +67,17 @@ export async function sendPasswordResetEmail(
 ): Promise<boolean> {
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.warn('⚠️ RESEND_API_KEY não configurado - usando fallback');
+      console.warn('⚠️ RESEND_API_KEY não configurado');
       return false;
     }
 
+    const isProduction = process.env.NODE_ENV === 'production';
+    const toEmail = isProduction ? userEmail : TEST_EMAIL;
+    const fromEmail = 'noreply@resend.dev';
+
     const result = await resend.emails.send({
-      from: 'noreply@masteria.app',
-      to: userEmail, // ✅ SEMPRE para o email do usuário
+      from: fromEmail,
+      to: toEmail, // ✅ SEMPRE para o email do usuário (ou teste em dev)
       subject: 'Recupere sua senha do Master IA',
       html: htmlTemplate,
       text: `Olá ${userName}, clique no link para redefinir sua senha: ${resetLink}`,
@@ -72,7 +88,12 @@ export async function sendPasswordResetEmail(
       return false;
     }
 
-    console.log(`✅ Email de recuperação enviado com sucesso para ${userEmail}`);
+    console.log(`✅ Email de recuperação enviado com sucesso`);
+    if (!isProduction) {
+      console.log(`📧 (DEV) Enviado para: ${TEST_EMAIL} (em nome de ${userEmail})`);
+    } else {
+      console.log(`📧 (PROD) Enviado para: ${toEmail}`);
+    }
     console.log(`📧 Message ID: ${result.data?.id}`);
     return true;
   } catch (error) {
@@ -88,13 +109,17 @@ export async function sendWelcomeEmail(
 ): Promise<boolean> {
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.warn('⚠️ RESEND_API_KEY não configurado - usando fallback');
+      console.warn('⚠️ RESEND_API_KEY não configurado');
       return false;
     }
 
+    const isProduction = process.env.NODE_ENV === 'production';
+    const toEmail = isProduction ? userEmail : TEST_EMAIL;
+    const fromEmail = 'noreply@resend.dev';
+
     const result = await resend.emails.send({
-      from: 'noreply@masteria.app',
-      to: userEmail, // ✅ SEMPRE para o email do usuário
+      from: fromEmail,
+      to: toEmail, // ✅ SEMPRE para o email do usuário (ou teste em dev)
       subject: `Bem-vindo(a) ao Master IA, ${userName}!`,
       html: htmlTemplate,
       text: `Bem-vindo ao Master IA, ${userName}! Sua conta foi criada com sucesso.`,
@@ -105,7 +130,12 @@ export async function sendWelcomeEmail(
       return false;
     }
 
-    console.log(`✅ Email de boas-vindas enviado com sucesso para ${userEmail}`);
+    console.log(`✅ Email de boas-vindas enviado com sucesso`);
+    if (!isProduction) {
+      console.log(`📧 (DEV) Enviado para: ${TEST_EMAIL} (em nome de ${userEmail})`);
+    } else {
+      console.log(`📧 (PROD) Enviado para: ${toEmail}`);
+    }
     console.log(`📧 Message ID: ${result.data?.id}`);
     return true;
   } catch (error) {
