@@ -18,7 +18,13 @@ const noteSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    const companyId = await getCompanyIdFromSession();
+    let companyId: string | null = null;
+    try {
+      companyId = await getCompanyIdFromSession();
+    } catch (authError) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
     if (!companyId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
