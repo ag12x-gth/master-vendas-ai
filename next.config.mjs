@@ -61,6 +61,9 @@ const nextConfig = {
         // Server-only externals
         config.externals.push({
           'bullmq': 'commonjs bullmq',
+          '@opentelemetry/api': 'commonjs @opentelemetry/api',
+          '@opentelemetry/auto': 'commonjs @opentelemetry/auto',
+          '@opentelemetry/sdk-node': 'commonjs @opentelemetry/sdk-node',
         });
       }
     }

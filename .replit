@@ -116,5 +116,7 @@ TWILIO_SIP_TERMINATION_URI = "retell-1765080490561.pstn.twilio.com"
 NEXT_PUBLIC_APP_URL = "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev"
 
 [userenv.production]
+NEXTAUTH_URL = "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev"
+NODE_ENV = "production"
 
 [userenv.development]
