@@ -1,4 +1,14 @@
 export function getBaseUrl(): string {
+  // Em produção/desenvolvimento: usar o endereço atual 
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  
+  // No servidor: usar variável de ambiente
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL;
+  }
+  
   if (process.env.REPLIT_DEV_DOMAIN) {
     return `https://${process.env.REPLIT_DEV_DOMAIN}`;
   }
@@ -7,9 +17,5 @@ export function getBaseUrl(): string {
     return process.env.NEXT_PUBLIC_BASE_URL;
   }
   
-  if (typeof window !== 'undefined') {
-    return window.location.origin;
-  }
-  
-  return 'http://localhost:8080';
+  return 'http://localhost:5000';
 }
