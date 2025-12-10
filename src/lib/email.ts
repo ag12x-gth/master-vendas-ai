@@ -114,6 +114,7 @@ const getEmailVerificationTemplate = (name: string, verificationLink: string): s
               .content { margin-top: 20px; line-height: 1.8; }
               .button { display: inline-block; padding: 12px 30px; margin-top: 20px; background-color: #10B981; color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; }
               .link-section { margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 5px; }
+              .validity { margin-top: 15px; padding: 10px; background-color: #fff3cd; border-left: 4px solid #ffc107; border-radius: 3px; font-size: 13px; color: #856404; }
               .footer { margin-top: 30px; font-size: 12px; color: #888; text-align: center; }
           </style>
       </head>
@@ -130,6 +131,10 @@ const getEmailVerificationTemplate = (name: string, verificationLink: string): s
                       <p style="margin-top: 0; margin-bottom: 10px;">Caso deseje ir mais rápido, toque no link a seguir:</p>
                       <p><a href="${verificationLink}" style="color: #10B981; text-decoration: underline; word-break: break-all;">${verificationLink}</a></p>
                       <p style="margin-top: 10px; font-size: 12px; color: #666;">(Ou pressione/clique no link acima para copiar e colar no seu navegador)</p>
+                  </div>
+                  <div class="validity">
+                      <p style="margin: 0; font-weight: bold;">⏰ Atenção:</p>
+                      <p style="margin: 5px 0 0 0;">Este link de verificação é válido por <strong>24 horas</strong>. Após esse período, você precisará solicitar um novo link de verificação.</p>
                   </div>
               </div>
               <div class="footer">

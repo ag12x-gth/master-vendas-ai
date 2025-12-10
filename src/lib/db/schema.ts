@@ -116,7 +116,8 @@ export const notificationStatusEnum = pgEnum('notification_status', [
         id: text('id').primaryKey().default(sql`gen_random_uuid()`),
         userId: text("user_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
         tokenHash: text("token_hash").notNull().unique(),
-        expiresAt: timestamp("expires_at", { withTimezone: true }).notNull()
+        expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+        lastResendAt: timestamp("last_resend_at", { withTimezone: true })
 });
 
   export const connections = pgTable('connections', {
@@ -1446,5 +1447,38 @@ export const cadenceEventsRelations = relations(cadenceEvents, ({ one }) => ({
   message: one(messages, {
     fields: [cadenceEvents.messageId],
     references: [messages.id],
+  }),
+}));
+
+// ==============================
+// EMAIL EVENTS (RESEND WEBHOOKS)
+// ==============================
+
+export const emailEventTypeEnum = pgEnum('email_event_type', [
+  'sent',
+  'delivered',
+  'opened',
+  'clicked',
+  'bounced',
+  'complained',
+  'delivery_delayed'
+]);
+
+export const emailEvents = pgTable('email_events', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  emailId: text('email_id').notNull(), // ID retornado pelo Resend
+  eventType: emailEventTypeEnum('event_type').notNull(),
+  recipient: varchar('recipient', { length: 255 }).notNull(),
+  subject: text('subject'),
+  metadata: jsonb('metadata'),
+  companyId: text('company_id').references(() => companies.id),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
+export const emailEventsRelations = relations(emailEvents, ({ one }) => ({
+  company: one(companies, {
+    fields: [emailEvents.companyId],
+    references: [companies.id],
   }),
 }));
