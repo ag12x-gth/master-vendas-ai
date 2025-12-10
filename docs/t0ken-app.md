@@ -1,3 +1,25 @@
+Antonio Fogaça Mayara Roseli Santana
+business_id=263694857584121
+
+08 APP SENDZ
+ID do Aplicativo
+1616759942244916
+
+Chave Secreta do Aplicativo
+4edab1b04ecdae015204b556db32c047
+
+tOKEN LONGO
+EAAWZBb0ILajQBQHmWWqC9Ak44kcmk0P8pe20lGaT4dRTwrgUznQL2iIZAKOivcNH5ZA3F9piB6mRxMkOGNvxkliFzfG9R0RRwCIZCHqT6A4sCJhugPANYogBXDBBrpU0QUOpdjcD1V0SZAiwGMlv3AcbeuXxhNLcMR83SlqsZBNwbbeCbZA5gNc2NJkBQZDZD
+
++556237718276
+Identificação do número de telefone: 677001625502474
+Identificação da conta do WhatsApp Business: 1126122359328176
+
++55 62 3771 8272
+Identificação do número de telefone: 739546405903076
+Identificação da conta do WhatsApp Business: 1389775312770784
+
+#####################
 secrtid-app: c1960ea4eddaead035d64a72208e0502
 
 toknapp:

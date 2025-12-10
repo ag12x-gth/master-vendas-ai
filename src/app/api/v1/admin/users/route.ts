@@ -1,10 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { requireSuperAdmin, createErrorResponse, createSuccessResponse } from '@/lib/admin-auth';
 import { db } from '@/lib/db';
 import { users, adminAuditLogs } from '@/lib/db/schema';
 import { eq, ilike } from 'drizzle-orm';
 import { hash } from 'bcryptjs';
 import { z } from 'zod';
+import { withRateLimit } from '@/lib/rate-limit';
 
 const createUserSchema = z.object({
   name: z.string().min(3),
@@ -20,7 +21,7 @@ const updateUserSchema = z.object({
   role: z.enum(['admin', 'atendente', 'superadmin']).optional(),
 });
 
-export async function GET(request: NextRequest) {
+async function handleGet(request: NextRequest) {
   const auth = await requireSuperAdmin(request);
   if (auth.error) return createErrorResponse(auth.error, auth.status);
 
@@ -36,16 +37,13 @@ export async function GET(request: NextRequest) {
     
     const paginatedUsers = allUsers.slice(offset, offset + limit);
     
-    // Log action
-    if (auth.data) {
-      await db.insert(adminAuditLogs).values({
-        userId: auth.data.id,
-        action: 'get_users',
-        resource: 'users',
-        resourceId: null,
-        metadata: { limit, offset, search },
-      });
-    }
+    await db.insert(adminAuditLogs).values({
+      userId: auth.data!.id,
+      action: 'get_users',
+      resource: 'users',
+      resourceId: null,
+      metadata: { limit, offset, search },
+    });
 
     return createSuccessResponse({
       users: paginatedUsers.map(u => ({
@@ -63,7 +61,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+async function handlePost(request: NextRequest) {
   const auth = await requireSuperAdmin(request);
   if (auth.error) return createErrorResponse(auth.error, auth.status);
 
@@ -71,8 +69,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const data = createUserSchema.parse(body);
 
-    // Check if user already exists
-    const existing = await db.select().from(users).where(eq(users.email, data.email.toLowerCase())).limit(1);
+    const existing = await db.select().from(users).where(eq(users.email, data.email.toLowerCase()));
     if (existing.length > 0) {
       return createErrorResponse('User already exists', 400);
     }
@@ -86,16 +83,13 @@ export async function POST(request: NextRequest) {
       companyId: data.companyId || null,
     }).returning();
 
-    // Log action
-    if (auth.data) {
-      await db.insert(adminAuditLogs).values({
-        userId: auth.data.id,
-        action: 'create_user',
-        resource: 'users',
-        resourceId: newUser[0].id,
-        metadata: { email: data.email, role: data.role },
-      });
-    }
+    await db.insert(adminAuditLogs).values({
+      userId: auth.data!.id,
+      action: 'create_user',
+      resource: 'users',
+      resourceId: newUser?.[0]?.id || '',
+      metadata: { email: data.email, role: data.role },
+    });
 
     return createSuccessResponse({
       id: newUser?.[0]?.id,
@@ -112,7 +106,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function PUT(request: NextRequest) {
+async function handlePut(request: NextRequest) {
   const auth = await requireSuperAdmin(request);
   if (auth.error) return createErrorResponse(auth.error, auth.status);
 
@@ -131,16 +125,13 @@ export async function PUT(request: NextRequest) {
       return createErrorResponse('User not found', 404);
     }
 
-    // Log action
-    if (auth.data) {
-      await db.insert(adminAuditLogs).values({
-        userId: auth.data.id,
-        action: 'update_user',
-        resource: 'users',
-        resourceId: userId,
-        metadata: validated,
-      });
-    }
+    await db.insert(adminAuditLogs).values({
+      userId: auth.data!.id,
+      action: 'update_user',
+      resource: 'users',
+      resourceId: userId,
+      metadata: validated,
+    });
 
     return createSuccessResponse({
       id: updated?.[0]?.id,
@@ -157,7 +148,7 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+async function handleDelete(request: NextRequest) {
   const auth = await requireSuperAdmin(request);
   if (auth.error) return createErrorResponse(auth.error, auth.status);
 
@@ -169,7 +160,7 @@ export async function DELETE(request: NextRequest) {
       return createErrorResponse('userId is required', 400);
     }
 
-    if (auth.data && userId === auth.data.id) {
+    if (userId === auth.data!.id) {
       return createErrorResponse('Cannot delete your own account', 400);
     }
 
@@ -179,19 +170,32 @@ export async function DELETE(request: NextRequest) {
       return createErrorResponse('User not found', 404);
     }
 
-    // Log action
-    if (auth.data) {
-      await db.insert(adminAuditLogs).values({
-        userId: auth.data.id,
-        action: 'delete_user',
-        resource: 'users',
-        resourceId: userId,
-        metadata: { email: deleted[0].email },
-      });
-    }
+    await db.insert(adminAuditLogs).values({
+      userId: auth.data!.id,
+      action: 'delete_user',
+      resource: 'users',
+      resourceId: userId,
+      metadata: { email: deleted[0].email },
+    });
 
     return createSuccessResponse({ success: true, id: userId });
   } catch (error: any) {
     return createErrorResponse(error.message || 'Error', 500);
   }
+}
+
+export async function GET(request: NextRequest) {
+  return withRateLimit(request, handleGet);
+}
+
+export async function POST(request: NextRequest) {
+  return withRateLimit(request, handlePost, 50);
+}
+
+export async function PUT(request: NextRequest) {
+  return withRateLimit(request, handlePut, 50);
+}
+
+export async function DELETE(request: NextRequest) {
+  return withRateLimit(request, handleDelete, 50);
 }
