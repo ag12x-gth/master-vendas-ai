@@ -1,14 +1,10 @@
+import { promisify } from "node:util";
+import { execFile } from "node:child_process";
 import { z } from "zod";
 
 // Zod schema matching the backend implementation
+// Note: to/cc are not included - emails are sent to the user's verified Replit email
 export const zSmtpMessage = z.object({
-  to: z
-    .union([z.string().email(), z.array(z.string().email())])
-    .describe("Recipient email address(es)"),
-  cc: z
-    .union([z.string().email(), z.array(z.string().email())])
-    .optional()
-    .describe("CC recipient email address(es)"),
   subject: z.string().describe("Email subject"),
   text: z.string().optional().describe("Plain text body"),
   html: z.string().optional().describe("HTML body"),
@@ -27,22 +23,26 @@ export const zSmtpMessage = z.object({
     .describe("Email attachments"),
 });
 
-export type SmtpMessage = z.infer<typeof zSmtpMessage>
+export type SmtpMessage = z.infer<typeof zSmtpMessage>;
 
-function getAuthToken(): string {
-  const xReplitToken = process.env.REPL_IDENTITY
-    ? "repl " + process.env.REPL_IDENTITY
-    : process.env.WEB_REPL_RENEWAL
-      ? "depl " + process.env.WEB_REPL_RENEWAL
-      : null;
-
-  if (!xReplitToken) {
-    throw new Error(
-      "No authentication token found. Please set REPL_IDENTITY or ensure you're running in Replit environment."
-    );
+async function getAuthToken(): Promise<{ authToken: string; hostname: string }> {
+  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
+  if (!hostname) {
+    throw new Error("REPLIT_CONNECTORS_HOSTNAME not found in environment");
   }
 
-  return xReplitToken;
+  const { stdout } = await promisify(execFile)(
+    "replit",
+    ["identity", "create", "--audience", `https://${hostname}`],
+    { encoding: "utf8" }
+  );
+
+  const replitToken = stdout.trim();
+  if (!replitToken) {
+    throw new Error("Replit Identity Token not found for repl/depl");
+  }
+
+  return { authToken: `Bearer ${replitToken}`, hostname };
 }
 
 export async function sendEmail(message: SmtpMessage): Promise<{
@@ -52,26 +52,21 @@ export async function sendEmail(message: SmtpMessage): Promise<{
   messageId: string;
   response: string;
 }> {
-  const authToken = getAuthToken();
+  const { hostname, authToken } = await getAuthToken();
 
-  const response = await fetch(
-    "https://connectors.replit.com/api/v2/mailer/send",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X_REPLIT_TOKEN": authToken,
-      },
-      body: JSON.stringify({
-        to: message.to,
-        cc: message.cc,
-        subject: message.subject,
-        text: message.text,
-        html: message.html,
-        attachments: message.attachments,
-      }),
-    }
-  );
+  const response = await fetch(`https://${hostname}/api/v2/mailer/send`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Replit-Authentication": authToken,
+    },
+    body: JSON.stringify({
+      subject: message.subject,
+      text: message.text,
+      html: message.html,
+      attachments: message.attachments,
+    }),
+  });
 
   if (!response.ok) {
     const error = await response.json();

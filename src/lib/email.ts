@@ -3,7 +3,6 @@
 'use server';
 
 import { sendEmail as sendReplitEmail } from '@/utils/replitmail';
-import { sendEmailViaNodemailer } from '@/utils/nodemailer-service';
 import { getBaseUrl } from '@/utils/get-base-url';
 
 const getWelcomeEmailTemplate = (name: string): string => {
@@ -132,15 +131,14 @@ export const sendWelcomeEmail = async (to: string, name: string): Promise<void> 
         const html = getWelcomeEmailTemplate(name);
         
         await sendReplitEmail({
-            to,
             subject,
             html,
             text: `Bem-vindo ao Master IA, ${name}! Sua conta foi criada com sucesso.`,
         });
         
-        console.log(`✅ Email de boas-vindas enviado para ${to}`);
+        console.log(`✅ Email de boas-vindas enviado via Replit Mail`);
     } catch (error) {
-        console.error(`❌ Erro ao enviar email de boas-vindas para ${to}:`, error);
+        console.error(`❌ Erro ao enviar email de boas-vindas:`, error);
         throw error;
     }
 };
@@ -151,59 +149,40 @@ export const sendPasswordResetEmail = async (to: string, name: string, resetLink
         const html = getPasswordResetTemplate(name, resetLink);
         
         await sendReplitEmail({
-            to,
             subject,
             html,
             text: `Olá ${name}, clique no link para redefinir sua senha: ${resetLink}`,
         });
         
-        console.log(`✅ Email de recuperação de senha enviado para ${to}`);
+        console.log(`✅ Email de recuperação de senha enviado via Replit Mail`);
     } catch (error) {
-        console.error(`❌ Erro ao enviar email de recuperação de senha para ${to}:`, error);
+        console.error(`❌ Erro ao enviar email de recuperação de senha:`, error);
         throw error;
     }
 };
 
 export const sendEmailVerificationLink = async (to: string, name: string, verificationLink: string): Promise<void> => {
-    const subject = 'Verifique seu e-mail no Master IA';
-    const html = getEmailVerificationTemplate(name, verificationLink);
-    const text = `Olá ${name}, clique no link para verificar seu email: ${verificationLink}`;
-    
-    let nodemailerError: Error | null = null;
-    
     try {
-        // Tentar Nodemailer primeiro (mais confiável)
-        console.log(`[EMAIL] Tentando enviar via Nodemailer para ${to}...`);
-        const sent = await sendEmailViaNodemailer(to, subject, html, text);
+        const subject = 'Verifique seu e-mail no Master IA';
+        const html = getEmailVerificationTemplate(name, verificationLink);
+        const text = `Olá ${name}, clique no link para verificar seu email: ${verificationLink}`;
         
-        if (sent) {
-            console.log(`✅ Email de verificação enviado com sucesso para ${to}`);
-            return;
-        }
-    } catch (error) {
-        nodemailerError = error instanceof Error ? error : new Error(String(error));
-        console.warn(`⚠️ Nodemailer falhou:`, nodemailerError.message);
-    }
-    
-    // Fallback: Tentar Replit Mail
-    try {
-        console.log(`[EMAIL] Fallback: Tentando enviar via Replit Mail para ${to}...`);
+        console.log(`[EMAIL] Enviando verificação para ${to} via Replit Mail...`);
+        
         const response = await sendReplitEmail({
-            to,
             subject,
             html,
             text,
         });
         
-        console.log(`✅ Email de verificação enviado via Replit Mail para ${to}`);
+        console.log(`✅ Email de verificação enviado com sucesso`);
         console.log(`📧 Resposta:`, {
             accepted: response.accepted,
             rejected: response.rejected,
+            messageId: response.messageId,
         });
-    } catch (replitError) {
-        console.error(`❌ Ambos os serviços falharam para ${to}`);
-        if (nodemailerError) console.error(`Nodemailer:`, nodemailerError.message);
-        console.error(`Replit Mail:`, replitError instanceof Error ? replitError.message : String(replitError));
-        throw new Error('Falha ao enviar email de verificação');
+    } catch (error) {
+        console.error(`❌ Erro ao enviar email de verificação:`, error);
+        throw error;
     }
 };

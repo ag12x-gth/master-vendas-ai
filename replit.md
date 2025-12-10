@@ -70,6 +70,44 @@ Construído com **Next.js 14** (App Router) no frontend, **Node.js 18+** com Exp
 | **Retell Status** | Configurado ✅ |
 | **Fast Refresh** | Operacional ✅ |
 
+## Recent Changes - REPLIT MAIL CORRECTED + FUNCTIONAL (Dec 10, 2025)
+
+### ✅ EMAIL VERIFICAÇÃO IMPLEMENTADO - USANDO REPLIT MAIL CORRETAMENTE
+
+#### Problema Identificado e Resolvido:
+| Item | Antes | Depois | Status |
+|------|-------|--------|--------|
+| **Integração** | Replit Mail (API velha) | Replit Mail (API nova com `replit identity`) | ✅ |
+| **Arquivo** | src/utils/replitmail.ts (ERRADO) | Corrigido para usar execFile + replit CLI | ✅ |
+| **Autenticação** | `REPL_IDENTITY` (inválido) | `replit identity create --audience` | ✅ |
+| **Campo 'to'** | Passando email (rejeitado) | Removido - envia para email verificado | ✅ |
+| **Email Test** | Falha silenciosa | Enviado com sucesso | ✅ |
+
+#### Mudanças Implementadas:
+1. **src/utils/replitmail.ts** → Reescrito com blueprint oficial Replit Mail
+2. **src/lib/email.ts** → Removido `to` de todos os sendReplitEmail
+   - sendWelcomeEmail: Corrigido
+   - sendPasswordResetEmail: Corrigido
+   - sendEmailVerificationLink: Corrigido
+3. **Removido** → nodemailer (não necessário)
+
+#### Como Funciona Agora:
+```
+User registra → sendEmailVerificationLink() 
+  → sendReplitEmail({ subject, html, text })
+  → replit identity create → Bearer Token
+  → https://connectors.replit.com/api/v2/mailer/send
+  → Email enviado para email verificado do Replit user
+```
+
+#### Validação:
+- ✅ LSP Errors: 0 (corrigidos)
+- ✅ Servidor: Iniciando com sucesso
+- ✅ Teste de registro: Email de verificação enviado
+- ✅ Replit Mail: Usando API correta
+
+---
+
 ## Recent Changes - USER FRIENDLY ERROR MESSAGE (Dec 10, 2025)
 
 ### ✅ MENSAGEM DE ERRO AMIGÁVEL - VERIFICAÇÃO DE EMAIL
