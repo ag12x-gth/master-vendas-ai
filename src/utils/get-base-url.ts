@@ -1,12 +1,11 @@
 export function getBaseUrl(): string {
-  // Em produção/desenvolvimento: usar o endereço atual 
-  if (typeof window !== 'undefined') {
-    return window.location.origin;
-  }
-  
-  // No servidor: usar variável de ambiente
+  // Usa domínio público Replit (funciona em qualquer dispositivo)
   if (process.env.NEXT_PUBLIC_APP_URL) {
     return process.env.NEXT_PUBLIC_APP_URL;
+  }
+  
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
   }
   
   if (process.env.REPLIT_DEV_DOMAIN) {
