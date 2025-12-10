@@ -11,28 +11,56 @@ export const dynamic = 'force-dynamic';
 const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER || '+553322980007';
 
 function normalizePhoneNumber(phone: string): string {
+  // Remove spaces, dashes, parentheses, dots
   let cleaned = phone.replace(/[\s\-().]/g, '');
   
-  if (cleaned.startsWith('+')) {
-    return cleaned;
-  }
-  
-  cleaned = cleaned.replace(/\D/g, '');
-  
-  // Remove country code 55 if present at the start
-  if (cleaned.startsWith('55') && cleaned.length > 11) {
-    cleaned = cleaned.substring(2);
+  // Remove all non-digits except + at start
+  const startsWithPlus = cleaned.startsWith('+');
+  if (startsWithPlus) {
+    cleaned = '+' + cleaned.substring(1).replace(/\D/g, '');
+  } else {
+    cleaned = cleaned.replace(/\D/g, '');
   }
   
   // Remove leading zeros (trunk prefix) - e.g., 011 becomes 11
-  while (cleaned.startsWith('0')) {
-    cleaned = cleaned.substring(1);
+  while (cleaned.replace(/^\+/, '').startsWith('0')) {
+    cleaned = cleaned.startsWith('+') 
+      ? '+' + cleaned.substring(1).substring(1)
+      : cleaned.substring(1);
   }
   
-  // Add Brazil country code
-  cleaned = '55' + cleaned;
+  // Extract just the digits for processing
+  let digits = cleaned.replace(/\D/g, '');
   
-  return '+' + cleaned;
+  // If it already starts with 55 (country code), check if it's valid
+  if (digits.startsWith('55')) {
+    // Remove country code and check length
+    const withoutCountry = digits.substring(2);
+    // Brazil numbers should be 10 (landline) or 11 (mobile) digits after country code
+    // 10 digits: AABBBBBBB (AA=DDD, B=number)
+    // 11 digits: AABCCCCCCC (AA=DDD, B=9, C=number)
+    if (withoutCountry.length === 10 || withoutCountry.length === 11) {
+      return '+' + digits;
+    }
+    // If length is wrong but has 55, try removing extra digits
+    if (withoutCountry.length > 11) {
+      // Try removing duplicates or extras from the start
+      const cleaned_digits = withoutCountry.replace(/^(\d)\1+/, '$1');
+      if (cleaned_digits.length === 10 || cleaned_digits.length === 11) {
+        return '+55' + cleaned_digits;
+      }
+    }
+  } else if (digits.length === 10 || digits.length === 11) {
+    // Number without country code - add it
+    return '+55' + digits;
+  }
+  
+  // Fallback: just add +55 if it doesn't have it
+  if (!digits.startsWith('55')) {
+    return '+55' + digits;
+  }
+  
+  return '+' + digits;
 }
 
 export async function POST(request: NextRequest) {
