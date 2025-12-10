@@ -4,7 +4,7 @@
 import { PageHeader } from '@/components/page-header';
 import { TeamTable } from '@/components/settings/team-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Webhook, KeyRound, BrainCircuit, GitIncoming } from 'lucide-react';
+import { Users, Webhook, KeyRound, BrainCircuit, ArrowDown } from 'lucide-react';
 import { WebhooksManager } from '@/components/settings/webhooks-manager';
 import { IncomingWebhooksManager } from '@/components/settings/incoming-webhooks-manager';
 import { ApiKeysManager } from '@/components/settings/api-keys-manager';
@@ -30,7 +30,7 @@ export default function ManagementPage() {
             IA
           </TabsTrigger>
           <TabsTrigger value="incoming-webhooks">
-            <GitIncoming className="mr-2 h-4 w-4" />
+            <ArrowDown className="mr-2 h-4 w-4" />
             Entrada
           </TabsTrigger>
           <TabsTrigger value="webhooks">
