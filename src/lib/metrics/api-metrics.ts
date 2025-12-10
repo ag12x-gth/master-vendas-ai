@@ -4,7 +4,6 @@
  * Tracks latency (P50, P95, P99) and throughput for external API calls:
  * - Meta WhatsApp API
  * - SMS (Witi, Seven.io)
- * - Vapi Voice Calls
  * - OpenAI/Google Gemini
  * 
  * Uses Redis Sorted Sets for efficient percentile calculation
@@ -17,7 +16,6 @@ export type ApiProvider =
   | 'meta' 
   | 'sms_witi' 
   | 'sms_seven' 
-  | 'vapi' 
   | 'openai' 
   | 'google';
 
@@ -126,7 +124,6 @@ export class ApiMetrics {
       'meta',
       'sms_witi',
       'sms_seven',
-      'vapi',
       'openai',
       'google'
     ];

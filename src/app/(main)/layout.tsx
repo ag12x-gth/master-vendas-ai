@@ -9,7 +9,6 @@ import type { ReactNode } from 'react';
 import { getUserSession } from '@/app/actions';
 import { redirect } from 'next/navigation';
 import { AnalyticsProvider } from '@/contexts/analytics-context';
-import { VapiCallProvider } from '@/contexts/VapiCallContext';
 import dynamic from 'next/dynamic';
 
 const ConsoleMonitor = dynamic(() => import('@/components/dev/console-monitor').then(m => m.ConsoleMonitor), { ssr: false });
@@ -40,27 +39,25 @@ export default async function MainLayout({
   return (
     <SessionProvider value={session}>
         <AnalyticsProvider>
-            <VapiCallProvider>
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="system"
-                    enableSystem
-                    disableTransitionOnChange
-                >
-                    <SidebarProvider>
-                <div className="flex h-screen w-full bg-background overflow-hidden">
-                    <MobileMenuButton />
-                    <AppSidebar />
-                    <MainContent>
-                        {children}
-                    </MainContent>
-                    <MobileNav />
-                </div>
-                    </SidebarProvider>
-                    <ConsoleMonitor />
-                    <InstallBanner />
-                </ThemeProvider>
-            </VapiCallProvider>
+            <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+            >
+                <SidebarProvider>
+                    <div className="flex h-screen w-full bg-background overflow-hidden">
+                        <MobileMenuButton />
+                        <AppSidebar />
+                        <MainContent>
+                            {children}
+                        </MainContent>
+                        <MobileNav />
+                    </div>
+                </SidebarProvider>
+                <ConsoleMonitor />
+                <InstallBanner />
+            </ThemeProvider>
         </AnalyticsProvider>
     </SessionProvider>
   );

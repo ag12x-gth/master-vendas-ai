@@ -39,7 +39,6 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '.
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import Link from 'next/link';
 import { CommunicationButton } from '@/components/contacts/communication-modal';
-import { BulkCallDialog } from '@/components/vapi-voice/BulkCallDialog';
 import { useDebounce } from '@/hooks/use-debounce';
 import { EmptyState } from '@/components/ui/empty-state';
 import { PaginationControls } from '@/components/ui/pagination-controls';
@@ -265,7 +264,6 @@ export function ContactTable() {
   const [search, setSearch] = useState('');
   const [view, setView] = useState<ViewType>('table');
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [showBulkCallDialog, setShowBulkCallDialog] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -470,9 +468,6 @@ export function ContactTable() {
          <div className="mb-4 p-3 bg-muted rounded-lg flex flex-col sm:flex-row gap-4 justify-between items-center">
             <p className="text-sm font-medium">{selectedRows.length} contato(s) selecionado(s)</p>
             <div className="flex gap-2 flex-wrap justify-center">
-                <Button variant="default" size="sm" onClick={() => setShowBulkCallDialog(true)}>
-                    <PhoneCall className="mr-2 h-4 w-4" />Ligar para Selecionados
-                </Button>
                 <Button variant="outline" size="sm"><Tags className="mr-2 h-4 w-4" />Adicionar Tag</Button>
                 <Button variant="outline" size="sm"><Download className="mr-2 h-4 w-4" />Exportar</Button>
                 <Button variant="destructive" size="sm" onClick={handleBulkDelete}><Trash2 className="mr-2 h-4 w-4" />Excluir</Button>
@@ -533,20 +528,6 @@ export function ContactTable() {
             />
          </div>
        )}
-
-      <BulkCallDialog
-        open={showBulkCallDialog}
-        onOpenChange={setShowBulkCallDialog}
-        contacts={contacts.filter(c => selectedRows.includes(c.id)).map(c => ({
-          id: c.id,
-          name: c.name,
-          phone: c.phone
-        }))}
-        onCallsInitiated={() => {
-          setSelectedRows([]);
-          setShowBulkCallDialog(false);
-        }}
-      />
     </>
   );
 }

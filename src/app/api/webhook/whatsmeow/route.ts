@@ -210,25 +210,16 @@ export async function POST(request: NextRequest) {
       console.error('[Webhook] Error dispatching message_received:', webhookError);
     }
 
-    // Process with AI and handle voice escalation
+    // Process with AI and send text response
     const messageText = payload.data.text || '';
-    const needsVoiceCall = await shouldEscalateToVoice(messageText);
-    
-    if (needsVoiceCall) {
-      // Escalate to voice call
-      await initiateVoiceCall(phoneNumber, conversationId, messageText);
-    } else {
-      // Send text response
-      const response = await generateAIResponse(messageText);
-      if (response) {
-        await sendWhatsmeowMessage(phoneNumber, response);
-      }
+    const response = await generateAIResponse(messageText);
+    if (response) {
+      await sendWhatsmeowMessage(phoneNumber, response);
     }
 
     return NextResponse.json({ 
       success: true, 
-      conversationId,
-      escalated: needsVoiceCall 
+      conversationId
     });
 
   } catch (error) {
@@ -259,46 +250,12 @@ async function generateAIResponse(text: string): Promise<string | null> {
   return 'Recebi sua mensagem! Como posso ajudar?';
 }
 
-async function shouldEscalateToVoice(text: string): Promise<boolean> {
-  const lowerText = text.toLowerCase();
-  const voiceKeywords = ['falar', 'ligar', 'telefone', 'chamada', 'voz', 'call', 'atendente'];
-  return voiceKeywords.some(keyword => lowerText.includes(keyword));
-}
-
-async function initiateVoiceCall(phoneNumber: string, conversationId: string, context: string): Promise<void> {
-  try {
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTJS_URL || 'http://localhost:5000';
-    
-    const response = await fetch(`${appUrl}/api/vapi/initiate-call`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        phoneNumber: phoneNumber,
-        customerName: phoneNumber,
-        context: context,
-        conversationId: conversationId
-      })
-    });
-
-    if (response.ok) {
-      console.log('📞 Voice call initiated for:', phoneNumber);
-      // Send confirmation via WhatsApp
-      await sendWhatsmeowMessage(
-        phoneNumber, 
-        '📞 Perfeito! Estou iniciando uma ligação para você agora. Por favor, atenda quando seu telefone tocar.'
-      );
-    } else {
-      console.error('Failed to initiate voice call:', await response.text());
-      // Fallback to text
-      await sendWhatsmeowMessage(
-        phoneNumber,
-        'Desculpe, não consegui iniciar a ligação no momento. Mas posso ajudar por aqui! Em que posso ajudar?'
-      );
-    }
-  } catch (error) {
-    console.error('Error initiating voice call:', error);
-  }
-}
+// Voice escalation feature removed (VAPI deprecated)
+// async function shouldEscalateToVoice(text: string): Promise<boolean> {
+//   const lowerText = text.toLowerCase();
+//   const voiceKeywords = ['falar', 'ligar', 'telefone', 'chamada', 'voz', 'call', 'atendente'];
+//   return voiceKeywords.some(keyword => lowerText.includes(keyword));
+// }
 
 async function sendWhatsmeowMessage(to: string, message: string): Promise<void> {
   try {
