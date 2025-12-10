@@ -104,24 +104,30 @@ const getEmailVerificationTemplate = (name: string, verificationLink: string): s
           <style>
               body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
               .container { width: 90%; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
-              .header { font-size: 24px; font-weight: bold; color: #10B981; }
-              .content { margin-top: 20px; }
-              .button { display: inline-block; padding: 10px 20px; margin-top: 20px; background-color: #10B981; color: #fff; text-decoration: none; border-radius: 5px; }
+              .highlight { font-size: 28px; font-weight: bold; color: #10B981; text-align: center; margin: 20px 0; }
+              .content { margin-top: 20px; line-height: 1.8; }
+              .button { display: inline-block; padding: 12px 30px; margin-top: 20px; background-color: #10B981; color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px; }
+              .link-section { margin-top: 20px; padding: 15px; background-color: #f9f9f9; border-radius: 5px; }
               .footer { margin-top: 30px; font-size: 12px; color: #888; text-align: center; }
           </style>
       </head>
       <body>
           <div class="container">
-              <div class="header">Confirme seu endereço de e-mail</div>
+              <div class="highlight">🎉 Parabéns! Bem-vindo(a) à MasterIA!</div>
               <div class="content">
-                  <p>Olá ${name},</p>
-                  <p>Obrigado por se registar no Master IA! Por favor, clique no botão abaixo para verificar seu endereço de e-mail e ativar sua conta.</p>
-                  <a href="${verificationLink}" class="button">Verificar E-mail</a>
-                  <p>Se o botão não funcionar, copie e cole o seguinte link no seu navegador:</p>
-                  <p><a href="${verificationLink}">${verificationLink}</a></p>
+                  <p>Olá <strong>${name}</strong>,</p>
+                  <p>Confirme seu acesso no Link a seguir para receber a experiencia completa do HUB MASTER de Agentes de IA para Comunicar, Relacionar de verdade com seus clientes e Multiplicar o Lucro da sua empresa.</p>
+                  <p style="text-align: center;">
+                      <a href="${verificationLink}" class="button">Verificar E-mail</a>
+                  </p>
+                  <div class="link-section">
+                      <p style="margin-top: 0; margin-bottom: 10px;">Caso deseje ir mais rápido, toque no link a seguir:</p>
+                      <p><a href="${verificationLink}" style="color: #10B981; text-decoration: underline; word-break: break-all;">${verificationLink}</a></p>
+                      <p style="margin-top: 10px; font-size: 12px; color: #666;">(Ou pressione/clique no link acima para copiar e colar no seu navegador)</p>
+                  </div>
               </div>
               <div class="footer">
-                  <p>Master IA &copy; ${new Date().getFullYear()}</p>
+                  <p>Master IA @ ${new Date().getFullYear()}</p>
               </div>
           </div>
       </body>

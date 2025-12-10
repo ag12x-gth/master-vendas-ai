@@ -35,7 +35,7 @@ export async function sendVerificationEmail(
     const result = await resend.emails.send({
       from: fromEmail,
       to: toEmail, // ✅ SEMPRE para o email do usuário (ou teste em dev)
-      subject: 'Verifique seu e-mail no Master IA',
+      subject: 'Verifique seu acesso Master IA',
       html: htmlTemplate,
       text: `Olá ${userName}, clique no link para verificar seu email: ${verificationLink}`,
     });
