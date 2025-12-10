@@ -1,0 +1,174 @@
+2025-12-10T00:44:27Z info: Deployment: 883af976-bd17-4b1c-b3ba-8e932c5693f9
+2025-12-10T00:44:27Z info: Running Security Scan
+2025-12-10T00:45:28Z info: Security Scan Complete
+2025-12-10T00:45:28Z info: Connecting to builder
+2025-12-10T00:45:28Z info: Builder connected
+2025-12-10T00:45:29Z info: Installing packages
+--> npm install
+
+
+up to date, audited 1192 packages in 5s
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.7.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0
+npm notice To update run: npm install -g npm@11.7.0
+npm notice
+
+2025-12-10T00:45:34Z info: Starting Build
+
+> nextn@2.4.2 build
+> NODE_OPTIONS='--max-old-space-size=4096' SKIP_LINT=false next build
+
+
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.com/vercel/next.js/issues
+
+  ▲ Next.js 14.2.33
+  - Environments: .env
+  - Experiments (use with caution):
+    · cpus
+
+
+   Creating an optimized production build ...
+
+ ✓ Compiled successfully
+
+   Linting and checking validity of types ...
+
+
+./src/app/api/internal/init-worker/route.ts
+16:9  Warning: 'referer' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+
+   Collecting page data ...
+
+   Generating static pages (0/72) ...
+
+   Generating static pages (18/72) 
+
+   Generating static pages (36/72) 
+
+   Generating static pages (54/72) 
+
+ ✓ Generating static pages (72/72)
+
+   Finalizing page optimization ...
+
+   Collecting build traces ...
+
+Route (app)                                                   Size     First Load JS
+┌ ○ /                                                         170 B           486 kB
+├ ○ /_not-found                                               203 B           486 kB
+├ ƒ /account                                                  10.5 kB         496 kB
+├ ƒ /admin/agents/performance                                 4.58 kB         490 kB
+├ ƒ /admin/ai-dashboard                                       7.36 kB         493 kB
+├ ƒ /agentes-ia                                               4.79 kB         491 kB
+├ ƒ /agentes-ia/[personaId]                                   14.1 kB         500 kB
+├ ƒ /agentes-ia/new                                           8.3 kB          494 kB
+├ ƒ /ai-chats                                                 6.16 kB         492 kB
+├ ƒ /ajuda                                                    7.76 kB         494 kB
+├ ƒ /analytics                                                5.8 kB          492 kB
+├ ƒ /api/admin/send-password-reset                            0 B                0 B
+├ ƒ /api/ai/health                                            0 B                0 B
+├ ƒ /api/ai/smoke                                             0 B                0 B
+├ ƒ /api/auth/[...nextauth]                                   0 B                0 B
+├ ƒ /api/auth/login                                           0 B                0 B
+├ ƒ /api/auth/logout                                          0 B                0 B
+├ ƒ /api/auth/oauth-callback                                  0 B                0 B
+├ ƒ /api/auth/providers-status                                0 B                0 B
+├ ƒ /api/auth/register                                        0 B                0 B
+├ ƒ /api/auth/resend-verification                             0 B                0 B
+├ ƒ /api/auth/reset-password                                  0 B                0 B
+├ ƒ /api/auth/socket-token                                    0 B                0 B
+├ ƒ /api/auth/verify-email                                    0 B                0 B
+├ ƒ /api/contacts/import                                      0 B                0 B
+├ ○ /api/health                                               0 B                0 B
+├ ƒ /api/internal/init-worker                                 0 B                0 B
+├ ƒ /api/metrics                                              0 B                0 B
+├ ƒ /api/test-cache                                           0 B                0 B
+├ ƒ /api/test-contacts                                        0 B                0 B
+├ ƒ /api/v1/admin/ai-metrics                                  0 B                0 B
+├ ƒ /api/v1/admin/scheduler                                   0 B                0 B
+├ ƒ /api/v1/agents/health                                     0 B                0 B
+├ ƒ /api/v1/agents/metrics                                    0 B                0 B
+├ ƒ /api/v1/ai/chats                                          0 B                0 B
+├ ƒ /api/v1/ai/chats/[chatId]                                 0 B                0 B
+├ ƒ /api/v1/ai/chats/[chatId]/messages                        0 B                0 B
+├ ƒ /api/v1/alerts                                            0 B                0 B
+├ ƒ /api/v1/alerts/[alertId]/acknowledge                      0 B                0 B
+├ ƒ /api/v1/alerts/[alertId]/resolve                          0 B                0 B
+├ ƒ /api/v1/alerts/history                                    0 B                0 B
+├ ƒ /api/v1/alerts/settings                                   0 B                0 B
+├ ƒ /api/v1/analytics/campaigns                               0 B                0 B
+├ ƒ /api/v1/analytics/funnel                                  0 B                0 B
+├ ƒ /api/v1/analytics/kpis                                    0 B                0 B
+├ ƒ /api/v1/analytics/timeseries                              0 B                0 B
+├ ƒ /api/v1/api-keys                                          0 B                0 B
+├ ƒ /api/v1/api-
+api/v1/conversations/[conversationId]/archive            0 B                0 B
+├ ƒ /api/v1/conversations/[conversationId]/effective-persona  0 B                0 B
+├ ƒ /api/v1/conversations/[conversationId]/media              0 B                0 B
+├ ƒ /api/v1/conversations/[conversationId]/messages           0 B                0 B
+├ ƒ /api/v1/conversations/[conversationId]/toggle-ai          0 B                0 B
+├ ƒ /api/v1/conversations/start                               0 B                0 B
+├ ƒ /api/v1/conversations/status                              0 B                0 B
+├ ƒ /api/v1/dashboard/charts                                  0 B                0 B
+├ ƒ /api/v1/dashboard/stats                                   0 B                0 B
+├ ƒ /api/v1/errors                                            0 B                0 B
+├ ƒ /api/v1/ia/credentials                                    0 B                0 B
+├ ƒ /api/v1/ia/credentials/[credentialId]                     0 B                0 B
+├ ƒ /api/v1/ia/metrics                                        0 B                0 B
+├ ƒ /api/v1/ia/personas                                       0 B                0 B
+├ ƒ /api/v1/ia/personas/[personaId]                           0 B                0 B
+├ ƒ /api/v1/ia/personas/[personaId]/duplicate                 0 B                0 B
+├ ƒ /api/v1/ia/personas/[personaId]/metrics                   0 B                0 B
+├ ƒ /api/v1/ia/personas/[personaId]/sections                  0 B                0 B
+├ ƒ /api/v1/ia/personas/[personaId]/sections/[sectionId]      0 B                0 B
+├ ƒ /api/v1/ia/personas/[personaId]/test                      0 B                0 B
+├ ƒ /api/v1/integrations/kommo/connect                        0 B                0 B
+├ ƒ /api/v1/integrations/kommo/mappings                       0 B                0 B
+├ ƒ /api/v1/integrations/kommo/push-contact                   0 B                0 B
+├ ƒ /api/v1/integrations/kommo/push-lead-note                 0 B                0 B
+├ ƒ /api/v1/integrations/kommo/status                         0 B                0 B
+├ ƒ /api/v1/integrations/kommo/webhook                        0 B                0 B
+├ ƒ /api/v1/integrations/logs                                 0 B                0 B
+├ ƒ /api/v1/kanban/stage-personas                             0 B                0 B
+├ ƒ /api/v1/kanbans                                           0 B                0 B
+├ ƒ /api/v1/kanbans/[boardId]                                 0 B                0 B
+├ ƒ /api/v1/leads                                             0 B                0 B
+├ ƒ /api/v1/leads/[leadId]                                    0 B                0 B
+├ ƒ /api/v1/lists                                             0 B                0 B
+├ ƒ /api/v1/lists/[listId]                                    0 B                0 B
+├ ƒ /api/v1/mcp/[...path]                                     0 B                0 B
+├ ƒ /api/v1/media                                             0 B                0 B
+├ ƒ /api/v1/media/[mediaId]                                   0 B                0 B
+├ ƒ /api/v1/media/[mediaId]/handle                            0 B                0 B
+├ ƒ /api/v1/media/upload-url                                  0 B                0 B
+├ ƒ /api/v1/message-templates                                 0 B                0 B
+├ ƒ /api/v1/message-templates/[id]/submit                     0 B                0 B
+├ ƒ /api/v1/message-templates/[id]/sync-status                0 B                0 B
+├ ƒ /api/v1/metrics/api-performance                           0 B                0 B
+├ ƒ /api/v1/notification-agents                               0 B                0 B
+├ ƒ /api/v1/notification-agents/[id]                          0 B                0 B
+├ ƒ /api/v1/notification-agents/[id]/groups                   0 B                0 B
+├ ƒ /api/v1/notification-agents/[id]/test                     0 B                0 B
+├ ƒ /api/v1/notifications                                     0 B                0 B
+├ ƒ /api/v1/reports/s
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+2025-12-10T00:48:39Z info: Pushing pid1 binary layer...
+2025-12-10T00:48:42Z info: Created pid1 binary layer
+2025-12-10T00:48:50Z info: Pushing Repl layer...
+2025-12-10T00:48:50Z info: Pushing hosting layer...
+2025-12-10T00:48:50Z info: Retrieved cached nix layer
+2025-12-10T00:48:50Z info: Created hosting layer
+2025-12-10T00:48:51Z warning: Detected broken symlink! The path "/tmp/pulse-PKdhtXMmr18n" does not exist.
+2025-12-10T00:50:06Z info: Created Repl layer
+2025-12-10T00:50:09Z info: Pushed image manifest
+2025-12-10T00:50:12Z info: Pushed soci index manifest
+2025-12-10T00:50:16Z info: Creating virtual machine
+2025-12-10T00:50:45Z info: Virtual machine created
+2025-12-10T00:50:45Z info: Waiting for deployment to be ready
+2025-12-10T00:54:45Z error: The deployment failed to initialize due to a configuration or code error. Check the logs tab for more information. For additional support, contact us at support@replit.com. 
