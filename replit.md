@@ -70,6 +70,37 @@ Construído com **Next.js 14** (App Router) no frontend, **Node.js 18+** com Exp
 | **Retell Status** | Configurado ✅ |
 | **Fast Refresh** | Operacional ✅ |
 
+## Recent Changes - MULTI-TENANT PARITY (Dec 10, 2025)
+
+### ✅ HARDCODED VALUES REMOVED - MULTI-TENANT ENABLED
+
+#### Arquivos Corrigidos:
+| Arquivo | Mudança | Impacto |
+|---------|---------|---------|
+| **voice/calls/test/route.ts** | Removido `agent_c96d27...` hardcoded | ✅ Usa agente dinâmico por empresa |
+| **voice/retell/sync-voice/route.ts** | Removido hardcoded, agora aceita `agentId` | ✅ Permite sincronizar voz para qualquer empresa |
+
+#### Antes vs Depois:
+**ANTES (Código acoplado):**
+```typescript
+const RETELL_AGENT_ID = 'agent_c96d270a5cad5d4608bb72ee08'; // ❌ Hardcoded
+```
+
+**DEPOIS (Multi-tenant):**
+```typescript
+const companyId = await getCompanyIdFromSession();
+const agents = await db.query.voiceAgents.findMany({
+  where: and(eq(voiceAgents.companyId, companyId), eq(voiceAgents.status, 'active'))
+});
+const selectedAgentId = agents[0]?.retellAgentId; // ✅ Dinâmico por empresa
+```
+
+#### Resultado:
+- ✅ Cada empresa pode ter seus próprios agentes Voice AI
+- ✅ Teste de chamadas funciona para qualquer empresa
+- ✅ Sincronização de voz funcionando para múltiplas empresas
+- ✅ Zero hardcoded values em código de produção
+
 ## System Status (Dec 10, 2025 - POST PHASE 4 AUDIT COMPLETO)
 
 | Componente | Status | Última Atualização |

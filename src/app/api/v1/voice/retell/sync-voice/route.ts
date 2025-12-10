@@ -3,10 +3,10 @@ import { logger } from '@/lib/logger';
 import { z } from 'zod';
 
 const RETELL_API_KEY = process.env.RETELL_API_KEY || '';
-const RETELL_AGENT_ID = 'agent_c96d270a5cad5d4608bb72ee08';
 
 const syncVoiceSchema = z.object({
   voiceId: z.string().min(1, 'Voice ID é obrigatório'),
+  agentId: z.string().min(1, 'Agent ID é obrigatório'),
 });
 
 export async function POST(request: NextRequest) {
@@ -28,9 +28,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { voiceId } = validation.data;
+    const { voiceId, agentId } = validation.data;
 
-    const response = await fetch(`https://api.retellai.com/update-agent/${RETELL_AGENT_ID}`, {
+    const response = await fetch(`https://api.retellai.com/update-agent/${agentId}`, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${RETELL_API_KEY}`,
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     const result = await response.json();
 
     logger.info('Voice synced to Retell', { 
-      agentId: RETELL_AGENT_ID,
+      agentId: agentId,
       voiceId: result.voice_id,
     });
 

@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
 import { z } from 'zod';
+import { getCompanyIdFromSession } from '@/app/actions';
+import { db } from '@/lib/db';
+import { voiceAgents } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
 
 const RETELL_API_KEY = process.env.RETELL_API_KEY || '';
 const RETELL_FROM_NUMBER = process.env.TWILIO_PHONE_NUMBER || '+553322980007';
-const RETELL_AGENT_ID = 'agent_c96d270a5cad5d4608bb72ee08';
 
 const testCallSchema = z.object({
   agentId: z.string().optional(),
@@ -29,6 +32,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const companyId = await getCompanyIdFromSession();
     const body = await request.json();
     const validation = testCallSchema.safeParse(body);
 
@@ -40,6 +44,37 @@ export async function POST(request: NextRequest) {
     }
 
     const toNumber = formatPhoneNumber(validation.data.toNumber);
+    
+    let selectedAgentId = validation.data.agentId;
+    
+    // Se não forneceu agentId, buscar o primeiro agente ativo da empresa
+    if (!selectedAgentId) {
+      const agents = await db
+        .select()
+        .from(voiceAgents)
+        .where(and(
+          eq(voiceAgents.companyId, companyId),
+          eq(voiceAgents.status, 'active')
+        ))
+        .limit(1);
+      
+      if (agents.length === 0) {
+        return NextResponse.json(
+          { error: 'Nenhum agente de voz ativo configurado para sua empresa. Configure um agente em Voice AI.' },
+          { status: 400 }
+        );
+      }
+      
+      const agent = agents[0]!;
+      selectedAgentId = (agent.retellAgentId || agent.externalId) as string;
+      
+      if (!selectedAgentId) {
+        return NextResponse.json(
+          { error: 'Agente configurado mas sem ID Retell. Revise as configurações de Voice AI.' },
+          { status: 400 }
+        );
+      }
+    }
 
     const response = await fetch('https://api.retellai.com/v2/create-phone-call', {
       method: 'POST',
@@ -50,7 +85,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         from_number: RETELL_FROM_NUMBER,
         to_number: toNumber,
-        override_agent_id: validation.data.agentId || RETELL_AGENT_ID,
+        override_agent_id: selectedAgentId,
       }),
     });
 
