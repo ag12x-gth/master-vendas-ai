@@ -33,35 +33,41 @@ Construído com **Next.js 14** (App Router) no frontend, **Node.js 18+** com Exp
 - Google Cloud Storage (File storage)
 - Upstash (Redis para caching)
 
-## Recent Changes - VAPI REMOVAL COMPLETE (Dec 10, 2025)
+## Recent Changes - LIMPEZA COMPLETA VAPI + SIDEBAR (Dec 10, 2025)
 
-### ✅ VAPI FEATURE COMPLETELY REMOVED
+### ✅ VAPI FEATURE COMPLETELY REMOVED + SIDEBAR LIMPA
 
-#### Componentes Removidos:
-| Componente | Ação | Arquivos |
-|-----------|------|----------|
-| **API Routes** | Deletado | 7 rotas em src/app/api/vapi/ |
-| **UI Components** | Deletado | 11 arquivos em src/components/vapi-voice/ |
-| **Hooks/Context** | Deletado | useVapiCall.ts, useVapiClient.ts, VapiCallContext.tsx |
-| **Database Tables** | Comentado | vapiCalls, vapiTranscripts (dados preservados) |
-| **Database Relations** | Comentado | vapiCallsRelations, vapiTranscriptsRelations |
-| **References** | Limpo | layout.tsx, contact-table.tsx, circuit-breaker.ts, api-metrics.ts, whatsmeow/route.ts |
+#### Componentes Removidos - Fases 1-6:
+| Componente | Ação | Arquivos | Status |
+|-----------|------|----------|--------|
+| **API Routes** | Deletado | 7 rotas em src/app/api/vapi/ | ✅ |
+| **UI Components** | Deletado | 11 arquivos em src/components/vapi-voice/ | ✅ |
+| **Hooks/Context** | Deletado | useVapiCall.ts, useVapiClient.ts, VapiCallContext.tsx | ✅ |
+| **Database Tables** | Comentado | vapiCalls, vapiTranscripts (dados preservados) | ✅ |
+| **Database Relations** | Comentado | vapiCallsRelations, vapiTranscriptsRelations | ✅ |
+| **References** | Limpo | layout.tsx, contact-table.tsx, circuit-breaker.ts, api-metrics.ts, whatsmeow/route.ts | ✅ |
+| **Sidebar /voice-calls** | Removido | app-sidebar.tsx linha 164 | ✅ |
 
 #### Voice AI (Retell.ai) MANTIDO INTACTO:
 - ✅ voiceAgents table: Ativa
 - ✅ voiceCalls table: Ativa  
 - ✅ voiceAgentsRelations: Ativa
 - ✅ voiceCallsRelations: Ativa
+- ✅ /voice-ai page: Operacional
+- ✅ 30+ endpoints /api/v1/voice: Ativo
+- ✅ Retell webhook integration: Funcionando
 
-### 📊 VALIDAÇÃO FINAL
+### 📊 VALIDAÇÃO FINAL (COMPLETA)
 
 | Métrica | Resultado |
 |---------|-----------|
 | **LSP Errors** | 0 ✅ |
 | **TypeScript Compilation** | Sucesso ✅ |
 | **VAPI References** | 0 linhas ativas ✅ |
+| **Voice Calls Link** | Removido da Sidebar ✅ |
 | **Database Tables** | 64 ativas (VAPI comentado) ✅ |
-| **Endpoints HTTP** | Funcionando ✅ |
+| **Voice API Endpoints** | 30+ operacionais ✅ |
+| **Retell Status** | Configurado ✅ |
 | **Fast Refresh** | Operacional ✅ |
 
 ## System Status (Dec 10, 2025 - POST PHASE 4 AUDIT COMPLETO)
