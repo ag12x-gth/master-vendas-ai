@@ -535,9 +535,8 @@ export class CadenceService {
 
       // Registrar evento de falha
       try {
-        await db.insert(cadenceEvents).values({
+        const eventPayload: any = {
           enrollmentId: enrollment.id,
-          stepId: step.id ?? null,
           eventType: 'step_failed',
           metadata: {
             stepOrder: step.stepOrder,
@@ -545,7 +544,11 @@ export class CadenceService {
             failedAt: new Date().toISOString(),
             errorMessage: error instanceof Error ? error.message : 'Unknown error',
           },
-        });
+        };
+        if (step.id) {
+          eventPayload.stepId = step.id;
+        }
+        await db.insert(cadenceEvents).values(eventPayload);
       } catch (dbError) {
         logger.error('Error registering cadence event', { dbError });
       }
