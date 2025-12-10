@@ -33,42 +33,36 @@ Construído com **Next.js 14** (App Router) no frontend, **Node.js 18+** com Exp
 - Google Cloud Storage (File storage)
 - Upstash (Redis para caching)
 
-## Recent Changes - PHASE 4: AUDITORIA INTEGRAL COMPLETA (Dec 10, 2025)
+## Recent Changes - VAPI REMOVAL COMPLETE (Dec 10, 2025)
 
-### ✅ AUDITORIA INTEGRAL FINALIZADA COM SUCESSO
+### ✅ VAPI FEATURE COMPLETELY REMOVED
 
-#### ETAPA 4.1-4.8: Verificações Completas Realizadas
-| Componente | Status | Validação |
-|-----------|--------|-----------|
-| **Kommo push-contact** | ✅ | Helper function + Schema Zod + HTTP 401 |
-| **Kommo push-lead-note** | ✅ | Helper function + Schema Zod + HTTP 401 |
-| **VAPI webhook handlers** | ✅ | 8 handlers + HMAC-SHA256 + Escalation |
-| **Cadence-service integration** | ✅ | Campaign-sender + DB schema + Event tracking |
+#### Componentes Removidos:
+| Componente | Ação | Arquivos |
+|-----------|------|----------|
+| **API Routes** | Deletado | 7 rotas em src/app/api/vapi/ |
+| **UI Components** | Deletado | 11 arquivos em src/components/vapi-voice/ |
+| **Hooks/Context** | Deletado | useVapiCall.ts, useVapiClient.ts, VapiCallContext.tsx |
+| **Database Tables** | Comentado | vapiCalls, vapiTranscripts (dados preservados) |
+| **Database Relations** | Comentado | vapiCallsRelations, vapiTranscriptsRelations |
+| **References** | Limpo | layout.tsx, contact-table.tsx, circuit-breaker.ts, api-metrics.ts, whatsmeow/route.ts |
 
-#### ETAPA 4.4 - BUGS ENCONTRADOS E CORRIGIDOS
-**BUG 1: Kommo endpoints retornando 500 ao invés de 401**
-- Causa: `getCompanyIdFromSession()` lançava erro
-- Solução: Try/catch específico em ambos endpoints ✅
-- Resultado: Agora retorna 401 corretamente
+#### Voice AI (Retell.ai) MANTIDO INTACTO:
+- ✅ voiceAgents table: Ativa
+- ✅ voiceCalls table: Ativa  
+- ✅ voiceAgentsRelations: Ativa
+- ✅ voiceCallsRelations: Ativa
 
-**BUG 2: LSP Error em cadence-service linha 538**
-- Causa: Campo `stepId` com tipo null não aceito por Drizzle
-- Solução: Mudado para `step.id || undefined`
-- Resultado: LSP error resolvido ✅
-
-### 📊 RESUMO FINAL DE VALIDAÇÃO
+### 📊 VALIDAÇÃO FINAL
 
 | Métrica | Resultado |
 |---------|-----------|
 | **LSP Errors** | 0 ✅ |
-| **Compilation Errors** | 0 ✅ |
-| **HTTP Status Codes** | Corretos ✅ |
-| **Database Tables** | 64 definidas, 25 relações ✅ |
-| **Redis Connection** | Upstash OK ✅ |
-| **BullMQ Queue** | Operacional ✅ |
-| **Fast Refresh** | Funcionando ✅ |
-| **TypeScript Build** | Sucesso ✅ |
-| **Endpoints HTTP** | 7+ testados, 100% OK ✅ |
+| **TypeScript Compilation** | Sucesso ✅ |
+| **VAPI References** | 0 linhas ativas ✅ |
+| **Database Tables** | 64 ativas (VAPI comentado) ✅ |
+| **Endpoints HTTP** | Funcionando ✅ |
+| **Fast Refresh** | Operacional ✅ |
 
 ## System Status (Dec 10, 2025 - POST PHASE 4 AUDIT COMPLETO)
 
