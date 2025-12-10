@@ -70,6 +70,33 @@ Construído com **Next.js 14** (App Router) no frontend, **Node.js 18+** com Exp
 | **Retell Status** | Configurado ✅ |
 | **Fast Refresh** | Operacional ✅ |
 
+## Recent Changes - CUSTOM DOMAIN MASTERIA.APP (Dec 10, 2025)
+
+### ✅ LINK DE VERIFICAÇÃO AGORA USA MASTERIA.APP (SEM REPLIT)
+
+#### Mudanças Implementadas:
+| Componente | Mudança | Status |
+|-----------|---------|--------|
+| **get-base-url.ts** | Prioriza `NEXT_PUBLIC_CUSTOM_DOMAIN` | ✅ Implementado |
+| **Variável de Ambiente** | `NEXT_PUBLIC_CUSTOM_DOMAIN=masteria.app` | ✅ Configurado |
+| **DNS/CNAME** | Apontando para Replit | ✅ Ativo |
+| **Verificação** | HTTP 200 OK em masteria.app | ✅ Funcionando |
+
+#### Links de Verificação:
+```
+ANTES: https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/verify-email?token=...
+DEPOIS: https://masteria.app/verify-email?token=...
+```
+
+#### Resultado:
+- ✅ Sem "replit.dev" visível
+- ✅ URL profissional e curta
+- ✅ Funciona em todos os dispositivos (móvel, tablet, desktop)
+- ✅ Válido por 24 horas
+- ✅ Zero impacto no sistema existente
+
+---
+
 ## Recent Changes - MULTI-TENANT PARITY (Dec 10, 2025)
 
 ### ✅ HARDCODED VALUES REMOVED - MULTI-TENANT ENABLED
