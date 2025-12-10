@@ -460,42 +460,113 @@ export class CadenceService {
 
     const step = steps[currentStepIndex];
 
-    // TODO: INTEGRAÇÃO COMPLETA COM CAMPAIGN-SENDER
-    // Por questões de MVP, esta é uma implementação simplificada
-    // A integração completa com campaign-sender será feita na próxima iteração
-    // 
-    // Plano de integração:
-    // 1. Buscar connection ativa da company
-    // 2. Resolver template (se templateId presente) ou usar messageContent
-    // 3. Chamar sendCampaignMessage ou sendWhatsappTextMessage
-    // 4. Tratar rate limiting e retries
-    // 5. Salvar providerMessageId no cadenceEvents
-    //
-    // Por agora, apenas logamos para não bloquear o MVP
-    logger.warn('MVP: Cadence step not sent (integration pending)', {
-      enrollmentId: enrollment.id,
-      stepId: step.id,
-      stepOrder: step.stepOrder,
-      channel: step.channel,
-      contactId: contact?.id,
-      contactPhone: contact?.phone,
-      messageContent: step.messageContent,
-      templateId: step.templateId,
-      note: 'Implementar integração com campaign-sender na próxima iteração',
-    });
+    // INTEGRAÇÃO COM CAMPAIGN-SENDER
+    const companyId = cadence.companyId;
+    try {
+      // 1. Buscar connection ativa da empresa
+      const [activeConnection] = await db
+        .select()
+        .from(connections)
+        .where(and(
+          eq(connections.companyId, companyId),
+          eq(connections.isActive, true)
+        ))
+        .limit(1);
 
-    // Registrar evento de envio (mesmo sem envio real no MVP)
-    await db.insert(cadenceEvents).values({
-      enrollmentId: enrollment.id,
-      stepId: step.id,
-      eventType: 'step_sent',
-      metadata: {
-        stepOrder: step.stepOrder,
+      if (!activeConnection) {
+        throw new Error('No active connection found for company');
+      }
+
+      // 2. Resolver conteúdo da mensagem (template ou texto direto)
+      let messageContent = step.messageContent;
+      if (step.templateId) {
+        const [template] = await db
+          .select()
+          .from(templates)
+          .where(eq(templates.id, step.templateId))
+          .limit(1);
+        if (template) {
+          messageContent = template.body || step.messageContent;
+        }
+      }
+
+      // 3. Enviar mensagem via canal apropriado
+      const { sendCampaignMessage } = await import('@/lib/campaign-sender');
+      
+      const providerMessageId = await sendCampaignMessage({
+        companyId,
+        connectionId: activeConnection.id,
+        contactId: contact.id,
+        phone: contact.phone,
+        messageContent: messageContent || 'Mensagem de cadência',
+        channel: step.channel as 'whatsapp' | 'sms' | 'voice',
+        templateId: step.templateId,
+        metadata: {
+          cadenceId: cadence.id,
+          enrollmentId: enrollment.id,
+          stepId: step.id,
+        },
+      });
+
+      // 4. Registrar evento de sucesso
+      await db.insert(cadenceEvents).values({
+        enrollmentId: enrollment.id,
+        stepId: step.id,
+        eventType: 'step_sent',
+        metadata: {
+          stepOrder: step.stepOrder,
+          channel: step.channel,
+          sentAt: new Date().toISOString(),
+          providerMessageId,
+          connectionId: activeConnection.id,
+        },
+      });
+
+      logger.info('Cadence step sent successfully', {
+        enrollmentId: enrollment.id,
+        stepId: step.id,
         channel: step.channel,
-        sentAt: new Date().toISOString(),
-        mvpNote: 'Step logged but not sent - integration pending',
-      },
-    });
+        providerMessageId,
+      });
+    } catch (error) {
+      // 5. Tratamento de erro
+      logger.error('Failed to send cadence step', {
+        enrollmentId: enrollment.id,
+        stepId: step.id,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      });
+
+      // Registrar evento de falha
+      await db.insert(cadenceEvents).values({
+        enrollmentId: enrollment.id,
+        stepId: step.id,
+        eventType: 'step_failed',
+        metadata: {
+          stepOrder: step.stepOrder,
+          channel: step.channel,
+          failedAt: new Date().toISOString(),
+          errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        },
+      });
+
+      // Não lançar erro para permitir que o scheduler continue
+      // O passo será retentado na próxima execução do scheduler
+      return;
+    }
+
+    // Registrar evento de envio alternativo (backwards compatibility)
+    if (!step.messageContent) {
+      await db.insert(cadenceEvents).values({
+        enrollmentId: enrollment.id,
+        stepId: step.id,
+        eventType: 'step_sent',
+        metadata: {
+          stepOrder: step.stepOrder,
+          channel: step.channel,
+          sentAt: new Date().toISOString(),
+        },
+      });
+    }
 
     // Atualizar enrollment para próximo step
     const nextStepIndex = currentStepIndex + 1;
