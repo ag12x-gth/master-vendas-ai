@@ -2,7 +2,11 @@
 // src/lib/email.ts
 'use server';
 
-import { sendEmail as sendReplitEmail } from '@/utils/replitmail';
+import { 
+  sendVerificationEmail, 
+  sendPasswordResetEmail as sendPasswordResetEmailViaResend,
+  sendWelcomeEmail as sendWelcomeEmailViaResend 
+} from '@/utils/email-sender';
 import { getBaseUrl } from '@/utils/get-base-url';
 
 const getWelcomeEmailTemplate = (name: string): string => {
@@ -127,16 +131,12 @@ const getEmailVerificationTemplate = (name: string, verificationLink: string): s
 
 export const sendWelcomeEmail = async (to: string, name: string): Promise<void> => {
     try {
-        const subject = `Bem-vindo(a) ao Master IA, ${name}!`;
         const html = getWelcomeEmailTemplate(name);
+        const success = await sendWelcomeEmailViaResend(to, name, html);
         
-        await sendReplitEmail({
-            subject,
-            html,
-            text: `Bem-vindo ao Master IA, ${name}! Sua conta foi criada com sucesso.`,
-        });
-        
-        console.log(`✅ Email de boas-vindas enviado via Replit Mail`);
+        if (!success) {
+            throw new Error('Falha ao enviar email de boas-vindas via Resend');
+        }
     } catch (error) {
         console.error(`❌ Erro ao enviar email de boas-vindas:`, error);
         throw error;
@@ -145,27 +145,12 @@ export const sendWelcomeEmail = async (to: string, name: string): Promise<void> 
 
 export const sendPasswordResetEmail = async (to: string, name: string, resetLink: string): Promise<void> => {
     try {
-        // WORKAROUND: Encaminha TODOS emails para admin@ag12x.com.br
-        const adminEmail = 'admin@ag12x.com.br';
+        const html = getPasswordResetTemplate(name, resetLink);
+        const success = await sendPasswordResetEmailViaResend(to, name, resetLink, html);
         
-        const subject = `[Master IA] Recuperação de Senha - ${to}`;
-        const html = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <h2 style="color: #10B981;">🔑 Recuperação de Senha</h2>
-                <p><strong>Email original:</strong> ${to}</p>
-                <p><strong>Nome:</strong> ${name}</p>
-                <hr style="border: 1px solid #eee; margin: 20px 0;">
-                ${getPasswordResetTemplate(name, resetLink)}
-            </div>
-        `;
-        
-        await sendReplitEmail({
-            subject,
-            html,
-            text: `[Master IA] Recuperação para ${to} (${name})\n\nLink: ${resetLink}`,
-        });
-        
-        console.log(`✅ Email de recuperação enviado para ${adminEmail} (referente a ${to})`);
+        if (!success) {
+            throw new Error('Falha ao enviar email de recuperação via Resend');
+        }
     } catch (error) {
         console.error(`❌ Erro ao enviar email de recuperação de senha:`, error);
         throw error;
@@ -174,34 +159,12 @@ export const sendPasswordResetEmail = async (to: string, name: string, resetLink
 
 export const sendEmailVerificationLink = async (to: string, name: string, verificationLink: string): Promise<void> => {
     try {
-        // WORKAROUND: Encaminha TODOS emails para admin@ag12x.com.br
-        const adminEmail = 'admin@ag12x.com.br';
+        const html = getEmailVerificationTemplate(name, verificationLink);
+        const success = await sendVerificationEmail(to, name, verificationLink, html);
         
-        const subject = `[Master IA] Verificação de Email - ${to}`;
-        const html = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <h2 style="color: #10B981;">🔐 Email de Verificação</h2>
-                <p><strong>Email original:</strong> ${to}</p>
-                <p><strong>Nome:</strong> ${name}</p>
-                <hr style="border: 1px solid #eee; margin: 20px 0;">
-                ${getEmailVerificationTemplate(name, verificationLink)}
-            </div>
-        `;
-        const text = `[Master IA] Verificação para ${to} (${name})\n\nLink: ${verificationLink}`;
-        
-        console.log(`[EMAIL] 📧 Encaminhando verificação de ${to} → ${adminEmail}`);
-        
-        const response = await sendReplitEmail({
-            subject,
-            html,
-            text,
-        });
-        
-        console.log(`✅ Email enviado para ${adminEmail} (referente a ${to})`);
-        console.log(`📧 Resposta:`, {
-            accepted: response.accepted,
-            messageId: response.messageId,
-        });
+        if (!success) {
+            throw new Error('Falha ao enviar email de verificação via Resend');
+        }
     } catch (error) {
         console.error(`❌ Erro ao enviar email de verificação:`, error);
         throw error;
