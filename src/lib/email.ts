@@ -168,7 +168,7 @@ export const sendEmailVerificationLink = async (to: string, name: string, verifi
         const subject = 'Verifique seu e-mail no Master IA';
         const html = getEmailVerificationTemplate(name, verificationLink);
         
-        await sendReplitEmail({
+        const response = await sendReplitEmail({
             to,
             subject,
             html,
@@ -176,8 +176,17 @@ export const sendEmailVerificationLink = async (to: string, name: string, verifi
         });
         
         console.log(`✅ Email de verificação enviado para ${to}`);
+        console.log(`📧 Resposta do Replit Mail:`, {
+            accepted: response.accepted,
+            rejected: response.rejected,
+            messageId: response.messageId,
+        });
     } catch (error) {
         console.error(`❌ Erro ao enviar email de verificação para ${to}:`, error);
+        console.error(`📧 Detalhes do erro:`, {
+            message: error instanceof Error ? error.message : 'Erro desconhecido',
+            error: error
+        });
         throw error;
     }
 };

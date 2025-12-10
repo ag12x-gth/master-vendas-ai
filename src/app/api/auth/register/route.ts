@@ -108,7 +108,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             await sendEmailVerificationLink(result.user.email, result.user.name, verificationLink);
             console.log(`[REGISTER:${requestId}] ✅ Email enviado com sucesso`);
         } catch (emailError) {
-            console.error(`[REGISTER:${requestId}] ❌ Erro ao enviar email:`, emailError);
+            console.error(`[REGISTER:${requestId}] ❌ ERRO CRÍTICO ao enviar email:`, emailError);
+            console.error(`[REGISTER:${requestId}] Tipo de erro:`, emailError instanceof Error ? emailError.message : typeof emailError);
+            // NÃO relançar - deixar o usuário criar a conta mesmo que email falhe
+            console.warn(`[REGISTER:${requestId}] ⚠️ Continuando com registro mesmo com erro de email`);
         }
         
         return NextResponse.json({ 
