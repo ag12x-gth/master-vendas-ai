@@ -105,6 +105,7 @@ User registra → sendEmailVerificationLink()
 - ✅ Servidor: Iniciando com sucesso
 - ✅ Teste de registro: Email de verificação enviado
 - ✅ Replit Mail: Usando API correta
+- ✅ WORKAROUND: Todos emails encaminhados para admin@ag12x.com.br (até configurar SendGrid)
 
 ---
 
