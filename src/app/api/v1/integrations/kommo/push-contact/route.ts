@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
 
     // 4. Chamar API Kommo (mock para desenvolvimento)
     const kommoResponse = await pushContactToKommo(
-      kommoIntegration.config as any,
+      (kommoIntegration as any).config || {},
       kommoPayload
     );
 

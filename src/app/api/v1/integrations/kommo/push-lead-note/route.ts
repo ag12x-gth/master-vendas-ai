@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 
     // 3. Chamar API Kommo para adicionar nota
     const result = await pushNoteToKommo(
-      kommoIntegration.config as any,
+      (kommoIntegration as any).config || {},
       {
         leadId: lead.externalId || lead.id,
         note,

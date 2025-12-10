@@ -210,21 +210,32 @@ async function handleFunctionCall(payload: any) {
       const contactPhone = _call?.customer?.number;
       const callId = _call?.id;
 
-      if (contactPhone) {
+      if (contactPhone && callId) {
         // 1. Registrar evento de escalação no banco
-        const [firstCompany] = await db.select({ id: (await import('@/lib/db/schema')).companies.id }).from((await import('@/lib/db/schema')).companies).limit(1);
+        const companyIdForCall = companyId || (await getCompanyIdFromContext());
+        const newContactId = await findOrCreateContact(contactPhone, _call?.customer?.name, companyIdForCall);
         
-        if (firstCompany) {
-          await db.insert((await import('@/lib/db/schema')).vapiCalls).values({
-            vapiCallId: callId,
-            companyId: firstCompany.id,
-            contactId: await findOrCreateContact(contactPhone, _call?.customer?.name, firstCompany.id),
-            status: 'escalated',
-            metadata: { escalationReason: reason, escalatedAt: new Date().toISOString() },
-          }).onConflictDoUpdate({
-            target: [(await import('@/lib/db/schema')).vapiCalls.vapiCallId],
-            set: { status: 'escalated', metadata: { escalationReason: reason, escalatedAt: new Date().toISOString() } },
-          });
+        try {
+          // Tentar atualizar existente ou criar novo
+          const [existing] = await db.select().from(vapiCalls).where(eq(vapiCalls.vapiCallId, callId)).limit(1);
+          
+          if (existing) {
+            await db.update(vapiCalls).set({
+              status: 'escalated',
+              metadata: { escalationReason: reason, escalatedAt: new Date().toISOString() },
+            }).where(eq(vapiCalls.vapiCallId, callId));
+          } else {
+            await db.insert(vapiCalls).values({
+              vapiCallId: callId,
+              companyId: companyIdForCall,
+              contactId: newContactId,
+              customerNumber: contactPhone,
+              status: 'escalated',
+              metadata: { escalationReason: reason, escalatedAt: new Date().toISOString() },
+            });
+          }
+        } catch (dbError) {
+          console.error('Error registering escalation in DB:', dbError);
         }
 
         // 2. Notificar equipe de atendimento via WhatsApp
