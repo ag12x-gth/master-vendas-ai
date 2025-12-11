@@ -27,7 +27,7 @@ async function handleDelete(request: NextRequest, { params }: { params: { id: st
       action: 'delete_company',
       resource: 'companies',
       resourceId: companyId,
-      metadata: { name: deleted[0].name },
+      metadata: { name: deleted[0]?.name || 'unknown' },
     });
 
     return createSuccessResponse({ success: true, id: companyId });

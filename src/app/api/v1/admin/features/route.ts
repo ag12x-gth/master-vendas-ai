@@ -43,8 +43,7 @@ export async function PUT(request: NextRequest) {
     if (existing.length > 0) {
       result = await db.update(companyFeatureAccess)
         .set({ isActive: isActive ?? true, accessLevel: accessLevel || 'full' })
-        .where(eq(companyFeatureAccess.companyId, companyId))
-        .where(eq(companyFeatureAccess.featureId, featureId))
+        .where(and(eq(companyFeatureAccess.companyId, companyId), eq(companyFeatureAccess.featureId, featureId)))
         .returning();
     } else {
       result = await db.insert(companyFeatureAccess)
@@ -56,11 +55,11 @@ export async function PUT(request: NextRequest) {
       userId: auth.data!.id,
       action: 'update_company_feature_access',
       resource: 'company_feature_access',
-      resourceId: result[0].id,
+      resourceId: result[0]?.id || '',
       metadata: { companyId, featureId, isActive },
     });
 
-    return createSuccessResponse(result[0]);
+    return createSuccessResponse(result[0] || {});
   } catch (error: any) {
     return createErrorResponse(error.message, 500);
   }

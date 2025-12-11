@@ -31,7 +31,7 @@ async function handleDelete(request: NextRequest, { params }: { params: { id: st
       action: 'delete_user',
       resource: 'users',
       resourceId: userId,
-      metadata: { email: deleted[0].email },
+      metadata: { email: deleted[0]?.email || 'unknown' },
     });
 
     return createSuccessResponse({ success: true, id: userId });

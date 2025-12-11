@@ -196,7 +196,8 @@ async function selectIntelligentPersona(
         const contactType = conversation.contactType || 'PASSIVE';
 
         if (activeLeadResult) {
-            const boardData = activeLeadResult.board as { name: string; funnelType?: string };
+            // TODO: implement board relationship loading
+            const boardData = { name: 'Funil', funnelType: 'GENERAL' } as { name: string; funnelType?: string };
             await logAutomation('INFO', `Lead encontrado no funil "${boardData.name}" (Tipo: ${boardData.funnelType || 'GENERAL'}, Estágio: ${activeLeadResult.stageId})`, logContextBase);
 
             const stagePersonaConfigs = await db.select().from(kanbanStagePersonas).where(and(

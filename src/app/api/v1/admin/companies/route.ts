@@ -68,11 +68,11 @@ export async function POST(request: NextRequest) {
       userId: auth.data!.id,
       action: 'create_company',
       resource: 'companies',
-      resourceId: newCompany[0].id,
+      resourceId: newCompany[0]?.id || '',
       metadata: data,
     });
 
-    return createSuccessResponse(newCompany[0], 201);
+    return createSuccessResponse(newCompany[0] || {}, 201);
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return createErrorResponse(JSON.stringify(error.errors), 400);
@@ -136,7 +136,7 @@ export async function DELETE(request: NextRequest) {
       action: 'delete_company',
       resource: 'companies',
       resourceId: companyId,
-      metadata: { name: deleted[0].name },
+      metadata: { name: deleted[0]?.name || 'unknown' },
     });
 
     return createSuccessResponse({ success: true, id: companyId });
