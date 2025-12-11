@@ -300,7 +300,6 @@ healthCheckPath = "/health"
 | Arquivo | Correção |
 |---------|----------|
 | `src/app/(marketing)/login/page.tsx` | Adicionado `method="post"` e `action="/api/v1/auth/login"` no form |
-| `src/app/(marketing)/login/page.tsx` | Adicionado aviso `<noscript>` para usuários sem JS |
 | `src/app/api/v1/auth/login/route.ts` | API agora aceita JSON e form-urlencoded (fallback) |
 | `src/app/api/v1/auth/login/route.ts` | Redirect 303 para /super-admin quando form submission |
 

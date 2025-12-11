@@ -232,14 +232,6 @@ function LoginPageContent() {
             <LoginError />
           </Suspense>
 
-          <noscript>
-            <div className="mb-6 p-4 border border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-              <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                JavaScript Desativado - O login básico ainda funcionará.
-              </p>
-            </div>
-          </noscript>
-
           <form onSubmit={handleLogin} method="post" action="/api/v1/auth/login" className="space-y-6">
             <div className="space-y-4">
               <div className="space-y-2">
