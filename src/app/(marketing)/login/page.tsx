@@ -144,13 +144,7 @@ function LoginPageContent() {
         toast({ title: "Login bem-sucedido!", description: "A redirecionar para o painel de controlo..." });
         
         // Redirecionar para super-admin se for superadmin, caso contrário dashboard
-        const userResponse = await fetch('/api/v1/user/profile');
-        if (userResponse.ok) {
-          const userData = await userResponse.json();
-          router.push(userData.role === 'superadmin' ? '/super-admin/dashboard' : '/dashboard');
-        } else {
-          router.push('/super-admin/dashboard');
-        }
+        router.push('/super-admin');
 
     } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Ocorreu um erro desconhecido.';
