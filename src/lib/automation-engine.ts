@@ -145,11 +145,7 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
                 break;
             case 'move_to_stage': {
                 if (!action.value) return;
-                const activeLeadResult = await db.query.kanbanLeads.findFirst({
-                    where: eq(kanbanLeads.contactId, contact.id),
-                    with: { board: true },
-                    orderBy: (kanbanLeads, { desc }) => [desc(kanbanLeads.createdAt)],
-                });
+                const activeLeadResult = await db.select().from(kanbanLeads).where(eq(kanbanLeads.contactId, contact.id)).limit(1);
                 if (activeLeadResult) {
                     const targetStageId = action.value;
                     const boardData = activeLeadResult.board as { stages?: unknown[] };
@@ -898,22 +894,17 @@ export async function processIncomingMessageTrigger(conversationId: string, mess
     
     // ✅ FIX: Controle de idempotência - verificar se já processamos esta mensagem
     // Evita respostas duplicadas quando webhook é reenviado
-    const alreadyProcessed = await db.query.automationLogs.findFirst({
-        where: and(
-            eq(automationLogs.conversationId, conversationId),
-            sql`${automationLogs.details}->>'processedMessageId' = ${messageId}`
-        )
-    });
+    const alreadyProcessed = await db.select().from(automationLogs).where(and(
+        eq(automationLogs.conversationId, conversationId),
+        sql`${automationLogs.details}->>'processedMessageId' = ${messageId}`
+    )).limit(1);
 
     if (alreadyProcessed) {
         console.log(`[Automation Engine] Mensagem ${messageId} já foi processada. Ignorando para evitar duplicação.`);
         return;
     }
     
-    const convoResult = await db.query.conversations.findFirst({
-        where: eq(conversations.id, conversationId),
-        with: { connection: true, contact: true }
-    });
+    const convoResult = await db.select().from(conversations).where(eq(conversations.id, conversationId)).limit(1);
 
     const contactData = convoResult?.contact as { id: string; name: string; phone: string } | null;
     const connectionData = convoResult?.connection as { id: string; assignedPersonaId?: string | null } | null;
