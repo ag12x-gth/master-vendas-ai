@@ -264,5 +264,28 @@ Todos os warnings de ESLint foram corrigidos para deploy limpo:
 
 ---
 
+## 🚀 **FIX DEPLOYMENT INITIALIZATION v2.4.4** (11/12/2025)
+
+**Problema identificado:** Deployment falhou na inicialização com erro "failed to initialize due to a configuration or code error"
+
+**Causa raiz:** O script `npm run start` usava `next start -p 5000` que fazia bind em localhost, mas deployments VM requerem bind em `0.0.0.0`
+
+**Correção aplicada:**
+```diff
+- "start": "next start -p 5000",
++ "start": "next start -p 5000 --hostname 0.0.0.0",
+```
+
+**Health Check:** ✅ Endpoint `/health` retorna `{"status":"healthy"}` corretamente
+
+**Configuração de Deploy:**
+```
+deploymentTarget = "vm"
+run = ["npm", "run", "start"]
+healthCheckPath = "/health"
+```
+
+---
+
 **✅ LOGIN VIA META 100% FINALIZADO E PRONTO PARA USO!**
 
