@@ -24,7 +24,22 @@ const getJwtSecretKey = () => {
 
 async function handler(request: NextRequest) {
     try {
-        const body = await request.json();
+        // Suporta JSON e form-urlencoded (fallback quando JS falha)
+        const contentType = request.headers.get('content-type') || '';
+        let body: Record<string, unknown>;
+        
+        if (contentType.includes('application/x-www-form-urlencoded')) {
+            // Form submission fallback (quando JS não carrega)
+            const formData = await request.formData();
+            body = {
+                email: formData.get('email'),
+                password: formData.get('password'),
+            };
+        } else {
+            // JSON submission (padrão)
+            body = await request.json();
+        }
+        
         const parsed = loginSchema.safeParse(body);
 
         if (!parsed.success) {
@@ -71,19 +86,9 @@ async function handler(request: NextRequest) {
         .setExpirationTime('1d') // Expira em 1 dia
         .sign(getJwtSecretKey());
 
-        const response = NextResponse.json({ 
-            success: true, 
-            message: 'Login bem-sucedido.',
-            loginTime: loginTimestamp // Retorna o timestamp para debug se necessário
-        });
-        
-        // 5. Limpar cookies existentes primeiro (para evitar conflitos)
-        response.cookies.delete('__session');
-        response.cookies.delete('session_token');
-        
-        // 6. Definir os dois cookies para máxima compatibilidade
+        // Configuração dos cookies
         const cookieOptions = {
-            name: '__session', // Nome principal para compatibilidade com Firebase Hosting
+            name: '__session',
             value: token,
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -92,8 +97,29 @@ async function handler(request: NextRequest) {
             maxAge: 60 * 60 * 24, // 1 dia em segundos
         };
 
+        // Se for form submission (fallback), redireciona com cookies
+        if (contentType.includes('application/x-www-form-urlencoded')) {
+            const redirectUrl = new URL('/super-admin', request.url);
+            const response = NextResponse.redirect(redirectUrl, { status: 303 });
+            response.cookies.delete('__session');
+            response.cookies.delete('session_token');
+            response.cookies.set(cookieOptions);
+            response.cookies.set({ ...cookieOptions, name: 'session_token' });
+            return response;
+        }
+
+        // JSON response (padrão quando JS funciona)
+        const response = NextResponse.json({ 
+            success: true, 
+            message: 'Login bem-sucedido.',
+            loginTime: loginTimestamp
+        });
+        
+        // Limpar cookies existentes primeiro
+        response.cookies.delete('__session');
+        response.cookies.delete('session_token');
+        
         response.cookies.set(cookieOptions);
-        // Fallback cookie
         response.cookies.set({ ...cookieOptions, name: 'session_token' });
 
         return response;

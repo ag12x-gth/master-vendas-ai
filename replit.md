@@ -287,5 +287,26 @@ healthCheckPath = "/health"
 
 ---
 
+## 🔒 **CORREÇÃO SEGURANÇA CRÍTICA v2.4.5** (11/12/2025)
+
+**Problema identificado:** Credenciais de login (email + senha) expostas na URL do navegador quando JavaScript falhava ou estava desabilitado.
+
+**Evidência:** URL mostrava: `masteria.app/login?email=xxx&password=yyy`
+
+**Causa raiz:** Formulário de login não tinha `method="post"` definido. Quando JS falhava (hydration lenta, JS desabilitado), o HTML usava o padrão GET, expondo dados na URL.
+
+**Correções aplicadas:**
+
+| Arquivo | Correção |
+|---------|----------|
+| `src/app/(marketing)/login/page.tsx` | Adicionado `method="post"` e `action="/api/v1/auth/login"` no form |
+| `src/app/(marketing)/login/page.tsx` | Adicionado aviso `<noscript>` para usuários sem JS |
+| `src/app/api/v1/auth/login/route.ts` | API agora aceita JSON e form-urlencoded (fallback) |
+| `src/app/api/v1/auth/login/route.ts` | Redirect 303 para /super-admin quando form submission |
+
+**Resultado:** ✅ Credenciais NUNCA mais aparecem na URL, mesmo com JS desabilitado
+
+---
+
 **✅ LOGIN VIA META 100% FINALIZADO E PRONTO PARA USO!**
 
