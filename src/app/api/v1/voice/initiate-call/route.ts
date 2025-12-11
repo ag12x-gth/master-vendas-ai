@@ -30,7 +30,7 @@ function normalizePhoneNumber(phone: string): string {
   }
   
   // Extract just the digits for processing
-  let digits = cleaned.replace(/\D/g, '');
+  const digits = cleaned.replace(/\D/g, '');
   
   // If it already starts with 55 (country code), check if it's valid
   if (digits.startsWith('55')) {

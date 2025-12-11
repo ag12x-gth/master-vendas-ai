@@ -3,7 +3,7 @@
 import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const FEATURES = [
   { id: 'CRM_BASIC', name: 'CRM Básico', description: 'Gerenciamento simples de contatos' },
@@ -20,7 +20,7 @@ const FEATURES = [
 ];
 
 export default function FeaturesPage() {
-  const [features, setFeatures] = useState(FEATURES);
+  const [features] = useState(FEATURES);
 
   return (
     <div className="space-y-6">

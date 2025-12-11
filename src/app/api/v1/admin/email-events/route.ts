@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const companyId = searchParams.get('companyId');
     const eventType = searchParams.get('eventType');
 
-    let query = db.select().from(emailEvents);
+    const query = db.select().from(emailEvents);
     
     const conditions = [];
     if (companyId) conditions.push(eq(emailEvents.companyId, companyId));

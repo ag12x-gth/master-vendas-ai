@@ -1,0 +1,82 @@
+2025-12-11T11:44:48Z info: Deployment: 883af976-bd17-4b1c-b3ba-8e932c5693f9
+2025-12-11T11:44:48Z info: Running Security Scan
+2025-12-11T11:45:15Z info: Security Scan Complete
+2025-12-11T11:45:15Z info: Connecting to builder
+2025-12-11T11:45:15Z info: Builder connected
+2025-12-11T11:45:15Z info: Installing packages
+2025-12-11T11:45:16Z info: Starting Build
+
+> nextn@2.4.2 build
+> NODE_OPTIONS='--max-old-space-size=4096' SKIP_LINT=false next build
+
+
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.com/vercel/next.js/issues
+
+  ▲ Next.js 14.2.33
+  - Environments: .env
+  - Experiments (use with caution):
+
+    · cpus
+
+   Creating an optimized production build ...
+
+ ✓ Compiled successfully
+
+   Linting and checking validity of types ...
+
+
+Failed to compile.
+
+
+./src/app/(super-admin)/super-admin/features/page.tsx
+6:10  Warning: 'useEffect' is defined but never used.  unused-imports/no-unused-imports
+23:20  Warning: 'setFeatures' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/auth/request-resend/route.ts
+83:11  Warning: 'twentyFourHoursAgo' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/internal/init-worker/route.ts
+16:9  Warning: 'referer' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/app/api/v1/admin/analytics/route.ts
+5:21  Warning: 'sql' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/v1/admin/email-events/route.ts
+18:9  Error: 'query' is never reassigned. Use 'const' instead.  prefer-const
+
+./src/app/api/v1/voice/initiate-call/route.ts
+33:7  Error: 'digits' is never reassigned. Use 'const' instead.  prefer-const
+
+./src/app/api/v1/webhooks/incoming/route.ts
+2:10  Warning: 'db' is defined but never used.  unused-imports/no-unused-imports
+
+./src/app/api/webhooks/resend/route.ts
+9:7  Warning: 'resend' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/components/contacts/contact-table.tsx
+14:131  Warning: 'PhoneCall' is defined but never used.  unused-imports/no-unused-imports
+
+./src/components/settings/incoming-webhooks-manager.tsx
+160:9  Warning: 'formatDate' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/e2e/admin-dashboard.spec.ts
+107:61  Warning: 'page' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/lib/admin-auth.ts
+5:41  Warning: 'req' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/lib/cadence-service.ts
+11:3  Warning: 'cadenceSteps' is defined but never used.  unused-imports/no-unused-imports
+443:11  Warning: 'contact' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/lib/webhooks/incoming-handler.ts
+1:10  Warning: 'db' is defined but never used.  unused-imports/no-unused-imports
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.7.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0
+npm notice To update run: npm install -g npm@11.7.0
+npm notice
+
