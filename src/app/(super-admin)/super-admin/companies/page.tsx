@@ -4,14 +4,8 @@ import { PageHeader } from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Building, Trash2, Loader2, MoreVertical, X } from 'lucide-react';
+import { Building, Eye, Trash2, Loader2, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Dialog,
   DialogContent,
@@ -92,7 +86,8 @@ export default function CompaniesPage() {
                 <TableRow>
                   <TableHead>Nome</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead className="text-center">Ações</TableHead>
+                  <TableHead className="text-center">Ver</TableHead>
+                  <TableHead className="text-center">Deletar</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -106,30 +101,28 @@ export default function CompaniesPage() {
                       <TableCell className="font-medium">{company.name}</TableCell>
                       <TableCell className="font-mono text-sm">{company.email || '—'}</TableCell>
                       <TableCell className="text-center">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem 
-                              onClick={() => {
-                                setSelectedCompany(company);
-                                setDetailsOpen(true);
-                              }}
-                            >
-                              Ver Detalhes
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className="text-red-600"
-                              onClick={() => handleDelete(company.id, company.name)}
-                              disabled={deleting === company.id}
-                            >
-                              {deleting === company.id ? 'Deletando...' : 'Deletar'}
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => {
+                            setSelectedCompany(company);
+                            setDetailsOpen(true);
+                          }}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 w-8 p-0 text-red-600 hover:text-red-800"
+                          onClick={() => handleDelete(company.id, company.name)}
+                          disabled={deleting === company.id}
+                        >
+                          {deleting === company.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))
