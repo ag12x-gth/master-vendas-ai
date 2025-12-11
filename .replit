@@ -73,7 +73,7 @@ NEXT_PUBLIC_APP_URL = "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87d
 NEXT_PUBLIC_CUSTOM_DOMAIN = "masteria.app"
 
 [userenv.production]
-NEXTAUTH_URL = "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev"
+NEXTAUTH_URL = "https://masteria.app"
 NODE_ENV = "production"
 
 [userenv.development]
