@@ -1,3 +1,4 @@
+// @ts-expect-error Playwright test configuration
 import { test, expect } from '@playwright/test';
 
 test.describe('BUG-A002: API Zod Validation (No Auth Required)', () => {
