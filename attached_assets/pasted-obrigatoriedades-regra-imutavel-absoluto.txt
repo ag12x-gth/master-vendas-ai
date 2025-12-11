@@ -1,8 +1,9 @@
 OBRIGATORIO:
-- NUNCA ALTERAR, EXCLUIR, APAGAR, CORRIGIR O CONTEÚDO TOTAL DESSE ARQUIVO.
-- A UNICA AÇÃO PERMITIDA É ADIÇÃO DE PROMPTS e protocolos com base no arquivo docs/validations/pasted-obrigatorio-to-agents.md
+#- EXECUTAR ESSE CONTEÚDO/OBRIGAÇÕES/REGRAS/PROTOCOLOS/ETC. 
+#- NUNCA ALTERAR, EXCLUIR, APAGAR, CORRIGIR O CONTEÚDO TOTAL DESSE ARQUIVO.
+#- A UNICA AÇÃO PERMITIDA É ADIÇÃO DE PROMPTS/protocolos abaixo do ultimo conteúdo/protocolos adicionados, e sempre seguir o arquivo em docs/validations/pasted-obrigatorio-to-agents.md
 
-### ##Observações a seguir: 
+### ## Observações a seguir: 
 Continue com precisão sem retrabalho traga evidências reais do funcionamento verdadeiro;
 nunca passe para próxima etapa/fase sem validar com sucesso a anterior
 

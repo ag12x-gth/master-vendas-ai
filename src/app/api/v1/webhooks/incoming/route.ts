@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db, conn } from '@/lib/db';
+import { conn } from '@/lib/db';
 import { getCompanyIdFromSession } from '@/app/actions';
 import { generateWebhookSecret, maskSecret } from '@/lib/webhooks/incoming-handler';
 import { z } from 'zod';

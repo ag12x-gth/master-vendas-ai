@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { requireSuperAdmin, createErrorResponse, createSuccessResponse } from '@/lib/admin-auth';
 import { db } from '@/lib/db';
 import { users, companies, emailEvents, adminAuditLogs, companyFeatureAccess, features } from '@/lib/db/schema';
-import { count, eq, sql, gte } from 'drizzle-orm';
+import { count, eq, gte } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   const auth = await requireSuperAdmin(request);

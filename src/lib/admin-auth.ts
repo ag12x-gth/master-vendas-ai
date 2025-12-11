@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authConfig } from '@/lib/auth.config';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function requireSuperAdmin(req?: NextRequest) {
+export async function requireSuperAdmin(_req?: NextRequest) {
   const session = await getServerSession(authConfig);
   
   if (!session || !session.user) {

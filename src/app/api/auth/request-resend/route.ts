@@ -80,7 +80,6 @@ export async function POST(request: NextRequest) {
 
     const now = new Date();
     const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
-    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
     if (lastToken?.lastResendAt && lastToken.lastResendAt > fiveMinutesAgo) {
       console.log(`[REQUEST_RESEND:${requestId}] Rate limit: reenvio muito frequente`);

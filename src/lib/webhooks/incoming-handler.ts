@@ -1,4 +1,4 @@
-import { db, conn } from '@/lib/db';
+import { conn } from '@/lib/db';
 import crypto from 'crypto';
 import { IncomingWebhookPayload, IncomingEventType } from '@/types/incoming-webhook';
 import { z } from 'zod';

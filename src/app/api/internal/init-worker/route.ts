@@ -13,7 +13,7 @@ let workerInitialized = false;
 export async function GET(request: NextRequest) {
   // Verify this is an internal request (same origin, no auth required for internal calls)
   const host = request.headers.get('host');
-  const referer = request.headers.get('referer');
+  const _referer = request.headers.get('referer');
 
   // Allow both localhost and Replit domain
   const isInternal = host?.includes('localhost') || host?.includes('replit.dev');

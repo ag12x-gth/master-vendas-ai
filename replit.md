@@ -239,5 +239,30 @@ Authorization: Bearer {facebookAccessToken}
 
 ---
 
+## 🔧 **CORREÇÕES ESLINT v2.4.3** (11/12/2025)
+
+Todos os warnings de ESLint foram corrigidos para deploy limpo:
+
+| Arquivo | Correção |
+|---------|----------|
+| `src/app/api/v1/admin/email-events/route.ts` | `let query` → `const query` |
+| `src/app/api/v1/voice/initiate-call/route.ts` | `let digits` → `const digits` |
+| `src/app/(super-admin)/super-admin/features/page.tsx` | Removido `useEffect` e `setFeatures` não utilizados |
+| `src/app/api/auth/request-resend/route.ts` | Removido `twentyFourHoursAgo` não utilizado |
+| `src/app/api/internal/init-worker/route.ts` | Prefixado `referer` → `_referer` |
+| `src/app/api/v1/admin/analytics/route.ts` | Removido `sql` do import |
+| `src/app/api/v1/webhooks/incoming/route.ts` | Removido `db` do import (usa `conn`) |
+| `src/app/api/webhooks/resend/route.ts` | Removido import `Resend` não utilizado |
+| `src/components/contacts/contact-table.tsx` | Removido `PhoneCall` do import |
+| `src/components/settings/incoming-webhooks-manager.tsx` | Prefixado `formatDate` → `_formatDate` |
+| `src/e2e/admin-dashboard.spec.ts` | Removido `page` não utilizado |
+| `src/lib/admin-auth.ts` | Prefixado `req` → `_req` |
+| `src/lib/cadence-service.ts` | Removido `cadenceSteps` + prefixado `contact` → `_contact` |
+| `src/lib/webhooks/incoming-handler.ts` | Removido `db` do import (usa `conn`) |
+
+**Resultado:** ✅ Build passa sem erros de ESLint
+
+---
+
 **✅ LOGIN VIA META 100% FINALIZADO E PRONTO PARA USO!**
 

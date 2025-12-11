@@ -8,7 +8,6 @@ import {
   kanbanLeads,
   connections,
   templates,
-  cadenceSteps,
 } from '@/lib/db/schema';
 import { eq, and, lt, lte, isNull, sql, inArray } from 'drizzle-orm';
 import { subDays, addDays } from 'date-fns';
@@ -440,7 +439,7 @@ export class CadenceService {
     const cadence = enrollment.cadence;
     const steps = cadence.steps;
     const currentStepIndex = enrollment.currentStep;
-    const contact = enrollment.contact;
+    const _contact = enrollment.contact;
 
     if (currentStepIndex >= steps.length) {
       // Cadência completa

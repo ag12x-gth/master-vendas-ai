@@ -3,10 +3,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { emailEvents } from '@/lib/db/schema';
-import { Resend } from 'resend';
 import { randomUUID } from 'crypto';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Tipos de eventos esperados do Resend
 type ResendWebhookPayload = {

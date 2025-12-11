@@ -157,7 +157,7 @@ export function IncomingWebhooksManager() {
     return sources.find(s => s.value === source)?.label || source;
   };
 
-  const formatDate = (dateString: string) => {
+  const _formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
 

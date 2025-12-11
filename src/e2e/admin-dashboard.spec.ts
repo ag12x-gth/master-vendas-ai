@@ -104,7 +104,7 @@ test.describe('Admin Dashboard E2E Tests', () => {
     expect(response.status()).toBe(401);
   });
 
-  test('FASE 4: Security - 403 if not superadmin', async ({ page, request }) => {
+  test('FASE 4: Security - 403 if not superadmin', async ({ request }) => {
     // Login with non-superadmin user
     // For now, test that endpoint exists and validates
     const response = await request.get(`${BASE_URL}/api/v1/admin/users`);
