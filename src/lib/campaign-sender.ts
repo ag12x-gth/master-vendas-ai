@@ -593,12 +593,44 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
         
         // Suporte a delay aleatório individual para Baileys via variableMappings
         const variableMappings = campaign.variableMappings as Record<string, any> || {};
-        const minDelaySeconds = variableMappings._minDelaySeconds as number | undefined;
-        const maxDelaySeconds = variableMappings._maxDelaySeconds as number | undefined;
-        const useRandomDelay = isBaileys && minDelaySeconds !== undefined && maxDelaySeconds !== undefined;
         
-        if (useRandomDelay) {
-            console.log(`[Campanha WhatsApp ${campaign.id}] Modo Baileys com delay aleatório: ${minDelaySeconds}-${maxDelaySeconds}s entre mensagens`);
+        // DELAY OBRIGATÓRIO PARA BAILEYS - Proteção anti-bloqueio WhatsApp
+        // Se não configurado, usa delay padrão de 3-8 segundos entre mensagens
+        const DEFAULT_BAILEYS_MIN_DELAY = 3;
+        const DEFAULT_BAILEYS_MAX_DELAY = 8;
+        
+        const configuredMinDelay = variableMappings._minDelaySeconds as number | undefined;
+        const configuredMaxDelay = variableMappings._maxDelaySeconds as number | undefined;
+        
+        // Para Baileys, SEMPRE usar delay (obrigatório para evitar bloqueio)
+        // Validação de segurança: garantir que delays configurados são seguros
+        let minDelaySeconds: number | undefined;
+        let maxDelaySeconds: number | undefined;
+        
+        if (isBaileys) {
+            // Usar valores configurados ou defaults, mas GARANTIR mínimo de segurança
+            const rawMin = configuredMinDelay !== undefined ? configuredMinDelay : DEFAULT_BAILEYS_MIN_DELAY;
+            const rawMax = configuredMaxDelay !== undefined ? configuredMaxDelay : DEFAULT_BAILEYS_MAX_DELAY;
+            
+            // Validação: min deve ser >= 3s para segurança, max deve ser >= min
+            minDelaySeconds = Math.max(rawMin, DEFAULT_BAILEYS_MIN_DELAY);
+            maxDelaySeconds = Math.max(rawMax, minDelaySeconds);
+            
+            if (rawMin !== minDelaySeconds || rawMax !== maxDelaySeconds) {
+                console.log(`[Campanha WhatsApp ${campaign.id}] ⚠️ Delays ajustados para segurança: ${rawMin}-${rawMax}s → ${minDelaySeconds}-${maxDelaySeconds}s`);
+            }
+        } else {
+            minDelaySeconds = configuredMinDelay;
+            maxDelaySeconds = configuredMaxDelay;
+        }
+        
+        // Baileys SEMPRE usa delay (obrigatório), Meta API pode usar paralelo
+        const useRandomDelay = isBaileys || (minDelaySeconds !== undefined && maxDelaySeconds !== undefined);
+        
+        if (isBaileys) {
+            console.log(`[Campanha WhatsApp ${campaign.id}] ⚠️ DELAY OBRIGATÓRIO BAILEYS ATIVO: ${minDelaySeconds}-${maxDelaySeconds}s entre mensagens (proteção anti-bloqueio)`);
+        } else if (useRandomDelay) {
+            console.log(`[Campanha WhatsApp ${campaign.id}] Modo com delay aleatório: ${minDelaySeconds}-${maxDelaySeconds}s entre mensagens`);
         }
 
         const contactBatches = chunkArray(campaignContacts, batchSize);

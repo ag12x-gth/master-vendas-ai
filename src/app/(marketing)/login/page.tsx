@@ -1,7 +1,7 @@
-
 // src/app/(marketing)/login/page.tsx
 'use client';
 
+import dynamic from 'next/dynamic';
 import { Suspense, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -102,16 +102,19 @@ function LoginPageContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isFacebookLoading, setIsFacebookLoading] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const [availableProviders, setAvailableProviders] = useState<{ google: boolean; facebook: boolean }>({
     google: false,
     facebook: false,
   });
   
-  const plugin = useRef(
-    Autoplay({ delay: 7000, stopOnInteraction: false, stopOnMouseEnter: true })
-  )
+  const plugin = useRef<ReturnType<typeof Autoplay> | null>(null);
 
   useEffect(() => {
+    setIsMounted(true);
+    if (!plugin.current) {
+      plugin.current = Autoplay({ delay: 7000, stopOnInteraction: false, stopOnMouseEnter: true });
+    }
     fetch('/api/auth/providers-status')
       .then(res => res.json())
       .then(data => setAvailableProviders(data))
@@ -188,7 +191,7 @@ function LoginPageContent() {
 
   return (
     <>
-    <div className="w-full min-h-screen grid grid-cols-1 lg:grid-cols-2">
+    <div className="w-full min-h-screen grid grid-cols-1 lg:grid-cols-2" suppressHydrationWarning>
       <div className="hidden lg:flex flex-col items-center justify-center bg-muted/40 p-10 text-center space-y-6">
         <div className="flex items-center gap-4 text-primary">
           <BotMessageSquare className="h-12 w-12" />
@@ -199,7 +202,7 @@ function LoginPageContent() {
                 loop: true,
                 align: "start",
             }}
-            plugins={[plugin.current]}
+            plugins={plugin.current ? [plugin.current] : []}
             className="w-full max-w-lg"
         >
           <CarouselContent>
@@ -228,9 +231,11 @@ function LoginPageContent() {
             </p>
           </div>
 
-          <Suspense fallback={null}>
-            <LoginError />
-          </Suspense>
+          {isMounted && (
+            <Suspense fallback={null}>
+              <LoginError />
+            </Suspense>
+          )}
 
           <form onSubmit={handleLogin} method="post" action="/api/v1/auth/login" className="space-y-6">
             <div className="space-y-4">
@@ -265,7 +270,7 @@ function LoginPageContent() {
             </Button>
           </form>
 
-          {(availableProviders.google || availableProviders.facebook) && (
+          {isMounted && (availableProviders.google || availableProviders.facebook) && (
             <>
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -329,10 +334,18 @@ function LoginPageContent() {
   );
 }
 
+const DynamicLoginPageContent = dynamic(() => Promise.resolve(LoginPageContent), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+        <p className="mt-2 text-muted-foreground">Carregando...</p>
+      </div>
+    </div>
+  ),
+});
+
 export default function LoginPage() {
-    return (
-        <Suspense fallback={<div>Carregando...</div>}>
-            <LoginPageContent />
-        </Suspense>
-    )
+    return <DynamicLoginPageContent />;
 }

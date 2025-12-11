@@ -307,5 +307,48 @@ healthCheckPath = "/health"
 
 ---
 
+## 🔧 **CORREÇÃO CAMPANHA BAILEYS + HYDRATION v2.4.6** (11/12/2025)
+
+### **Proteção Anti-Bloqueio WhatsApp (Baileys)**
+
+**Problema identificado:** Campanha 2026 enviou 100 mensagens em paralelo sem delay, causando detecção de spam e bloqueio do número.
+
+**Correções aplicadas em `src/lib/campaign-sender.ts`:**
+
+| Mudança | Descrição |
+|---------|-----------|
+| **Delay obrigatório** | Baileys agora SEMPRE usa delay de 3-8s entre mensagens |
+| **Processamento sequencial** | Mensagens enviadas uma a uma (não mais em paralelo) |
+| **Validação de segurança** | Delays personalizados são validados (min >= 3s, max >= min) |
+| **Logs informativos** | Sistema loga quando delays são ajustados automaticamente |
+
+**Configuração padrão:**
+```typescript
+DEFAULT_BAILEYS_MIN_DELAY = 3  // segundos
+DEFAULT_BAILEYS_MAX_DELAY = 8  // segundos
+```
+
+### **Correção Hydration Error na Página de Login**
+
+**Problema:** Erro "Hydration failed because the initial UI does not match what was rendered on the server" no console.
+
+**Causa:** Componentes client-side (Carousel, Suspense, OAuth buttons) geravam HTML diferente entre servidor e cliente.
+
+**Solução aplicada:**
+- Página de login agora usa `dynamic import` com `ssr: false`
+- Componente renderiza apenas no cliente, evitando problemas de hydration
+- Loading state com spinner enquanto carrega
+
+```typescript
+const DynamicLoginPageContent = dynamic(() => Promise.resolve(LoginPageContent), {
+  ssr: false,
+  loading: () => <LoadingSpinner />,
+});
+```
+
+**Resultado:** ✅ Console limpo, sem erros de hydration
+
+---
+
 **✅ LOGIN VIA META 100% FINALIZADO E PRONTO PARA USO!**
 
