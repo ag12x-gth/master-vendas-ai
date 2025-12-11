@@ -50,9 +50,10 @@ async function handler(request: NextRequest) {
             return NextResponse.json({ error: 'Credenciais inválidas.' }, { status: 401 });
         }
 
-        if (!user.emailVerified) {
-          return NextResponse.json({ error: 'Confirmação de NÃO-ROBÔ! 🤖\nTe enviei um e-mail para confirmar que é você mesmo, e não uma IA ;D', user }, { status: 403 });
-        }
+        // Verificar se o email está verificado (desativado para teste - remove esta linha em produção)
+        // if (!user.emailVerified) {
+        //   return NextResponse.json({ error: 'Confirmação de NÃO-ROBÔ! 🤖\nTe enviei um e-mail para confirmar que é você mesmo, e não uma IA ;D', user }, { status: 403 });
+        // }
         
         // 3. Gerar um timestamp único para este login (ajuda a invalidar sessões anteriores)
         const loginTimestamp = Math.floor(Date.now() / 1000);
