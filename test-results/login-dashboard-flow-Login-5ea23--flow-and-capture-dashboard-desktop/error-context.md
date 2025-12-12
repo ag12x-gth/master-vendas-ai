@@ -1,0 +1,353 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - link "Master IA" [ref=e5] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e6] [cursor=pointer]
+        - generic [ref=e9] [cursor=pointer]: Master IA
+      - navigation [ref=e10]:
+        - link "Dashboard" [ref=e11] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e12] [cursor=pointer]
+          - generic [ref=e17] [cursor=pointer]: Dashboard
+        - link "Primeiros Passos" [ref=e18] [cursor=pointer]:
+          - /url: /ajuda
+          - img [ref=e19] [cursor=pointer]
+          - generic [ref=e26] [cursor=pointer]: Primeiros Passos
+        - link "Atendimentos" [ref=e27] [cursor=pointer]:
+          - /url: /atendimentos
+          - img [ref=e28] [cursor=pointer]
+          - generic [ref=e31] [cursor=pointer]: Atendimentos
+        - generic [ref=e33] [cursor=pointer]:
+          - generic [ref=e34] [cursor=pointer]:
+            - img [ref=e35] [cursor=pointer]
+            - generic [ref=e40] [cursor=pointer]: Leads & CRM
+          - img [ref=e41] [cursor=pointer]
+        - generic [ref=e44] [cursor=pointer]:
+          - generic [ref=e45] [cursor=pointer]:
+            - img [ref=e46] [cursor=pointer]
+            - generic [ref=e49] [cursor=pointer]: Campanhas
+          - img [ref=e50] [cursor=pointer]
+        - generic [ref=e53] [cursor=pointer]:
+          - generic [ref=e54] [cursor=pointer]:
+            - img [ref=e55] [cursor=pointer]
+            - generic [ref=e59] [cursor=pointer]: Automação
+          - img [ref=e60] [cursor=pointer]
+        - generic [ref=e63] [cursor=pointer]:
+          - generic [ref=e64] [cursor=pointer]:
+            - img [ref=e65] [cursor=pointer]
+            - generic [ref=e67] [cursor=pointer]: Canais
+          - img [ref=e68] [cursor=pointer]
+        - link "Galeria" [ref=e70] [cursor=pointer]:
+          - /url: /gallery
+          - img [ref=e71] [cursor=pointer]
+          - generic [ref=e73] [cursor=pointer]: Galeria
+      - navigation [ref=e74]:
+        - link "Configurações" [ref=e75] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e76] [cursor=pointer]
+          - generic [ref=e79] [cursor=pointer]: Configurações
+        - link "Super Admin" [ref=e80] [cursor=pointer]:
+          - /url: /super-admin
+          - img [ref=e81] [cursor=pointer]
+          - generic [ref=e83] [cursor=pointer]: Super Admin
+        - button "Recolher" [ref=e85] [cursor=pointer]:
+          - img [ref=e86] [cursor=pointer]
+          - generic [ref=e88] [cursor=pointer]: Recolher
+    - generic [ref=e89]:
+      - banner [ref=e90]:
+        - generic [ref=e91]:
+          - button "5/5" [ref=e92] [cursor=pointer]:
+            - img [ref=e93] [cursor=pointer]
+            - generic [ref=e96] [cursor=pointer]: 5/5
+          - generic [ref=e98]:
+            - img [ref=e99]
+            - generic [ref=e101]: v2.4.2
+          - button "207 Notificações" [ref=e102] [cursor=pointer]:
+            - img [ref=e103] [cursor=pointer]
+            - generic [ref=e106] [cursor=pointer]: "207"
+            - generic [ref=e107] [cursor=pointer]: Notificações
+          - button "DI" [ref=e108] [cursor=pointer]:
+            - generic [ref=e110] [cursor=pointer]: DI
+      - main [ref=e111]:
+        - alert [ref=e113]:
+          - generic [ref=e114]:
+            - generic [ref=e115]:
+              - img [ref=e116]
+              - generic [ref=e118]:
+                - strong [ref=e119]: Vincule sua conta Facebook
+                - generic [ref=e120]: para acessar recursos adicionais e sincronizar dados.
+            - generic [ref=e121]:
+              - button "Conectar" [ref=e122] [cursor=pointer]:
+                - img [ref=e123] [cursor=pointer]
+                - text: Conectar
+              - button "Fechar" [ref=e125] [cursor=pointer]:
+                - img [ref=e126] [cursor=pointer]
+                - generic [ref=e129] [cursor=pointer]: Fechar
+        - generic [ref=e131]:
+          - generic [ref=e133]:
+            - heading "Painel Super Admin" [level=1] [ref=e134]
+            - paragraph [ref=e135]: Visão geral de todas as empresas e atividades na plataforma.
+          - generic [ref=e136]:
+            - generic [ref=e137]:
+              - generic [ref=e138]:
+                - heading "Total de Empresas" [level=3] [ref=e139]
+                - img [ref=e140]
+              - generic [ref=e144]: "45"
+            - generic [ref=e145]:
+              - generic [ref=e146]:
+                - heading "Total de Utilizadores" [level=3] [ref=e147]
+                - img [ref=e148]
+              - generic [ref=e154]: "30"
+            - generic [ref=e155]:
+              - generic [ref=e156]:
+                - heading "Total de Contatos" [level=3] [ref=e157]
+                - img [ref=e158]
+              - generic [ref=e161]: "67687"
+            - generic [ref=e162]:
+              - generic [ref=e163]:
+                - heading "Total de Campanhas" [level=3] [ref=e164]
+                - img [ref=e165]
+              - generic [ref=e169]: "264"
+          - generic [ref=e170]:
+            - heading "Estatísticas por Empresa" [level=3] [ref=e172]
+            - table [ref=e176]:
+              - rowgroup [ref=e177]:
+                - row "Empresa Utilizadores Contatos Campanhas" [ref=e178]:
+                  - cell "Empresa" [ref=e179]
+                  - cell "Utilizadores" [ref=e180]
+                  - cell "Contatos" [ref=e181]
+                  - cell "Campanhas" [ref=e182]
+              - rowgroup [ref=e183]:
+                - row "João Silva's Company 2 20 3" [ref=e184]:
+                  - cell "João Silva's Company" [ref=e185]
+                  - cell "2" [ref=e186]
+                  - cell "20" [ref=e187]
+                  - cell "3" [ref=e188]
+                - row "E2E Test Company 0 7 2" [ref=e189]:
+                  - cell "E2E Test Company" [ref=e190]
+                  - cell "0" [ref=e191]
+                  - cell "7" [ref=e192]
+                  - cell "2" [ref=e193]
+                - row "Test's Company 0 0 0" [ref=e194]:
+                  - cell "Test's Company" [ref=e195]
+                  - cell "0" [ref=e196]
+                  - cell "0" [ref=e197]
+                  - cell "0" [ref=e198]
+                - row "Contato diego's Company 1 0 0" [ref=e199]:
+                  - cell "Contato diego's Company" [ref=e200]
+                  - cell "1" [ref=e201]
+                  - cell "0" [ref=e202]
+                  - cell "0" [ref=e203]
+                - row "admin's Company 0 0 0" [ref=e204]:
+                  - cell "admin's Company" [ref=e205]
+                  - cell "0" [ref=e206]
+                  - cell "0" [ref=e207]
+                  - cell "0" [ref=e208]
+                - row "Test Company 0 0 0" [ref=e209]:
+                  - cell "Test Company" [ref=e210]
+                  - cell "0" [ref=e211]
+                  - cell "0" [ref=e212]
+                  - cell "0" [ref=e213]
+                - row "WAHA Test's Company 0 0 0" [ref=e214]:
+                  - cell "WAHA Test's Company" [ref=e215]
+                  - cell "0" [ref=e216]
+                  - cell "0" [ref=e217]
+                  - cell "0" [ref=e218]
+                - row "Test Company Meta 0 0 0" [ref=e219]:
+                  - cell "Test Company Meta" [ref=e220]
+                  - cell "0" [ref=e221]
+                  - cell "0" [ref=e222]
+                  - cell "0" [ref=e223]
+                - row "Teste Admin's Company 0 0 0" [ref=e224]:
+                  - cell "Teste Admin's Company" [ref=e225]
+                  - cell "0" [ref=e226]
+                  - cell "0" [ref=e227]
+                  - cell "0" [ref=e228]
+                - row "Test User's Company 0 0 0" [ref=e229]:
+                  - cell "Test User's Company" [ref=e230]
+                  - cell "0" [ref=e231]
+                  - cell "0" [ref=e232]
+                  - cell "0" [ref=e233]
+                - row "Teste Automatizado's Company 0 0 0" [ref=e234]:
+                  - cell "Teste Automatizado's Company" [ref=e235]
+                  - cell "0" [ref=e236]
+                  - cell "0" [ref=e237]
+                  - cell "0" [ref=e238]
+                - row "User Test's Company 0 0 0" [ref=e239]:
+                  - cell "User Test's Company" [ref=e240]
+                  - cell "0" [ref=e241]
+                  - cell "0" [ref=e242]
+                  - cell "0" [ref=e243]
+                - row "Teste Automático's Company 0 0 0" [ref=e244]:
+                  - cell "Teste Automático's Company" [ref=e245]
+                  - cell "0" [ref=e246]
+                  - cell "0" [ref=e247]
+                  - cell "0" [ref=e248]
+                - row "Fabiana Consoni's Company 1 0 0" [ref=e249]:
+                  - cell "Fabiana Consoni's Company" [ref=e250]
+                  - cell "1" [ref=e251]
+                  - cell "0" [ref=e252]
+                  - cell "0" [ref=e253]
+                - row "alipio baptista xavier de oliveira's Company 1 0 0" [ref=e254]:
+                  - cell "alipio baptista xavier de oliveira's Company" [ref=e255]
+                  - cell "1" [ref=e256]
+                  - cell "0" [ref=e257]
+                  - cell "0" [ref=e258]
+                - row "@diegoabneroficial Infosaas's Company 0 0 0" [ref=e259]:
+                  - cell "@diegoabneroficial Infosaas's Company" [ref=e260]
+                  - cell "0" [ref=e261]
+                  - cell "0" [ref=e262]
+                  - cell "0" [ref=e263]
+                - row "Teste Verificacao's Company 0 0 0" [ref=e264]:
+                  - cell "Teste Verificacao's Company" [ref=e265]
+                  - cell "0" [ref=e266]
+                  - cell "0" [ref=e267]
+                  - cell "0" [ref=e268]
+                - row "Empresa Teste 0 0 0" [ref=e269]:
+                  - cell "Empresa Teste" [ref=e270]
+                  - cell "0" [ref=e271]
+                  - cell "0" [ref=e272]
+                  - cell "0" [ref=e273]
+                - row "Diego A's Company 1 0 0" [ref=e274]:
+                  - cell "Diego A's Company" [ref=e275]
+                  - cell "1" [ref=e276]
+                  - cell "0" [ref=e277]
+                  - cell "0" [ref=e278]
+                - row "Jocelma Ferreira de Faria 's Company 1 0 0" [ref=e279]:
+                  - cell "Jocelma Ferreira de Faria 's Company" [ref=e280]
+                  - cell "1" [ref=e281]
+                  - cell "0" [ref=e282]
+                  - cell "0" [ref=e283]
+                - row "gsdgs's Company 1 0 0" [ref=e284]:
+                  - cell "gsdgs's Company" [ref=e285]
+                  - cell "1" [ref=e286]
+                  - cell "0" [ref=e287]
+                  - cell "0" [ref=e288]
+                - row "Marissol Camargo de Góes Margheri 's Company 1 0 0" [ref=e289]:
+                  - cell "Marissol Camargo de Góes Margheri 's Company" [ref=e290]
+                  - cell "1" [ref=e291]
+                  - cell "0" [ref=e292]
+                  - cell "0" [ref=e293]
+                - row "admin OK's Company 1 0 0" [ref=e294]:
+                  - cell "admin OK's Company" [ref=e295]
+                  - cell "1" [ref=e296]
+                  - cell "0" [ref=e297]
+                  - cell "0" [ref=e298]
+                - row "Test User Verify's Company 0 0 0" [ref=e299]:
+                  - cell "Test User Verify's Company" [ref=e300]
+                  - cell "0" [ref=e301]
+                  - cell "0" [ref=e302]
+                  - cell "0" [ref=e303]
+                - row "Interface Test User's Company 0 0 0" [ref=e304]:
+                  - cell "Interface Test User's Company" [ref=e305]
+                  - cell "0" [ref=e306]
+                  - cell "0" [ref=e307]
+                  - cell "0" [ref=e308]
+                - row "Diego's Company 4 61371 148" [ref=e309]:
+                  - cell "Diego's Company" [ref=e310]
+                  - cell "4" [ref=e311]
+                  - cell "61371" [ref=e312]
+                  - cell "148" [ref=e313]
+                - row "Usuário Teste Forense's Company 0 0 0" [ref=e314]:
+                  - cell "Usuário Teste Forense's Company" [ref=e315]
+                  - cell "0" [ref=e316]
+                  - cell "0" [ref=e317]
+                  - cell "0" [ref=e318]
+                - row "Test Company E2E 0 0 0" [ref=e319]:
+                  - cell "Test Company E2E" [ref=e320]
+                  - cell "0" [ref=e321]
+                  - cell "0" [ref=e322]
+                  - cell "0" [ref=e323]
+                - row "ANTONIO PRIETO NETO's Company 1 925 2" [ref=e324]:
+                  - cell "ANTONIO PRIETO NETO's Company" [ref=e325]
+                  - cell "1" [ref=e326]
+                  - cell "925" [ref=e327]
+                  - cell "2" [ref=e328]
+                - row "Gabriel Pantoni Rosa's Company 1 4 0" [ref=e329]:
+                  - cell "Gabriel Pantoni Rosa's Company" [ref=e330]
+                  - cell "1" [ref=e331]
+                  - cell "4" [ref=e332]
+                  - cell "0" [ref=e333]
+                - row "Gilberto Bogado's Company 1 0 0" [ref=e334]:
+                  - cell "Gilberto Bogado's Company" [ref=e335]
+                  - cell "1" [ref=e336]
+                  - cell "0" [ref=e337]
+                  - cell "0" [ref=e338]
+                - row "Final Test's Company 0 0 0" [ref=e339]:
+                  - cell "Final Test's Company" [ref=e340]
+                  - cell "0" [ref=e341]
+                  - cell "0" [ref=e342]
+                  - cell "0" [ref=e343]
+                - row "Debug Email Test's Company 0 0 0" [ref=e344]:
+                  - cell "Debug Email Test's Company" [ref=e345]
+                  - cell "0" [ref=e346]
+                  - cell "0" [ref=e347]
+                  - cell "0" [ref=e348]
+                - row "Email Check's Company 1 0 0" [ref=e349]:
+                  - cell "Email Check's Company" [ref=e350]
+                  - cell "1" [ref=e351]
+                  - cell "0" [ref=e352]
+                  - cell "0" [ref=e353]
+                - row "Final Email Test's Company 0 0 0" [ref=e354]:
+                  - cell "Final Email Test's Company" [ref=e355]
+                  - cell "0" [ref=e356]
+                  - cell "0" [ref=e357]
+                  - cell "0" [ref=e358]
+                - row "Replit Mail Test's Company 0 0 0" [ref=e359]:
+                  - cell "Replit Mail Test's Company" [ref=e360]
+                  - cell "0" [ref=e361]
+                  - cell "0" [ref=e362]
+                  - cell "0" [ref=e363]
+                - row "Final Replit Test's Company 0 0 0" [ref=e364]:
+                  - cell "Final Replit Test's Company" [ref=e365]
+                  - cell "0" [ref=e366]
+                  - cell "0" [ref=e367]
+                  - cell "0" [ref=e368]
+                - row "Teste Encaminhamento's Company 0 0 0" [ref=e369]:
+                  - cell "Teste Encaminhamento's Company" [ref=e370]
+                  - cell "0" [ref=e371]
+                  - cell "0" [ref=e372]
+                  - cell "0" [ref=e373]
+                - row "Novo Usuario's Company 0 0 0" [ref=e374]:
+                  - cell "Novo Usuario's Company" [ref=e375]
+                  - cell "0" [ref=e376]
+                  - cell "0" [ref=e377]
+                  - cell "0" [ref=e378]
+                - row "Usuário Final's Company 0 0 0" [ref=e379]:
+                  - cell "Usuário Final's Company" [ref=e380]
+                  - cell "0" [ref=e381]
+                  - cell "0" [ref=e382]
+                  - cell "0" [ref=e383]
+                - row "Teste Correto's Company 0 0 0" [ref=e384]:
+                  - cell "Teste Correto's Company" [ref=e385]
+                  - cell "0" [ref=e386]
+                  - cell "0" [ref=e387]
+                  - cell "0" [ref=e388]
+                - row "Usuário Teste's Company 0 0 0" [ref=e389]:
+                  - cell "Usuário Teste's Company" [ref=e390]
+                  - cell "0" [ref=e391]
+                  - cell "0" [ref=e392]
+                  - cell "0" [ref=e393]
+                - row "Sucesso Final's Company 0 0 0" [ref=e394]:
+                  - cell "Sucesso Final's Company" [ref=e395]
+                  - cell "0" [ref=e396]
+                  - cell "0" [ref=e397]
+                  - cell "0" [ref=e398]
+                - row "Masteria Verificado's Company 0 0 0" [ref=e399]:
+                  - cell "Masteria Verificado's Company" [ref=e400]
+                  - cell "0" [ref=e401]
+                  - cell "0" [ref=e402]
+                  - cell "0" [ref=e403]
+                - row "Validação Template's Company 0 0 0" [ref=e404]:
+                  - cell "Validação Template's Company" [ref=e405]
+                  - cell "0" [ref=e406]
+                  - cell "0" [ref=e407]
+                  - cell "0" [ref=e408]
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e409]
+```
