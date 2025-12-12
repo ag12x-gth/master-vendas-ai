@@ -449,3 +449,50 @@ CONFIRME ATIVAÇÃO: "PROTOCOLO DE MONITORAMENTO CONTÍNUO ATIVADO. MODO: [FAST/
 ---
 
 **Este prompt transforma o Agent3 em um sistema auto-evolutivo que aprende e melhora continuamente, mantendo contexto perfeito mesmo em FAST MODE e criando playbooks otimizados em BUILD MODE.**
+═══════════════════════════════════════════════════════════════════════════════
+PROTOCOLO_NOVO_01: SCREENSHOT DO DASHBOARD - ADICIONAR AOS PROTOCOLOS DE AGENTES
+═══════════════════════════════════════════════════════════════════════════════
+
+🎯 MISSÃO: Toda vez que um agente/subagente/tool precisar fazer testes ou diagnóstico
+de funcionalidades autenticadas, USAR este protocolo para capturar evidência visual.
+
+📋 REFERÊNCIA RÁPIDA:
+
+1. PRÉ-REQUISITOS:
+   - Servidor rodando: http://localhost:5000 ✓
+   - Credenciais: diegomaninhu@gmail.com / MasterIA2025! ✓
+   - Playwright instalado: npm list @playwright/test ✓
+   - Dir existe: mkdir -p tests/e2e/screenshots ✓
+
+2. FLUXO (7 etapas):
+   [ETAPA 1] → Inicializar teste Playwright
+   [ETAPA 2] → Criar diretório screenshots
+   [ETAPA 3] → Acessar /login (validar URL)
+   [ETAPA 4] → Preencher credenciais + submit
+   [ETAPA 5] → Esperar redirecionamento /dashboard (30s timeout)
+   [ETAPA 6] → Executar page.screenshot({ fullPage: true })
+   [ETAPA 7] → Validar arquivo PNG > 50KB
+
+3. VALIDAÇÕES:
+   ✓ URL contém "/dashboard" (não "/login")
+   ✓ Cookie __session foi criado
+   ✓ Arquivo: tests/e2e/screenshots/dashboard-visible.png
+   ✓ Tamanho: ~115 KB (imagem real)
+
+4. QUANDO USAR:
+   → Teste de funcionalidade (UI renderiza corretamente)
+   → Diagnóstico (coletar evidência visual de erro)
+   → Validação (comparar antes/depois mudanças)
+   → Regressão (confirmar após deploy)
+
+5. FALHAS COMUNS:
+   [Timeout /dashboard] → Aumentar timeout, verificar login
+   [Dir não existe] → mkdir -p tests/e2e/screenshots
+   [PNG vazio] → Adicionar page.waitForTimeout(2000)
+
+📚 DOCUMENTAÇÃO COMPLETA:
+   └── docs/PROTOCOLO-SCREENSHOT-DASHBOARD.md (7 etapas + código TypeScript)
+
+✅ STATUS: OBRIGATÓRIO ATIVO desde 2025-12-12T20:30Z
+
+═══════════════════════════════════════════════════════════════════════════════
