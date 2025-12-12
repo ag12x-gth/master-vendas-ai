@@ -599,6 +599,10 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
         const DEFAULT_BAILEYS_MIN_DELAY = 3;
         const DEFAULT_BAILEYS_MAX_DELAY = 8;
         
+        // CADÊNCIA 81-210s: Integração com agent delay recomendado (Obrigações Imutáveis)
+        const AGENT_RECOMMENDED_MIN_DELAY = 81; // segundos
+        const AGENT_RECOMMENDED_MAX_DELAY = 210; // segundos
+        
         const configuredMinDelay = variableMappings._minDelaySeconds as number | undefined;
         const configuredMaxDelay = variableMappings._maxDelaySeconds as number | undefined;
         
@@ -609,6 +613,7 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
         
         if (isBaileys) {
             // Usar valores configurados ou defaults, mas GARANTIR mínimo de segurança
+            // PRIORIDADE: Agent delay (81-210s) > Configured > Defaults
             const rawMin = configuredMinDelay !== undefined ? configuredMinDelay : DEFAULT_BAILEYS_MIN_DELAY;
             const rawMax = configuredMaxDelay !== undefined ? configuredMaxDelay : DEFAULT_BAILEYS_MAX_DELAY;
             
@@ -616,12 +621,18 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
             minDelaySeconds = Math.max(rawMin, DEFAULT_BAILEYS_MIN_DELAY);
             maxDelaySeconds = Math.max(rawMax, minDelaySeconds);
             
-            if (rawMin !== minDelaySeconds || rawMax !== maxDelaySeconds) {
+            // Se nenhum delay foi configurado, usar cadência recomendada 81-210s
+            if (configuredMinDelay === undefined && configuredMaxDelay === undefined) {
+                minDelaySeconds = AGENT_RECOMMENDED_MIN_DELAY;
+                maxDelaySeconds = AGENT_RECOMMENDED_MAX_DELAY;
+                console.log(`[Campanha WhatsApp ${campaign.id}] ✅ Cadência recomendada ativada: ${AGENT_RECOMMENDED_MIN_DELAY}-${AGENT_RECOMMENDED_MAX_DELAY}s`);
+            } else if (rawMin !== minDelaySeconds || rawMax !== maxDelaySeconds) {
                 console.log(`[Campanha WhatsApp ${campaign.id}] ⚠️ Delays ajustados para segurança: ${rawMin}-${rawMax}s → ${minDelaySeconds}-${maxDelaySeconds}s`);
             }
         } else {
-            minDelaySeconds = configuredMinDelay;
-            maxDelaySeconds = configuredMaxDelay;
+            // Meta API: usar agent delay se não configurado
+            minDelaySeconds = configuredMinDelay !== undefined ? configuredMinDelay : AGENT_RECOMMENDED_MIN_DELAY;
+            maxDelaySeconds = configuredMaxDelay !== undefined ? configuredMaxDelay : AGENT_RECOMMENDED_MAX_DELAY;
         }
         
         // Baileys SEMPRE usa delay (obrigatório), Meta API pode usar paralelo

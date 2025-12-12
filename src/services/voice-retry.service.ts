@@ -5,6 +5,14 @@ import { retellService } from '@/lib/retell-service';
 
 const VOICE_MAX_CONCURRENT = 20;
 
+// CADÊNCIA 81-210s: Delay recomendado entre chamadas de voz (Obrigações Imutáveis)
+const VOICE_CALL_MIN_DELAY_SECONDS = 81;
+const VOICE_CALL_MAX_DELAY_SECONDS = 210;
+
+// Helper para gerar delay aleatório
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const randomBetween = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
+
 interface RetryResult {
   processed: number;
   successful: number;
@@ -117,6 +125,11 @@ export async function processVoiceRetryQueue(): Promise<RetryResult> {
       }
 
       console.log(`[Voice Retry Worker] Iniciando chamada para ${contact.phone} | Tentativa ${retry.attemptNumber}`);
+
+      // APLICAR CADÊNCIA: 81-210s entre chamadas de voz
+      const callDelaySeconds = randomBetween(VOICE_CALL_MIN_DELAY_SECONDS, VOICE_CALL_MAX_DELAY_SECONDS);
+      console.log(`[Voice Retry Worker] ⏱️ Aplicando cadência: aguardando ${callDelaySeconds}s antes de discar...`);
+      await sleep(callDelaySeconds * 1000);
 
       const retellCall = await retellService.createPhoneCallWithVoicemailDetection({
         from_number: twilioFromNumber,
