@@ -16,6 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { EventHistoryDropdown } from '@/components/webhooks/event-history-dropdown';
 import {
   Dialog,
   DialogContent,
@@ -292,7 +293,7 @@ export function IncomingWebhooksManager() {
                       <TableCell className="font-medium">{config.name}</TableCell>
                       <TableCell>{getSourceLabel(config.source)}</TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <code className="text-xs bg-muted px-2 py-1 rounded truncate max-w-xs">
                             {config.webhookUrl}
                           </code>
@@ -304,6 +305,7 @@ export function IncomingWebhooksManager() {
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
+                          <EventHistoryDropdown webhookConfigId={config.id} />
                         </div>
                       </TableCell>
                       <TableCell>
