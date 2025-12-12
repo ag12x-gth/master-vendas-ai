@@ -348,6 +348,12 @@
                   - cell "0" [ref=e407]
                   - cell "0" [ref=e408]
   - region "Notifications (F8)":
-    - list
-  - alert [ref=e409]
+    - list [ref=e410]:
+      - listitem [ref=e411]:
+        - generic [ref=e412]:
+          - generic [ref=e413]: Login bem-sucedido!
+          - generic [ref=e414]: A redirecionar para o painel de controlo...
+        - button [ref=e415] [cursor=pointer]:
+          - img [ref=e416] [cursor=pointer]
+  - alert [ref=e420]
 ```
