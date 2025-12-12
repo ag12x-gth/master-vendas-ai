@@ -12,7 +12,7 @@ import { parsePromptIntoSections } from '@/lib/rag/prompt-parser';
 const personaUpdateSchema = z.object({
   name: z.string().min(1, 'O nome é obrigatório').optional(),
   systemPrompt: z.string().optional().nullable(),
-  provider: z.enum(['GEMINI', 'OPENAI']).optional(),
+  provider: z.enum(['OPENAI']).optional(),
   model: z.string().min(1).optional(),
   credentialId: z.string().uuid().optional().nullable(),
   temperature: z.string().optional(),

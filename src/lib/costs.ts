@@ -9,8 +9,6 @@ import { format } from 'date-fns';
 // Chave no formato "provedor:modelo"
 const DEFAULT_PRICE_TABLE: Record<string, { input: number; output: number }> = {
   'openai:gpt-4o-mini': { input: 0.15, output: 0.60 },
-  'google:gemini-1.5-flash': { input: 0.35, output: 1.05 },
-  'google:gemini-1.5-pro': { input: 3.50, output: 10.50 },
 };
 
 // Permite override via variáveis de ambiente

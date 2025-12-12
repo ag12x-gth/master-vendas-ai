@@ -10,7 +10,7 @@ import { encrypt } from '@/lib/crypto';
 
 const credentialUpdateSchema = z.object({
   name: z.string().min(1, 'O nome é obrigatório.').optional(),
-  provider: z.enum(['GEMINI', 'OPENAI']).optional(),
+  provider: z.enum(['OPENAI']).optional(),
   apiKey: z.string().optional(),
 });
 

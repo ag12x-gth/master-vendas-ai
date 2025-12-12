@@ -33,7 +33,7 @@ interface AiCredentialFormDialogProps {
     onSaveSuccess: (credential: AiCredential) => void;
 }
 
-type Provider = 'GEMINI' | 'OPENAI';
+type Provider = 'OPENAI';
 
 const CredentialInputs = ({ provider, credential }: { provider: Provider | null, credential: AiCredential | null }): JSX.Element | null => {
     if (!provider) return null;
@@ -146,7 +146,6 @@ export function AiCredentialFormDialog({ isOpen, onOpenChange, credentialToEdit,
                             >
                                 <SelectTrigger id="provider"><SelectValue placeholder="Selecione um provedor" /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="GEMINI">Google (Gemini)</SelectItem>
                                     <SelectItem value="OPENAI">OpenAI (GPT)</SelectItem>
                                 </SelectContent>
                             </Select>

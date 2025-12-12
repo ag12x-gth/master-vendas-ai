@@ -13,7 +13,7 @@ import { getCachedOrFetch, CacheTTL } from '@/lib/api-cache';
 const personaCreateSchema = z.object({
   name: z.string().min(1, 'O nome é obrigatório.'),
   systemPrompt: z.string().optional().nullable(),
-  provider: z.enum(['GEMINI', 'OPENAI']).optional(),
+  provider: z.enum(['OPENAI']).optional(),
   model: z.string().min(1),
   credentialId: z.string().uuid().optional().nullable(),
   temperature: z.string(),

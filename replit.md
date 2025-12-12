@@ -39,3 +39,8 @@ A interface de login inclui botões de provedores OAuth renderizados condicional
 - **OpenAI API:** Para a funcionalidade de automação e geração de texto por IA.
 - **Baileys:** Biblioteca para interação com a API do WhatsApp.
 - **NextAuth.js:** Framework de autenticação.
+
+## Recent Changes (v2.4.2)
+- **12/12/2025**: Remoção completa de Gemini AI (não tinha cobertura de credenciais). Sistema agora suporta apenas OPENAI para IA, removidos 10 referências ao Gemini do código (enums, UI, libs).
+- **Universal Credentials**: 225 credenciais distribuídas (45 cada: OPENAI, TWILIO, RETELL, RESEND) com cobertura 100% das 45 empresas.
+- **Cadence Protocol**: Implementado delay de 81-210s para campanhas Baileys com fallback automático.

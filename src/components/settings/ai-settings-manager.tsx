@@ -36,10 +36,9 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import type { AiCredential } from '@/lib/types';
 import { AiCredentialFormDialog } from './ai-credential-form-dialog';
 
-type Provider = 'GEMINI' | 'OPENAI';
+type Provider = 'OPENAI';
 
 const providerConfig = {
-    GEMINI: { label: 'Google (Gemini)' },
     OPENAI: { label: 'OpenAI (GPT)' }
 }
 

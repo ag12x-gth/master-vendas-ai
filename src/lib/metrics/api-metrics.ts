@@ -4,7 +4,7 @@
  * Tracks latency (P50, P95, P99) and throughput for external API calls:
  * - Meta WhatsApp API
  * - SMS (Witi, Seven.io)
- * - OpenAI/Google Gemini
+ * - OpenAI
  * 
  * Uses Redis Sorted Sets for efficient percentile calculation
  * Metrics retention: 24 hours rolling window
