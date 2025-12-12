@@ -13,7 +13,73 @@ export type IncomingEventType =
   | 'message.received'
   | 'form.submitted'
   | 'conversion.completed'
+  | 'pix_created'
+  | 'order_approved'
   | 'custom';
+
+export interface GrapfyPixCreatedPayload {
+  eventId: string;
+  eventType: 'pix_created';
+  orderId: string;
+  storeId: string;
+  code: string;
+  total: number;
+  qrCode: string;
+  pixExpirationAt: string;
+  customer: {
+    id: string;
+    name: string;
+    email: string;
+    phoneNumber: string;
+    document: string;
+  };
+  product: {
+    id: string;
+    name: string;
+    quantity: number;
+  };
+  plan?: {
+    id: string;
+    name: string;
+  };
+  metadata?: {
+    deviceType?: string;
+    browser?: string;
+    operationalSystem?: string;
+  };
+  createdAt: string;
+  trankingParameters?: {
+    utm_campaign?: string;
+    utm_content?: string;
+    utm_medium?: string;
+    utm_source?: string;
+    utm_term?: string;
+  };
+}
+
+export interface GrapfyOrderApprovedPayload {
+  eventId: string;
+  eventType: 'order_approved';
+  orderId: string;
+  storeId: string;
+  total: number;
+  customer: {
+    id: string;
+    name: string;
+    email: string;
+    phoneNumber: string;
+    document: string;
+  };
+  product: {
+    id: string;
+    name: string;
+  };
+  plan?: {
+    id: string;
+    name: string;
+  };
+  approvedAt: string;
+}
 
 export interface IncomingWebhookPayload {
   event_type: IncomingEventType;

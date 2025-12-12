@@ -160,6 +160,11 @@ export async function handleIncomingWebhookEvent(
         await handleConversionEvent(companyId, eventType, payload);
         break;
 
+      case 'pix_created':
+      case 'order_approved':
+        await handleGrapfyEvent(companyId, eventType, payload);
+        break;
+
       case 'custom':
       default:
         logger.info(`Custom event received: ${eventType}`, { eventId });
@@ -219,3 +224,45 @@ export function maskSecret(secret: string): string {
   if (secret.length <= 8) return '****';
   return secret.substring(0, 4) + '****' + secret.substring(secret.length - 4);
 }
+
+// Grapfy event handler
+async function handleGrapfyEvent(
+  companyId: string,
+  eventType: IncomingEventType,
+  payload: IncomingWebhookPayload
+): Promise<void> {
+  try {
+    const data = payload.data || {};
+    const customer = data.customer || {};
+    const product = data.product || {};
+
+    logger.info(`Processing Grapfy event: ${eventType}`, {
+      customer: customer.name,
+      email: customer.email,
+      phone: customer.phoneNumber,
+      product: product.name,
+    });
+
+    // Import trigger service
+    const { triggerWebhookCampaign } = await import('@/services/webhook-campaign-trigger.service');
+
+    // Dispatch campaign based on event type
+    await triggerWebhookCampaign({
+      companyId,
+      eventType,
+      customer: {
+        name: customer.name || 'Unknown',
+        email: customer.email || '',
+        phoneNumber: customer.phoneNumber || '',
+        document: customer.document || '',
+      },
+      product: product.name ? { name: product.name } : undefined,
+      plan: data.plan?.name ? { name: data.plan.name } : undefined,
+    });
+
+    logger.info(`✅ Grapfy campaign triggered successfully for event: ${eventType}`);
+  } catch (error) {
+    logger.error('Error handling Grapfy event', { error, eventType });
+  }
+}
+
