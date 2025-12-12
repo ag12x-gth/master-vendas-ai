@@ -1,0 +1,81 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - img [ref=e5]
+        - heading "Master IA" [level=1] [ref=e8]
+      - region [ref=e9]:
+        - generic [ref=e11]:
+          - group [ref=e12]:
+            - generic [ref=e13]:
+              - img [ref=e14]
+              - paragraph [ref=e17]: "\"O objetivo do marketing é conhecer e entender o cliente tão bem que o produto ou serviço se vende sozinho.\""
+              - paragraph [ref=e18]: "- Peter Drucker"
+          - group [ref=e19]:
+            - generic [ref=e20]:
+              - img [ref=e21]
+              - paragraph [ref=e24]: "\"Marketing não é sobre as coisas que você faz, mas sobre as histórias que você conta.\""
+              - paragraph [ref=e25]: "- Seth Godin"
+          - group [ref=e26]:
+            - generic [ref=e27]:
+              - img [ref=e28]
+              - paragraph [ref=e31]: "\"As pessoas não compram o que você faz, elas compram o porquê você faz.\""
+              - paragraph [ref=e32]: "- Simon Sinek"
+          - group [ref=e33]:
+            - generic [ref=e34]:
+              - img [ref=e35]
+              - paragraph [ref=e38]: "\"A melhor publicidade é a que os clientes satisfeitos fazem.\""
+              - paragraph [ref=e39]: "- Philip Kotler"
+          - group [ref=e40]:
+            - generic [ref=e41]:
+              - img [ref=e42]
+              - paragraph [ref=e45]: "\"O ótimo marketing faz o cliente se sentir inteligente.\""
+              - paragraph [ref=e46]: "- Joe Chernov"
+    - generic [ref=e47]:
+      - generic [ref=e50]:
+        - img [ref=e51]
+        - generic [ref=e53]: v2.4.2
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - heading "Bem-vindo de volta!" [level=2] [ref=e56]
+          - paragraph [ref=e57]: Acesse sua conta para continuar.
+        - generic [ref=e58]:
+          - generic [ref=e59]:
+            - generic [ref=e60]:
+              - generic [ref=e61]: Email
+              - textbox "Email" [ref=e62]: diegomaninhu@gmail.com
+            - generic [ref=e63]:
+              - generic [ref=e64]:
+                - generic [ref=e65]: Senha
+                - link "Esqueceu sua senha?" [ref=e66] [cursor=pointer]:
+                  - /url: /forgot-password
+              - generic [ref=e67]:
+                - textbox "Senha" [ref=e68]: MasterIA2025!
+                - button [ref=e69] [cursor=pointer]:
+                  - img [ref=e70] [cursor=pointer]
+          - button "Entrar" [ref=e73] [cursor=pointer]
+        - generic [ref=e78]: Ou continue com
+        - button "Facebook" [ref=e80] [cursor=pointer]:
+          - img [ref=e81] [cursor=pointer]
+          - text: Facebook
+        - paragraph [ref=e83]:
+          - text: Ainda não tem uma conta?
+          - link "Cadastre-se gratuitamente" [ref=e84] [cursor=pointer]:
+            - /url: /register
+  - button "Toggle theme" [ref=e86] [cursor=pointer]:
+    - img [ref=e87] [cursor=pointer]
+    - img
+    - generic [ref=e93] [cursor=pointer]: Toggle theme
+  - region "Notifications (F8)":
+    - list [ref=e95]:
+      - listitem [ref=e96]:
+        - generic [ref=e97]:
+          - generic [ref=e98]: Erro de Login
+          - generic [ref=e99]: Too Many Requests
+        - button [ref=e100] [cursor=pointer]:
+          - img [ref=e101] [cursor=pointer]
+  - alert [ref=e105]
+```

@@ -248,6 +248,7 @@ Senha: MasterIA2025!
 - Nunca commitar credenciais em código
 - Usar variáveis de ambiente em produção
 - Credenciais acima são APENAS para testes locais
+- Sempre comparar screenshots de antes e depois da implementacao com objetivo de verificar o sucesso ou nao do que foi implementado no plano de execucao, ate que esteja fiel ao proposto no plano.
 
 ---
 
