@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     const configs = ((configsResult as any) || []).map((config: IncomingWebhookConfigRow) => ({
       ...config,
       secretMasked: maskSecret(config.secret),
-      webhookUrl: `/api/v1/webhooks/incoming/${companyId}`,
+      webhookUrl: `https://${request.headers.get('host')}/api/v1/webhooks/incoming/${companyId}`,
     }));
 
     return NextResponse.json({
