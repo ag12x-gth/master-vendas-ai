@@ -122,6 +122,39 @@ export async function POST(
       });
     }
 
+    if (action === 'resume') {
+      const connection = await db.query.connections.findFirst({
+        where: and(
+          eq(connections.id, params.id),
+          eq(connections.companyId, companyId)
+        ),
+      });
+
+      if (!connection) {
+        return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+      }
+
+      const hasAuth = await sessionManager.hasFilesystemAuth(params.id);
+      if (!hasAuth) {
+        return NextResponse.json({ 
+          error: 'No saved credentials. Use reconnect action instead.',
+          needsQRCode: true 
+        }, { status: 400 });
+      }
+
+      console.log(`[API] Resuming session ${params.id} using existing credentials...`);
+      
+      await sessionManager.deleteSession(params.id);
+
+      console.log(`[API] Creating session for ${params.id} with existing auth...`);
+      await sessionManager.createSession(params.id, connection.companyId);
+
+      return NextResponse.json({
+        success: true,
+        message: 'Session resuming with existing credentials',
+      });
+    }
+
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
     console.error('[API] Error reconnecting session:', error);
