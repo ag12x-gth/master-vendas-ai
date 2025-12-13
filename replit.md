@@ -41,6 +41,10 @@ A interface de login inclui botões de provedores OAuth renderizados condicional
 - **NextAuth.js:** Framework de autenticação.
 
 ## Recent Changes (v2.4.2)
+- **13/12/2025**: Correção crítica de tratamento de erros OpenAI:
+  - `insufficient_quota`: Fallback IMEDIATO sem retry + notificação automática ao admin
+  - `rate_limit`: Mantém retry com backoff exponencial
+  - Novo método `UserNotificationsService.notifyOpenAIQuotaExhausted()` para alertar administradores
 - **13/12/2025**: OPENAI_API_KEY atualizada com créditos adicionados ($4.99). Workflow reiniciado para usar a chave com quota ativa. Sistema pronto para automação completa via IA.
 - **12/12/2025**: Remoção completa de Gemini AI (não tinha cobertura de credenciais). Sistema agora suporta apenas OPENAI para IA, removidos 10 referências ao Gemini do código (enums, UI, libs).
 - **Universal Credentials**: 225 credenciais distribuídas (45 cada: OPENAI, TWILIO, RETELL, RESEND) com cobertura 100% das 45 empresas.
