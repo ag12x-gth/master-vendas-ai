@@ -772,7 +772,7 @@ class BaileysSessionManager {
       
       // Implementar retry com backoff exponencial
       let aiResponse: string | null = null;
-      let lastError: Error | null = null;
+      let _lastError: Error | null = null;
       const maxRetries = 3;
       const baseDelay = 2000; // 2 segundos
       
@@ -788,7 +788,7 @@ class BaileysSessionManager {
           console.log(`[Baileys AI] ✅ Response generated successfully on attempt ${attempt}`);
           break;
         } catch (error) {
-          lastError = error as Error;
+          _lastError = error as Error;
           const statusCode = (error as any)?.status || (error as any)?.code;
           const isRateLimit = statusCode === 429 || (error as any)?.error?.type === 'rate_limit_error';
           

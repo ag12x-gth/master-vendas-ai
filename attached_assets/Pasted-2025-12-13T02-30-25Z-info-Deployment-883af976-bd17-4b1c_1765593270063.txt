@@ -1,0 +1,78 @@
+2025-12-13T02:30:25Z info: Deployment: 883af976-bd17-4b1c-b3ba-8e932c5693f9
+2025-12-13T02:30:25Z info: Build: 65dbf311-b238-4e80-a463-66d473a26b03
+2025-12-13T02:30:25Z info: Running Security Scan
+2025-12-13T02:31:00Z info: Security Scan Complete
+2025-12-13T02:31:00Z info: Connecting to builder
+2025-12-13T02:31:00Z info: Builder connected
+2025-12-13T02:31:00Z info: Installing packages
+--> npm install
+
+
+up to date, audited 1234 packages in 8s
+
+  run `npm fund` for details
+
+
+1 high severity vulnerability
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.7.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.7.0
+npm notice To update run: npm install -g npm@11.7.0
+npm notice
+
+2025-12-13T02:31:09Z info: Starting Build
+
+> nextn@2.4.2 build
+> NODE_OPTIONS='--max-old-space-size=4096' SKIP_LINT=false next build
+
+
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.com/vercel/next.js/issues
+
+  ▲ Next.js 14.2.33
+
+    · cpus
+
+   Creating an optimized production build ...
+
+ ⚠ Compiled with warnings
+
+
+   Linting and checking validity of types ...
+
+
+./src/components/webhooks/event-history-dropdown.tsx
+35:40  Warning: 'webhookConfigId' is defined but never used. Allowed unused args must match /^_/u.  unused-imports/no-unused-vars
+
+./src/services/baileys-session-manager.ts
+791:11  Warning: 'lastError' is assigned a value but never used. Allowed unused vars must match /^_/u.  unused-imports/no-unused-vars
+
+./src/services/webhook-campaign-trigger.service.ts
+2:10  Warning: 'campaigns' is defined but never used.  unused-imports/no-unused-imports
+2:21  Warning: 'contactLists' is defined but never used.  unused-imports/no-unused-imports
+2:35  Warning: 'contacts' is defined but never used.  unused-imports/no-unused-imports
+3:10  Warning: 'eq' is defined but never used.  unused-imports/no-unused-imports
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+
+Failed to compile.
+
+
+./src/services/webhook-campaign-trigger.service.ts:4:10
+Type error: '"@/lib/campaign-sender"' has no exported member named 'sendCampaign'. Did you mean 'sendSmsCampaign'?
+
+  2 | import { campaigns, contactLists, contacts } from '@/lib/db/schema';
+  3 | import { eq } from 'drizzle-orm';
+> 4 | import { sendCampaign } from '@/lib/campaign-sender';
+    |          ^
+  5 |
+  6 | interface TriggerContext {
+  7 |   companyId: string;
+
+Next.js build worker exited with code: 1 and signal: null
+

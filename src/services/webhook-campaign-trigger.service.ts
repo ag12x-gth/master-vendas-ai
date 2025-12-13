@@ -1,7 +1,8 @@
 import { conn } from '@/lib/db';
-import { campaigns, contactLists, contacts } from '@/lib/db/schema';
+import { sendWhatsappCampaign } from '@/lib/campaign-sender';
+import { db } from '@/lib/db';
+import { campaigns } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { sendCampaign } from '@/lib/campaign-sender';
 
 interface TriggerContext {
   companyId: string;
@@ -43,6 +44,10 @@ export async function triggerWebhookCampaign(context: TriggerContext): Promise<v
         RETURNING id
       `;
       contact = (result as any)?.[0];
+      if (!contact) {
+        console.error('[WEBHOOK-CAMPAIGN] Failed to create contact');
+        return;
+      }
       console.log(`[WEBHOOK-CAMPAIGN] Contact created: ${contact.id}`);
     }
 
@@ -88,10 +93,19 @@ export async function triggerWebhookCampaign(context: TriggerContext): Promise<v
       return;
     }
 
-    // Step 3: Dispatch campaign
+    // Step 3: Fetch campaign and dispatch
     try {
-      await sendCampaign(campaignId, [contact.id]);
-      console.log(`[WEBHOOK-CAMPAIGN] ✅ Campaign dispatched successfully`);
+      const campaign = await db.query.campaigns.findFirst({
+        where: eq(campaigns.id, campaignId),
+      });
+
+      if (!campaign) {
+        console.warn(`[WEBHOOK-CAMPAIGN] Campaign ${campaignId} not found in database`);
+        return;
+      }
+
+      await sendWhatsappCampaign(campaign);
+      console.log(`[WEBHOOK-CAMPAIGN] Campaign dispatched successfully`);
     } catch (error) {
       console.error('[WEBHOOK-CAMPAIGN] Error dispatching campaign:', error);
     }

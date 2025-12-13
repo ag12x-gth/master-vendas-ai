@@ -32,7 +32,7 @@ interface EventHistoryDropdownProps {
   webhookConfigId?: string;
 }
 
-export function EventHistoryDropdown({ webhookConfigId }: EventHistoryDropdownProps) {
+export function EventHistoryDropdown({ webhookConfigId: _webhookConfigId }: EventHistoryDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [events, setEvents] = useState<WebhookEvent[]>([]);
   const [loading, setLoading] = useState(false);
