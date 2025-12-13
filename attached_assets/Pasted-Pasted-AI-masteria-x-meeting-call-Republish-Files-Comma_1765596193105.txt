@@ -1,0 +1,503 @@
+Pasted--AI-masteria-x-meeting-call-Republish-Files-Commands-Se_1765596050377.txt
+
+
+AI
+
+
+
+masteria-x-meeting-call
+
+
+
+
+Republish
+
+
+Files
+
+
+
+Commands
+Search
+
+
+
+/login
+
+
+
+
+npm run dev
+
+Ask Agent…
+17m
+ • 
+54 minutes ago
+    at /home/runner/workspace/node_modules/next/dist/server/require-hook.js:55:36
+    at Module._load (node:internal/modules/cjs/loader:1043:27)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at mod.require (/home/runner/workspace/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:182:18)
+    at __webpack_require__.f.require (/home/runner/workspace/.next/server/webpack-runtime.js:208:28)
+    at /home/runner/workspace/.next/server/webpack-runtime.js:116:40
+    at Array.reduce (<anonymous>)
+    at __webpack_require__.e (/home/runner/workspace/.next/server/webpack-runtime.js:115:67)
+    at Array.map (<anonymous>)
+    at __webpack_require__.X (/home/runner/workspace/.next/server/webpack-runtime.js:167:22)
+    at /home/runner/workspace/.next/server/pages/_document.js:1:321
+    at Object.<anonymous> (/home/runner/workspace/.next/server/pages/_document.js:1:389)
+    at Module._compile (node:internal/modules/cjs/loader:1529:14)
+    at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+    at Module.load (node:internal/modules/cjs/loader:1275:32)
+    at Module._load (node:internal/modules/cjs/loader:1096:12)
+    at Module.require (node:internal/modules/cjs/loader:1298:19)
+    at mod.require (/home/runner/workspace/node_modules/next/dist/server/require-hook.js:65:28)
+    at require (node:internal/modules/helpers:182:18)
+    at requirePage (/home/runner/workspace/node_modules/next/dist/server/require.js:109:84)
+    at /home/runner/workspace/node_modules/next/dist/server/load-components.js:72:65
+    at async Promise.all (index 0)
+    at async loadComponentsImpl (/home/runner/workspace/node_modules/next/dist/server/load-components.js:71:33)
+    at async DevServer.findPageComponentsImpl (/home/runner/workspace/node_modules/next/dist/server/next-server.js:714:36) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [
+    '/home/runner/workspace/.next/server/webpack-runtime.js',
+    '/home/runner/workspace/.next/server/app/api/v1/connections/health/route.js',
+    '/home/runner/workspace/node_modules/next/dist/server/require.js',
+    '/home/runner/workspace/node_modules/next/dist/server/load-components.js',
+    '/home/runner/workspace/node_modules/next/dist/build/utils.js',
+    '/home/runner/workspace/node_modules/next/dist/server/dev/hot-middleware.js',
+    '/home/runner/workspace/node_modules/next/dist/server/dev/hot-reloader-webpack.js',
+    '/home/runner/workspace/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js',
+    '/home/runner/workspace/node_modules/next/dist/server/lib/router-server.js',
+    '/home/runner/workspace/node_modules/next/dist/server/lib/start-server.js'
+  ]
+}
+ GET /api/v1/notifications?limit=20 500 in 75ms
+ 
+
+npm run dev
+
+Ask Agent…
+3m
+ • 
+36 minutes ago
+ 
+> nextn@2.4.2 predev
+> rm -rf .next/cache 2>/dev/null; fuser -k 5000/tcp 2>/dev/null || true
+ 
+ 
+> nextn@2.4.2 dev
+> next dev -p 5000 --hostname 0.0.0.0
+ 
+  ▲ Next.js 14.2.33
+  - Local:        http://localhost:5000
+  - Network:      http://0.0.0.0:5000
+  - Environments: .env
+  - Experiments (use with caution):
+    · cpus
+ 
+ ✓ Starting...
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.
+com/vercel/next.js/issues
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+ 
+ ✓ Ready in 2.3s
+ ○ Compiling / ...
+ ✓ Compiled / in 8.8s (604 modules)
+ GET / 307 in 9502ms
+ ✓ Compiled in 715ms (286 modules)
+ GET / 307 in 9555ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 6.2s (913 modules)
+ GET /login 200 in 6572ms
+ GET /login 200 in 6030ms
+ ✓ Compiled /api/auth/providers-status in 314ms (504 modules)
+ GET /api/auth/providers-status 200 in 470ms
+ GET /api/auth/providers-status 200 in 485ms
+ GET /api/auth/providers-status 200 in 20ms
+ GET /api/auth/providers-status 200 in 41ms
+ ○ Compiling /api/v1/conversations/status ...
+ ✓ Compiled /api/v1/conversations/status in 2.4s (1060 modules)
+ ✓ Compiled (1065 modules)
+
+npm run dev
+
+Ask Agent…
+4m
+ • 
+33 minutes ago
+ 
+> nextn@2.4.2 predev
+> rm -rf .next/cache 2>/dev/null; fuser -k 5000/tcp 2>/dev/null || true
+ 
+ 
+> nextn@2.4.2 dev
+> next dev -p 5000 --hostname 0.0.0.0
+ 
+  ▲ Next.js 14.2.33
+  - Local:        http://localhost:5000
+  - Network:      http://0.0.0.0:5000
+  - Environments: .env
+  - Experiments (use with caution):
+    · cpus
+ 
+ ✓ Starting...
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.
+com/vercel/next.js/issues
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+ 
+ ✓ Ready in 1963ms
+ ○ Compiling / ...
+ ✓ Compiled / in 6.5s (604 modules)
+ GET / 307 in 7279ms
+ ✓ Compiled in 799ms (286 modules)
+ GET / 307 in 7365ms
+ GET / 307 in 7370ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 6.4s (913 modules)
+ GET /login 200 in 6733ms
+ GET /login 200 in 6129ms
+ ✓ Compiled /api/auth/providers-status in 201ms (504 modules)
+ GET /api/auth/providers-status 200 in 310ms
+ GET /api/auth/providers-status 200 in 43ms
+ GET /api/auth/providers-status 200 in 41ms
+ GET /api/auth/providers-status 200 in 42ms
+ ○ Compiling /api/v1/conversations/status ...
+ ✓ Compiled /api/v1/conversations/status in 2.2s (1060 modules)
+
+npm run dev
+
+Ask Agent…
+3m
+ • 
+29 minutes ago
+ 
+> nextn@2.4.2 predev
+> rm -rf .next/cache 2>/dev/null; fuser -k 5000/tcp 2>/dev/null || true
+ 
+ 
+> nextn@2.4.2 dev
+> next dev -p 5000 --hostname 0.0.0.0
+ 
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:5000
+  - Network:      http://0.0.0.0:5000
+  - Environments: .env
+  - Experiments (use with caution):
+    · cpus
+ 
+ ✓ Starting...
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.
+com/vercel/next.js/issues
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+ 
+ ✓ Ready in 5.7s
+ ○ Compiling / ...
+ ⨯ src/app/layout.tsx
+An error occurred in `next/font`.
+ 
+Error: Cannot find module 'autoprefixer'
+Require stack:
+- /home/runner/workspace/node_modules/next/dist/build/webpack/config/blocks/css/plugins.js
+- /home/runner/workspace/node_modules/next/dist/build/webpack/config/blocks/css/index.js
+- /home/runner/workspace/node_modules/next/dist/build/webpack/config/index.js
+- /home/runner/workspace/node_modules/next/dist/build/webpack-config.js
+- /home/runner/workspace/node_modules/next/dist/server/dev/hot-reloader-webpack.js
+- /home/runner/workspace/node_modules/next/dist/server/lib/router-utils/setup-dev-bundler.js
+- /home/runner/workspace/node_modules/next/dist/server/lib/router-server.js
+- /home/runner/workspace/node_modules/next/dist/server/lib/start-server.js
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)
+    at /home/runner/workspace/node_modules/next/dist/server/require-hook.js:55:36
+    at Function.resolve (node:internal/modules/helpers:193:19)
+
+npm run dev
+
+Ask Agent…
+3m
+ • 
+26 minutes ago
+ 
+> nextn@2.4.2 predev
+> rm -rf .next/cache 2>/dev/null; fuser -k 5000/tcp 2>/dev/null || true
+ 
+ 
+> nextn@2.4.2 dev
+> next dev -p 5000 --hostname 0.0.0.0
+ 
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:5000
+  - Network:      http://0.0.0.0:5000
+  - Environments: .env
+  - Experiments (use with caution):
+    · cpus
+ 
+ ✓ Starting...
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.
+com/vercel/next.js/issues
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+ 
+ ✓ Ready in 3.8s
+ ○ Compiling / ...
+ ✓ Compiled / in 5.7s (604 modules)
+ GET / 307 in 6328ms
+ GET / 307 in 6441ms
+ GET / 307 in 6448ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 5.8s (1176 modules)
+ ✓ Compiled in 2.9s (437 modules)
+🔧 [Redis] Creating new HybridRedisClient singleton instance
+🔍 [Redis] Detecting configuration... REDIS_URL=true, Upstash=true
+🚀 Using REDIS_URL for connection...
+🔧 [Redis] Registered shutdown handlers (SIGINT, SIGTERM)
+⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).
+ GET /login 200 in 8731ms
+ GET /login 200 in 8151ms
+📊 [API CACHE MISS] Key: conversations:status:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:682b91ea-15ee-42da-8855-70309b237008 - TTL: 2500ms - Total time: 27ms
+
+npm run dev
+
+Ask Agent…
+21m
+ • 
+22 minutes ago
+
+ 
+> nextn@2.4.2 predev
+> rm -rf .next/cache 2>/dev/null; fuser -k 5000/tcp 2>/dev/null || true
+ 
+ 
+> nextn@2.4.2 dev
+> next dev -p 5000 --hostname 0.0.0.0
+ 
+  ▲ Next.js 14.2.35
+  - Local:        http://localhost:5000
+  - Network:      http://0.0.0.0:5000
+  - Environments: .env
+  - Experiments (use with caution):
+    · cpus
+ 
+ ✓ Starting...
+ ⚠ Disabling SWC Minifer will not be an option in the next major version. Please report any issues you may be experiencing to https://github.
+com/vercel/next.js/issues
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+ 
+ ✓ Ready in 1562ms
+ ○ Compiling / ...
+ ✓ Compiled / in 6.4s (606 modules)
+ GET / 307 in 7016ms
+ ✓ Compiled in 670ms (287 modules)
+ GET / 307 in 7097ms
+ GET / 307 in 7103ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 6.5s (921 modules)
+ GET /login 200 in 6723ms
+ GET /login 200 in 6179ms
+ ○ Compiling /api/v1/connections/health ...
+ ✓ Compiled /api/auth/providers-status in 1867ms (1062 modules)
+ ✓ Compiled (1069 modules)
+🔧 [Redis] Creating new HybridRedisClient singleton instance
+🔍 [Redis] Detecting configuration... REDIS_URL=true, Upstash=true
+🚀 Using REDIS_URL for connection...
+🔧 [Redis] Registered shutdown handlers (SIGINT, SIGTERM)
+
+Overview
+
+Logs
+
+Analytics
+
+Resources
+
+Domains
+
+Manage
+Search
+
+
+Errors only
+
+Date
+Time
+Deployment
+Source
+Log
+2025-12-12 23:44:08.55
+39db6d12
+User
+at Module._compile (node:internal/modules/cjs/loader:1529:14)
+2025-12-12 23:44:08.55
+39db6d12
+User
+- /home/runner/workspace/node_modules/next/dist/server/next-server.js
+2025-12-12 23:44:08.55
+39db6d12
+User
+'/home/runner/workspace/node_modules/next/dist/cli/next-start.js'
+2025-12-12 23:44:08.55
+39db6d12
+User
+]
+2025-12-12 23:44:08.55
+39db6d12
+User
+'/home/runner/workspace/.next/server/app/api/v1/whatsapp/sessions/[id]/qr/route.js',
+2025-12-12 23:44:08.55
+39db6d12
+User
+'/home/runner/workspace/node_modules/@aws-sdk/middleware-flexible-checksums/dist-cjs/index.js',
+2025-12-12 23:44:08.76
+39db6d12
+User
+'/home/runner/workspace/node_modules/next/dist/server/require.js',
+2025-12-12 23:44:08.76
+39db6d12
+User
+- /home/runner/workspace/.next/server/app/api/v1/whatsapp/sessions/[id]/qr/route.js
+2025-12-12 23:44:08.76
+39db6d12
+User
+- /home/runner/workspace/node_modules/@aws-sdk/middleware-flexible-checksums/dist-cjs/index.js
+2025-12-12 23:44:08.76
+39db6d12
+User
+at Module._load (node:internal/modules/cjs/loader:1043:27)
+2025-12-12 23:44:08.76
+39db6d12
+User
+- /home/runner/workspace/node_modules/next/dist/cli/next-start.js
+2025-12-12 23:44:08.76
+39db6d12
+User
+- /home/runner/workspace/node_modules/@aws-sdk/client-s3/dist-cjs/index.js
+2025-12-12 23:44:08.76
+39db6d12
+User
+at Module._compile (node:internal/modules/cjs/loader:1529:14)
+2025-12-12 23:44:08.76
+39db6d12
+User
+at Object. (/home/runner/workspace/node_modules/@aws-sdk/core/dist-cjs/index.js:3:17)
+2025-12-12 23:44:08.76
+39db6d12
+User
+- /home/runner/workspace/node_modules/next/dist/server/next-server.js
+2025-12-12 23:44:08.76
+39db6d12
+User
+'/home/runner/workspace/node_modules/next/dist/server/next-server.js',
+2025-12-12 23:44:08.76
+39db6d12
+User
+at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+2025-12-12 23:44:08.76
+39db6d12
+User
+'/home/runner/workspace/node_modules/@aws-sdk/client-s3/dist-cjs/index.js',
+2025-12-12 23:44:08.76
+39db6d12
+User
+at mod.require (/home/runner/workspace/node_modules/next/dist/server/require-hook.js:65:28)
+2025-12-12 23:44:08.76
+39db6d12
+User
+requireStack: [
+2025-12-12 23:44:08.76
+39db6d12
+User
+at require (node:internal/modules/helpers:182:18)
+2025-12-12 23:44:08.76
+39db6d12
+User
+at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)
+2025-12-12 23:44:08.76
+39db6d12
+User
+at Module.require (node:internal/modules/cjs/loader:1298:19)
+2025-12-12 23:44:08.76
+39db6d12
+User
+'/home/runner/workspace/.next/server/app/api/v1/whatsapp/sessions/[id]/qr/route.js',
+2025-12-12 23:44:08.76
+39db6d12
+User
+- /home/runner/workspace/node_modules/next/dist/server/lib/start-server.js
+2025-12-12 23:44:08.76
+39db6d12
+User
+'/home/runner/workspace/node_modules/next/dist/cli/next-start.js'
+2025-12-12 23:44:08.76
+39db6d12
+User
+Require stack:
+2025-12-12 23:44:08.76
+39db6d12
+User
+[Baileys] Error handling incoming message: Error: Cannot find module 'tslib'
+2025-12-12 23:44:08.76
+39db6d12
+User
+- /home/runner/workspace/node_modules/next/dist/server/next.js
+2025-12-12 23:44:08.76
+39db6d12
+User
+- /home/runner/workspace/node_modules/@aws-sdk/core/dist-cjs/index.js
+2025-12-12 23:44:08.76
+39db6d12
+User
+at /home/runner/workspace/node_modules/next/dist/server/require-hook.js:55:36
+2025-12-12 23:44:08.76
+39db6d12
+User
+- /home/runner/workspace/node_modules/next/dist/server/require.js
+2025-12-12 23:44:31.65
+39db6d12
+User
+'/home/runner/workspace/.next/server/app/api/v1/whatsapp/sessions/[id]/qr/route.js',
+2025-12-12 23:44:31.65
+39db6d12
+User
+Require stack:
+2025-12-12 23:44:31.65
+39db6d12
+User
+]
+2025-12-12 23:44:31.65
+39db6d12
+User
+at Module._resolveFilename (node:internal/modules/cjs/loader:1212:15)
+2025-12-12 23:44:31.65
+39db6d12
+User
+'/home/runner/workspace/node_modules/next/dist/server/lib/start-server.js',
+2025-12-12 23:44:31.65
+39db6d12
+User
+- /home/runner/workspace/node_modules/next/dist/server/next.js
+2025-12-12 23:44:31.65
+39db6d12
+User
+at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+2025-12-12 23:44:31.65
+39db6d12
+User
+'/home/runner/workspace/node_modules/@aws-sdk/client-s3/dist-cjs/index.js',
+2025-12-12 23:44:31.65
+39db6d12
+User
+at mod.require (/home/runner/workspace/node_modules/next/dist/server/require-hook.js:65:28)
