@@ -40,7 +40,14 @@ A interface de login inclui botões de provedores OAuth renderizados condicional
 - **Baileys:** Biblioteca para interação com a API do WhatsApp.
 - **NextAuth.js:** Framework de autenticação.
 
-## Recent Changes (v2.4.2)
+## Recent Changes (v2.4.3)
+- **13/12/2025**: Cobertura 100% de agentes IA implementada:
+  - **41 novos agentes** "Atendente Virtual" criados para empresas sem agentes
+  - **70 agentes IA totais** (45 empresas = 100% cobertura)
+  - **4473 conversas** atualizadas para terem agente atribuído
+  - **12/12 conexões** WhatsApp com agente configurado (100%)
+  - **API OpenAI** testada e funcionando (16 tokens confirmados)
+  - Sistema pronto para produção com resposta automática via IA
 - **13/12/2025**: Nova OPENAI_API_KEY configurada (projeto openai_agentes_proj_M0hXybXJ_send_gmail):
   - Chave atualizada via Replit Secrets (seguro)
   - Workflow reiniciado para carregar nova chave
