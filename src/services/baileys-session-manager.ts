@@ -769,12 +769,46 @@ class BaileysSessionManager {
       await new Promise(resolve => setTimeout(resolve, randomDelay * 1000));
       
       const { openAIService } = await import('./ai/openai-service');
-      const aiResponse = await openAIService.generateResponseWithPersona(
-        userMessage,
-        contactName,
-        conversationHistory,
-        persona
-      );
+      
+      // Implementar retry com backoff exponencial
+      let aiResponse: string | null = null;
+      let lastError: Error | null = null;
+      const maxRetries = 3;
+      const baseDelay = 2000; // 2 segundos
+      
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`[Baileys AI] Attempting to generate response (attempt ${attempt}/${maxRetries})`);
+          aiResponse = await openAIService.generateResponseWithPersona(
+            userMessage,
+            contactName,
+            conversationHistory,
+            persona
+          );
+          console.log(`[Baileys AI] ✅ Response generated successfully on attempt ${attempt}`);
+          break;
+        } catch (error) {
+          lastError = error as Error;
+          const statusCode = (error as any)?.status || (error as any)?.code;
+          const isRateLimit = statusCode === 429 || (error as any)?.error?.type === 'rate_limit_error';
+          
+          if (isRateLimit && attempt < maxRetries) {
+            const backoffDelay = baseDelay * Math.pow(2, attempt - 1);
+            console.warn(`[Baileys AI] ⚠️  Rate limit error (429) on attempt ${attempt}. Retrying in ${backoffDelay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, backoffDelay));
+          } else if (attempt === maxRetries) {
+            console.error(`[Baileys AI] ❌ Failed to generate response after ${maxRetries} attempts. Using fallback.`);
+            aiResponse = `Desculpe, estou processando sua mensagem. Por favor, tente novamente em breve.`;
+          } else {
+            throw error;
+          }
+        }
+      }
+
+      // Garantir que temos uma resposta (usando fallback se necessário)
+      if (!aiResponse) {
+        aiResponse = `Desculpe, estou processando sua mensagem. Por favor, tente novamente em breve.`;
+      }
 
       // Enviar resposta via WhatsApp
       const messageId = await this.sendMessage(connectionId, phoneNumber, {
