@@ -151,4 +151,30 @@ export class UserNotificationsService {
     
     return result.length;
   }
+
+  static async notifyOpenAIQuotaExhausted(
+    companyId: string,
+    personaName?: string
+  ): Promise<void> {
+    const companyUsers = await db.query.users.findMany({
+      where: (users, { eq }) => eq(users.companyId, companyId),
+    });
+
+    const notificationPromises = companyUsers.map(user =>
+      this.create({
+        userId: user.id,
+        companyId,
+        type: 'system_error',
+        title: 'Quota OpenAI Esgotada',
+        message: personaName
+          ? `A quota da API OpenAI foi esgotada. A persona "${personaName}" está usando respostas de fallback. Verifique o billing em platform.openai.com.`
+          : `A quota da API OpenAI foi esgotada. As respostas automáticas estão usando fallback. Verifique o billing em platform.openai.com.`,
+        linkTo: '/settings?tab=ai',
+        metadata: { personaName, errorType: 'insufficient_quota' },
+      })
+    );
+
+    await Promise.allSettled(notificationPromises);
+    console.log(`[UserNotifications] Notificação de quota OpenAI esgotada enviada para empresa ${companyId}`);
+  }
 }

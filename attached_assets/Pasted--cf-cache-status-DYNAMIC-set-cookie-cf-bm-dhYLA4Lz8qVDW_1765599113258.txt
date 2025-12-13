@@ -1,0 +1,616 @@
+ 'cf-cache-status': 'DYNAMIC',
+    'set-cookie': '__cf_bm=dhYLA4Lz8qVDWgDvhwBOecbDS3i5S9mzqEWduRF.Jtg-1765598880-1.0.1.1-E22uRIMsUY0xxVRqxhmw_8EBsL6G4Fa7lU2PARnrp7qLJu0J7SKjbf7y4NwkgKPYJ6RZWEPQBFnAovQGwDB22T2h_Kj5kK0w1.rmA4kUdY8; path=/; expires=Sat, 13-Dec-25 04:38:00 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=ExQJ403aR7INhlg9Gmjmgq2lUU_XdKQs7MVrWhKrNoM-1765598880443-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    'x-content-type-options': 'nosniff',
+    server: 'cloudflare',
+    'cf-ray': '9ad2990a4cc6ec54-SEA',
+    'alt-svc': 'h3=":443"; ma=86400'
+  },
+  requestID: 'req_49bd9884659a4df58306514071d15269',
+  error: {
+    message: 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.',
+    type: 'insufficient_quota',
+    param: null,
+    code: 'insufficient_quota'
+  },
+  code: 'insufficient_quota',
+  param: null,
+  type: 'insufficient_quota'
+}
+[Baileys AI] ⚠️  Rate limit error (429) on attempt 2. Retrying in 4000ms...
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 27ms
+ GET /api/v1/conversations/status 200 in 220ms
+ GET /api/v1/whatsapp/sessions 200 in 185ms
+ GET /api/v1/notifications?limit=20 200 in 149ms
+[Baileys AI] Attempting to generate response (attempt 3/3)
+[OpenAI] Generating response with persona: Vendedor Max
+[OpenAI] Message: Boa noite
+[OpenAI] Detected language: pt
+[OpenAI] RAG active: 18 sections loaded (5240 tokens estimated)
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+ GET /api/v1/notifications?limit=20 200 in 2381ms
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 31ms
+ GET /api/v1/conversations/status 200 in 490ms
+ GET /api/v1/whatsapp/sessions 200 in 148ms
+[OpenAI] Error generating response with persona: RateLimitError: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+    at APIError.generate (webpack-internal:///(rsc)/./node_modules/openai/core/error.mjs:79:20)
+    at OpenAI.makeStatusError (webpack-internal:///(rsc)/./node_modules/openai/client.mjs:205:71)
+    at OpenAI.makeRequest (webpack-internal:///(rsc)/./node_modules/openai/client.mjs:373:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async OpenAIService.generateResponseWithPersona (webpack-internal:///(rsc)/./src/services/ai/openai-service.ts:70:32)
+    at async BaileysSessionManager.handleAIAutoResponse (webpack-internal:///(rsc)/./src/services/baileys-session-manager.ts:656:34)
+    at async BaileysSessionManager.handleIncomingMessage (webpack-internal:///(rsc)/./src/services/baileys-session-manager.ts:578:17)
+    at async EventEmitter.eval (webpack-internal:///(rsc)/./src/services/baileys-session-manager.ts:336:25) {
+  status: 429,
+  headers: Headers {
+    date: 'Sat, 13 Dec 2025 04:08:07 GMT',
+    'content-type': 'application/json; charset=utf-8',
+    'content-length': '337',
+    connection: 'keep-alive',
+    vary: 'Origin',
+    'x-request-id': 'req_598bf17d3a544b659f3a5592047d5807',
+    'x-envoy-upstream-service-time': '5',
+    'x-openai-proxy-wasm': 'v0.1',
+    'cf-cache-status': 'DYNAMIC',
+    'set-cookie': '__cf_bm=gHnUJWo2hcNptGVSNrQLz4_eDaqNyQ5b_pFzHTcIybk-1765598887-1.0.1.1-7xTYdwuYWa6nJO3Q2znUwh3Rg9VtfgjyYdzR_KLER9jzXWPkWCSX4cOM0ECpOgMAVt6h1o9Okgn5coxoBFDAeIQxWS2K_Vtpd3_GlYun7kY; path=/; expires=Sat, 13-Dec-25 04:38:07 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=GwL4A2XNR97aLulwBjW2p6Gh.tyCoX2KXzkVVArqSH0-1765598887902-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    'x-content-type-options': 'nosniff',
+    server: 'cloudflare',
+    'cf-ray': '9ad29938ec824f5c-SEA',
+    'alt-svc': 'h3=":443"; ma=86400'
+  },
+  requestID: 'req_598bf17d3a544b659f3a5592047d5807',
+  error: {
+    message: 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.',
+    type: 'insufficient_quota',
+    param: null,
+    code: 'insufficient_quota'
+  },
+  code: 'insufficient_quota',
+  param: null,
+  type: 'insufficient_quota'
+}
+[Baileys AI] ❌ Failed to generate response after 3 attempts. Using fallback.
+[SessionManager] Attempting to send message via connection 00dc548e-1b82-4ce5-8f0c-53ea74cda2da to 5511985337924
+[SessionManager] Sending to JID: 5511985337924@s.whatsapp.net
+Closing session: SessionEntry {
+  _chains: {
+    'BYN4tZS6mr2Fe/kccQ6Ajz+80vASsskMFJg/WStTL0hm': { chainKey: [Object], chainType: 2, messageKeys: {} },
+    'BSJ4m3y/DYkoByvV8SFA35dNrFHg5R4JLRdM/9unHztP': { chainKey: [Object], chainType: 1, messageKeys: {} }
+  },
+  registrationId: 1703307663,
+  currentRatchet: {
+    ephemeralKeyPair: {
+      pubKey: <Buffer 05 22 78 9b 7c bf 0d 89 28 07 2b d5 f1 21 40 df 97 4d ac 51 e0 e5 1e 09 2d 17 4c ff db a7 1f 3b 4f>,
+      privKey: <Buffer c0 8c b6 08 4d 52 f1 ce ff 28 a1 f8 7d 3b ff 2d f2 d1 62 41 e1 90 b4 7a 8d 5f bd df dc 53 23 61>
+    },
+    lastRemoteEphemeralKey: <Buffer 05 83 78 b5 94 ba 9a bd 85 7b f9 1c 71 0e 80 8f 3f bc d2 f0 12 b2 c9 0c 14 98 3f 59 2b 53 2f 48 66>,
+    previousCounter: 0,
+    rootKey: <Buffer f9 16 9c f8 02 7d 18 74 74 e6 7b d5 a5 36 a1 b5 33 82 06 32 2b ed 3c 59 f3 dd 46 07 70 0c 84 60>
+  },
+  indexInfo: {
+    baseKey: <Buffer 05 9b ae 9b c9 f7 5f bc 26 2d 6f 8c 7e ae ec 7b 29 f3 57 6f 33 d4 4a 09 ea dc 25 47 4a c5 48 1d 54>,
+    baseKeyType: 2,
+    closed: -1,
+    used: 1765598860789,
+    created: 1765598860789,
+    remoteIdentityKey: <Buffer 05 97 e0 26 db f8 fc ac 38 d1 42 c4 fa 6b ba 8d b8 eb b7 f1 d2 c0 23 16 6c b2 67 37 0b b4 e3 31 36>
+  }
+}
+Closing session: SessionEntry {
+  _chains: {
+    'BVt5AUkh0DLWxsgGrr1nXsZ7+wavlgxChOKF8MxffkkP': { chainKey: [Object], chainType: 1, messageKeys: {} }
+  },
+  registrationId: 11,
+  currentRatchet: {
+    ephemeralKeyPair: {
+      pubKey: <Buffer 05 5b 79 01 49 21 d0 32 d6 c6 c8 06 ae bd 67 5e c6 7b fb 06 af 96 0c 42 84 e2 85 f0 cc 5f 7e 49 0f>,
+      privKey: <Buffer e0 f2 b1 c4 d7 d6 75 96 cc 79 e4 29 95 aa 77 be 59 5e cd 8b e7 2e 63 9f 54 ed 17 50 99 6a 2a 65>
+    },
+    lastRemoteEphemeralKey: <Buffer 05 95 0d 56 49 fa 27 3d 49 58 b5 f5 52 93 6f fa e7 74 e2 a6 de 83 3a df cc 86 8b 73 de 32 28 d1 1a>,
+    previousCounter: 0,
+    rootKey: <Buffer 77 bb f7 ca 29 a8 fb 88 09 f7 7a 28 7e 65 56 ee d6 87 d8 e7 95 64 0f 43 17 e2 70 b1 1f 70 de 17>
+  },
+  indexInfo: {
+    baseKey: <Buffer 05 27 8f ff 93 da 49 33 51 45 a5 84 2a c7 42 a3 97 c3 c0 58 de cb 92 d0 8d af 68 6b e3 90 27 35 2d>,
+    baseKeyType: 1,
+    closed: -1,
+    used: 1765598823305,
+    created: 1765598823305,
+    remoteIdentityKey: <Buffer 05 4a 54 f7 74 6b aa af a8 ff db 0e d8 fd dc a4 50 6e 9c 16 df 46 13 7d eb 38 0f 82 23 b1 be fb 24>
+  },
+  pendingPreKey: {
+    signedKeyId: 1,
+    baseKey: <Buffer 05 27 8f ff 93 da 49 33 51 45 a5 84 2a c7 42 a3 97 c3 c0 58 de cb 92 d0 8d af 68 6b e3 90 27 35 2d>,
+    preKeyId: 89
+  }
+}
+Closing session: SessionEntry {
+  _chains: {
+    BTRow9qi6J2sZIvCGZLvD34sY13bpZ7TpRbwh2vNCGhH: { chainKey: [Object], chainType: 1, messageKeys: {} }
+  },
+  registrationId: 15875,
+  currentRatchet: {
+    ephemeralKeyPair: {
+      pubKey: <Buffer 05 34 68 c3 da a2 e8 9d ac 64 8b c2 19 92 ef 0f 7e 2c 63 5d db a5 9e d3 a5 16 f0 87 6b cd 08 68 47>,
+      privKey: <Buffer b8 10 03 91 ec ca 3e ec 4d ea 5b 4d 34 df 1a e1 cb f4 91 5a e9 b5 e2 02 e0 5c d9 1c 68 d4 4b 76>
+    },
+    lastRemoteEphemeralKey: <Buffer 05 c5 87 60 b7 ac 5a 4c bd bf 4c 61 27 81 83 29 b8 ac 6e 22 f0 75 b7 82 fb 0e 39 39 75 f2 76 da 37>,
+    previousCounter: 0,
+    rootKey: <Buffer e0 4f 84 b1 81 5c 41 04 30 28 d8 11 27 38 1d 46 9a 18 f8 c6 a4 e4 80 e2 bc 2f 58 33 12 e9 4d 7e>
+  },
+  indexInfo: {
+    baseKey: <Buffer 05 3a 13 97 3a 2a 70 ce 32 7c 53 93 04 b8 64 48 65 47 80 40 2c 20 ca 29 df 01 1e a5 6c 6b e1 2e 5b>,
+    baseKeyType: 1,
+    closed: -1,
+    used: 1765598823309,
+    created: 1765598823309,
+    remoteIdentityKey: <Buffer 05 f9 1e c1 dd 1f d2 fd e7 01 fc 17 38 88 9a 13 2b 55 45 c3 3a b1 1c dd a3 c9 f6 f9 8c 0a f0 35 11>
+  },
+  pendingPreKey: {
+    signedKeyId: 1,
+    baseKey: <Buffer 05 3a 13 97 3a 2a 70 ce 32 7c 53 93 04 b8 64 48 65 47 80 40 2c 20 ca 29 df 01 1e a5 6c 6b e1 2e 5b>,
+    preKeyId: 46
+  }
+}
+[SessionManager] ✅ Message sent successfully to 5511985337924: 3EB0DFBA0E48DD4025D338
+[Baileys AI] Auto-response sent to 5511985337924
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 33ms
+ GET /api/v1/conversations/status 200 in 105ms
+📊 [API CACHE HIT] Key: conversations:a8fd7e6c-4910-482c-9722-2e7cd2552d3b:50:0 - Fetch time: 0ms
+ GET /api/v1/conversations?limit=50&offset=0 200 in 79ms
+ GET /api/v1/conversations/67fcb630-6326-406c-bc7d-ed07d8acfe2c/messages?limit=50 200 in 241ms
+ GET /api/v1/whatsapp/sessions 200 in 123ms
+🔧 [Redis] Creating new HybridRedisClient singleton instance
+🔍 [Redis] Detecting configuration... REDIS_URL=true, Upstash=true
+🚀 Using REDIS_URL for connection...
+🔧 [Redis] Registered shutdown handlers (SIGINT, SIGTERM)
+⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).
+[Baileys] Creating new SessionManager singleton (ID: sm_1765598893367_gg606e)
+[Baileys] SessionManager instance created and stored globally
+✅ Redis connected successfully - Using distributed Redis cache
+📡 Redis endpoint: rediss://default:***@vital-sawfish-40850.upstash.io:6379
+📊 [API CACHE MISS] Key: conversations:status:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:682b91ea-15ee-42da-8855-70309b237008 - TTL: 2500ms - Total time: 31ms
+ GET /api/v1/conversations/status 200 in 177ms
+ GET /api/v1/notifications?limit=20 200 in 302ms
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 49ms
+ GET /api/v1/conversations/status 200 in 177ms
+ GET /api/v1/notifications?limit=20 200 in 280ms
+ GET /api/v1/whatsapp/sessions 200 in 128ms
+ GET /api/v1/notifications?limit=20 200 in 220ms
+ GET /api/v1/notifications?limit=20 200 in 163ms
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 30ms
+ GET /api/v1/conversations/status 200 in 132ms
+ GET /api/v1/whatsapp/sessions 200 in 172ms
+ GET /api/v1/notifications?limit=20 200 in 186ms
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 29ms
+ GET /api/v1/conversations/status 200 in 109ms
+ GET /api/v1/whatsapp/sessions 200 in 106ms
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 32ms
+ GET /api/v1/conversations/status 200 in 122ms
+ GET /api/v1/notifications?limit=20 200 in 170ms
+ GET /api/v1/whatsapp/sessions 200 in 121ms
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 32ms
+ GET /api/v1/conversations/status 200 in 110ms
+ GET /api/v1/whatsapp/sessions 200 in 123ms
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 27ms
+ GET /api/v1/conversations/status 200 in 108ms
+ GET /api/v1/whatsapp/sessions 200 in 135ms
+ GET /api/v1/whatsapp/sessions 200 in 118ms
+ GET /api/v1/notifications?limit=20 200 in 140ms
+ GET /api/v1/notifications?limit=20 200 in 169ms
+[Baileys] Message saved from 5511985337924
+[Baileys Chat Classifier] Type: individual | Reason: Valid individual chat (10-15 digits, @s.whatsapp.net) | Block AI: false
+[Baileys AI] Generating auto-response for 5511985337924
+[Baileys AI] Using persona: Vendedor Max (from connection)
+[Baileys AI] Delay humanizado: 97s (demais respostas, range: 38-98s)
+ GET /api/v1/whatsapp/sessions 200 in 189ms
+ GET /api/v1/whatsapp/sessions 200 in 116ms
+ GET /api/v1/notifications?limit=20 200 in 152ms
+ GET /api/v1/notifications?limit=20 200 in 186ms
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 31ms
+ GET /api/v1/conversations/status 200 in 145ms
+📊 [API CACHE MISS] Key: conversations:a8fd7e6c-4910-482c-9722-2e7cd2552d3b:50:0 - Fetching from source...
+[Conversations API] ⚡ Fetch completed in 112ms (query: 64ms) | Rows: 50/285 | Limit: 50 | Offset: 0
+📊 [API CACHE SET] Key: conversations:a8fd7e6c-4910-482c-9722-2e7cd2552d3b:50:0 - TTL: 30000ms - Total time: 112ms
+ GET /api/v1/conversations?limit=50&offset=0 200 in 228ms
+ GET /api/v1/conversations/67fcb630-6326-406c-bc7d-ed07d8acfe2c/messages?limit=50 200 in 430ms
+🔧 [Redis] Creating new HybridRedisClient singleton instance
+🔍 [Redis] Detecting configuration... REDIS_URL=true, Upstash=true
+🚀 Using REDIS_URL for connection...
+🔧 [Redis] Registered shutdown handlers (SIGINT, SIGTERM)
+⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).
+[Baileys] Creating new SessionManager singleton (ID: sm_1765598947972_yluhf9)
+[Baileys] SessionManager instance created and stored globally
+ GET /api/v1/whatsapp/sessions 200 in 151ms
+✅ Redis connected successfully - Using distributed Redis cache
+📡 Redis endpoint: rediss://default:***@vital-sawfish-40850.upstash.io:6379
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 32ms
+ GET /api/v1/conversations/status 200 in 235ms
+ GET /api/v1/whatsapp/sessions 200 in 125ms
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 34ms
+ GET /api/v1/conversations/status 200 in 105ms
+📊 [API CACHE MISS] Key: conversations:status:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:682b91ea-15ee-42da-8855-70309b237008 - TTL: 2500ms - Total time: 34ms
+ GET /api/v1/conversations/status 200 in 201ms
+ GET /api/v1/notifications?limit=20 200 in 331ms
+ GET /api/v1/notifications?limit=20 200 in 195ms
+ GET /api/v1/connections/health 200 in 850ms
+ GET /api/v1/connections/health 200 in 102ms
+ GET /api/v1/notifications?limit=20 200 in 276ms
+ GET /api/v1/whatsapp/sessions 200 in 144ms
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 30ms
+ GET /api/v1/conversations/status 200 in 145ms
+ GET /api/v1/notifications?limit=20 200 in 138ms
+ GET /api/v1/notifications?limit=20 200 in 149ms
+ GET /api/v1/whatsapp/sessions 200 in 108ms
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 27ms
+ GET /api/v1/conversations/status 200 in 107ms
+ GET /api/v1/connections/health 200 in 105ms
+ GET /api/v1/whatsapp/sessions 200 in 100ms
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 33ms
+ GET /api/v1/conversations/status 200 in 106ms
+ GET /api/v1/notifications?limit=20 200 in 136ms
+ GET /api/v1/whatsapp/sessions 200 in 111ms
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 34ms
+ GET /api/v1/conversations/status 200 in 132ms
+ GET /api/v1/whatsapp/sessions 200 in 118ms
+ GET /api/v1/whatsapp/sessions 200 in 109ms
+ GET /api/v1/whatsapp/sessions 200 in 140ms
+ GET /api/v1/notifications?limit=20 200 in 176ms
+ GET /api/v1/notifications?limit=20 200 in 140ms
+ GET /api/v1/whatsapp/sessions 200 in 137ms
+ GET /api/v1/whatsapp/sessions 200 in 96ms
+ GET /api/v1/notifications?limit=20 200 in 188ms
+📊 [API CACHE MISS] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:a8fd7e6c-4910-482c-9722-2e7cd2552d3b - TTL: 2500ms - Total time: 32ms
+ GET /api/v1/conversations/status 200 in 177ms
+ GET /api/v1/notifications?limit=20 200 in 222ms
+ GET /api/v1/whatsapp/sessions 200 in 170ms
+ GET /api/v1/whatsapp/sessions 200 in 113ms
+📊 [API CACHE MISS] Key: conversations:status:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+📊 [API CACHE SET] Key: conversations:status:682b91ea-15ee-42da-8855-70309b237008 - TTL: 2500ms - Total time: 29ms
+ GET /api/v1/conversations/status 200 in 167ms
+ GET /api/v1/notifications?limit=20 200 in 270ms
+ GET /api/v1/notifications?limit=20 200 in 189ms
+ GET /api/v1/connections/health 200 in 961ms
+ GET /api/v1/notifications?limit=20 200 in 191ms
+ GET /api/v1/whatsapp/sessions 200 in 117ms
+ GET /api/v1/notifications?limit=20 200 in 155ms
+ GET /api/v1/whatsapp/sessions 200 in 102ms
+ GET /api/v1/whatsapp/sessions 200 in 110ms
+[Baileys AI] Attempting to generate response (attempt 1/3)
+[OpenAI] Generating response with persona: Vendedor Max
+[OpenAI] Message: Tr
+[OpenAI] Detected language: pt
+[OpenAI] RAG active: 18 sections loaded (5240 tokens estimated)
+[OpenAI] Error generating response with persona: RateLimitError: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+    at APIError.generate (webpack-internal:///(rsc)/./node_modules/openai/core/error.mjs:79:20)
+    at OpenAI.makeStatusError (webpack-internal:///(rsc)/./node_modules/openai/client.mjs:205:71)
+    at OpenAI.makeRequest (webpack-internal:///(rsc)/./node_modules/openai/client.mjs:373:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async OpenAIService.generateResponseWithPersona (webpack-internal:///(rsc)/./src/services/ai/openai-service.ts:70:32)
+    at async BaileysSessionManager.handleAIAutoResponse (webpack-internal:///(rsc)/./src/services/baileys-session-manager.ts:656:34)
+    at async BaileysSessionManager.handleIncomingMessage (webpack-internal:///(rsc)/./src/services/baileys-session-manager.ts:578:17)
+    at async EventEmitter.eval (webpack-internal:///(rsc)/./src/services/baileys-session-manager.ts:336:25) {
+  status: 429,
+  headers: Headers {
+    date: 'Sat, 13 Dec 2025 04:10:32 GMT',
+    'content-type': 'application/json; charset=utf-8',
+    'content-length': '337',
+    connection: 'keep-alive',
+    vary: 'Origin',
+    'x-request-id': 'req_c17b847457b84d9790376d32537184fb',
+    'x-envoy-upstream-service-time': '4',
+    'x-openai-proxy-wasm': 'v0.1',
+    'cf-cache-status': 'DYNAMIC',
+    'set-cookie': '__cf_bm=J7FA5gDeDVhFsrwTsvEdWLVb_JJTaZVSpbEQuRcKJio-1765599032-1.0.1.1-bYbof0DfSWSvo2dHRn.fpm2DzS9lerG6IgPX1QhYk4oWmk1ZJakl3VgR_b.wQQyfkOnSz9t1m3rLp0csTGQ27rT2AVxxAYMfkmfPbHuf5to; path=/; expires=Sat, 13-Dec-25 04:40:32 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=KhEWYQhemqiZx4zhD9aTsgkUqmt50zPx8JwwrEpYH7Y-1765599032990-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    'x-content-type-options': 'nosniff',
+    server: 'cloudflare',
+    'cf-ray': '9ad29cc3dbb46e84-SEA',
+    'alt-svc': 'h3=":443"; ma=86400'
+  },
+  requestID: 'req_c17b847457b84d9790376d32537184fb',
+  error: {
+    message: 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.',
+    type: 'insufficient_quota',
+    param: null,
+    code: 'insufficient_quota'
+  },
+  code: 'insufficient_quota',
+  param: null,
+  type: 'insufficient_quota'
+}
+[Baileys AI] ⚠️  Rate limit error (429) on attempt 1. Retrying in 2000ms...
+ GET /api/v1/notifications?limit=20 200 in 174ms
+[Baileys AI] Attempting to generate response (attempt 2/3)
+[OpenAI] Generating response with persona: Vendedor Max
+[OpenAI] Message: Tr
+[OpenAI] Detected language: pt
+[OpenAI] RAG active: 18 sections loaded (5240 tokens estimated)
+ GET /api/v1/whatsapp/sessions 200 in 112ms
+[OpenAI] Error generating response with persona: RateLimitError: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+    at APIError.generate (webpack-internal:///(rsc)/./node_modules/openai/core/error.mjs:79:20)
+    at OpenAI.makeStatusError (webpack-internal:///(rsc)/./node_modules/openai/client.mjs:205:71)
+    at OpenAI.makeRequest (webpack-internal:///(rsc)/./node_modules/openai/client.mjs:373:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async OpenAIService.generateResponseWithPersona (webpack-internal:///(rsc)/./src/services/ai/openai-service.ts:70:32)
+    at async BaileysSessionManager.handleAIAutoResponse (webpack-internal:///(rsc)/./src/services/baileys-session-manager.ts:656:34)
+    at async BaileysSessionManager.handleIncomingMessage (webpack-internal:///(rsc)/./src/services/baileys-session-manager.ts:578:17)
+    at async EventEmitter.eval (webpack-internal:///(rsc)/./src/services/baileys-session-manager.ts:336:25) {
+  status: 429,
+  headers: Headers {
+    date: 'Sat, 13 Dec 2025 04:10:36 GMT',
+    'content-type': 'application/json; charset=utf-8',
+    'content-length': '337',
+    connection: 'keep-alive',
+    vary: 'Origin',
+    'x-request-id': 'req_ec9ddc58ef6f4c089e8c59eff224caef',
+    'x-envoy-upstream-service-time': '4',
+    'x-openai-proxy-wasm': 'v0.1',
+    'cf-cache-status': 'DYNAMIC',
+    'set-cookie': '__cf_bm=pvESZAM7m8Jk6y42a9nsAixokrUcyP9ebxXi4niK.CU-1765599036-1.0.1.1-dIAhiavq1.AOQhat50bDcmAQd6pwprE3OXJg85RUeOwFbMovPxKdQ5D3PKQEQuXsjpO4zdqxZpNopc985AUrC_LafVxMEIPW0bEsrGKhLLk; path=/; expires=Sat, 13-Dec-25 04:40:36 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=Gov3XK.XhYNKzlT9Ot8GNcgocUdTIXRMT3AzoMUJYh8-1765599036676-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    'x-content-type-options': 'nosniff',
+    server: 'cloudflare',
+    'cf-ray': '9ad29cdadd176e84-SEA',
+    'alt-svc': 'h3=":443"; ma=86400'
+  },
+  requestID: 'req_ec9ddc58ef6f4c089e8c59eff224caef',
+  error: {
+    message: 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.',
+    type: 'insufficient_quota',
+    param: null,
+    code: 'insufficient_quota'
+  },
+  code: 'insufficient_quota',
+  param: null,
+  type: 'insufficient_quota'
+}
+[Baileys AI] ⚠️  Rate limit error (429) on attempt 2. Retrying in 4000ms...
+ GET /api/v1/whatsapp/sessions 200 in 104ms
+[Baileys AI] Attempting to generate response (attempt 3/3)
+[OpenAI] Generating response with persona: Vendedor Max
+[OpenAI] Message: Tr
+[OpenAI] Detected language: pt
+[OpenAI] RAG active: 18 sections loaded (5240 tokens estimated)
+[OpenAI] Error generating response with persona: RateLimitError: 429 You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.
+    at APIError.generate (webpack-internal:///(rsc)/./node_modules/openai/core/error.mjs:79:20)
+    at OpenAI.makeStatusError (webpack-internal:///(rsc)/./node_modules/openai/client.mjs:205:71)
+    at OpenAI.makeRequest (webpack-internal:///(rsc)/./node_modules/openai/client.mjs:373:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async OpenAIService.generateResponseWithPersona (webpack-internal:///(rsc)/./src/services/ai/openai-service.ts:70:32)
+    at async BaileysSessionManager.handleAIAutoResponse (webpack-internal:///(rsc)/./src/services/baileys-session-manager.ts:656:34)
+    at async BaileysSessionManager.handleIncomingMessage (webpack-internal:///(rsc)/./src/services/baileys-session-manager.ts:578:17)
+    at async EventEmitter.eval (webpack-internal:///(rsc)/./src/services/baileys-session-manager.ts:336:25) {
+  status: 429,
+  headers: Headers {
+    date: 'Sat, 13 Dec 2025 04:10:42 GMT',
+    'content-type': 'application/json; charset=utf-8',
+    'content-length': '337',
+    connection: 'keep-alive',
+    vary: 'Origin',
+    'x-request-id': 'req_1a8e1089edc64c2a8aababf3bec0e88c',
+    'x-envoy-upstream-service-time': '4',
+    'x-openai-proxy-wasm': 'v0.1',
+    'cf-cache-status': 'DYNAMIC',
+    'set-cookie': '__cf_bm=LGuLEKp_X3nvJbBOJ8B1grSEakr2GI4I.Z2kIOpPuNc-1765599042-1.0.1.1-l8jwegYiOOdwFDEefbEObTou9_KyrAfSfOG1oeYAfgO8zPUSV_Cq1YPczomBiRW04xJp3ncocJDe1t_IUaF6vJeycDA5Jq.FwTes20fVOm8; path=/; expires=Sat, 13-Dec-25 04:40:42 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=.SsoiHDCoqr1W2Gki6Yx85YRJaqUyMrc07RTXTybWvc-1765599042340-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    'x-content-type-options': 'nosniff',
+    server: 'cloudflare',
+    'cf-ray': '9ad29cfe189d7672-SEA',
+    'alt-svc': 'h3=":443"; ma=86400'
+  },
+  requestID: 'req_1a8e1089edc64c2a8aababf3bec0e88c',
+  error: {
+    message: 'You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.',
+    type: 'insufficient_quota',
+    param: null,
+    code: 'insufficient_quota'
+  },
+  code: 'insufficient_quota',
+  param: null,
+  type: 'insufficient_quota'
+}
+[Baileys AI] ❌ Failed to generate response after 3 attempts. Using fallback.
+[SessionManager] Attempting to send message via connection 00dc548e-1b82-4ce5-8f0c-53ea74cda2da to 5511985337924
+[SessionManager] Sending to JID: 5511985337924@s.whatsapp.net
+Closing session: SessionEntry {
+  _chains: {
+    'BdpnPw3ZrrDEO8HupWu/381NKIC38jMeIb1r2iCHWUVI': { chainKey: [Object], chainType: 1, messageKeys: {} }
+  },
+  registrationId: 253,
+  currentRatchet: {
+    ephemeralKeyPair: {
+      pubKey: <Buffer 05 da 67 3f 0d d9 ae b0 c4 3b c1 ee a5 6b bf df cd 4d 28 80 b7 f2 33 1e 21 bd 6b da 20 87 59 45 48>,
+      privKey: <Buffer f8 66 e6 5f 55 42 d4 05 dd 58 f1 88 4a 5f 14 51 7f 08 59 14 f4 99 96 cb e3 87 ca bc 27 22 60 5a>
+    },
+    lastRemoteEphemeralKey: <Buffer 05 8d e4 33 9d 2f 4e 57 8c 01 6e 47 71 c1 c8 b6 52 5c fd 97 65 be 0c da 4a b6 05 8f 97 a2 a3 88 52>,
+    previousCounter: 0,
+    rootKey: <Buffer c3 78 5f f6 8f 8d 67 09 79 fe cb f5 9c 69 85 2d 93 08 c4 e8 db 3b 94 1b cd a2 d8 5c 7c d1 60 56>
+  },
+  indexInfo: {
+    baseKey: <Buffer 05 ea 18 1b 3b 07 f7 de 8c e0 65 7e ef 55 ae 63 65 d9 76 57 95 2c 4f 7a 7e 11 3d 61 13 97 1a d5 69>,
+    baseKeyType: 1,
+    closed: -1,
+    used: 1765598888299,
+    created: 1765598888299,
+    remoteIdentityKey: <Buffer 05 a5 2c af 68 ec 25 72 86 c0 34 6d e8 39 f5 5e 5e 2a 37 ad 6a 56 09 eb a2 35 b8 aa 3b 8e a2 1c 7d>
+  },
+  pendingPreKey: {
+    signedKeyId: 1,
+    baseKey: <Buffer 05 ea 18 1b 3b 07 f7 de 8c e0 65 7e ef 55 ae 63 65 d9 76 57 95 2c 4f 7a 7e 11 3d 61 13 97 1a d5 69>
+  }
+}
+Closing session: SessionEntry {
+  _chains: {
+    BTfjXUJIl5jsUl6Ofam1NiopTVHp9UAIl3btRclR5F4D: { chainKey: [Object], chainType: 1, messageKeys: {} }
+  },
+  registrationId: 94,
+  currentRatchet: {
+    ephemeralKeyPair: {
+      pubKey: <Buffer 05 37 e3 5d 42 48 97 98 ec 52 5e 8e 7d a9 b5 36 2a 29 4d 51 e9 f5 40 08 97 76 ed 45 c9 51 e4 5e 03>,
+      privKey: <Buffer f8 1a a8 22 0d 6d 96 d4 b5 b9 a3 59 18 d9 e3 93 61 ee 3a 62 1e b4 e8 60 8d da 9b da e1 9f bd 75>
+    },
+    lastRemoteEphemeralKey: <Buffer 05 4f 57 38 83 cd fa 5c f8 41 a7 af 74 70 6f 9b 5d 8b fd ab 44 69 e3 11 06 2a 3f 33 e8 48 e1 60 24>,
+    previousCounter: 0,
+    rootKey: <Buffer f0 82 2b 6d 3d 4a 91 cb 84 ad 96 cb 1b 69 fb 82 7c c8 49 3f fe 76 8a 18 d4 33 f1 c1 ed f9 07 f6>
+  },
+  indexInfo: {
+    baseKey: <Buffer 05 9b 6c c9 63 34 ea d3 b7 68 a5 31 1e f5 78 94 5f 25 ec 05 7e 05 d4 87 65 a0 5f 27 60 91 b9 ca 31>,
+    baseKeyType: 1,
+    closed: -1,
+    used: 1765598888301,
+    created: 1765598888301,
+    remoteIdentityKey: <Buffer 05 4c a1 6e a2 29 a3 4c 4e 94 e2 c3 e8 30 73 7d ec 95 7e 4a 97 19 61 60 7a 53 3c fc 8e aa aa d7 2d>
+  },
+  pendingPreKey: {
+    signedKeyId: 1,
+    baseKey: <Buffer 05 9b 6c c9 63 34 ea d3 b7 68 a5 31 1e f5 78 94 5f 25 ec 05 7e 05 d4 87 65 a0 5f 27 60 91 b9 ca 31>,
+    preKeyId: 269
+  }
+}
+Closing session: SessionEntry {
+  _chains: {
+    'BbXX1UEyh+2Y+uzq7Q/GCTlRQtu3wDQ07meSIEH4BnMH': { chainKey: [Object], chainType: 1, messageKeys: {} }
+  },
+  registrationId: 5270,
+  currentRatchet: {
+    ephemeralKeyPair: {
+      pubKey: <Buffer 05 b5 d7 d5 41 32 87 ed 98 fa ec ea ed 0f c6 09 39 51 42 db b7 c0 34 34 ee 67 92 20 41 f8 06 73 07>,
+      privKey: <Buffer 70 04 e7 5b 70 8e bc 58 01 98 10 03 f3 7b 78 4c 92 f9 d6 9a 32 55 19 31 a0 86 5b 45 ee 4b 95 4b>
+    },
+    lastRemoteEphemeralKey: <Buffer 05 c2 a6 6e f1 88 92 3b ee ae 79 e3 62 b6 30 6b 95 dc ff be f4 72 1e 0d e6 83 d1 dc b1 49 b2 f2 28>,
+    previousCounter: 0,
+    rootKey: <Buffer 2d 0a d7 38 2f 3c 84 cb ad 78 e2 a8 50 7b d7 25 e0 c7 35 c5 ae e9 9d 8f 9f 4c dd da eb 0e 92 50>
+  },
+  indexInfo: {
+    baseKey: <Buffer 05 5e 6f e8 cb 00 8f 6c 98 e3 1f 6d 0e 5d 1d d3 4f 6b 1d 06 dc 29 d3 84 e3 74 d4 b7 61 25 89 ab 44>,
+    baseKeyType: 1,
+    closed: -1,
+    used: 1765598888303,
+    created: 1765598888303,
+    remoteIdentityKey: <Buffer 05 3e 83 58 5e 42 1f f5 97 47 43 f4 9c 21 d4 c8 d3 c7 ff aa b9 e7 fa b0 0a 78 97 fa 16 32 29 1f 25>
+  },
+  pendingPreKey: {
+    signedKeyId: 1,
+    baseKey: <Buffer 05 5e 6f e8 cb 00 8f 6c 98 e3 1f 6d 0e 5d 1d d3 4f 6b 1d 06 dc 29 d3 84 e3 74 d4 b7 61 25 89 ab 44>,
+    preKeyId: 785
+  }
+}
+Closing session: SessionEntry {
+  _chains: {
+    'BfKwuynf/ggKMcyTJv4ZWi1rv2qLjxwfKDSeVuUg/oYt': { chainKey: [Object], chainType: 1, messageKeys: {} }
+  },
+  registrationId: 100,
+  currentRatchet: {
+    ephemeralKeyPair: {
+      pubKey: <Buffer 05 f2 b0 bb 29 df fe 08 0a 31 cc 93 26 fe 19 5a 2d 6b bf 6a 8b 8f 1c 1f 28 34 9e 56 e5 20 fe 86 2d>,
+      privKey: <Buffer b8 ed 94 e6 74 d8 75 c2 17 6e 18 06 56 cd 18 9a c7 43 9e b1 f7 bd d6 b8 80 05 16 89 68 64 21 62>
+    },
+    lastRemoteEphemeralKey: <Buffer 05 30 ca 14 98 d0 1d ed 93 70 55 b0 1e 4b 03 ec 5f 68 58 ad dc e8 7c 17 ae a2 35 8e 15 ff 94 90 19>,
+    previousCounter: 0,
+    rootKey: <Buffer 68 b7 ab 8e db cb 28 11 f5 0a c8 b5 2a 8c 4a 44 3b 0e 7a e8 c7 be b5 e8 73 57 a9 fc d6 fa 7b 62>
+  },
+  indexInfo: {
+    baseKey: <Buffer 05 b5 24 c2 32 df 6e 2f 9e cd 5a 6e b8 b4 28 86 83 80 5f 69 af 21 95 ff 4a c5 00 fa 36 c6 83 3e 64>,
+    baseKeyType: 1,
+    closed: -1,
+    used: 1765598888305,
+    created: 1765598888305,
+    remoteIdentityKey: <Buffer 05 d7 e8 8c 2a 76 03 f6 35 6f a1 2d 97 5d 0f ab 79 a0 de c9 cb 5e 3f 0c 6a 29 a3 22 ee a3 62 34 16>
+  },
+  pendingPreKey: {
+    signedKeyId: 1,
+    baseKey: <Buffer 05 b5 24 c2 32 df 6e 2f 9e cd 5a 6e b8 b4 28 86 83 80 5f 69 af 21 95 ff 4a c5 00 fa 36 c6 83 3e 64>,
+    preKeyId: 734
+  }
+}
+Closing session: SessionEntry {
+  _chains: {
+    'BbZfgFgVBUfgk9DrYBo0d8pVpW/VhskJEnVKucEaYWwI': { chainKey: [Object], chainType: 1, messageKeys: {} }
+  },
+  registrationId: 11,
+  currentRatchet: {
+    ephemeralKeyPair: {
+      pubKey: <Buffer 05 b6 5f 80 58 15 05 47 e0 93 d0 eb 60 1a 34 77 ca 55 a5 6f d5 86 c9 09 12 75 4a b9 c1 1a 61 6c 08>,
+      privKey: <Buffer 40 5e 61 52 e4 c6 1f a8 94 27 f2 dc c1 62 db 98 f6 d1 ab d1 6d a5 fa 71 0d bc bd df 2f 4a 88 48>
+    },
+    lastRemoteEphemeralKey: <Buffer 05 95 0d 56 49 fa 27 3d 49 58 b5 f5 52 93 6f fa e7 74 e2 a6 de 83 3a df cc 86 8b 73 de 32 28 d1 1a>,
+    previousCounter: 0,
+    rootKey: <Buffer 00 62 d9 f2 dc d0 10 38 cf a1 0d eb 7c a1 69 b2 65 89 c1 41 00 37 fe ca 4f 0c 02 88 f5 f6 4d f6>
+  },
+  indexInfo: {
+    baseKey: <Buffer 05 6a 59 e3 51 ef cd ab f7 4f 80 ec 9e f2 aa 1e 55 6b 58 f7 2b 43 48 d2 d2 32 89 71 96 0a 1d e9 2d>,
+    baseKeyType: 1,
+    closed: -1,
+    used: 1765598888308,
+    created: 1765598888308,
+    remoteIdentityKey: <Buffer 05 4a 54 f7 74 6b aa af a8 ff db 0e d8 fd dc a4 50 6e 9c 16 df 46 13 7d eb 38 0f 82 23 b1 be fb 24>
+  },
+  pendingPreKey: {
+    signedKeyId: 1,
+    baseKey: <Buffer 05 6a 59 e3 51 ef cd ab f7 4f 80 ec 9e f2 aa 1e 55 6b 58 f7 2b 43 48 d2 d2 32 89 71 96 0a 1d e9 2d>,
+    preKeyId: 740
+  }
+}
+Closing session: SessionEntry {
+  _chains: {
+    'BXB71h9fjWaH8wo62IQwOPMJ1UaiDU0USVwFr68R+AY/': { chainKey: [Object], chainType: 1, messageKeys: {} }
+  },
+  registrationId: 15875,
+  currentRatchet: {
+    ephemeralKeyPair: {
+      pubKey: <Buffer 05 70 7b d6 1f 5f 8d 66 87 f3 0a 3a d8 84 30 38 f3 09 d5 46 a2 0d 4d 14 49 5c 05 af af 11 f8 06 3f>,
+      privKey: <Buffer 30 ee 97 52 45 5b b0 be f8 f0 25 45 23 f4 45 90 95 57 4f 15 8b 23 2b 34 77 5d f6 94 64 75 b3 6a>
+    },
+    lastRemoteEphemeralKey: <Buffer 05 c5 87 60 b7 ac 5a 4c bd bf 4c 61 27 81 83 29 b8 ac 6e 22 f0 75 b7 82 fb 0e 39 39 75 f2 76 da 37>,
+    previousCounter: 0,
+    rootKey: <Buffer c4 3e 79 3a d5 3f d5 5b 64 6c 6b 62 2e bc be 38 8b 73 62 d0 73 8e f2 fe a4 1a c3 9a 7e 9c ea 12>
+  },
+  indexInfo: {
+    baseKey: <Buffer 05 98 f8 c6 93 6b d2 10 ea 61 22 7f 5e fd 26 c0 d8 4c 20 5a fc 1c 84 c4 35 55 08 cb 7a 4f 78 d9 57>,
+    baseKeyType: 1,
+    closed: -1,
+    used: 1765598888316,
+    created: 1765598888316,
+    remoteIdentityKey: <Buffer 05 f9 1e c1 dd 1f d2 fd e7 01 fc 17 38 88 9a 13 2b 55 45 c3 3a b1 1c dd a3 c9 f6 f9 8c 0a f0 35 11>
+  },
+  pendingPreKey: {
+    signedKeyId: 1,
+    baseKey: <Buffer 05 98 f8 c6 93 6b d2 10 ea 61 22 7f 5e fd 26 c0 d8 4c 20 5a fc 1c 84 c4 35 55 08 cb 7a 4f 78 d9 57>,
+    preKeyId: 778
+  }
+}
+[SessionManager] ✅ Message sent successfully to 5511985337924: 3EB04B424587053BD6F1A5
+[Baileys AI] Auto-response sent to 5511985337924
+ GET /api/v1/whatsapp/sessions 200 in 96ms
+ GET /api/v1/whatsapp/sessions 200 in 115ms
+ GET /api/v1/notifications?limit=20 200 in 158ms
+[QR SSE] Auto-closing stream after 5 minutes
+[QR SSE] Cleanup completed for session: 00dc548e-1b82-4ce5-8f0c-53ea74cda2da
+ GET /api/v1/whatsapp/sessions/00dc548e-1b82-4ce5-8f0c-53ea74cda2da/qr 200 in 302984ms
+[QR SSE] Auto-closing stream after 5 minutes
+[QR SSE] Cleanup completed for session: 00dc548e-1b82-4ce5-8f0c-53ea74cda2da
+ GET /api/v1/whatsapp/sessions/00dc548e-1b82-4ce5-8f0c-53ea74cda2da/qr 200 in 302346ms
+[QR SSE] Auto-closing stream after 5 minutes
+[QR SSE] Cleanup completed for session: 00dc548e-1b82-4ce5-8f0c-53ea74cda2da
+ GET /api/v1/whatsapp/sessions/00dc548e-1b82-4ce5-8f0c-53ea74cda2da/qr 200 in 300223ms
+ GET /api/v1/whatsapp/sessions 200 in 117ms

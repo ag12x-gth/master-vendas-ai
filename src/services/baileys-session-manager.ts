@@ -683,11 +683,12 @@ class BaileysSessionManager {
     try {
       console.log(`[Baileys AI] Generating auto-response for ${phoneNumber}`);
 
-      // Buscar conversa E conexão para determinar agente IA
+      // Buscar conversa E conexão para determinar agente IA e companyId
       const [conversationData] = await db
         .select({
           conversationPersonaId: conversations.assignedPersonaId,
           connectionPersonaId: connections.assignedPersonaId,
+          companyId: conversations.companyId,
         })
         .from(conversations)
         .leftJoin(connections, eq(conversations.connectionId, connections.id))
@@ -790,14 +791,35 @@ class BaileysSessionManager {
         } catch (error) {
           _lastError = error as Error;
           const statusCode = (error as any)?.status || (error as any)?.code;
-          const isRateLimit = statusCode === 429 || (error as any)?.error?.type === 'rate_limit_error';
+          const errorType = (error as any)?.error?.type || (error as any)?.type || (error as any)?.code;
           
-          if (isRateLimit && attempt < maxRetries) {
+          const isInsufficientQuota = errorType === 'insufficient_quota' || 
+            (error as any)?.error?.code === 'insufficient_quota';
+          const isRateLimit = (statusCode === 429 && !isInsufficientQuota) || 
+            errorType === 'rate_limit_error';
+          
+          if (isInsufficientQuota) {
+            console.error(`[Baileys AI] ❌ QUOTA ESGOTADA: A chave OpenAI não tem créditos suficientes. Usando fallback imediato.`);
+            console.error(`[Baileys AI] 💡 Ação necessária: Verificar billing em https://platform.openai.com/account/billing`);
+            
+            // Notificar admin sobre quota esgotada (fire-and-forget)
+            if (conversationData.companyId) {
+              import('@/lib/notifications/user-notifications.service').then(({ UserNotificationsService }) => {
+                UserNotificationsService.notifyOpenAIQuotaExhausted(
+                  conversationData.companyId,
+                  persona.name
+                ).catch(err => console.error('[Baileys AI] Erro ao notificar quota:', err));
+              });
+            }
+            
+            aiResponse = `Olá! No momento estou com uma limitação temporária. Por favor, tente novamente em alguns minutos ou entre em contato diretamente pelo nosso canal de atendimento.`;
+            break;
+          } else if (isRateLimit && attempt < maxRetries) {
             const backoffDelay = baseDelay * Math.pow(2, attempt - 1);
-            console.warn(`[Baileys AI] ⚠️  Rate limit error (429) on attempt ${attempt}. Retrying in ${backoffDelay}ms...`);
+            console.warn(`[Baileys AI] ⚠️  Rate limit temporário (429) na tentativa ${attempt}. Retry em ${backoffDelay}ms...`);
             await new Promise(resolve => setTimeout(resolve, backoffDelay));
           } else if (attempt === maxRetries) {
-            console.error(`[Baileys AI] ❌ Failed to generate response after ${maxRetries} attempts. Using fallback.`);
+            console.error(`[Baileys AI] ❌ Falha ao gerar resposta após ${maxRetries} tentativas. Usando fallback.`);
             aiResponse = `Desculpe, estou processando sua mensagem. Por favor, tente novamente em breve.`;
           } else {
             throw error;
