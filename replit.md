@@ -41,9 +41,14 @@ A interface de login inclui botões de provedores OAuth renderizados condicional
 - **NextAuth.js:** Framework de autenticação.
 
 ## Recent Changes (v2.4.2)
+- **13/12/2025**: Nova OPENAI_API_KEY configurada (projeto openai_agentes_proj_M0hXybXJ_send_gmail):
+  - Chave atualizada via Replit Secrets (seguro)
+  - Workflow reiniciado para carregar nova chave
+  - Servidor funcionando sem erros de quota nos logs
+  - Sistema pronto para automação IA em produção
 - **13/12/2025**: Validação completa do sistema:
   - **45 empresas** confirmadas no banco de dados
-  - **100% cobertura** de credenciais OpenAI para todas as empresas
+  - **100% cobertura** de credenciais OpenAI para todas as empresas (45/45)
   - **268 notificações** de quota esgotada criadas e entregues corretamente
   - **Sistema de fallback** funcionando: mensagens enviadas mesmo com quota excedida
   - **UI responsiva** validada via screenshot (login v2.4.2 renderizando corretamente)
