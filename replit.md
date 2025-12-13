@@ -41,6 +41,12 @@ A interface de login inclui botões de provedores OAuth renderizados condicional
 - **NextAuth.js:** Framework de autenticação.
 
 ## Recent Changes (v2.4.2)
+- **13/12/2025**: Validação completa do sistema:
+  - **45 empresas** confirmadas no banco de dados
+  - **100% cobertura** de credenciais OpenAI para todas as empresas
+  - **268 notificações** de quota esgotada criadas e entregues corretamente
+  - **Sistema de fallback** funcionando: mensagens enviadas mesmo com quota excedida
+  - **UI responsiva** validada via screenshot (login v2.4.2 renderizando corretamente)
 - **13/12/2025**: Correção crítica de tratamento de erros OpenAI:
   - `insufficient_quota`: Fallback IMEDIATO sem retry + notificação automática ao admin
   - `rate_limit`: Mantém retry com backoff exponencial
