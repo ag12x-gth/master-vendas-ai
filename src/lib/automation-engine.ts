@@ -134,6 +134,7 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
                     connectionId: action.connectionId,
                     to: contact.phone,
                     message: action.value,
+                    templateId: (action as any).templateId,
                 });
                 if (!result.success) throw new Error(result.error || 'Falha ao enviar via APICloud');
                 break;
@@ -145,6 +146,7 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
                     connectionId: action.connectionId,
                     to: contact.phone,
                     message: action.value,
+                    templateId: (action as any).templateId,
                 });
                 if (!result.success) throw new Error(result.error || 'Falha ao enviar via Baileys');
                 break;

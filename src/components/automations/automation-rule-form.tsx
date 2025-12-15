@@ -216,15 +216,15 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
       const loadTemplates = async () => {
         setLoadingTemplates(true);
         try {
-          const res = await fetch(`/api/v1/templates?connectionId=${selectedConnectionForTemplates}`);
+          const res = await fetch(`/api/v1/templates/by-connection?connectionId=${selectedConnectionForTemplates}`);
           if (!res.ok) {
             setAvailableTemplates([]);
             return;
           }
           const data = await res.json();
-          setAvailableTemplates(data.templates || data || []);
+          setAvailableTemplates(data.templates || []);
         } catch (error) {
-          console.error('Erro ao carregar templates:', error);
+          console.error('[TEMPLATES] Erro ao carregar:', error);
           setAvailableTemplates([]);
         } finally {
           setLoadingTemplates(false);

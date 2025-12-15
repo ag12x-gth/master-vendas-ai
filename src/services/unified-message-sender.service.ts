@@ -11,6 +11,7 @@ export interface UnifiedSendOptions {
   connectionId: string;
   to: string;
   message: string;
+  templateId?: string;
   templateName?: string;
   templateParams?: Record<string, string>;
 }
