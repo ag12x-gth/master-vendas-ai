@@ -39,8 +39,8 @@ export async function triggerWebhookCampaign(context: TriggerContext): Promise<v
     if (!contact) {
       const result = await conn`
         INSERT INTO contacts 
-        (company_id, name, email, phone, document, status, created_at)
-        VALUES (${companyId}, ${customer.name}, ${customer.email}, ${customer.phoneNumber}, ${customer.document}, 'active', NOW())
+        (company_id, name, email, phone, status, created_at)
+        VALUES (${companyId}, ${customer.name}, ${customer.email}, ${customer.phoneNumber}, 'active', NOW())
         RETURNING id
       `;
       contact = (result as any)?.[0];
