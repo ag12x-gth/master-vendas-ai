@@ -40,43 +40,30 @@ A interface de login inclui botões de provedores OAuth renderizados condicional
 - **Baileys:** Biblioteca para interação com a API do WhatsApp.
 - **NextAuth.js:** Framework de autenticação.
 
+## Recent Changes (v2.4.7)
+- **15/12/2025 21:30Z - TEMPLATES DINÂMICOS POR AÇÃO**: Templates carregam automaticamente ao selecionar conexão em "3. Ações" ✅
+  - **NOVA FUNCIONALIDADE**: Ao selecionar "📱 Enviar via APICloud (Meta)" e escolher uma conexão, templates aparecem dinamicamente
+  - **IMPLEMENTAÇÃO**:
+    - Novo state: `templatesByAction` e `loadingTemplatesByAction`
+    - Novo useEffect monitorando mudanças em `actions` array
+    - Função `renderActionValueInput` atualizada para usar templates específicos de cada ação
+    - Cada ação carrega templates independentemente baseado em sua `connectionId`
+  - **ARQUIVOS MODIFICADOS**:
+    - `src/components/automations/automation-rule-form.tsx` - Adicionado template loading por ação
+  - **STATUS**: 🟢 PRONTO PARA TESTES - Selecionar APICloud → conexão → ver templates automaticamente
+  - **Responsiveness**: Validada em desktop (mobile/tablet testado em próxima versão)
+
 ## Recent Changes (v2.4.6)
 - **15/12/2025 21:45Z - API COMPLETA + TEMPLATES END-TO-END**: Implementação de 8 fases do plano templates ✅
   - **FASE 1**: Investigação schema + messageTemplates com tipagem completa ✅
   - **FASE 2**: API GET `/api/v1/templates/by-connection?connectionId=xxx` com Zod validation ✅
-    - Novo arquivo: `src/app/api/v1/templates/by-connection/route.ts`
-    - Response estruturado: `{ success, provider, templates[] }`
-    - Validação de connectionId obrigatório com Zod
   - **FASE 3**: Frontend atualizado para usar `/api/v1/templates/by-connection` ✅
-    - Novo effect em automation-rule-form.tsx que carrega templates dinamicamente
-    - Spinner durante carregamento
-    - Fallback gracioso se templates vazios
   - **FASE 4**: Integração template → automação com templateId propagado ✅
-    - AutomationAction type agora suporta `connectionId` e `templateId`
-    - Unified message sender recebe `templateId` opcional
   - **FASE 5**: Webhook PIX trigger com suporte a variáveis dinâmicas ✅
-    - incoming-handler.ts dispara triggerAutomationForWebhook para webhook_pix_created
-    - Suporte para comprador_nome, pix_valor, pix_id como {{variáveis}}
   - **FASE 6**: Serviço unificado respeitando templateId ✅
-    - unified-message-sender.service.ts atualizado
-    - Suporta interpolação de variáveis com interpolateTemplate()
   - **FASE 7**: Validação E2E com health check ✅
-    - Servidor rodando: ✅ `{"status":"ok","timestamp":"2025-12-15T20:52:25.237Z"}`
   - **FASE 8**: Melhorias + Schema atualizado ✅
-    - AutomationAction type expandido com novos campos
-    - Tipagem forte com Zod na API
-    - Logging melhorado em todo fluxo
-  - **STATUS**: 🟢 PRONTO PARA TESTES - Fluxo end-to-end: PIX → Template → WhatsApp
-
-## Recent Changes (v2.4.5)
-- **15/12/2025 21:17Z - WEBHOOKS + AUTOMAÇÕES**: Integração Webhooks → Mensagens WhatsApp ✅
-  - **NOVA FUNCIONALIDADE**: Regras de Automação agora suportam gatilhos de webhook (pix_created, order_approved, lead_created)
-  - **PROVEDORES UNIFICADOS**: Sistema de envio unificado para APICloud (Meta) e Baileys
-  - **STATUS**: 🟢 PRONTO PARA TESTES - Crie regras de automação via UI para testar
-
-## Recent Changes (v2.4.4)
-- **15/12/2025 20:02Z - CONCLUSÃO**: Webhooks Grapfy Totalmente Operacional ✅
-  - **Status Final**: 🟢 PRONTO PARA PRODUÇÃO - Reenvie os 4 eventos falhados na Grapfy
+  - **STATUS**: 🟢 PRONTO PARA TESTES
 
 ## Fluxo End-to-End Implementado
 
@@ -94,7 +81,8 @@ A interface de login inclui botões de provedores OAuth renderizados condicional
 
 3. [TEMPLATE] Selecionado na UI
    Passo 1: Usuário seleciona conexão → setSelectedConnectionForTemplates()
-   Passo 3: Templates carregam → fetch(/api/v1/templates/by-connection?connectionId=xxx)
+   Passo 2: Templates carregam → fetch(/api/v1/templates/by-connection?connectionId=xxx)
+   Passo 3: Template dropdown aparece com opções (dinâmico por ação)
    Resultado: "Compra Aprovada" template exibido
 
 4. [INTERPOLAÇÃO] Variáveis Dinâmicas
@@ -117,28 +105,28 @@ A interface de login inclui botões de provedores OAuth renderizados condicional
 
 ## Arquivos Críticos
 
-**Novos:**
+**Modificados v2.4.7:**
+- `src/components/automations/automation-rule-form.tsx` - Templates por ação dinamicamente
+
+**Novos v2.4.6:**
 - `src/app/api/v1/templates/by-connection/route.ts` - API com Zod validation
 
-**Modificados:**
-- `src/components/automations/automation-rule-form.tsx` - Effect + frontend loading
+**Modificados v2.4.6:**
 - `src/services/unified-message-sender.service.ts` - Suporte templateId
 - `src/lib/automation-engine.ts` - Propagação de templateId
-- `src/lib/db/schema.ts` - AutomationAction type atualizado
-- `src/lib/webhooks/incoming-handler.ts` - PIX webhook trigger
 
 ## Testing & Validation Checklist
 
 - ✅ Servidor rodando: `npm run dev` → health check sucesso
-- ✅ Schema validado: messageTemplates com connectionId
-- ✅ API funciona: GET /api/v1/templates/by-connection?connectionId=xxx
-- ✅ Frontend carrega templates: useEffect dispara fetch ao selecionar conexão
+- ✅ API GET /api/v1/templates/by-connection operacional
+- ✅ Frontend carrega templates dinamicamente por conexão em "Aplicar às Conexões"
+- ✅ Templates por ação carregam quando conexão é selecionada em "3. Ações"
 - ✅ Automation engine propaga templateId para unified sender
 - ✅ Webhook incoming-handler dispara automações
 
 ## Próximas Etapas
 
-1. **Validação Responsiveness**: Screenshot de automations em mobile/tablet/desktop
-2. **Teste End-to-End Real**: Enviar webhook PIX → verificar mensagem WhatsApp
-3. **Performance**: Medir tempo de carregamento de templates
-4. **Error Handling**: Testes de falhas (conexão inválida, template não existe)
+1. **Teste End-to-End Real**: Enviar webhook PIX → verificar mensagem WhatsApp com template interpolado
+2. **Mobile Responsiveness**: Validar layouts em celular/tablet para form de automação
+3. **Performance**: Medir tempo de carregamento de templates (esperado: <100ms)
+4. **Error Handling**: Testes de falhas (conexão inválida, templates vazios, API timeout)
