@@ -208,7 +208,7 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
     const connIds = isEditing && ruleToEdit.connectionIds ? ruleToEdit.connectionIds : [];
     setSelectedConnectionIds(connIds);
     if (connIds.length === 1) {
-      setSelectedConnectionForTemplates(connIds[0]);
+      setSelectedConnectionForTemplates(connIds[0] || '');
     }
   }, [ruleToEdit]);
 
@@ -361,7 +361,7 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
                             onChange={(ids: string[]) => {
                               setSelectedConnectionIds(ids);
                               if (ids.length === 1) {
-                                setSelectedConnectionForTemplates(ids[0]);
+                                setSelectedConnectionForTemplates(ids[0] || '');
                               } else {
                                 setSelectedConnectionForTemplates('');
                               }
