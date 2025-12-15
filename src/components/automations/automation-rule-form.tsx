@@ -25,7 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { PlusCircle, Trash2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createToastNotifier } from '@/lib/toast-helper';
-import type { Tag, ContactList, User, AutomationRule, AutomationCondition, AutomationAction, Connection } from '@/lib/types';
+import type { Tag, ContactList, User, AutomationRule, AutomationCondition, AutomationAction, Connection, Template } from '@/lib/types';
 import { ContactMultiSelect } from '../contacts/contact-multi-select';
 
 interface AutomationRuleFormProps {
@@ -97,14 +97,17 @@ const renderConditionValueInput = (
 }
 
 const renderActionValueInput = (
-    action: Partial<AutomationAction>,
+    action: Partial<AutomationAction & { connectionId?: string; templateId?: string }>,
     onChange: (id: string, field: string, value: any) => void,
     tags: Tag[], 
     users: User[],
     lists: ContactList[],
-    connections: Connection[] = []
+    connections: Connection[] = [],
+    templates: Template[] = [],
+    loadingTemplates: boolean = false
 ) => {
-    switch(action.type) {
+    const actionType = action.type as string;
+    switch(actionType) {
         case 'send_message':
             return <Textarea placeholder="Digite a mensagem a ser enviada..." value={action.value || ''} onChange={(e) => onChange(action.id!, 'value', e.target.value)} />;
         case 'send_message_apicloud':
@@ -113,21 +116,36 @@ const renderActionValueInput = (
                 <div className="space-y-3">
                     <div>
                         <Label className="text-xs">Conexão</Label>
-                        <Select value={action.connectionId || ''} onValueChange={(val) => onChange(action.id!, 'connectionId', val)}>
+                        <Select value={(action as any).connectionId || ''} onValueChange={(val) => onChange(action.id!, 'connectionId', val)}>
                             <SelectTrigger><SelectValue placeholder="Selecione uma conexão" /></SelectTrigger>
                             <SelectContent>
                                 {connections
-                                    .filter(c => action.type === 'send_message_apicloud' 
-                                        ? c.type === 'meta' 
-                                        : c.type === 'baileys')
+                                    .filter(c => actionType === 'send_message_apicloud' 
+                                        ? c.connectionType === 'meta' 
+                                        : c.connectionType === 'baileys')
                                     .map(c => <SelectItem key={c.id} value={c.id}>{c.config_name}</SelectItem>)
                                 }
                             </SelectContent>
                         </Select>
                     </div>
+                    {templates.length > 0 && (
+                        <div>
+                            <Label className="text-xs">Template (Opcional)</Label>
+                            <Select value={(action as any).templateId || ''} disabled={loadingTemplates} onValueChange={(val) => onChange(action.id!, 'templateId', val)}>
+                                <SelectTrigger><SelectValue placeholder={loadingTemplates ? "Carregando..." : "Selecione um template"} /></SelectTrigger>
+                                <SelectContent>
+                                    {templates.map(t => (
+                                        <SelectItem key={t.id} value={t.id}>
+                                            {t.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
                     <div>
-                        <Label className="text-xs">Mensagem</Label>
-                        <Textarea placeholder="Digite a mensagem a ser enviada..." value={action.value || ''} onChange={(e) => onChange(action.id!, 'value', e.target.value)} />
+                        <Label className="text-xs">Mensagem {templates.length > 0 && (action as any).templateId ? '(ou variáveis)' : ''}</Label>
+                        <Textarea placeholder="Digite a mensagem a ser enviada ou {{variável}}" value={action.value || ''} onChange={(e) => onChange(action.id!, 'value', e.target.value)} />
                     </div>
                 </div>
             );
@@ -173,6 +191,9 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
   const [availableLists, setAvailableLists] = useState<ContactList[]>([]);
   const [availableUsers, setAvailableUsers] = useState<User[]>([]);
   const [availableConnections, setAvailableConnections] = useState<Connection[]>([]);
+  const [availableTemplates, setAvailableTemplates] = useState<Template[]>([]);
+  const [loadingTemplates, setLoadingTemplates] = useState(false);
+  const [selectedConnectionForTemplates, setSelectedConnectionForTemplates] = useState<string>('');
 
   const { toast } = useToast();
   const notify = useMemo(() => createToastNotifier(toast), [toast]);
@@ -183,8 +204,37 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
     setTriggerEvent(isEditing ? ruleToEdit.triggerEvent : eventTriggers[0]?.value || '');
     setConditions(isEditing ? ruleToEdit.conditions.map(c => ({...c, id: c.id || String(Date.now())})) : [{ id: String(Date.now()), type: 'message_content', operator: 'contains', value: '' }]);
     setActions(isEditing ? ruleToEdit.actions.map(a => ({...a, id: a.id || String(Date.now())})) : [{ id: String(Date.now()), type: 'send_message', value: '' }]);
-    setSelectedConnectionIds(isEditing ? ruleToEdit.connectionIds || [] : []);
+    const connIds = isEditing && ruleToEdit.connectionIds ? ruleToEdit.connectionIds : [];
+    setSelectedConnectionIds(connIds);
+    if (connIds.length === 1) {
+      setSelectedConnectionForTemplates(connIds[0]);
+    }
   }, [ruleToEdit]);
+
+  useEffect(() => {
+    if (selectedConnectionForTemplates) {
+      const loadTemplates = async () => {
+        setLoadingTemplates(true);
+        try {
+          const res = await fetch(`/api/v1/templates?connectionId=${selectedConnectionForTemplates}`);
+          if (!res.ok) {
+            setAvailableTemplates([]);
+            return;
+          }
+          const data = await res.json();
+          setAvailableTemplates(data.templates || data || []);
+        } catch (error) {
+          console.error('Erro ao carregar templates:', error);
+          setAvailableTemplates([]);
+        } finally {
+          setLoadingTemplates(false);
+        }
+      };
+      loadTemplates();
+    } else {
+      setAvailableTemplates([]);
+    }
+  }, [selectedConnectionForTemplates]);
 
   useEffect(() => {
     if (open) {
@@ -307,7 +357,14 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
                         <Label>Aplicar às Conexões</Label>
                          <ContactMultiSelect
                             selected={selectedConnectionIds}
-                            onChange={setSelectedConnectionIds}
+                            onChange={(ids: string[]) => {
+                              setSelectedConnectionIds(ids);
+                              if (ids.length === 1) {
+                                setSelectedConnectionForTemplates(ids[0]);
+                              } else {
+                                setSelectedConnectionForTemplates('');
+                              }
+                            }}
                             placeholder="Todas as Conexões"
                             options={connectionOptions}
                         />
@@ -367,7 +424,7 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
                                     <SelectTrigger><SelectValue/></SelectTrigger>
                                     <SelectContent>{actionTypes.map(a => <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>)}</SelectContent>
                                 </Select>
-                                {renderActionValueInput(action, updateAction, availableTags, availableUsers, availableLists, availableConnections)}
+                                {renderActionValueInput(action, updateAction, availableTags, availableUsers, availableLists, availableConnections, availableTemplates, loadingTemplates)}
                             </div>
                         </div>
                      ))}
