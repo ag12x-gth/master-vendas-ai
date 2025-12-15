@@ -63,8 +63,10 @@ export const notificationStatusEnum = pgEnum('notification_status', [
 
   export type AutomationAction = {
     id?: string;
-    type: 'send_message' | 'add_tag' | 'add_to_list' | 'assign_user' | 'move_to_stage';
+    type: 'send_message' | 'send_message_apicloud' | 'send_message_baileys' | 'add_tag' | 'add_to_list' | 'assign_user' | 'move_to_stage';
     value: string;
+    connectionId?: string;
+    templateId?: string;
   }
   
   // ==============================
