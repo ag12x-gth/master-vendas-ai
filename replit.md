@@ -40,6 +40,26 @@ A interface de login inclui botões de provedores OAuth renderizados condicional
 - **Baileys:** Biblioteca para interação com a API do WhatsApp.
 - **NextAuth.js:** Framework de autenticação.
 
+## Recent Changes (v2.4.5)
+- **15/12/2025 21:17Z - WEBHOOKS + AUTOMAÇÕES**: Integração Webhooks → Mensagens WhatsApp ✅
+  - **NOVA FUNCIONALIDADE**: Regras de Automação agora suportam gatilhos de webhook (pix_created, order_approved, lead_created)
+  - **PROVEDORES UNIFICADOS**: Sistema de envio unificado para APICloud (Meta) e Baileys
+  - **CAMPOS ADICIONADOS**:
+    - `send_message_apicloud` - Ação para enviar via Meta com selector de conexão
+    - `send_message_baileys` - Ação para enviar via Baileys com selector de conexão
+    - `webhook_pix_created` - Gatilho para eventos PIX
+    - `webhook_order_approved` - Gatilho para aprovações de compra
+    - `webhook_lead_created` - Gatilho para criação de leads
+    - `webhook_custom` - Gatilho para eventos customizados
+  - **ARQUIVOS CRIADOS**:
+    - `src/services/unified-message-sender.service.ts` - Serviço unificado de envio
+    - `src/lib/automation-engine.ts` - Nova função `triggerAutomationForWebhook()`
+  - **ARQUIVOS MODIFICADOS**:
+    - `src/components/automations/automation-rule-form.tsx` - UI com novos gatilhos/ações
+    - `src/lib/automation-engine.ts` - Suporte para `send_message_apicloud/baileys`
+    - `src/lib/webhooks/incoming-handler.ts` - Dispara automações após webhook
+  - **STATUS**: 🟢 PRONTO PARA TESTES - Crie regras de automação via UI para testar
+
 ## Recent Changes (v2.4.4)
 - **15/12/2025 20:02Z - CONCLUSÃO**: Webhooks Grapfy Totalmente Operacional ✅
   - **PROBLEMA RESOLVIDO**: URL alterada na Grapfy para domínio correto Master IA

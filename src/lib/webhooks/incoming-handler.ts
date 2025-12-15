@@ -268,6 +268,15 @@ async function handleGrapfyEvent(
       plan: data.plan?.name ? { name: data.plan.name } : undefined,
     });
 
+    // NEW: Trigger automation rules for webhook events
+    try {
+      const { triggerAutomationForWebhook } = await import('@/lib/automation-engine');
+      await triggerAutomationForWebhook(companyId, eventType, data);
+      logger.info(`✅ Automations triggered for webhook event: ${eventType}`);
+    } catch (automationError) {
+      logger.warn(`Automation trigger failed (non-blocking):`, automationError);
+    }
+
     logger.info(`✅ Grapfy campaign triggered successfully for event: ${eventType}`);
   } catch (error) {
     logger.error('Error handling Grapfy event', { error, eventType });

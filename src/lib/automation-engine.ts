@@ -22,6 +22,7 @@ import type {
   KanbanStage,
 } from './types';
 import { sendWhatsappTextMessage } from './facebookApiService';
+import { sendUnifiedMessage } from '@/services/unified-message-sender.service';
 import OpenAI from 'openai';
 import {
   detectLanguage,
@@ -120,17 +121,34 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
     const { contact, conversation } = context;
     const logContext: LogContext = { companyId: context.companyId, conversationId: context.conversation.id, ruleId, details: { action } };
 
-    if (!conversation.connectionId) {
-        await logAutomation('WARN', 'Ação ignorada: a conversa não tem ID de conexão.', logContext);
-        return;
-    }
-
     try {
         switch (action.type) {
             case 'send_message':
-                if (!action.value) return;
+                if (!action.value || !conversation.connectionId) return;
                 await sendWhatsappTextMessage({ connectionId: conversation.connectionId, to: contact.phone, text: action.value });
                 break;
+            case 'send_message_apicloud': {
+                if (!action.value || !action.connectionId) return;
+                const result = await sendUnifiedMessage({
+                    provider: 'apicloud',
+                    connectionId: action.connectionId,
+                    to: contact.phone,
+                    message: action.value,
+                });
+                if (!result.success) throw new Error(result.error || 'Falha ao enviar via APICloud');
+                break;
+            }
+            case 'send_message_baileys': {
+                if (!action.value || !action.connectionId) return;
+                const result = await sendUnifiedMessage({
+                    provider: 'baileys',
+                    connectionId: action.connectionId,
+                    to: contact.phone,
+                    message: action.value,
+                });
+                if (!result.success) throw new Error(result.error || 'Falha ao enviar via Baileys');
+                break;
+            }
             case 'add_tag':
                  if (!action.value) return;
                 await db.insert(contactsToTags).values({ contactId: contact.id, tagId: action.value }).onConflictDoNothing();
@@ -983,5 +1001,100 @@ export async function processIncomingMessageTrigger(conversationId: string, mess
             ...logContextBase, 
             details: { processedMessageId: messageId }
         });
+    }
+}
+
+// NEW: Trigger automations for webhook events
+export async function triggerAutomationForWebhook(
+    companyId: string,
+    eventType: string,
+    webhookData: Record<string, any>
+): Promise<void> {
+    try {
+        const customer = webhookData.customer || {};
+        const contactPhone = customer.phoneNumber || '';
+        
+        if (!contactPhone) {
+            console.warn('[Automation Engine] Webhook sem telefone do cliente. Ignorando.');
+            return;
+        }
+
+        // Find or create contact from webhook
+        const contactResults = await db.select().from(contacts).where(
+            eq(contacts.phone, contactPhone)
+        ).limit(1);
+        
+        let contact = contactResults[0];
+        if (!contact) {
+            const result = await db.insert(contacts).values({
+                companyId,
+                name: customer.name || 'Unknown',
+                email: customer.email || '',
+                phone: contactPhone,
+                status: 'active',
+            }).returning();
+            contact = result[0];
+        }
+
+        if (!contact) return;
+
+        // Map webhook event types to trigger events
+        const triggerEventMap: Record<string, string> = {
+            'pix_created': 'webhook_pix_created',
+            'order_approved': 'webhook_order_approved',
+            'lead.created': 'webhook_lead_created',
+        };
+
+        const triggerEvent = triggerEventMap[eventType] || 'webhook_custom';
+
+        // Find matching automation rules
+        const rules = await db.select().from(automationRules).where(and(
+            eq(automationRules.companyId, companyId),
+            eq(automationRules.triggerEvent, triggerEvent),
+            eq(automationRules.isActive, true)
+        ));
+
+        if (rules.length === 0) {
+            console.log(`[Automation Engine] Nenhuma regra de automação para ${triggerEvent}`);
+            return;
+        }
+
+        console.log(`[Automation Engine] Executando ${rules.length} regra(s) para evento ${eventType}`);
+
+        for (const rule of rules) {
+            const logContext = { companyId, conversationId: 'webhook_' + Date.now(), ruleId: rule.id };
+            
+            try {
+                // Mock context for webhook triggers (sem conversa)
+                const mockConversation = {
+                    id: 'webhook_' + Date.now(),
+                    companyId,
+                    connectionId: null,
+                } as any;
+
+                const mockMessage = {
+                    id: 'webhook_msg_' + Date.now(),
+                    content: `Webhook: ${eventType}`,
+                } as any;
+
+                const context: AutomationTriggerContext = {
+                    companyId,
+                    conversation: mockConversation,
+                    contact,
+                    message: mockMessage,
+                };
+
+                // Execute all actions for this rule
+                for (const action of rule.actions) {
+                    await executeAction(action, context, rule.id);
+                }
+
+                await logAutomation('INFO', `Regra webhook executada: ${rule.name}`, logContext);
+            } catch (error) {
+                await logAutomation('ERROR', `Erro ao executar regra webhook: ${(error as Error).message}`, logContext);
+            }
+        }
+    } catch (error) {
+        console.error('[Automation Engine] Erro ao disparar automações webhook:', error);
     }
 }

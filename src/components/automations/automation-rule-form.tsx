@@ -40,6 +40,10 @@ const eventTriggers = [
   { value: 'conversation_opened', label: 'Conversa Aberta' },
   { value: 'conversation_created', label: 'Conversa Criada' },
   { value: 'conversation_updated', label: 'Conversa Atualizada' },
+  { value: 'webhook_pix_created', label: '🔔 Webhook: PIX Gerado' },
+  { value: 'webhook_order_approved', label: '🔔 Webhook: Compra Aprovada' },
+  { value: 'webhook_lead_created', label: '🔔 Webhook: Lead Criado' },
+  { value: 'webhook_custom', label: '🔔 Webhook: Evento Customizado' },
 ];
 
 const conditionTypes = [
@@ -51,6 +55,8 @@ const conditionTypes = [
 
 const actionTypes = [
     { value: 'send_message', label: 'Enviar Mensagem de Texto' },
+    { value: 'send_message_apicloud', label: '📱 Enviar via APICloud (Meta)' },
+    { value: 'send_message_baileys', label: '📱 Enviar via Baileys' },
     { value: 'add_tag', label: 'Adicionar Tag' },
     { value: 'add_to_list', label: 'Adicionar à Lista' },
     { value: 'assign_user', label: 'Atribuir a um Atendente' },
@@ -95,11 +101,36 @@ const renderActionValueInput = (
     onChange: (id: string, field: string, value: any) => void,
     tags: Tag[], 
     users: User[],
-    lists: ContactList[]
+    lists: ContactList[],
+    connections: Connection[] = []
 ) => {
     switch(action.type) {
         case 'send_message':
             return <Textarea placeholder="Digite a mensagem a ser enviada..." value={action.value || ''} onChange={(e) => onChange(action.id!, 'value', e.target.value)} />;
+        case 'send_message_apicloud':
+        case 'send_message_baileys':
+            return (
+                <div className="space-y-3">
+                    <div>
+                        <Label className="text-xs">Conexão</Label>
+                        <Select value={action.connectionId || ''} onValueChange={(val) => onChange(action.id!, 'connectionId', val)}>
+                            <SelectTrigger><SelectValue placeholder="Selecione uma conexão" /></SelectTrigger>
+                            <SelectContent>
+                                {connections
+                                    .filter(c => action.type === 'send_message_apicloud' 
+                                        ? c.type === 'meta' 
+                                        : c.type === 'baileys')
+                                    .map(c => <SelectItem key={c.id} value={c.id}>{c.config_name}</SelectItem>)
+                                }
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div>
+                        <Label className="text-xs">Mensagem</Label>
+                        <Textarea placeholder="Digite a mensagem a ser enviada..." value={action.value || ''} onChange={(e) => onChange(action.id!, 'value', e.target.value)} />
+                    </div>
+                </div>
+            );
         case 'add_tag':
              return (
                 <Select value={action.value || ''} onValueChange={(val) => onChange(action.id!, 'value', val)}>
@@ -336,7 +367,7 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
                                     <SelectTrigger><SelectValue/></SelectTrigger>
                                     <SelectContent>{actionTypes.map(a => <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>)}</SelectContent>
                                 </Select>
-                                {renderActionValueInput(action, updateAction, availableTags, availableUsers, availableLists)}
+                                {renderActionValueInput(action, updateAction, availableTags, availableUsers, availableLists, availableConnections)}
                             </div>
                         </div>
                      ))}
