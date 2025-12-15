@@ -40,20 +40,29 @@ A interface de login inclui botões de provedores OAuth renderizados condicional
 - **Baileys:** Biblioteca para interação com a API do WhatsApp.
 - **NextAuth.js:** Framework de autenticação.
 
-## Recent Changes (v2.4.7)
-- **15/12/2025 21:30Z - TEMPLATES DINÂMICOS POR AÇÃO**: Templates carregam automaticamente ao selecionar conexão em "3. Ações" ✅
-  - **NOVA FUNCIONALIDADE**: Ao selecionar "📱 Enviar via APICloud (Meta)" e escolher uma conexão, templates aparecem dinamicamente
+## Recent Changes (v2.4.8)
+- **15/12/2025 21:30Z - CORREÇÃO: TEMPLATES DE "APLICAR ÀS CONEXÕES"**: Templates agora usam conexão selecionada em seção 1 ✅
+  - **PROBLEMA CORRIGIDO**: Anteriormente, templates eram carregados independentemente por ação
+  - **SOLUÇÃO**: Revertida lógica para usar `selectedConnectionForTemplates` baseado em "Aplicar às Conexões"
+  - **COMPORTAMENTO CORRETO**:
+    1. Usuário seleciona 1 conexão em "1. Gatilho e Escopo" → "Aplicar às Conexões"
+    2. Sistema carrega templates dessa conexão automaticamente
+    3. Em "3. Ações (Então)" → "Enviar via APICloud" → dropdown de templates aparece
+    4. Dropdown mostra templates da conexão selecionada em seção 1
   - **IMPLEMENTAÇÃO**:
-    - Novo state: `templatesByAction` e `loadingTemplatesByAction`
-    - Novo useEffect monitorando mudanças em `actions` array
-    - Função `renderActionValueInput` atualizada para usar templates específicos de cada ação
-    - Cada ação carrega templates independentemente baseado em sua `connectionId`
+    - Removed: `templatesByAction`, `loadingTemplatesByAction` (logic não necessária)
+    - Kept: `selectedConnectionForTemplates`, `availableTemplates`, `loadingTemplates`
+    - useEffect original restaurado para monitorar apenas `selectedConnectionForTemplates`
+    - renderActionValueInput recebe `availableTemplates` global (não por ação)
   - **ARQUIVOS MODIFICADOS**:
-    - `src/components/automations/automation-rule-form.tsx` - Adicionado template loading por ação
-  - **STATUS**: 🟢 PRONTO PARA TESTES - Selecionar APICloud → conexão → ver templates automaticamente
-  - **Responsiveness**: Validada em desktop (mobile/tablet testado em próxima versão)
+    - `src/components/automations/automation-rule-form.tsx` (-75 linhas removidas, lógica simplificada)
+  - **STATUS**: 🟢 PRONTO PARA TESTES - Health check OK, servidor rodando em 0.0.0.0:5000
+  - **Responsiveness**: Validada em desktop
 
-## Recent Changes (v2.4.6)
+## Previous Changes (v2.4.7)
+- **15/12/2025 21:30Z - TEMPLATES DINÂMICOS POR AÇÃO**: Primeira tentativa com templates por ação ✅ (Revertida em v2.4.8)
+
+## Previous Changes (v2.4.6)
 - **15/12/2025 21:45Z - API COMPLETA + TEMPLATES END-TO-END**: Implementação de 8 fases do plano templates ✅
   - **FASE 1**: Investigação schema + messageTemplates com tipagem completa ✅
   - **FASE 2**: API GET `/api/v1/templates/by-connection?connectionId=xxx` com Zod validation ✅
@@ -67,46 +76,42 @@ A interface de login inclui botões de provedores OAuth renderizados condicional
 
 ## Fluxo End-to-End Implementado
 
-**Exemplo: Compra Aprovada via PIX**
+**Exemplo: Compra Aprovada via PIX com Templates da Conexão Selecionada**
 
 ```
-1. [WEBHOOK] PIX Criado
-   POST /api/v1/webhooks/incoming/{companyId}
-   Body: { evento: "pix_created", comprador: "João", valor: "150.00" }
+1. [GATILHO] "1. Gatilho e Escopo"
+   - Seleciona trigger: "webhook_pix_created"
+   - Seleciona conexão em "Aplicar às Conexões": Meta Connection #1
 
-2. [AUTOMAÇÃO] Regra Acionada
-   Trigger: webhook_pix_created
-   Condições: evento == "pix_created"
-   Ação: send_message_apicloud (conexão Meta + template)
+2. [TEMPLATES] Carregamento Automático
+   - Sistema carrega templates de Meta Connection #1
+   - API: GET /api/v1/templates/by-connection?connectionId=meta_123
+   - Resultado: ["Compra Aprovada", "Aguardando Pagamento", "Pagamento Recusado"]
 
-3. [TEMPLATE] Selecionado na UI
-   Passo 1: Usuário seleciona conexão → setSelectedConnectionForTemplates()
-   Passo 2: Templates carregam → fetch(/api/v1/templates/by-connection?connectionId=xxx)
-   Passo 3: Template dropdown aparece com opções (dinâmico por ação)
-   Resultado: "Compra Aprovada" template exibido
+3. [AÇÃO] "3. Ações (Então)"
+   - Seleciona ação: "Enviar via APICloud (Meta)"
+   - Seleciona conexão: Meta Connection #1 (ou qualquer outra)
+   - Dropdown "Template (Opcional)" mostra templates de Meta Connection #1 (da seção 1)
+   - Usuário pode selecionar "Compra Aprovada" template
 
 4. [INTERPOLAÇÃO] Variáveis Dinâmicas
-   Template: "Olá {{comprador_nome}}, sua compra de R${{pix_valor}} foi aprovada!"
-   Dados webhook: { comprador_nome: "João", pix_valor: "150.00" }
-   Resultado: "Olá João, sua compra de R$150.00 foi aprovada!"
+   - Template: "Olá {{comprador_nome}}, sua compra de R${{pix_valor}} foi aprovada!"
+   - Dados webhook: { comprador_nome: "João", pix_valor: "150.00" }
+   - Resultado: "Olá João, sua compra de R$150.00 foi aprovada!"
 
 5. [ENVIO] Via APICloud/Baileys
-   await sendUnifiedMessage({
-     provider: 'apicloud',
-     connectionId: '...',
-     to: '+5511999999999',
-     message: 'Olá João, sua compra de R$150.00 foi aprovada!',
-     templateId: 'tpl_xyz'
-   })
+   - await sendUnifiedMessage({...})
+   - templateId propagado para unified sender
+   - Mensagem com variáveis interpoladas enviada
 
 6. [LOG] Sucesso registrado
-   ✅ Message sent via APICloud | messageId: 'msg_abc123'
+   - ✅ Message sent via APICloud | messageId: 'msg_abc123'
 ```
 
 ## Arquivos Críticos
 
-**Modificados v2.4.7:**
-- `src/components/automations/automation-rule-form.tsx` - Templates por ação dinamicamente
+**Modificados v2.4.8:**
+- `src/components/automations/automation-rule-form.tsx` - Revertida lógica para usar templates global de "Aplicar às Conexões"
 
 **Novos v2.4.6:**
 - `src/app/api/v1/templates/by-connection/route.ts` - API com Zod validation
@@ -117,10 +122,10 @@ A interface de login inclui botões de provedores OAuth renderizados condicional
 
 ## Testing & Validation Checklist
 
-- ✅ Servidor rodando: `npm run dev` → health check sucesso
+- ✅ Servidor rodando: `npm run dev` → health check sucesso (timestamp: 2025-12-15T21:28:52.509Z)
 - ✅ API GET /api/v1/templates/by-connection operacional
-- ✅ Frontend carrega templates dinamicamente por conexão em "Aplicar às Conexões"
-- ✅ Templates por ação carregam quando conexão é selecionada em "3. Ações"
+- ✅ Frontend: Templates carregam baseado em conexão de "Aplicar às Conexões"
+- ✅ Fluxo: 1 conexão selecionada → templates aparecem em todas as ações
 - ✅ Automation engine propaga templateId para unified sender
 - ✅ Webhook incoming-handler dispara automações
 
