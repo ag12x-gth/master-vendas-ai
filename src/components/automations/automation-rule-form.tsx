@@ -104,9 +104,15 @@ const renderActionValueInput = (
     lists: ContactList[],
     connections: Connection[] = [],
     templates: Template[] = [],
-    loadingTemplates: boolean = false
+    loadingTemplates: boolean = false,
+    templatesByAction: Record<string, Template[]> = {},
+    loadingTemplatesByAction: Record<string, boolean> = {}
 ) => {
     const actionType = action.type as string;
+    // Get templates specific to this action
+    const actionTemplates = templatesByAction[action.id!] || [];
+    const isLoadingActionTemplates = loadingTemplatesByAction[action.id!] || false;
+    
     switch(actionType) {
         case 'send_message':
             return <Textarea placeholder="Digite a mensagem a ser enviada..." value={action.value || ''} onChange={(e) => onChange(action.id!, 'value', e.target.value)} />;
@@ -128,13 +134,13 @@ const renderActionValueInput = (
                             </SelectContent>
                         </Select>
                     </div>
-                    {templates.length > 0 && (
+                    {actionTemplates.length > 0 && (
                         <div>
                             <Label className="text-xs">Template (Opcional)</Label>
-                            <Select value={(action as any).templateId || ''} disabled={loadingTemplates} onValueChange={(val) => onChange(action.id!, 'templateId', val)}>
-                                <SelectTrigger><SelectValue placeholder={loadingTemplates ? "Carregando..." : "Selecione um template"} /></SelectTrigger>
+                            <Select value={(action as any).templateId || ''} disabled={isLoadingActionTemplates} onValueChange={(val) => onChange(action.id!, 'templateId', val)}>
+                                <SelectTrigger><SelectValue placeholder={isLoadingActionTemplates ? "Carregando..." : "Selecione um template"} /></SelectTrigger>
                                 <SelectContent>
-                                    {templates.map(t => (
+                                    {actionTemplates.map(t => (
                                         <SelectItem key={t.id} value={t.id}>
                                             {t.name}
                                         </SelectItem>
@@ -144,7 +150,7 @@ const renderActionValueInput = (
                         </div>
                     )}
                     <div>
-                        <Label className="text-xs">Mensagem {templates.length > 0 && (action as any).templateId ? '(ou variáveis)' : ''}</Label>
+                        <Label className="text-xs">Mensagem {actionTemplates.length > 0 && (action as any).templateId ? '(ou variáveis)' : ''}</Label>
                         <Textarea placeholder="Digite a mensagem a ser enviada ou {{variável}}" value={action.value || ''} onChange={(e) => onChange(action.id!, 'value', e.target.value)} />
                     </div>
                 </div>
@@ -194,6 +200,8 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
   const [availableTemplates, setAvailableTemplates] = useState<Template[]>([]);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
   const [selectedConnectionForTemplates, setSelectedConnectionForTemplates] = useState<string>('');
+  const [templatesByAction, setTemplatesByAction] = useState<Record<string, Template[]>>({});
+  const [loadingTemplatesByAction, setLoadingTemplatesByAction] = useState<Record<string, boolean>>({});
 
   const { toast } = useToast();
   const notify = useMemo(() => createToastNotifier(toast), [toast]);
@@ -235,6 +243,54 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
       setAvailableTemplates([]);
     }
   }, [selectedConnectionForTemplates]);
+
+  // Load templates for each action that has send_message_apicloud/baileys with a connectionId
+  useEffect(() => {
+    const loadTemplatesForActions = async () => {
+      const actionConnectionMap: Record<string, string> = {};
+      
+      actions.forEach(action => {
+        if ((action.type === 'send_message_apicloud' || action.type === 'send_message_baileys') && (action as any).connectionId) {
+          actionConnectionMap[action.id!] = (action as any).connectionId;
+        }
+      });
+
+      const actionIds = Object.keys(actionConnectionMap);
+      if (actionIds.length === 0) {
+        setTemplatesByAction({});
+        setLoadingTemplatesByAction({});
+        return;
+      }
+
+      // Load templates for each action with a connection
+      const newTemplatesByAction: Record<string, Template[]> = {};
+      const newLoadingByAction: Record<string, boolean> = {};
+
+      for (const actionId of actionIds) {
+        const connectionId = actionConnectionMap[actionId];
+        newLoadingByAction[actionId] = true;
+        
+        try {
+          const res = await fetch(`/api/v1/templates/by-connection?connectionId=${connectionId}`);
+          if (!res.ok) {
+            newTemplatesByAction[actionId] = [];
+          } else {
+            const data = await res.json();
+            newTemplatesByAction[actionId] = data.templates || [];
+          }
+        } catch (error) {
+          console.error(`[TEMPLATES] Erro ao carregar para ação ${actionId}:`, error);
+          newTemplatesByAction[actionId] = [];
+        }
+        newLoadingByAction[actionId] = false;
+      }
+
+      setTemplatesByAction(newTemplatesByAction);
+      setLoadingTemplatesByAction(newLoadingByAction);
+    };
+
+    loadTemplatesForActions();
+  }, [actions]);
 
   useEffect(() => {
     if (open) {
@@ -424,7 +480,7 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
                                     <SelectTrigger><SelectValue/></SelectTrigger>
                                     <SelectContent>{actionTypes.map(a => <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>)}</SelectContent>
                                 </Select>
-                                {renderActionValueInput(action, updateAction, availableTags, availableUsers, availableLists, availableConnections, availableTemplates, loadingTemplates)}
+                                {renderActionValueInput(action, updateAction, availableTags, availableUsers, availableLists, availableConnections, availableTemplates, loadingTemplates, templatesByAction, loadingTemplatesByAction)}
                             </div>
                         </div>
                      ))}
