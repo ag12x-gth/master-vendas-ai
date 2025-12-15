@@ -1,0 +1,84 @@
+Detalhes do Webhook
+{
+  "id": "a3f041b3-532c-4f53-8112-09e46b97273c",
+  "storeId": "peJ9tQQsPAFtGu3o",
+  "webhookSettingId": "5f3a8f14-28b7-4ea5-815c-a9cddd7a71b3",
+  "orderId": "c19d703a-94a1-4662-881e-7e00b3b928bd",
+  "status": "success",
+  "eventType": "order_approved",
+  "attempts": 1,
+  "httpCodeResponse": 200,
+  "url": "https://webhook.site/2acc703c-8662-4be9-ab34-58accb52f7d5",
+  "errorReason": null,
+  "payload": {
+    "eventId": "a3f041b3-532c-4f53-8112-09e46b97273c",
+    "eventType": "order_approved",
+    "url": "https://webhook.site/2acc703c-8662-4be9-ab34-58accb52f7d5",
+    "status": "approved",
+    "paymentMethod": "pix",
+    "orderId": "c19d703a-94a1-4662-881e-7e00b3b928bd",
+    "storeId": "peJ9tQQsPAFtGu3o",
+    "code": "F1wpUzmZoDMiC3ll",
+    "isOrderBump": false,
+    "type": "charge",
+    "shipmentValue": "0.00",
+    "discount": "0.00",
+    "automaticDiscount": "0.00",
+    "subTotal": 97,
+    "total": 97,
+    "qrCode": "00020126890014br.gov.bcb.pix01364c5ada51-8bdf-4d8a-bdeb-fd23416ed3c50227Venda realizada pela Grapfy520400005303986540597.005802BR5917IS SOLUTIONS LTDA6007Maringa62290525ISSOLUTI00000565854238ASA63044F97",
+    "pixExpirationAt": "2025-12-12T17:00:57.000Z",
+    "cupomCode": null,
+    "installmentCount": 1,
+    "installmentValue": "97.00",
+    "refundObservation": null,
+    "customer": {
+      "id": "3gG4iQqMIv76sAHE",
+      "name": "Israel ERIK Dantas Barreto",
+      "email": "israelerik.barreto@gmail.com",
+      "phoneNumber": "11959924553",
+      "document": "41396291857"
+    },
+    "address": null,
+    "commissions": {
+      "planBasePrice": 97,
+      "fees": 6.27,
+      "myCommission": 90.73,
+      "splits": [
+        {
+          "id": "dbf31fbf-422d-4859-a0d6-0d81aa60cd30",
+          "value": 90.73,
+          "type": "producer",
+          "name": "Antônio Fogaça",
+          "email": "euantoniofogaca1@gmail.com"
+        }
+      ]
+    },
+    "plan": {
+      "id": "ss4N935iCMoSyZNV",
+      "name": "[PAC -PROTOCOLO ANTI CRISE]"
+    },
+    "product": {
+      "id": "uIQNpZxTk5MAZ80i",
+      "name": "PAC - PROTOCOLO ANTI CRISE",
+      "quantity": 1
+    },
+    "subscription": null,
+    "trankingParameters": {
+      "utm_campaign": null,
+      "utm_content": null,
+      "utm_medium": null,
+      "utm_source": null,
+      "utm_term": null
+    },
+    "metadata": {
+      "deviceType": "mobile",
+      "browser": "Chrome-143.0.0.0",
+      "operationalSystem": "Android-10"
+    },
+    "createdAt": "2025-12-12T15:00:57.039Z",
+    "approvedAt": "2025-12-12T00:00:00.000Z"
+  },
+  "createdAt": "2025-12-12T12:02:44.763Z",
+  "updatedAt": "2025-12-12T12:02:44.763Z"
+}

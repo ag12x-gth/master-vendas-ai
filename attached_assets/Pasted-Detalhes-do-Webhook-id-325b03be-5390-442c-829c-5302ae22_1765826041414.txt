@@ -1,0 +1,84 @@
+Detalhes do Webhook
+{
+  "id": "325b03be-5390-442c-829c-5302ae22e39b",
+  "storeId": "peJ9tQQsPAFtGu3o",
+  "webhookSettingId": "5f3a8f14-28b7-4ea5-815c-a9cddd7a71b3",
+  "orderId": "d402dfcc-59a8-4c96-92d3-4c3b3f552cfc",
+  "status": "failed",
+  "eventType": "pix_created",
+  "attempts": 1,
+  "httpCodeResponse": 404,
+  "url": "https://grapfy.com/api/v1/webhooks/incoming/682b91ea-15ee-42da-8855-70309b237008",
+  "errorReason": "Not Found",
+  "payload": {
+    "eventId": "325b03be-5390-442c-829c-5302ae22e39b",
+    "eventType": "pix_created",
+    "url": "https://grapfy.com/api/v1/webhooks/incoming/682b91ea-15ee-42da-8855-70309b237008",
+    "status": "pending",
+    "paymentMethod": "pix",
+    "orderId": "d402dfcc-59a8-4c96-92d3-4c3b3f552cfc",
+    "storeId": "peJ9tQQsPAFtGu3o",
+    "code": "sdnj5Ig8sE4Qy2Sd",
+    "isOrderBump": false,
+    "type": "charge",
+    "shipmentValue": "0.00",
+    "discount": "0.00",
+    "automaticDiscount": "0.00",
+    "subTotal": 97,
+    "total": 97,
+    "qrCode": "00020126890014br.gov.bcb.pix01364c5ada51-8bdf-4d8a-bdeb-fd23416ed3c50227Venda realizada pela Grapfy520400005303986540597.005802BR5917IS SOLUTIONS LTDA6007Maringa62290525ISSOLUTI00000566405066ASA63042D7C",
+    "pixExpirationAt": "2025-12-13T22:37:17.000Z",
+    "cupomCode": null,
+    "installmentCount": 1,
+    "installmentValue": "97.00",
+    "refundObservation": null,
+    "customer": {
+      "id": "GEKow4Y3p1jjWhnF",
+      "name": "Luis Felipe Silva Souza ",
+      "email": "zickyclash@gmail.com",
+      "phoneNumber": "16981619604",
+      "document": "58424923855"
+    },
+    "address": null,
+    "commissions": {
+      "planBasePrice": 97,
+      "fees": 6.27,
+      "myCommission": 90.73,
+      "splits": [
+        {
+          "id": "b76eb146-118e-4c65-af8e-ac70397f46f7",
+          "value": 90.73,
+          "type": "producer",
+          "name": "Antônio Fogaça",
+          "email": "euantoniofogaca1@gmail.com"
+        }
+      ]
+    },
+    "plan": {
+      "id": "ss4N935iCMoSyZNV",
+      "name": "[PAC -PROTOCOLO ANTI CRISE]"
+    },
+    "product": {
+      "id": "uIQNpZxTk5MAZ80i",
+      "name": "PAC - PROTOCOLO ANTI CRISE",
+      "quantity": 1
+    },
+    "subscription": null,
+    "trankingParameters": {
+      "utm_campaign": null,
+      "utm_content": null,
+      "utm_medium": null,
+      "utm_source": null,
+      "utm_term": null
+    },
+    "metadata": {
+      "deviceType": "mobile",
+      "browser": "Chrome-142.0.0.0",
+      "operationalSystem": "Android-10"
+    },
+    "createdAt": "2025-12-13T20:37:17.973Z",
+    "approvedAt": null
+  },
+  "createdAt": "2025-12-13T17:37:18.393Z",
+  "updatedAt": "2025-12-13T17:37:18.393Z"
+}

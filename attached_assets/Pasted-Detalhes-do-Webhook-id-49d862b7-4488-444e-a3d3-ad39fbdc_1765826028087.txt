@@ -1,0 +1,84 @@
+Detalhes do Webhook
+{
+  "id": "49d862b7-4488-444e-a3d3-ad39fbdc3711",
+  "storeId": "peJ9tQQsPAFtGu3o",
+  "webhookSettingId": "5f3a8f14-28b7-4ea5-815c-a9cddd7a71b3",
+  "orderId": "226ab1cf-352e-4286-9ffc-c069511c0eca",
+  "status": "failed",
+  "eventType": "order_approved",
+  "attempts": 1,
+  "httpCodeResponse": 404,
+  "url": "https://grapfy.com/api/v1/webhooks/incoming/682b91ea-15ee-42da-8855-70309b237008",
+  "errorReason": "Not Found",
+  "payload": {
+    "eventId": "49d862b7-4488-444e-a3d3-ad39fbdc3711",
+    "eventType": "order_approved",
+    "url": "https://grapfy.com/api/v1/webhooks/incoming/682b91ea-15ee-42da-8855-70309b237008",
+    "status": "approved",
+    "paymentMethod": "creditCard",
+    "orderId": "226ab1cf-352e-4286-9ffc-c069511c0eca",
+    "storeId": "peJ9tQQsPAFtGu3o",
+    "code": "307S3fseMTQK4X2Y",
+    "isOrderBump": false,
+    "type": "charge",
+    "shipmentValue": "0.00",
+    "discount": "0.00",
+    "automaticDiscount": "0.00",
+    "subTotal": 97,
+    "total": 97,
+    "qrCode": null,
+    "pixExpirationAt": null,
+    "cupomCode": null,
+    "installmentCount": 1,
+    "installmentValue": "97.00",
+    "refundObservation": null,
+    "customer": {
+      "id": "DI6ja9qCvIjbMgSq",
+      "name": "Marcelo Iésus Barbosa Gabriel Vieira ",
+      "email": "marceloiesus@icloud.com",
+      "phoneNumber": "11975160344",
+      "document": "45823702841"
+    },
+    "address": null,
+    "commissions": {
+      "planBasePrice": 97,
+      "fees": 6.27,
+      "myCommission": 90.73,
+      "splits": [
+        {
+          "id": "6abadcaa-2a6b-4354-841f-77d855ab83fc",
+          "value": 90.73,
+          "type": "producer",
+          "name": "Antônio Fogaça",
+          "email": "euantoniofogaca1@gmail.com"
+        }
+      ]
+    },
+    "plan": {
+      "id": "ss4N935iCMoSyZNV",
+      "name": "[PAC -PROTOCOLO ANTI CRISE]"
+    },
+    "product": {
+      "id": "uIQNpZxTk5MAZ80i",
+      "name": "PAC - PROTOCOLO ANTI CRISE",
+      "quantity": 1
+    },
+    "subscription": null,
+    "trankingParameters": {
+      "utm_campaign": null,
+      "utm_content": null,
+      "utm_medium": null,
+      "utm_source": null,
+      "utm_term": null
+    },
+    "metadata": {
+      "deviceType": "mobile",
+      "browser": "Mobile Safari-26.1",
+      "operationalSystem": "iOS-18.7"
+    },
+    "createdAt": "2025-12-15T15:02:19.967Z",
+    "approvedAt": "2025-12-15T15:02:25.216Z"
+  },
+  "createdAt": "2025-12-15T12:02:25.410Z",
+  "updatedAt": "2025-12-15T12:02:25.410Z"
+}
