@@ -40,6 +40,16 @@ A interface de login inclui botões de provedores OAuth renderizados condicional
 - **Baileys:** Biblioteca para interação com a API do WhatsApp.
 - **NextAuth.js:** Framework de autenticação.
 
+## Recent Changes (v2.4.4)
+- **15/12/2025**: Validação completa de webhooks com evidências empíricas:
+  - **Webhook Grapfy** testado e funcionando (endpoint `/api/v1/webhooks/incoming/[companySlug]`)
+  - **Webhook Meta** testado e funcionando com validação HMAC (endpoint `/api/webhooks/meta/[slug]`)
+  - **Bug corrigido**: Removida coluna `document` inexistente do INSERT em `webhook-campaign-trigger.service.ts`
+  - **Eventos testados**: 2 eventos `pix_created` processados com sucesso (IDs: c431b314, 466fc953)
+  - **Contato criado**: ID d89b96d7-dfff-4d1b-825c-0c39b973663c via webhook
+  - **Health check**: GET retorna `{"status":"healthy"}` corretamente
+  - **UI validada**: Login v2.4.2 com Facebook OAuth renderizando corretamente
+
 ## Recent Changes (v2.4.3)
 - **13/12/2025**: Cobertura 100% de agentes IA implementada:
   - **41 novos agentes** "Atendente Virtual" criados para empresas sem agentes
