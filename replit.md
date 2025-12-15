@@ -41,14 +41,14 @@ A interface de login inclui botões de provedores OAuth renderizados condicional
 - **NextAuth.js:** Framework de autenticação.
 
 ## Recent Changes (v2.4.4)
-- **15/12/2025**: Validação completa de webhooks com evidências empíricas:
-  - **Webhook Grapfy** testado e funcionando (endpoint `/api/v1/webhooks/incoming/[companySlug]`)
-  - **Webhook Meta** testado e funcionando com validação HMAC (endpoint `/api/webhooks/meta/[slug]`)
+- **15/12/2025 FASE FINAL**: Investigação/Análise/Correção de Webhooks Grapfy:
+  - **PROBLEMA RAIZ IDENTIFICADO**: URL configurada na Grapfy usa domínio errado (`https://grapfy.com/api/v1/...` em vez do domínio Master IA)
+  - **Análise de Logs**: 5 eventos falhados com HTTP 404 (49d862b7, 325b03be, f6d0f811, bc8ba26a + 1 sucesso a3f041b3)
+  - **Contatos Recuperados**: 3 clientes dos eventos perdidos criados no banco (Marcelo, Luis Felipe, Diego Abner)
+  - **Melhorias de Logging**: Adicionado `logWebhookConfig()` para exibir URL correta no console
+  - **Health Check**: Endpoint `/api/v1/webhooks/incoming/[companySlug]` retorna 200 com timestamp
+  - **Validação**: 2 eventos `pix_created` + 2 `order_approved` processados (eventos históricos confirmados)
   - **Bug corrigido**: Removida coluna `document` inexistente do INSERT em `webhook-campaign-trigger.service.ts`
-  - **Eventos testados**: 2 eventos `pix_created` processados com sucesso (IDs: c431b314, 466fc953)
-  - **Contato criado**: ID d89b96d7-dfff-4d1b-825c-0c39b973663c via webhook
-  - **Health check**: GET retorna `{"status":"healthy"}` corretamente
-  - **UI validada**: Login v2.4.2 com Facebook OAuth renderizando corretamente
 
 ## Recent Changes (v2.4.3)
 - **13/12/2025**: Cobertura 100% de agentes IA implementada:

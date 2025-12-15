@@ -7,6 +7,14 @@ const logger = {
   info: (msg: string, data?: any) => console.log(`[INCOMING-WEBHOOK] ${msg}`, data || ''),
   error: (msg: string, error?: any) => console.error(`[INCOMING-WEBHOOK-ERROR] ${msg}`, error || ''),
   warn: (msg: string, data?: any) => console.warn(`[INCOMING-WEBHOOK-WARN] ${msg}`, data || ''),
+  debug: (msg: string, data?: any) => console.log(`[INCOMING-WEBHOOK-DEBUG] ${msg}`, data || ''),
+};
+
+// URL Configuration Logger
+const logWebhookConfig = (companyId: string, source: string) => {
+  const baseUrl = process.env.DOMAIN || 'https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev';
+  const webhookUrl = `${baseUrl}/api/v1/webhooks/incoming/${companyId}`;
+  logger.info(`✅ Webhook URL for ${source}:`, webhookUrl);
 };
 
 // Validation schema for incoming webhook payload
