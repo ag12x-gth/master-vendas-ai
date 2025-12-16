@@ -54,7 +54,14 @@ export async function GET(_request: NextRequest) {
 // POST /api/v1/automations
 export async function POST(request: NextRequest) {
     try {
-        const companyId = await getCompanyIdFromSession();
+        let companyId: string;
+        try {
+            companyId = await getCompanyIdFromSession();
+        } catch (sessionError) {
+            console.error('[Automations POST] Erro ao obter companyId da sessão:', sessionError);
+            return NextResponse.json({ error: 'Não autorizado: Sessão inválida ou expirada.', details: (sessionError as Error).message }, { status: 401 });
+        }
+
         const body = await request.json();
         const parsed = ruleSchema.safeParse(body);
 
