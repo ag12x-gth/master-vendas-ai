@@ -33,6 +33,71 @@ import {
 import { kanbanLeads, kanbanStagePersonas } from './db';
 import { apiCache } from './api-cache';
 
+// Mapa de variáveis disponíveis por evento webhook
+const WEBHOOK_VARIABLE_TEMPLATES: Record<string, Array<{key: string, label: string}>> = {
+  'webhook_pix_created': [
+    { key: 'customer_name', label: 'Nome do Cliente' },
+    { key: 'customer_phone', label: 'Telefone' },
+    { key: 'customer_email', label: 'Email' },
+    { key: 'pix_value', label: 'Valor do PIX' },
+    { key: 'pix_code', label: 'Código PIX' },
+    { key: 'product_name', label: 'Nome do Produto' },
+    { key: 'order_id', label: 'ID do Pedido' },
+  ],
+  'webhook_order_approved': [
+    { key: 'customer_name', label: 'Nome do Cliente' },
+    { key: 'customer_phone', label: 'Telefone' },
+    { key: 'customer_email', label: 'Email' },
+    { key: 'order_value', label: 'Valor da Compra' },
+    { key: 'product_name', label: 'Nome do Produto' },
+    { key: 'order_id', label: 'ID do Pedido' },
+    { key: 'payment_method', label: 'Método de Pagamento' },
+  ],
+  'webhook_lead_created': [
+    { key: 'customer_name', label: 'Nome do Cliente' },
+    { key: 'customer_phone', label: 'Telefone' },
+    { key: 'customer_email', label: 'Email' },
+    { key: 'product_name', label: 'Nome do Produto' },
+  ],
+};
+
+// Função para interpolar variáveis webhook na mensagem
+function interpolateWebhookVariables(template: string, webhookData: Record<string, any>): string {
+  if (!template || !webhookData) return template;
+  
+  const customer = webhookData.customer || {};
+  const product = webhookData.product || {};
+  const order = webhookData.order || {};
+  
+  const variables: Record<string, string> = {
+    'customer_name': customer.name || '',
+    'customer_phone': customer.phoneNumber || customer.phone || '',
+    'customer_email': customer.email || '',
+    'product_name': product.name || '',
+    'order_value': formatCurrencyForMessage(order.value || product.value || webhookData.value || 0),
+    'order_id': order.id || webhookData.orderId || webhookData.order_id || '',
+    'pix_code': webhookData.pixCode || webhookData.pix_code || '',
+    'pix_value': formatCurrencyForMessage(webhookData.pixValue || webhookData.pix_value || 0),
+    'payment_method': order.paymentMethod || webhookData.payment_method || '',
+  };
+  
+  let result = template;
+  for (const [key, value] of Object.entries(variables)) {
+    // Escapar caracteres especiais do regex
+    const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    result = result.replace(new RegExp(`{{${escapedKey}}}`, 'g'), value);
+  }
+  
+  return result;
+}
+
+// Função auxiliar para formatação de moeda em mensagens
+function formatCurrencyForMessage(value: number | string): string {
+  if (!value) return '';
+  const num = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(num)) return '';
+  return `R$ ${num.toFixed(2).replace('.', ',')}`;
+}
 
 type LogLevel = 'INFO' | 'WARN' | 'ERROR';
 
@@ -117,23 +182,28 @@ async function checkCondition(condition: AutomationCondition, context: Automatio
     }
 }
 
-async function executeAction(action: AutomationAction, context: AutomationTriggerContext, ruleId: string): Promise<void> {
+async function executeAction(action: AutomationAction, context: AutomationTriggerContext, ruleId: string, webhookData?: Record<string, any>): Promise<void> {
     const { contact, conversation } = context;
     const logContext: LogContext = { companyId: context.companyId, conversationId: context.conversation.id, ruleId, details: { action } };
 
     try {
         switch (action.type) {
-            case 'send_message':
+            case 'send_message': {
                 if (!action.value || !conversation.connectionId) return;
-                await sendWhatsappTextMessage({ connectionId: conversation.connectionId, to: contact.phone, text: action.value });
+                // Interpolar variáveis se houver dados de webhook
+                const messageText = webhookData ? interpolateWebhookVariables(action.value, webhookData) : action.value;
+                await sendWhatsappTextMessage({ connectionId: conversation.connectionId, to: contact.phone, text: messageText });
                 break;
+            }
             case 'send_message_apicloud': {
                 if (!action.value || !action.connectionId) return;
+                // Interpolar variáveis se houver dados de webhook
+                const messageText = webhookData ? interpolateWebhookVariables(action.value, webhookData) : action.value;
                 const result = await sendUnifiedMessage({
                     provider: 'apicloud',
                     connectionId: action.connectionId,
                     to: contact.phone,
-                    message: action.value,
+                    message: messageText,
                     templateId: (action as any).templateId,
                 });
                 if (!result.success) throw new Error(result.error || 'Falha ao enviar via APICloud');
@@ -141,11 +211,13 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
             }
             case 'send_message_baileys': {
                 if (!action.value || !action.connectionId) return;
+                // Interpolar variáveis se houver dados de webhook
+                const messageText = webhookData ? interpolateWebhookVariables(action.value, webhookData) : action.value;
                 const result = await sendUnifiedMessage({
                     provider: 'baileys',
                     connectionId: action.connectionId,
                     to: contact.phone,
-                    message: action.value,
+                    message: messageText,
                     templateId: (action as any).templateId,
                 });
                 if (!result.success) throw new Error(result.error || 'Falha ao enviar via Baileys');
@@ -991,7 +1063,7 @@ export async function processIncomingMessageTrigger(conversationId: string, mess
         if (allConditionsMet) {
             await logAutomation('INFO', `Regra "${rule.name}" CUMPRIDA. A executar ações...`, ruleLogContext);
             for (const action of rule.actions) {
-                await executeAction(action, context, rule.id);
+                await executeAction(action, context, rule.id, undefined); // No webhook data for message-triggered rules
             }
             anyRuleExecuted = true;
         }
@@ -1086,9 +1158,9 @@ export async function triggerAutomationForWebhook(
                     message: mockMessage,
                 };
 
-                // Execute all actions for this rule
+                // Execute all actions for this rule (passando webhookData para interpolação)
                 for (const action of rule.actions) {
-                    await executeAction(action, context, rule.id);
+                    await executeAction(action, context, rule.id, webhookData);
                 }
 
                 await logAutomation('INFO', `Regra webhook executada: ${rule.name}`, logContext);
