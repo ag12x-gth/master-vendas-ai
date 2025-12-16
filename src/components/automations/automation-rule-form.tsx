@@ -320,12 +320,26 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
     e.preventDefault();
     setIsProcessing(true);
 
+    // Auto-herdar connectionId de selectedConnectionIds para ações que precisam
+    const processedActions = actions.map(action => {
+      const actionType = action.type as string;
+      
+      // Se é ação APICloud/Baileys sem connectionId, herdar do escopo
+      if ((actionType === 'send_message_apicloud' || actionType === 'send_message_baileys') 
+          && (!action.connectionId || action.connectionId === '')
+          && selectedConnectionIds.length > 0) {
+        return { ...action, connectionId: selectedConnectionIds[0] };
+      }
+      
+      return action;
+    });
+
     const payload = {
         name: ruleName,
         triggerEvent,
         connectionIds: selectedConnectionIds.length > 0 ? selectedConnectionIds : null,
         conditions,
-        actions
+        actions: processedActions
     };
     
     const isEditing = !!ruleToEdit;

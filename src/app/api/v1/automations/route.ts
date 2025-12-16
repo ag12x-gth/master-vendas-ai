@@ -16,8 +16,10 @@ const conditionSchema = z.object({
 }).passthrough();
 
 const actionSchema = z.object({
-  type: z.enum(['send_message', 'add_tag', 'assign_user', 'add_to_list']),
+  type: z.enum(['send_message', 'send_message_apicloud', 'send_message_baileys', 'add_tag', 'assign_user', 'add_to_list']),
   value: z.string().optional(),
+  connectionId: z.string().optional(),
+  templateId: z.string().optional(),
 }).passthrough();
 
 const ruleSchema = z.object({
@@ -70,6 +72,22 @@ export async function POST(request: NextRequest) {
         }
         
         const { name, triggerEvent, conditions, actions, isActive, connectionIds } = parsed.data;
+        
+        // Validação: ações APICloud/Baileys precisam de connectionId
+        for (const action of actions) {
+          const actionType = action.type as string;
+          if ((actionType === 'send_message_apicloud' || actionType === 'send_message_baileys') 
+              && !action.connectionId) {
+            return NextResponse.json({
+              error: 'Dados inválidos.',
+              details: {
+                message: `A ação "${actionType}" requer uma conexão selecionada.`,
+                field: `actions - connectionId`,
+                fix: 'Selecione uma conexão na Seção 1 (Gatilho e Escopo) ou manualmente na Seção 3 (Ações)'
+              }
+            }, { status: 400 });
+          }
+        }
         
         const finalConditions = conditions.map(({ id, ...rest }) => rest);
         const finalActions = actions.map(({ id, ...rest }) => rest);
