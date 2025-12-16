@@ -1,0 +1,53 @@
+
+
+1 of 1 error
+Next.js (14.2.35) is outdated (learn more)
+
+Unhandled Runtime Error
+ReferenceError: triggerEvent is not defined
+
+Source
+src/components/automations/automation-rule-form.tsx (150:26) @ triggerEvent
+
+  148 |                         <Label className="text-xs">Mensagem {templates.length > 0 && (action as any).templateId ? '(ou variáveis)' : ''}</Label>
+  149 |                         <Textarea placeholder="Digite a mensagem a ser enviada ou {{variável}}" value={action.value || ''} onChange={(e) => onChange(action.id!, 'value', e.target.value)} className="text-xs" rows={3} />
+> 150 |                         {triggerEvent?.startsWith('webhook_') && (
+      |                          ^
+  151 |                             <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
+  152 |                                 <p className="font-semibold text-blue-900 mb-1">Variáveis disponíveis:</p>
+  153 |                                 <div className="flex flex-wrap gap-1">
+Call Stack
+renderActionValueInput
+src/components/automations/automation-rule-form.tsx (458:34)
+Array.map
+<anonymous>
+map
+src/components/automations/automation-rule-form.tsx (447:31)
+React
+renderWithHooks
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (11121:1)
+updateFunctionComponent
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (16290:1)
+beginWork$1
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (18472:1)
+beginWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (26927:1)
+performUnitOfWork
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25748:1)
+workLoopSync
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25464:1)
+renderRootSync
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (25419:1)
+recoverFromConcurrentError
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24597:1)
+performSyncWorkOnRoot
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (24899:1)
+flushSyncWorkAcrossRoots_impl
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (7758:1)
+flushSyncWorkOnAllRoots
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (7718:1)
+processRootScheduleInMicrotask
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (7863:1)
+eval
+node_modules/next/dist/compiled/react-dom/cjs/react-dom.development.js (8034:1)
+Hide collapsed frames

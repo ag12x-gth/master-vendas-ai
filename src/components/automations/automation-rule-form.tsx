@@ -104,7 +104,8 @@ const renderActionValueInput = (
     lists: ContactList[],
     connections: Connection[] = [],
     templates: Template[] = [],
-    loadingTemplates: boolean = false
+    loadingTemplates: boolean = false,
+    triggerEvent: string = ''
 ) => {
     const actionType = action.type as string;
     
@@ -455,7 +456,7 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
                                     <SelectTrigger><SelectValue/></SelectTrigger>
                                     <SelectContent>{actionTypes.map(a => <SelectItem key={a.value} value={a.value}>{a.label}</SelectItem>)}</SelectContent>
                                 </Select>
-                                {renderActionValueInput(action, updateAction, availableTags, availableUsers, availableLists, availableConnections, availableTemplates, loadingTemplates)}
+                                {renderActionValueInput(action, updateAction, availableTags, availableUsers, availableLists, availableConnections, availableTemplates, loadingTemplates, triggerEvent)}
                             </div>
                         </div>
                      ))}
