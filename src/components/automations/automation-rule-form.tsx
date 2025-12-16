@@ -325,7 +325,7 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-3xl h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-3xl max-h-[90vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>{ruleToEdit ? 'Editar Regra de Automação' : 'Criar Nova Regra'}</DialogTitle>
           <DialogDescription>
@@ -338,7 +338,7 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         ) : (
-        <form onSubmit={handleSubmit} id="automation-form" className="flex-1 space-y-4 overflow-y-auto pr-4 -mr-6 pl-1 flex flex-col">
+        <form onSubmit={handleSubmit} id="automation-form" className="flex-1 space-y-4 overflow-y-auto pr-4 -mr-6 pl-1 flex flex-col py-2">
             <div className="space-y-2">
                 <Label htmlFor="rule-name" className="text-base font-semibold">Nome da Regra</Label>
                 <Input id="rule-name" placeholder="Ex: Enviar boas-vindas para novo lead" value={ruleName} onChange={e => setRuleName(e.target.value)} required />
@@ -350,7 +350,7 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
                     <div className="space-y-2">
                         <Label htmlFor="event-trigger">Quando este evento acontecer...</Label>
                         <Select value={triggerEvent} onValueChange={setTriggerEvent}>
-                        <SelectTrigger id="event-trigger"><SelectValue /></SelectTrigger>
+                        <SelectTrigger id="event-trigger"><SelectValue placeholder="Selecione um evento gatilho..." /></SelectTrigger>
                         <SelectContent>{eventTriggers.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}</SelectContent>
                         </Select>
                     </div>
@@ -437,7 +437,7 @@ export function AutomationRuleForm({ open, onOpenChange, ruleToEdit, onSaveSucce
 
         </form>
         )}
-        <DialogFooter className="mt-auto pt-4 border-t">
+        <DialogFooter className="pt-4 border-t">
           <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>Cancelar</Button>
           <Button type="submit" form="automation-form" disabled={loading || isProcessing}>
              {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin"/>}
