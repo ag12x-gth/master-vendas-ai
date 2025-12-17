@@ -19,27 +19,12 @@ const logWebhookConfig = (companyId: string, source: string) => {
 
 // Validation schema for incoming webhook payload
 // Supports both generic format (event_type + data) and Grapfy format (eventType + payload)
-const webhookPayloadSchema = z.object({
-  event_type: z.string().optional(),
-  eventType: z.string().optional(),
-  timestamp: z.number().optional(),
-  createdAt: z.string().optional(),
-  data: z.record(z.any()).optional(),
-  payload: z.record(z.any()).optional(),
-  metadata: z.object({
-    source: z.string().optional(),
-    campaignId: z.string().optional(),
-    userId: z.string().optional(),
-    trackingId: z.string().optional(),
-  }).optional(),
-}).transform((data) => {
-  // Normalize Grapfy format to generic format
+const webhookPayloadSchema = z.record(z.any()).transform((data) => {
+  // Preserve ALL original data without modification
   return {
     event_type: data.event_type || data.eventType,
     timestamp: data.timestamp || (data.createdAt ? Math.floor(new Date(data.createdAt).getTime() / 1000) : undefined),
-    data: data.data || data.payload || {},
-    metadata: data.metadata,
-    // Preserve all original fields for downstream processing
+    // Preserve complete original payload
     ...data,
   };
 });

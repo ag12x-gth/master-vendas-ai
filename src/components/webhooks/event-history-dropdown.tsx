@@ -87,16 +87,17 @@ export function EventHistoryDropdown({ webhookConfigId: _webhookConfigId }: Even
       }
     }
 
-    // Try different payload structures (Grapfy, generic, lead formats)
+    // Try all possible customer name locations
     const name = 
-      data?.customer?.name ||           // Grapfy: pix_created, order_approved
-      data?.data?.customer?.name ||     // Generic nested format
-      data?.payload?.customer?.name ||  // Triple nested
-      data?.data?.name ||               // Generic flat: lead_created
-      data?.name ||                     // Simple flat
+      data?.customer?.name ||           // Grapfy: direct customer field
+      data?.data?.customer?.name ||     // Nested in data
+      data?.payload?.customer?.name ||  // Nested in payload
+      data?.data?.name ||               // Lead created: name in data
+      data?.name ||                     // Direct name field
+      (data?.customer && typeof data.customer === 'string' ? data.customer : null) ||  // String customer
       '-';
     
-    return name;
+    return name || '-';
   };
 
   return (
