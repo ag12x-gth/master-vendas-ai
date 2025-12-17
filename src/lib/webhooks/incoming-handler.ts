@@ -274,6 +274,42 @@ async function handleGrapfyEvent(
       product: product.name,
     });
 
+    // Handle PIX notifications
+    if (eventType === 'pix_created' && customer.phoneNumber && data.qrCode) {
+      try {
+        const { sendPixNotification } = await import('@/services/pix-notification.service');
+        await sendPixNotification({
+          customerPhone: customer.phoneNumber,
+          customerName: customer.name || 'Cliente',
+          qrCode: data.qrCode,
+          pixExpirationAt: data.pixExpirationAt || new Date(Date.now() + 2 * 3600000).toISOString(),
+          total: parseFloat(data.total) || 0,
+          orderId: data.orderId || '',
+          productName: product.name,
+        });
+        logger.info(`✅ PIX notification sent to ${customer.phoneNumber}`);
+      } catch (pixError) {
+        logger.warn(`PIX notification failed (non-blocking):`, pixError);
+      }
+    }
+
+    // Handle Order Approved notifications
+    if (eventType === 'order_approved' && customer.phoneNumber) {
+      try {
+        const { sendOrderApprovedNotification } = await import('@/services/pix-notification.service');
+        await sendOrderApprovedNotification({
+          customerPhone: customer.phoneNumber,
+          customerName: customer.name || 'Cliente',
+          orderId: data.orderId || '',
+          productName: product.name,
+          total: parseFloat(data.total) || 0,
+        });
+        logger.info(`✅ Order approved notification sent to ${customer.phoneNumber}`);
+      } catch (orderError) {
+        logger.warn(`Order notification failed (non-blocking):`, orderError);
+      }
+    }
+
     // Import trigger service
     const { triggerWebhookCampaign } = await import('@/services/webhook-campaign-trigger.service');
 

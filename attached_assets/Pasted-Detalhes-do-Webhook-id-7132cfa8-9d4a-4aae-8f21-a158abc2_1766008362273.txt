@@ -1,0 +1,84 @@
+Detalhes do Webhook
+{
+  "id": "7132cfa8-9d4a-4aae-8f21-a158abc290b9",
+  "storeId": "peJ9tQQsPAFtGu3o",
+  "webhookSettingId": "5f3a8f14-28b7-4ea5-815c-a9cddd7a71b3",
+  "orderId": "9ebc1949-4500-4d9e-bcfa-15b51924f206",
+  "status": "success",
+  "eventType": "order_approved",
+  "attempts": 1,
+  "httpCodeResponse": 200,
+  "url": "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/webhooks/incoming/682b91ea-15ee-42da-8855-70309b237008",
+  "errorReason": null,
+  "payload": {
+    "eventId": "7132cfa8-9d4a-4aae-8f21-a158abc290b9",
+    "eventType": "order_approved",
+    "url": "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/webhooks/incoming/682b91ea-15ee-42da-8855-70309b237008",
+    "status": "approved",
+    "paymentMethod": "pix",
+    "orderId": "9ebc1949-4500-4d9e-bcfa-15b51924f206",
+    "storeId": "peJ9tQQsPAFtGu3o",
+    "code": "dknmHtQIxBPcxbVq",
+    "isOrderBump": false,
+    "type": "charge",
+    "shipmentValue": "0.00",
+    "discount": "0.00",
+    "automaticDiscount": "0.00",
+    "subTotal": 5,
+    "total": 5,
+    "qrCode": "00020126890014br.gov.bcb.pix01364c5ada51-8bdf-4d8a-bdeb-fd23416ed3c50227Venda realizada pela Grapfy52040000530398654045.005802BR5917IS SOLUTIONS LTDA6007Maringa62290525ISSOLUTI00000568466131ASA6304B835",
+    "pixExpirationAt": "2025-12-17T23:50:19.000Z",
+    "cupomCode": null,
+    "installmentCount": 1,
+    "installmentValue": "5.00",
+    "refundObservation": null,
+    "customer": {
+      "id": "2f8mF8xqprCgqACn",
+      "name": "Diego Abner Rodrigues Santana",
+      "email": "admin@ag12x.com.br",
+      "phoneNumber": "64999526870",
+      "document": "00295425105"
+    },
+    "address": null,
+    "commissions": {
+      "planBasePrice": 5,
+      "fees": 2.68,
+      "myCommission": 2.32,
+      "splits": [
+        {
+          "id": "2579855e-18b3-4b60-9bdd-d21f6df476bc",
+          "value": 2.32,
+          "type": "producer",
+          "name": "Antônio Fogaça",
+          "email": "euantoniofogaca1@gmail.com"
+        }
+      ]
+    },
+    "plan": {
+      "id": "41BfTIDCdORX6aU1",
+      "name": "Teste-Master"
+    },
+    "product": {
+      "id": "uIQNpZxTk5MAZ80i",
+      "name": "PAC - PROTOCOLO ANTI CRISE",
+      "quantity": 1
+    },
+    "subscription": null,
+    "trankingParameters": {
+      "utm_campaign": null,
+      "utm_content": null,
+      "utm_medium": null,
+      "utm_source": null,
+      "utm_term": null
+    },
+    "metadata": {
+      "deviceType": "desktop",
+      "browser": "Brave-141.0.0.0",
+      "operationalSystem": "Windows-10"
+    },
+    "createdAt": "2025-12-17T21:50:19.262Z",
+    "approvedAt": "2025-12-17T00:00:00.000Z"
+  },
+  "createdAt": "2025-12-17T18:50:46.107Z",
+  "updatedAt": "2025-12-17T18:50:46.107Z"
+}
