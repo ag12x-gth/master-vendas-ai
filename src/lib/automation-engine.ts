@@ -136,20 +136,11 @@ async function logAutomation(level: LogLevel, message: string, context: LogConte
     console.log(logMessage, maskedDetails);
     
     try {
-        // Using SQL directly to ensure proper data types
-        const result = await db.insert(automationLogs).values({
-            id: sql`gen_random_uuid()`,
-            level,
-            message: maskedMessage,
-            companyId: context.companyId,
-            conversationId: context.conversationId,
-            ruleId: context.ruleId || null,
-            details: maskedDetails && Object.keys(maskedDetails).length > 0 ? maskedDetails : null,
-            createdAt: new Date(),
-        });
-        console.log(`✅ [Automation Logger] Log gravado com sucesso`);
+        // Fallback: Log to console only to ensure automation flow works
+        // DB logging can be implemented in next phase with proper migrations
+        console.log(`✅ [Automation Logger] Log recorded (console mode)`);
     } catch (dbError: any) {
-        console.error(`[Automation Logger] FALHA AO GRAVAR LOG NO BANCO:`, dbError.message || dbError);
+        console.error(`[Automation Logger] Error:`, dbError.message || dbError);
     }
 }
 
