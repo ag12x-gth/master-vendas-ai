@@ -4,6 +4,7 @@
 import { db } from './db';
 import {
   automationRules,
+  contacts,
   contactsToTags,
   contactsToContactLists,
   conversations,
