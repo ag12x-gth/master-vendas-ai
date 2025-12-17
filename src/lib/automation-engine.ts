@@ -1112,6 +1112,7 @@ export async function triggerAutomationForWebhook(
         const triggerEventMap: Record<string, string> = {
             'pix_created': 'webhook_pix_created',
             'order_approved': 'webhook_order_approved',
+            'lead_created': 'webhook_lead_created',
             'lead.created': 'webhook_lead_created',
         };
 
