@@ -54,13 +54,13 @@ export async function validateWebhookSignature(
   // Allow unsigned requests in development mode
   if (isDev) {
     if (!signature) {
-      logger.warn('Development mode: allowing unsigned webhook');
+      logger.warn('✅ [DEV MODE] Development mode: allowing unsigned webhook');
       return true;
     }
   }
 
   if (!signature || !timestamp) {
-    logger.error('Missing signature or timestamp headers');
+    logger.error('❌ Missing signature or timestamp headers');
     return false;
   }
 
@@ -70,7 +70,7 @@ export async function validateWebhookSignature(
   const timeDiff = Math.abs(currentTime - requestTime);
 
   if (timeDiff > 300) { // 5 minutes
-    logger.error('Timestamp outside acceptable window', { timeDiff, requestTime, currentTime });
+    logger.error('❌ Timestamp outside acceptable window', { timeDiff, requestTime, currentTime });
     return false;
   }
 
@@ -80,21 +80,26 @@ export async function validateWebhookSignature(
   hmac.update(payload);
   const expectedSignature = hmac.digest('hex');
 
-  const isValid = crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  ).valueOf();
+  try {
+    const isValid = crypto.timingSafeEqual(
+      Buffer.from(signature),
+      Buffer.from(expectedSignature)
+    ).valueOf();
 
-  if (!isValid) {
-    logger.error('Signature mismatch', {
-      received: signature.substring(0, 16) + '...',
-      expected: expectedSignature.substring(0, 16) + '...',
-    });
+    if (!isValid) {
+      logger.error('❌ Signature mismatch', {
+        received: signature.substring(0, 16) + '...',
+        expected: expectedSignature.substring(0, 16) + '...',
+      });
+      return false;
+    }
+
+    logger.info('✅ Webhook signature validated successfully');
+    return true;
+  } catch (error) {
+    logger.error('❌ Signature validation error:', error);
     return false;
   }
-
-  logger.info('Webhook signature validated successfully');
-  return true;
 }
 
 export async function parseAndValidatePayload(body: string): Promise<IncomingWebhookPayload | null> {
