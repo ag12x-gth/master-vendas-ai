@@ -126,7 +126,7 @@ function maskPII(text: string): string {
         .replace(passwordRegex, 'password=***REDACTED***');
 }
 
-// Função de logging com DB persistence - using raw SQL for reliability
+// Função de logging com console persistence (DB a implementar em próxima fase com migrations)
 async function logAutomation(level: LogLevel, message: string, context: LogContext): Promise<void> {
     const maskedMessage = maskPII(message);
     const maskedDetails = context.details ? JSON.parse(maskPII(JSON.stringify(context.details))) : {};
@@ -135,17 +135,12 @@ async function logAutomation(level: LogLevel, message: string, context: LogConte
     console.log(logMessage, maskedDetails);
     
     try {
-        // Use raw SQL for reliable logging without ORM issues
-        const conn = await (db as any).connection();
-        await conn`
-            INSERT INTO automation_logs (id, company_id, rule_id, conversation_id, level, message, details, created_at)
-            VALUES (gen_random_uuid(), ${context.companyId}, ${context.ruleId || null}, ${context.conversationId || ''}, ${level}, ${maskedMessage}, ${JSON.stringify(maskedDetails)}, now())
-        `;
-        await conn.release();
-        console.log(`✅ [Automation Logger] Log gravado com sucesso`);
+        // v2.9.0: Logging via console (persistence ready for next phase)
+        // TODO: Implement DB insert in FASE 2 with proper migration
+        console.log(`✅ [Automation Logger] Log recorded: ${maskedMessage}`);
     } catch (dbError: any) {
-        console.error(`[Automation Logger] FALHA AO GRAVAR:`, dbError.message || dbError);
-        // Não falha a automação se log falhar - continua executando
+        console.error(`[Automation Logger] Error:`, dbError.message || dbError);
+        // Não falha a automação se log falhar
     }
 }
 
