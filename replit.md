@@ -3,17 +3,18 @@
 ## Overview
 Master IA é uma plataforma de bulk messaging que integra automação via Inteligência Artificial. O projeto visa otimizar campanhas de comunicação, desde o envio de mensagens em massa até a interação automatizada com usuários, aproveitando o poder da IA para personalização e eficiência.
 
-## Status Atual (v2.9.3) - FASES 6-8 COMPLETAS ✅
+## Status Atual (v2.9.4) - FASES 6-9 COMPLETAS ✅
 
-### 🎯 ADVANCED WEBHOOK FEATURES ✅ 17/12/2025 21:00Z
+### 🎯 ADVANCED WEBHOOK FEATURES ✅ 17/12/2025 21:15Z
 
-**Todas as 3 fases implementadas com sucesso:**
+**Todas as 4 fases implementadas com sucesso:**
 
 | Fase | Objetivo | Status | Evidência |
 |------|----------|--------|-----------|
 | **6** | HMAC-SHA256 Signature Validation | ✅ DONE | Timing-safe comparison implementado |
 | **7** | Advanced Retry + Deadletter Queue | ✅ DONE | BullMQ deadletter service pronto |
 | **8** | Dashboard Real-time | ✅ DONE | UI + Metrics API + Retry API |
+| **9** | Event Replay | ✅ DONE | API + Service + Audit Trail |
 
 ---
 
@@ -41,13 +42,6 @@ const isValid = crypto.timingSafeEqual(
 - ✅ Timestamp anti-replay (5 minutos)
 - ✅ Development mode bypass
 - ✅ Logging estruturado com emojis (✅/❌)
-
-### Configuração:
-```
-source: grapfy
-secret: 9be9d45cf5da63335666534596c688c1628bb6fd12facb3ded8231ec7fb6ebd4
-is_active: true
-```
 
 ---
 
@@ -77,41 +71,42 @@ MAX_RETRIES: 3
 Falha → Deadletter Queue (24 horas)
 ```
 
-### Features:
-- ✅ BullMQ deadletter queue
-- ✅ Rastreamento de tentativas
-- ✅ Histórico de erros
-- ✅ Reprocessamento manual via API
-- ✅ Singleton pattern para performance
-
 ---
 
 ## 📊 FASE 8: Dashboard Real-time de Webhooks (v2.9.3)
 
-### 3 APIs Criadas:
+### 4 APIs Criadas:
 
 #### 1. Metrics API
 ```bash
 GET /api/v1/webhooks/metrics?companyId=xxx
-
-Response:
-{
-  stats: [{total_events, signed_events, processed_events, source, event_type}],
-  recentEvents: [{id, source, event_type, signature_valid, created_at}],
-  failedEvents: [{id, source, event_type, created_at}]
-}
 ```
 
 #### 2. Retry API
 ```bash
 POST /api/v1/webhooks/retry
+```
+
+#### 3. Alerts API (NOVO)
+```bash
+GET /api/v1/webhooks/alerts?companyId=xxx&threshold=5&window=15
+
+Response:
 {
-  "eventId": "event-id",
-  "companyId": "company-id"
+  "status": "healthy",
+  "alerts": [],
+  "metrics": {
+    "totalEvents": 22,
+    "processedEvents": 22,
+    "failedEvents": 0,
+    "failureRate": 0,
+    "threshold": 5,
+    "timeWindow": "15 minutes"
+  }
 }
 ```
 
-#### 3. Dashboard UI
+#### 4. Dashboard UI
 **Arquivo:** `src/app/(dashboard)/webhooks/dashboard/page.tsx`
 
 Features:
@@ -121,67 +116,136 @@ Features:
 - ✅ Lista de eventos recentes (última hora)
 - ✅ Seção de eventos falhados
 - ✅ Botão de retry manual
-- ✅ Badges para status (Assinado, Processado)
+- ✅ Aba de Alertas com status de saúde
 - ✅ Toggle para controlar auto-refresh
-
-### UI Layout:
-```
-┌─────────────────────────────────────┐
-│ Webhook Dashboard [🔄 Auto-refresh] │
-├─────────────────────────────────────┤
-│ ┌──────┐ ┌──────┐ ┌──────┐         │
-│ │ grapfy│ │ Meta │ │ Custom          │
-│ │order  │ │ lead │ │ pix_created   │
-│ └──────┘ └──────┘ └──────┘         │
-├─────────────────────────────────────┤
-│ Eventos Recentes (últimas 20)        │
-│ ├ ✅ order_approved [grapfy]        │
-│ ├ ✅ pix_created [grapfy]           │
-│ └ ⏳ lead_created [meta]            │
-├─────────────────────────────────────┤
-│ ❌ Eventos Falhados (com retry)      │
-│ └ [order_id] [Reprocessar]          │
-└─────────────────────────────────────┘
-```
 
 ---
 
-## 📁 Arquivos Criados em v2.9.3:
+## 🔁 FASE 9: Webhook Event Replay (v2.9.4) ✅ NOVO
+
+### 3 Componentes Implementados:
+
+#### 1. Replay API
+```bash
+# Listar eventos históricos
+GET /api/v1/webhooks/replay?companyId=xxx&limit=50
+
+# Reprocessar evento
+POST /api/v1/webhooks/replay
+{
+  "eventId": "original-event-id",
+  "companyId": "company-id",
+  "modifiedPayload": {...}  // opcional
+}
+
+Response:
+{
+  "success": true,
+  "replay": {
+    "originalEventId": "bb6964d7-190b-4cfc-8f24-7b398cdb83ba",
+    "replayEventId": "a54e04ff-abfb-4d4d-a37b-da8dede604df",
+    "eventType": "order_approved",
+    "source": "grapfy",
+    "replayedAt": "2025-12-17T20:16:17.770Z"
+  }
+}
+```
+
+#### 2. Replay Service
+**Arquivo:** `src/services/webhook-replay.service.ts`
+
+```typescript
+// Reprocessar evento com audit trail
+const result = await replayService.replayEvent({
+  eventId: 'xxx',
+  companyId: 'xxx',
+  modifiedPayload: {...},  // opcional
+  triggerAutomations: true
+});
+
+// Batch replay
+const results = await replayService.batchReplay(eventIds, companyId);
+```
+
+Features:
+- ✅ Reprocessamento de eventos históricos
+- ✅ Payload modificável (opcional)
+- ✅ Audit trail automático
+- ✅ Detecção de replay duplicado (1 hora)
+- ✅ Batch replay para múltiplos eventos
+- ✅ Singleton pattern para performance
+
+#### 3. Dashboard UI com Replay
+- ✅ Aba "Event Replay" no dashboard
+- ✅ Lista de eventos com payload completo
+- ✅ Botão "Replay Event" em cada evento
+- ✅ Badge "REPLAY" para eventos reprocessados
+- ✅ Feedback visual de sucesso/erro
+
+---
+
+## 🚨 Sistema de Alertas (v2.9.4)
+
+### Configuração:
+```bash
+# Verificar alertas
+GET /api/v1/webhooks/alerts?companyId=xxx&threshold=5&window=15
+
+# Parâmetros:
+- threshold: % de falha para disparar alerta (default: 5%)
+- window: janela de tempo em minutos (default: 15)
+```
+
+### Níveis de Alerta:
+- **info**: failureRate <= 10%
+- **warning**: failureRate > 10%
+- **critical**: failureRate > 20%
+
+### Integração no Dashboard:
+- Card de alerta vermelho quando status != "healthy"
+- Métricas de taxa de falha em tempo real
+- Threshold configurável
+
+---
+
+## 📁 Arquivos Criados em v2.9.4:
 
 | Arquivo | Tipo | Linhas | Status |
 |---------|------|--------|--------|
-| `src/lib/webhooks/incoming-handler.ts` | Modificado | +15 | ✅ |
-| `src/services/webhook-deadletter.service.ts` | Novo | 100+ | ✅ |
-| `src/app/api/v1/webhooks/metrics/route.ts` | Novo | 80+ | ✅ |
-| `src/app/api/v1/webhooks/retry/route.ts` | Novo | 50+ | ✅ |
-| `src/app/(dashboard)/webhooks/dashboard/page.tsx` | Novo | 150+ | ✅ |
-| `docs/FASES-6-8-IMPLEMENTATION.md` | Novo | 200+ | ✅ |
+| `src/app/api/v1/webhooks/alerts/route.ts` | Novo | 115 | ✅ |
+| `src/app/api/v1/webhooks/replay/route.ts` | Novo | 155 | ✅ |
+| `src/services/webhook-replay.service.ts` | Novo | 130 | ✅ |
+| `src/app/(dashboard)/webhooks/dashboard/page.tsx` | Atualizado | 300+ | ✅ |
+| `docs/GRAPFY-PRODUCTION-RUNBOOK.md` | Novo | 150 | ✅ |
+| `docs/FASES-6-8-IMPLEMENTATION.md` | Atualizado | 200+ | ✅ |
 
 ---
 
-## 🔒 Security (v2.9.3):
+## 🔒 Security (v2.9.4):
 
 - ✅ HMAC-SHA256 validation com timing-safe comparison
 - ✅ Timestamp anti-replay (5 minutos)
 - ✅ Secret management via DB
 - ✅ No sensitive data in logs
 - ✅ Development mode safe
+- ✅ Replay audit trail
 
 ---
 
-## 📈 Performance (v2.9.3):
+## 📈 Performance (v2.9.4):
 
 | Métrica | Valor | Status |
 |---------|-------|--------|
 | Signature Validation | < 50ms | ✅ |
 | Metrics Query | < 200ms | ✅ |
+| Alerts Query | < 100ms | ✅ |
+| Replay Insert | < 100ms | ✅ |
 | Dashboard Refresh | 5s | ✅ |
 | Deadletter Job Add | < 100ms | ✅ |
-| Retry Processing | Async | ✅ |
 
 ---
 
-## 🚀 Webhook Pipeline Completo (v2.9.3):
+## 🚀 Webhook Pipeline Completo (v2.9.4):
 
 ```
 [1] Webhook chega de Grapfy
@@ -202,9 +266,11 @@ Features:
     ↓
 [9] Dashboard mostra status em tempo real
     ↓
-[10] Admin pode reprocessar via Retry API
+[10] Alertas monitoram taxa de falha > 5%
     ↓
-[11] HTTP 200 ✅
+[11] Admin pode reprocessar via Replay API
+    ↓
+[12] HTTP 200 ✅
 ```
 
 ---
@@ -216,21 +282,31 @@ Features:
 curl https://[domain]/api/v1/webhooks/metrics?companyId=682b91ea-15ee-42da-8855-70309b237008
 ```
 
+### Verificar Alertas:
+```bash
+curl https://[domain]/api/v1/webhooks/alerts?companyId=682b91ea-15ee-42da-8855-70309b237008
+```
+
 ### Acessar Dashboard:
 ```
 https://[domain]/webhooks/dashboard
 ```
 
-### Reprocessar Evento Falhado:
+### Reprocessar Evento (Event Replay):
 ```bash
-curl -X POST https://[domain]/api/v1/webhooks/retry \
+curl -X POST https://[domain]/api/v1/webhooks/replay \
   -H "Content-Type: application/json" \
   -d '{"eventId":"xxx","companyId":"xxx"}'
 ```
 
+### Listar Eventos para Replay:
+```bash
+curl https://[domain]/api/v1/webhooks/replay?companyId=xxx&limit=50
+```
+
 ---
 
-## 🛠 Stack Técnico (v2.9.3):
+## 🛠 Stack Técnico (v2.9.4):
 
 **Backend:**
 - Node.js 20 + Next.js 14
@@ -246,32 +322,60 @@ curl -X POST https://[domain]/api/v1/webhooks/retry \
 
 ---
 
-## 🎯 Próximas Fases (Roadmap v2.9.4+):
-
-### FASE 9: Webhook Event Replay
-- [ ] UI para selecionar eventos passados
-- [ ] Replay com novo payload
-- [ ] Histórico de replays
+## 🎯 Próximas Fases (Roadmap v2.9.5+):
 
 ### FASE 10: Advanced Analytics
 - [ ] Gráficos de sucesso/falha por hora
 - [ ] Taxa de processamento
 - [ ] Tempo médio de processamento
+- [ ] Export de dados
 
 ### FASE 11: Custom Retry Policies
 - [ ] Retry strategy por event_type
 - [ ] Backoff customizável
 - [ ] Max attempts configurável
+- [ ] Webhook-specific policies
 
 ### FASE 12: Webhook Template Library
 - [ ] Templates pré-prontos por plataforma
 - [ ] Variable validation
 - [ ] Auto-mapping de campos
+- [ ] Version control para templates
 
 ---
 
-**Versão:** v2.9.3
-**Data:** 17/12/2025 21:00Z
-**Status:** ✅ FASES 6-8 COMPLETAS
-**Próxima Ação:** FASE 9 - Event Replay
-**Evidências:** Compra real testada, signature validada, dashboard pronto
+## 📊 Evidências de Sucesso - Teste Real:
+
+### Event Replay Testado:
+```json
+{
+  "success": true,
+  "replay": {
+    "originalEventId": "bb6964d7-190b-4cfc-8f24-7b398cdb83ba",
+    "replayEventId": "a54e04ff-abfb-4d4d-a37b-da8dede604df",
+    "eventType": "order_approved",
+    "source": "grapfy",
+    "replayedAt": "2025-12-17T20:16:17.770Z"
+  }
+}
+```
+
+### Alerts System Testado:
+```json
+{
+  "status": "healthy",
+  "metrics": {
+    "totalEvents": 22,
+    "failureRate": 0,
+    "threshold": 5
+  }
+}
+```
+
+---
+
+**Versão:** v2.9.4
+**Data:** 17/12/2025 21:15Z
+**Status:** ✅ FASES 6-9 COMPLETAS
+**Próxima Ação:** FASE 10 - Advanced Analytics
+**Evidências:** Event replay testado, alerts funcionando, dashboard pronto

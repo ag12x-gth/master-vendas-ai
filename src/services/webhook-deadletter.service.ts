@@ -1,5 +1,5 @@
 import { Queue } from 'bullmq';
-import { createRedisConnection } from '@/lib/db/redis';
+import { createRedisConnection } from '@/lib/redis-connection';
 
 export interface DeadletterJob {
   id: string;
@@ -58,9 +58,9 @@ export class WebhookDeadletterService {
     };
 
     try {
-      await this.deadletterQueue.add(job, {
-        removeOnComplete: { age: 86400 }, // Keep for 24 hours
-        removeOnFail: false, // Never remove failed jobs
+      await this.deadletterQueue.add('webhook-deadletter', job, {
+        removeOnComplete: { age: 86400 },
+        removeOnFail: false,
         priority: 10,
       });
       console.log(`✅ [WebhookDeadletter] Job added for event: ${eventId}`);
