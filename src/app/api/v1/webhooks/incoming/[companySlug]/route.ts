@@ -49,17 +49,38 @@ export async function POST(
 ) {
   const requestId = Math.random().toString(36).substring(7);
   const companySlug = params.companySlug;
-  const source = request.headers.get('x-webhook-source') || 'unknown';
+  let source = request.headers.get('x-webhook-source') || 'unknown';
+  
+  // Auto-detect Grapfy if no source header (Grapfy doesn't send one)
+  if (source === 'unknown') {
+    const userAgent = request.headers.get('user-agent') || '';
+    const referer = request.headers.get('referer') || '';
+    const xForwarded = request.headers.get('x-forwarded-host') || '';
+    // Try to detect Grapfy from various headers or default to grapfy if no source
+    if (userAgent.toLowerCase().includes('grapfy') || 
+        referer.toLowerCase().includes('grapfy') ||
+        xForwarded.toLowerCase().includes('grapfy')) {
+      source = 'grapfy';
+    }
+    // Fallback: if still unknown, default to grapfy (most likely external source)
+    if (source === 'unknown') {
+      source = 'grapfy';
+    }
+  }
 
   try {
     console.log(`[WEBHOOK:${requestId}] ===== INCOMING WEBHOOK RECEIVED =====`);
     console.log(`[WEBHOOK:${requestId}] Company: ${companySlug}`);
     console.log(`[WEBHOOK:${requestId}] Source: ${source}`);
+    console.log(`[WEBHOOK:${requestId}] Headers: Content-Type=${request.headers.get('content-type')}, User-Agent=${request.headers.get('user-agent')}`);
 
     // Get raw body for signature validation
     const rawBody = await request.text();
     const signature = request.headers.get('x-webhook-signature');
     const timestamp = request.headers.get('x-webhook-timestamp');
+    
+    console.log(`[WEBHOOK:${requestId}] Payload size: ${rawBody.length} bytes`);
+    console.log(`[WEBHOOK:${requestId}] Signature: ${signature ? 'present' : 'missing'}, Timestamp: ${timestamp || 'missing'}`);
 
     // Get the company from database using slug (companySlug is actually companyId in this case)
     const companyResult = await conn`
