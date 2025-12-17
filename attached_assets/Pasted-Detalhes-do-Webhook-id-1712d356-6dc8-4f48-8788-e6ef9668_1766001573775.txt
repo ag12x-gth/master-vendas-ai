@@ -1,0 +1,84 @@
+Detalhes do Webhook
+{
+  "id": "1712d356-6dc8-4f48-8788-e6ef9668702d",
+  "storeId": "peJ9tQQsPAFtGu3o",
+  "webhookSettingId": "5f3a8f14-28b7-4ea5-815c-a9cddd7a71b3",
+  "orderId": "6618011f-c426-47d5-827f-2d040fc80373",
+  "status": "failed",
+  "eventType": "order_approved",
+  "attempts": 1,
+  "httpCodeResponse": 400,
+  "url": "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/webhooks/incoming/682b91ea-15ee-42da-8855-70309b237008",
+  "errorReason": "Bad Request",
+  "payload": {
+    "eventId": "1712d356-6dc8-4f48-8788-e6ef9668702d",
+    "eventType": "order_approved",
+    "url": "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev/api/v1/webhooks/incoming/682b91ea-15ee-42da-8855-70309b237008",
+    "status": "approved",
+    "paymentMethod": "creditCard",
+    "orderId": "6618011f-c426-47d5-827f-2d040fc80373",
+    "storeId": "peJ9tQQsPAFtGu3o",
+    "code": "KBk4Zivzi8Imz8QD",
+    "isOrderBump": false,
+    "type": "charge",
+    "shipmentValue": "0.00",
+    "discount": "0.00",
+    "automaticDiscount": "0.00",
+    "subTotal": 5,
+    "total": 5,
+    "qrCode": null,
+    "pixExpirationAt": null,
+    "cupomCode": null,
+    "installmentCount": 1,
+    "installmentValue": "5.00",
+    "refundObservation": null,
+    "customer": {
+      "id": "2f8mF8xqprCgqACn",
+      "name": "Diego Abner Rodrigues Santana",
+      "email": "admin@ag12x.com.br",
+      "phoneNumber": "64999526870",
+      "document": "00295425105"
+    },
+    "address": null,
+    "commissions": {
+      "planBasePrice": 5,
+      "fees": 2.68,
+      "myCommission": 2.32,
+      "splits": [
+        {
+          "id": "ff1f6bf8-6f8c-4a77-ad8f-2f766e38bab1",
+          "value": 2.32,
+          "type": "producer",
+          "name": "Antônio Fogaça",
+          "email": "euantoniofogaca1@gmail.com"
+        }
+      ]
+    },
+    "plan": {
+      "id": "41BfTIDCdORX6aU1",
+      "name": "Teste-Master"
+    },
+    "product": {
+      "id": "uIQNpZxTk5MAZ80i",
+      "name": "PAC - PROTOCOLO ANTI CRISE",
+      "quantity": 1
+    },
+    "subscription": null,
+    "trankingParameters": {
+      "utm_campaign": null,
+      "utm_content": null,
+      "utm_medium": null,
+      "utm_source": null,
+      "utm_term": null
+    },
+    "metadata": {
+      "deviceType": "desktop",
+      "browser": "Brave-141.0.0.0",
+      "operationalSystem": "Windows-10"
+    },
+    "createdAt": "2025-12-17T19:57:40.889Z",
+    "approvedAt": "2025-12-17T19:57:46.151Z"
+  },
+  "createdAt": "2025-12-17T16:57:51.618Z",
+  "updatedAt": "2025-12-17T16:57:51.618Z"
+}

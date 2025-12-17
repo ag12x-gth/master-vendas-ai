@@ -18,16 +18,30 @@ const logWebhookConfig = (companyId: string, source: string) => {
 };
 
 // Validation schema for incoming webhook payload
+// Supports both generic format (event_type + data) and Grapfy format (eventType + payload)
 const webhookPayloadSchema = z.object({
-  event_type: z.string(),
+  event_type: z.string().optional(),
+  eventType: z.string().optional(),
   timestamp: z.number().optional(),
-  data: z.record(z.any()),
+  createdAt: z.string().optional(),
+  data: z.record(z.any()).optional(),
+  payload: z.record(z.any()).optional(),
   metadata: z.object({
     source: z.string().optional(),
     campaignId: z.string().optional(),
     userId: z.string().optional(),
     trackingId: z.string().optional(),
   }).optional(),
+}).transform((data) => {
+  // Normalize Grapfy format to generic format
+  return {
+    event_type: data.event_type || data.eventType,
+    timestamp: data.timestamp || (data.createdAt ? Math.floor(new Date(data.createdAt).getTime() / 1000) : undefined),
+    data: data.data || data.payload || {},
+    metadata: data.metadata,
+    // Preserve all original fields for downstream processing
+    ...data,
+  };
 });
 
 export async function validateWebhookSignature(
@@ -86,13 +100,17 @@ export async function validateWebhookSignature(
 export async function parseAndValidatePayload(body: string): Promise<IncomingWebhookPayload | null> {
   try {
     const parsed = JSON.parse(body);
+    logger.debug('Raw webhook payload:', { eventType: parsed.eventType || parsed.event_type, payloadKeys: Object.keys(parsed) });
+    
     const validated = webhookPayloadSchema.safeParse(parsed);
 
     if (!validated.success) {
       logger.error('Payload validation failed', validated.error.flatten());
+      logger.debug('Failed payload keys:', Object.keys(parsed));
       return null;
     }
 
+    logger.info('✅ Webhook payload validated successfully', { event_type: validated.data.event_type });
     return validated.data as IncomingWebhookPayload;
   } catch (error) {
     logger.error('Failed to parse webhook body', error);
