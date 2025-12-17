@@ -108,12 +108,35 @@ const renderActionValueInput = (
     triggerEvent: string = ''
 ) => {
     const actionType = action.type as string;
+    const isWebhookTrigger = triggerEvent?.startsWith('webhook_');
     
     switch(actionType) {
         case 'send_message':
             return <Textarea placeholder="Digite a mensagem a ser enviada..." value={action.value || ''} onChange={(e) => onChange(action.id!, 'value', e.target.value)} />;
         case 'send_message_apicloud':
         case 'send_message_baileys':
+            // Para webhooks: mostrar APENAS o dropdown de Template
+            if (isWebhookTrigger) {
+                return (
+                    <div className="space-y-3">
+                        <div>
+                            <Label className="text-xs">Template (Opcional)</Label>
+                            <Select value={(action as any).templateId || ''} disabled={loadingTemplates} onValueChange={(val) => onChange(action.id!, 'templateId', val)}>
+                                <SelectTrigger><SelectValue placeholder={loadingTemplates ? "Carregando..." : "Selecione um template"} /></SelectTrigger>
+                                <SelectContent>
+                                    {templates.map(t => (
+                                        <SelectItem key={t.id} value={t.id}>
+                                            {t.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                );
+            }
+            
+            // Para não-webhooks: mostrar Conexão, Template e Mensagem
             return (
                 <div className="space-y-3">
                     <div>
@@ -148,36 +171,6 @@ const renderActionValueInput = (
                     <div>
                         <Label className="text-xs">Mensagem {templates.length > 0 && (action as any).templateId ? '(ou variáveis)' : ''}</Label>
                         <Textarea placeholder="Digite a mensagem a ser enviada ou {{variável}}" value={action.value || ''} onChange={(e) => onChange(action.id!, 'value', e.target.value)} className="text-xs" rows={3} />
-                        {triggerEvent?.startsWith('webhook_') && (
-                            <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
-                                <p className="font-semibold text-blue-900 mb-1">Variáveis disponíveis:</p>
-                                <div className="flex flex-wrap gap-1">
-                                    {triggerEvent === 'webhook_pix_created' && (
-                                        <>
-                                            <span className="bg-blue-100 px-2 py-0.5 rounded">{'{{customer_name}}'}</span>
-                                            <span className="bg-blue-100 px-2 py-0.5 rounded">{'{{pix_value}}'}</span>
-                                            <span className="bg-blue-100 px-2 py-0.5 rounded">{'{{pix_code}}'}</span>
-                                            <span className="bg-blue-100 px-2 py-0.5 rounded">{'{{order_id}}'}</span>
-                                        </>
-                                    )}
-                                    {triggerEvent === 'webhook_order_approved' && (
-                                        <>
-                                            <span className="bg-blue-100 px-2 py-0.5 rounded">{'{{customer_name}}'}</span>
-                                            <span className="bg-blue-100 px-2 py-0.5 rounded">{'{{order_value}}'}</span>
-                                            <span className="bg-blue-100 px-2 py-0.5 rounded">{'{{product_name}}'}</span>
-                                            <span className="bg-blue-100 px-2 py-0.5 rounded">{'{{order_id}}'}</span>
-                                        </>
-                                    )}
-                                    {triggerEvent === 'webhook_lead_created' && (
-                                        <>
-                                            <span className="bg-blue-100 px-2 py-0.5 rounded">{'{{customer_name}}'}</span>
-                                            <span className="bg-blue-100 px-2 py-0.5 rounded">{'{{customer_email}}'}</span>
-                                            <span className="bg-blue-100 px-2 py-0.5 rounded">{'{{product_name}}'}</span>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
             );
