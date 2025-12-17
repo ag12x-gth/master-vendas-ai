@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 interface WebhookEvent {
   id: string;
@@ -46,33 +47,64 @@ interface AlertStatus {
   };
 }
 
+interface AnalyticsData {
+  timeRange: { hours: number; startTime: string; endTime: string };
+  hourlyData: Array<{
+    hour: string;
+    total_events: number;
+    success_events: number;
+    failed_events: number;
+    success_rate: number;
+  }>;
+  eventTypeStats: Array<{
+    event_type: string;
+    total: number;
+    success: number;
+    failed: number;
+    success_rate: number;
+  }>;
+  overallStats: {
+    totalEvents: number;
+    successEvents: number;
+    failedEvents: number;
+    signedEvents: number;
+    overallSuccessRate: number;
+    avgProcessingTimeSeconds: number;
+  };
+}
+
 export default function WebhookDashboard() {
   const [metrics, setMetrics] = useState<WebhookMetrics | null>(null);
   const [alertStatus, setAlertStatus] = useState<AlertStatus | null>(null);
   const [replayEvents, setReplayEvents] = useState<WebhookEvent[]>([]);
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [replayingId, setReplayingId] = useState<string | null>(null);
+  const [analyticsHours, setAnalyticsHours] = useState(24);
 
   const companyId = '682b91ea-15ee-42da-8855-70309b237008';
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [metricsRes, alertsRes, replayRes] = await Promise.all([
+        const [metricsRes, alertsRes, replayRes, analyticsRes] = await Promise.all([
           fetch(`/api/v1/webhooks/metrics?companyId=${companyId}`),
           fetch(`/api/v1/webhooks/alerts?companyId=${companyId}`),
           fetch(`/api/v1/webhooks/replay?companyId=${companyId}&limit=20`),
+          fetch(`/api/v1/webhooks/analytics?companyId=${companyId}&hours=${analyticsHours}`),
         ]);
 
         const metricsData = await metricsRes.json();
         const alertsData = await alertsRes.json();
         const replayData = await replayRes.json();
+        const analyticsData = await analyticsRes.json();
 
         setMetrics(metricsData);
         setAlertStatus(alertsData);
         setReplayEvents(replayData.events || []);
+        setAnalytics(analyticsData);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -162,6 +194,7 @@ export default function WebhookDashboard() {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="overview">Visao Geral</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="events">Eventos</TabsTrigger>
           <TabsTrigger value="replay">Event Replay</TabsTrigger>
           <TabsTrigger value="alerts">Alertas</TabsTrigger>
@@ -233,6 +266,105 @@ export default function WebhookDashboard() {
               </Card>
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Sucesso Total</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-green-600">{analytics?.overallStats?.overallSuccessRate?.toFixed(1) || 0}%</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Eventos Processados</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{analytics?.overallStats?.successEvents || 0}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Eventos Falhados</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold text-red-600">{analytics?.overallStats?.failedEvents || 0}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">Tempo Médio</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{analytics?.overallStats?.avgProcessingTimeSeconds?.toFixed(2) || 0}s</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Taxa de Sucesso por Hora</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={analytics?.hourlyData || []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="hour" angle={-45} textAnchor="end" height={80} />
+                    <YAxis domain={[0, 100]} />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="success_rate" stroke="#22c55e" name="Taxa Sucesso %" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Eventos por Hora</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={analytics?.hourlyData || []}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="hour" angle={-45} textAnchor="end" height={80} />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="success_events" stackId="a" fill="#22c55e" name="Sucesso" />
+                    <Bar dataKey="failed_events" stackId="a" fill="#ef4444" name="Falha" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Taxa de Sucesso por Tipo de Evento</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {analytics?.eventTypeStats?.map((stat) => (
+                  <div key={stat.event_type} className="flex items-center justify-between p-3 border rounded">
+                    <div className="flex-1">
+                      <p className="font-medium">{stat.event_type}</p>
+                      <p className="text-sm text-gray-500">Total: {stat.total} | Sucesso: {stat.success} | Falha: {stat.failed}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className={`text-lg font-bold ${stat.success_rate >= 90 ? 'text-green-600' : stat.success_rate >= 70 ? 'text-yellow-600' : 'text-red-600'}`}>
+                        {stat.success_rate?.toFixed(1) || 0}%
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="events" className="space-y-4">
