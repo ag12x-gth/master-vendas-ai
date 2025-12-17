@@ -77,7 +77,26 @@ export function EventHistoryDropdown({ webhookConfigId: _webhookConfigId }: Even
   };
 
   const getCustomerName = (payload: any) => {
-    return payload?.data?.customer?.name || payload?.customer?.name || '-';
+    // Parse if payload is string
+    let data = payload;
+    if (typeof payload === 'string') {
+      try {
+        data = JSON.parse(payload);
+      } catch {
+        return '-';
+      }
+    }
+
+    // Try different payload structures (Grapfy, generic, lead formats)
+    const name = 
+      data?.customer?.name ||           // Grapfy: pix_created, order_approved
+      data?.data?.customer?.name ||     // Generic nested format
+      data?.payload?.customer?.name ||  // Triple nested
+      data?.data?.name ||               // Generic flat: lead_created
+      data?.name ||                     // Simple flat
+      '-';
+    
+    return name;
   };
 
   return (
