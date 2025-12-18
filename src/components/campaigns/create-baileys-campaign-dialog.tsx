@@ -77,6 +77,13 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
     const [scheduleTime, setScheduleTime] = useState('09:00');
     const [sendNow, setSendNow] = useState(true);
     const [variableMappings, setVariableMappings] = useState<Record<string, VariableMapping>>({});
+    const [delayOption, setDelayOption] = useState<string>('fast');
+
+    const delayOptions = [
+        { value: 'fast', label: 'Rápido (11-33s)', minDelay: 11, maxDelay: 33, description: 'Mais rápido, maior risco de bloqueio' },
+        { value: 'normal', label: 'Normal (61-121s)', minDelay: 61, maxDelay: 121, description: 'Equilibrado, recomendado' },
+        { value: 'safe', label: 'Seguro (210-341s)', minDelay: 210, maxDelay: 341, description: 'Mais lento, menor risco' },
+    ];
     const [availableLists, setAvailableLists] = useState<ContactList[]>([]);
     
     const { toast } = useToast();
@@ -184,6 +191,7 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
         setScheduleTime('09:00');
         setSendNow(true);
         setVariableMappings({});
+        setDelayOption('fast');
     }, []);
 
     const handleOpenChange = (open: boolean) => {
@@ -261,6 +269,7 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
         }
 
         try {
+            const selectedDelay = delayOptions.find(d => d.value === delayOption);
             const payload = {
                 name,
                 connectionId: selectedConnectionId,
@@ -268,6 +277,8 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                 variableMappings,
                 contactListIds,
                 schedule,
+                minDelaySeconds: selectedDelay?.minDelay || 11,
+                maxDelaySeconds: selectedDelay?.maxDelay || 33,
             };
 
             const response = await fetch('/api/v1/campaigns/baileys', {
@@ -372,6 +383,29 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                                     </SelectContent>
                                 </Select>
                             )}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="delay-select" className="flex items-center gap-2">
+                                <Clock className="h-4 w-4" />
+                                Intervalo entre Mensagens
+                            </Label>
+                            <Select value={delayOption} onValueChange={setDelayOption}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecione o intervalo"/>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {delayOptions.map(opt => (
+                                        <SelectItem key={opt.value} value={opt.value}>
+                                            <div className="flex flex-col">
+                                                <span>{opt.label}</span>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <p className="text-xs text-muted-foreground">
+                                {delayOptions.find(d => d.value === delayOption)?.description}
+                            </p>
                         </div>
                     </div>
                 );

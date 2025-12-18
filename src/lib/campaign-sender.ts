@@ -595,44 +595,32 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
         const variableMappings = campaign.variableMappings as Record<string, any> || {};
         
         // DELAY OBRIGATÓRIO PARA BAILEYS - Proteção anti-bloqueio WhatsApp
-        // Se não configurado, usa delay padrão de 10-30 segundos entre mensagens
-        const DEFAULT_BAILEYS_MIN_DELAY = 10;
-        const DEFAULT_BAILEYS_MAX_DELAY = 30;
-        
-        // CADÊNCIA PADRÃO: 10-30s para envio rápido mas seguro
-        const AGENT_RECOMMENDED_MIN_DELAY = 10; // segundos - reduzido de 81s
-        const AGENT_RECOMMENDED_MAX_DELAY = 30; // segundos - reduzido de 210s
+        const MIN_SAFE_DELAY = 5; // Mínimo absoluto de segurança
+        const DEFAULT_MIN_DELAY = 11;
+        const DEFAULT_MAX_DELAY = 33;
         
         const configuredMinDelay = variableMappings._minDelaySeconds as number | undefined;
         const configuredMaxDelay = variableMappings._maxDelaySeconds as number | undefined;
         
-        // Para Baileys, SEMPRE usar delay (obrigatório para evitar bloqueio)
-        // Validação de segurança: garantir que delays configurados são seguros
-        let minDelaySeconds: number | undefined;
-        let maxDelaySeconds: number | undefined;
+        let minDelaySeconds: number;
+        let maxDelaySeconds: number;
         
         if (isBaileys) {
-            // Usar valores configurados ou defaults, mas GARANTIR mínimo de segurança
-            // PRIORIDADE: Agent delay (81-210s) > Configured > Defaults
-            const rawMin = configuredMinDelay !== undefined ? configuredMinDelay : DEFAULT_BAILEYS_MIN_DELAY;
-            const rawMax = configuredMaxDelay !== undefined ? configuredMaxDelay : DEFAULT_BAILEYS_MAX_DELAY;
-            
-            // Validação: min deve ser >= 3s para segurança, max deve ser >= min
-            minDelaySeconds = Math.max(rawMin, DEFAULT_BAILEYS_MIN_DELAY);
-            maxDelaySeconds = Math.max(rawMax, minDelaySeconds);
-            
-            // Se nenhum delay foi configurado, usar cadência recomendada 81-210s
-            if (configuredMinDelay === undefined && configuredMaxDelay === undefined) {
-                minDelaySeconds = AGENT_RECOMMENDED_MIN_DELAY;
-                maxDelaySeconds = AGENT_RECOMMENDED_MAX_DELAY;
-                console.log(`[Campanha WhatsApp ${campaign.id}] ✅ Cadência recomendada ativada: ${AGENT_RECOMMENDED_MIN_DELAY}-${AGENT_RECOMMENDED_MAX_DELAY}s`);
-            } else if (rawMin !== minDelaySeconds || rawMax !== maxDelaySeconds) {
-                console.log(`[Campanha WhatsApp ${campaign.id}] ⚠️ Delays ajustados para segurança: ${rawMin}-${rawMax}s → ${minDelaySeconds}-${maxDelaySeconds}s`);
+            // Se delays configurados, usa eles (respeitando mínimo de segurança)
+            if (configuredMinDelay !== undefined && configuredMaxDelay !== undefined) {
+                minDelaySeconds = Math.max(configuredMinDelay, MIN_SAFE_DELAY);
+                maxDelaySeconds = Math.max(configuredMaxDelay, minDelaySeconds);
+                console.log(`[Campanha WhatsApp ${campaign.id}] ✅ Delay configurado: ${minDelaySeconds}-${maxDelaySeconds}s`);
+            } else {
+                // Usa defaults se não configurado
+                minDelaySeconds = DEFAULT_MIN_DELAY;
+                maxDelaySeconds = DEFAULT_MAX_DELAY;
+                console.log(`[Campanha WhatsApp ${campaign.id}] ✅ Delay padrão: ${DEFAULT_MIN_DELAY}-${DEFAULT_MAX_DELAY}s`);
             }
         } else {
-            // Meta API: usar agent delay se não configurado
-            minDelaySeconds = configuredMinDelay !== undefined ? configuredMinDelay : AGENT_RECOMMENDED_MIN_DELAY;
-            maxDelaySeconds = configuredMaxDelay !== undefined ? configuredMaxDelay : AGENT_RECOMMENDED_MAX_DELAY;
+            // Meta API: usar delay configurado ou default
+            minDelaySeconds = configuredMinDelay ?? DEFAULT_MIN_DELAY;
+            maxDelaySeconds = configuredMaxDelay ?? DEFAULT_MAX_DELAY;
         }
         
         // Baileys SEMPRE usa delay (obrigatório), Meta API pode usar paralelo

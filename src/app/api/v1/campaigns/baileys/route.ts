@@ -20,6 +20,8 @@ const baileysCampaignSchema = z.object({
   variableMappings: z.record(variableMappingSchema),
   contactListIds: z.array(z.string()).min(1, 'Selecione pelo menos uma lista.'),
   schedule: z.string().datetime({ offset: true }).nullable().optional(),
+  minDelaySeconds: z.number().min(5).max(600).optional().default(11),
+  maxDelaySeconds: z.number().min(10).max(900).optional().default(33),
 });
 
 
@@ -36,8 +38,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             return NextResponse.json({ error: 'Dados inválidos.', details: parsed.error.flatten() }, { status: 400 });
         }
 
-        const { contactListIds, schedule, messageText, ...campaignData } = parsed.data;
+        const { contactListIds, schedule, messageText, minDelaySeconds, maxDelaySeconds, ...campaignData } = parsed.data;
         const isScheduled = !!schedule;
+        
+        const variableMappingsWithDelay = {
+            ...campaignData.variableMappings,
+            _minDelaySeconds: minDelaySeconds,
+            _maxDelaySeconds: maxDelaySeconds,
+        };
 
         // VALIDAÇÃO 1: Verificar ownership da conexão e que é Baileys
         const [connection] = await db
@@ -112,7 +120,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             status: isScheduled ? 'SCHEDULED' : 'QUEUED',
             connectionId: campaignData.connectionId,
             templateId: null,
-            variableMappings: campaignData.variableMappings,
+            variableMappings: variableMappingsWithDelay,
             message: messageText,
             scheduledAt: schedule ? new Date(schedule) : null,
             contactListIds: finalContactListIds,
