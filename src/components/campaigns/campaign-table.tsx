@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, memo } from 'react';
+import { useState, useEffect, useCallback, memo, useRef } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -374,6 +374,24 @@ export function CampaignTable({ channel, baileysOnly = false }: CampaignTablePro
   useEffect(() => {
     fetchCampaigns();
   }, [fetchCampaigns]);
+
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const hasActiveCampaigns = campaigns.some(c => ['SENDING', 'QUEUED', 'SCHEDULED'].includes(c.status));
+  
+  useEffect(() => {
+    if (hasActiveCampaigns && !loading) {
+      pollingIntervalRef.current = setInterval(() => {
+        fetchCampaigns();
+      }, 5000);
+    }
+    
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+        pollingIntervalRef.current = null;
+      }
+    };
+  }, [hasActiveCampaigns, loading, fetchCampaigns]);
   
   useEffect(() => {
     const fetchPrerequisites = async () => {

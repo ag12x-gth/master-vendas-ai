@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
         const cacheKey = `campaigns:${companyId}:${page}:${limit}:${channel || ''}:${connectionId || ''}:${templateId || ''}:${gatewayId || ''}`;
         const data = await getCachedOrFetch(cacheKey, async () => {
             return await fetchCampaignsDataOptimized({ companyId, page, limit, channel, connectionId, templateId, gatewayId, offset });
-        }, CacheTTL.LONG);
+        }, CacheTTL.REAL_TIME);
 
         return NextResponse.json(data);
 
