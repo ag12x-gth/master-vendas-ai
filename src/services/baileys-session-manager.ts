@@ -391,6 +391,49 @@ class BaileysSessionManager {
 
       sock.ev.on('creds.update', saveCreds);
       
+      sock.ev.on('messages.update', async (updates) => {
+        for (const update of updates) {
+          try {
+            const { key, update: statusUpdate } = update;
+            if (!key.id || !key.fromMe) continue;
+            
+            const status = statusUpdate?.status;
+            if (!status) continue;
+            
+            let newStatus: string | null = null;
+            if (status === 2) newStatus = 'sent';
+            else if (status === 3) newStatus = 'delivered';
+            else if (status === 4) newStatus = 'read';
+            else if (status === 5) newStatus = 'played';
+            
+            if (newStatus) {
+              const { whatsappDeliveryReports } = await import('@/lib/db/schema');
+              const { eq, and } = await import('drizzle-orm');
+              
+              const updatedRows = await db
+                .update(whatsappDeliveryReports)
+                .set({ 
+                  status: newStatus,
+                  updatedAt: new Date()
+                })
+                .where(
+                  and(
+                    eq(whatsappDeliveryReports.providerMessageId, key.id),
+                    eq(whatsappDeliveryReports.connectionId, connectionId)
+                  )
+                )
+                .returning({ id: whatsappDeliveryReports.id });
+              
+              if (updatedRows.length > 0 && updatedRows[0]) {
+                console.log(`[Baileys Receipt] ✅ Updated delivery report ${updatedRows[0].id} to status: ${newStatus}`);
+              }
+            }
+          } catch (error) {
+            console.error('[Baileys Receipt] Error processing message update:', error);
+          }
+        }
+      });
+      
       console.log(`[Baileys] Session setup complete for ${connectionId}`);
     } catch (error) {
       console.error(`[Baileys] Error creating session ${connectionId}:`, error);
