@@ -12,6 +12,7 @@ import {
   automationLogs,
   connections,
   aiPersonas,
+  whatsappDeliveryReports,
 } from './db/schema';
 import { and, eq, gte, or, isNull, sql } from 'drizzle-orm';
 import type {
@@ -193,6 +194,25 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
             }
             case 'send_message_apicloud': {
                 if (!action.connectionId) return;
+                
+                // ✅ v2.10.25: DEDUPLICAÇÃO para automações webhook
+                // Verificar se há delivery report recente (últimos 5 minutos) para este contato
+                const recentReportApiCloud = await db
+                    .select({ id: whatsappDeliveryReports.id })
+                    .from(whatsappDeliveryReports)
+                    .where(and(
+                        eq(whatsappDeliveryReports.contactId, contact.id),
+                        eq(whatsappDeliveryReports.connectionId, action.connectionId),
+                        sql`${whatsappDeliveryReports.sentAt} > NOW() - INTERVAL '5 minutes'`
+                    ))
+                    .limit(1);
+                
+                if (recentReportApiCloud.length > 0) {
+                    console.log(`[Automation|Dedup] ✅ Pulando envio via APICloud para ${contact.phone} - já enviado nos últimos 5 minutos`);
+                    await logAutomation('INFO', `Deduplicação: mensagem não enviada (já enviada recentemente)`, logContext);
+                    return;
+                }
+                
                 // ✅ v2.10.6: Allow empty value for templates (content from templateId)
                 // Interpolar variáveis se houver dados de webhook
                 const messageText = action.value ? (webhookData ? interpolateWebhookVariables(action.value, webhookData) : action.value) : '';
@@ -210,6 +230,25 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
             }
             case 'send_message_baileys': {
                 if (!action.connectionId) return;
+                
+                // ✅ v2.10.25: DEDUPLICAÇÃO para automações webhook
+                // Verificar se há delivery report recente (últimos 5 minutos) para este contato
+                const recentReportBaileys = await db
+                    .select({ id: whatsappDeliveryReports.id })
+                    .from(whatsappDeliveryReports)
+                    .where(and(
+                        eq(whatsappDeliveryReports.contactId, contact.id),
+                        eq(whatsappDeliveryReports.connectionId, action.connectionId),
+                        sql`${whatsappDeliveryReports.sentAt} > NOW() - INTERVAL '5 minutes'`
+                    ))
+                    .limit(1);
+                
+                if (recentReportBaileys.length > 0) {
+                    console.log(`[Automation|Dedup] ✅ Pulando envio via Baileys para ${contact.phone} - já enviado nos últimos 5 minutos`);
+                    await logAutomation('INFO', `Deduplicação: mensagem não enviada (já enviada recentemente)`, logContext);
+                    return;
+                }
+                
                 // ✅ v2.10.6: Allow empty value for templates (content from templateId)
                 // Interpolar variáveis se houver dados de webhook
                 const messageText = action.value ? (webhookData ? interpolateWebhookVariables(action.value, webhookData) : action.value) : '';
