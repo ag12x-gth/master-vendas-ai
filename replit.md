@@ -193,6 +193,32 @@ CREATE INDEX idx_webhook_payload_eventid ON incoming_webhook_events USING GIN(pa
 
 ---
 
+## 🟡 CONFIRMAÇÃO 3: Envio de Mensagens para Compras Aprovadas
+
+**Pergunta:** "Sistema envia mensagem WhatsApp quando compra aprovada (pix ou cartão) ocorre?"
+
+**Resposta:**
+- ✅ **SIM** - Sistema envia mensagens instantaneamente quando pix_created ou order_approved ocorrem
+- ✅ **VIA BAILEYS** - Usa sendWhatsappTextMessage() (texto puro)
+- ✅ **PARA CLIENTE** - Notificação com dados da compra, total, produto
+- ✅ **Suporta Meta Templates** - Mas atualmente não integrado com eventos automáticos
+
+**Fluxo:**
+```
+Webhook pix_created/order_approved
+  ↓
+[1] sendPixNotification() / sendOrderApprovedNotification()
+  ├─→ Envia via Baileys (texto)
+  └─→ Atende CLIENTE com informações da compra
+
+[2] triggerWebhookCampaign() [Opcional]
+  └─→ Se campaign configurada, envia automação adicional
+```
+
+**Documentação:** `INVESTIGACAO_ENVIO_MENSAGENS_COMPRA_APROVADA.md`
+
+---
+
 ## 🛠 Stack Técnico:
 
 **Backend:**
