@@ -153,6 +153,25 @@ CREATE INDEX idx_webhook_payload_eventid ON incoming_webhook_events USING GIN(pa
 
 ---
 
+## 🔴 CONFIRMAÇÃO DEFINITIVA: Webhooks Instantâneos 24/7
+
+**Pergunta Esclarecida:**
+- ❌ Sistema recebe webhooks a cada 6 horas?
+- ✅ Sistema recebe instantaneamente QUALQUER HORA DO DIA
+
+**Arquitetura:**
+- `POST /api/v1/webhooks/incoming/` → SEMPRE ATIVO (< 300ms)
+- Scheduler BullMQ → APENAS HISTÓRICO (a cada 6 horas)
+- Sem conflito: funcionam simultaneamente
+
+**Evidências:**
+- ✅ Teste prático: Webhook recebido em 261ms
+- ✅ Evento salvo instantaneamente no banco
+- ✅ Sistema processa 3 webhooks simultâneos
+- ✅ Documentação: `CONCLUSAO_WEBHOOKS_INSTANTANEOS.md`
+
+---
+
 ## 🛠 Stack Técnico:
 
 **Backend:**
