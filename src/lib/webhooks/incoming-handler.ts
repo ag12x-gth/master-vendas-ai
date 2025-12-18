@@ -270,41 +270,9 @@ async function handleGrapfyEvent(
     // Extract phone number (pode vir como phoneNumber ou phone)
     const customerPhone = customer.phoneNumber || customer.phone;
 
-    // Handle PIX notifications
-    if (eventType === 'pix_created' && customerPhone && qrCode) {
-      try {
-        const { sendPixNotification } = await import('@/services/pix-notification.service');
-        await sendPixNotification({
-          customerPhone: customerPhone,
-          customerName: customer.name || 'Cliente',
-          qrCode: qrCode,
-          pixExpirationAt: data.pixExpirationAt || new Date(Date.now() + 2 * 3600000).toISOString(),
-          total: parseFloat(total) || 0,
-          orderId: orderId,
-          productName: product.name,
-        });
-        logger.info(`✅ PIX notification sent to ${customerPhone}`);
-      } catch (pixError) {
-        logger.warn(`PIX notification failed (non-blocking):`, pixError);
-      }
-    }
-
-    // Handle Order Approved notifications
-    if (eventType === 'order_approved' && customerPhone) {
-      try {
-        const { sendOrderApprovedNotification } = await import('@/services/pix-notification.service');
-        await sendOrderApprovedNotification({
-          customerPhone: customerPhone,
-          customerName: customer.name || 'Cliente',
-          orderId: orderId,
-          productName: product.name,
-          total: parseFloat(total) || 0,
-        });
-        logger.info(`✅ Order approved notification sent to ${customerPhone}`);
-      } catch (orderError) {
-        logger.warn(`Order notification failed (non-blocking):`, orderError);
-      }
-    }
+    // ✅ CHANGE v2.10.6: Notifications ONLY via automations (must have active rules)
+    // Removed: sendPixNotification() and sendOrderApprovedNotification()
+    // These now run ONLY if user has configured automation rules in /automations
 
     // Import trigger service
     const { triggerWebhookCampaign } = await import('@/services/webhook-campaign-trigger.service');

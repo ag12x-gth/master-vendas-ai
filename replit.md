@@ -1,11 +1,11 @@
 # Master IA Oficial - Plataforma de Bulk Messaging com Automação AI
 
-## 🚀 Status: PRONTO PARA PUBLICAÇÃO (v2.10.5) ✅
+## 🚀 Status: PRONTO PARA PUBLICAÇÃO (v2.10.6) ✅
 
 **FASE 10-15: Analytics + PIX + Webhook Sync + Scheduler + Export + Escalabilidade COMPLETAS**
-**Bugfix:** Meta Templates para Webhooks Grapfy ✅
-**Data:** 18/12/2025 01:30Z
-**Status:** ✅ 15 FASES + BUGFIX IMPLEMENTADOS
+**v2.10.6:** Notificações APENAS se regras ativas ✅
+**Data:** 18/12/2025 01:55Z
+**Status:** ✅ 15 FASES + BUGFIX + REGRA-CONDICIONAL IMPLEMENTADOS
 
 ---
 
@@ -154,76 +154,50 @@ CREATE INDEX idx_webhook_payload_eventid ON incoming_webhook_events USING GIN(pa
 
 ---
 
-## 🔴 CONFIRMAÇÃO 1: Webhooks Instantâneos 24/7
+## 🟢 CONFIRMAÇÃO 1: Webhooks Instantâneos 24/7 ✅
 
-**Pergunta Esclarecida:**
-- ❌ Sistema recebe webhooks a cada 6 horas?
 - ✅ Sistema recebe instantaneamente QUALQUER HORA DO DIA
-
-**Arquitetura:**
-- `POST /api/v1/webhooks/incoming/` → SEMPRE ATIVO (< 300ms)
-- Scheduler BullMQ → APENAS HISTÓRICO (a cada 6 horas)
-- Sem conflito: funcionam simultaneamente
-
-**Evidências:**
+- ✅ POST /api/v1/webhooks/incoming/ → SEMPRE ATIVO (< 300ms)
+- ✅ Scheduler BullMQ → APENAS HISTÓRICO (a cada 6 horas)
 - ✅ Teste prático: Webhook recebido em 261ms
-- ✅ Evento salvo instantaneamente no banco
-- ✅ Sistema processa 3 webhooks simultâneos
-- ✅ Documentação: `CONCLUSAO_WEBHOOKS_INSTANTANEOS.md`
 
 ---
 
-## 🟢 CONFIRMAÇÃO 2: Integridade Completa de Dados
+## 🟢 CONFIRMAÇÃO 2: Integridade Completa de Dados ✅
 
-**Verificado:** Sistema recebe TODOS os dados do webhook (28+ campos)
-
-**Armazenamento:**
+- ✅ Sistema recebe TODOS os dados do webhook (28+ campos)
 - ✅ Coluna payload (JSONB) preserva 100% dos campos
 - ✅ Nenhum dado é descartado
-- ✅ Estrutura JSON mantida intacta
 - ✅ Acessível para queries e export
-
-**Campos Testados:**
-- ✅ eventId, eventType, url, status, paymentMethod
-- ✅ orderId, storeId, customer (completo: name, email, phone, cpf)
-- ✅ product (completo: id, name, quantity)
-- ✅ total, discount, shipmentValue, subTotal
-- ✅ Todos os 28+ campos da Grapfy
-
-**Documentação:** `VERIFICACAO_DADOS_WEBHOOK_COMPLETOS.md`
 
 ---
 
-## ✅ CONFIRMAÇÃO 3: Envio de Mensagens para Compras Aprovadas (CORRIGIDO)
+## 🟢 CONFIRMAÇÃO 3: Automação de Compras Aprovadas (v2.10.6) ✅
 
-**Pergunta:** "Sistema envia mensagem WhatsApp quando compra aprovada (pix ou cartão) ocorre?"
+**Pergunta:** "Sistema envia mensagem WhatsApp quando compra aprovada?"
 
-**Resposta:**
-- ✅ **SIM** - Sistema envia mensagens instantaneamente quando pix_created ou order_approved ocorrem
+**Resposta (v2.10.6):**
+- ✅ **SIM** - APENAS se houver regra ativa em `/automations`
 - ✅ **VIA BAILEYS** - Notificação automática em texto puro
-- ✅ **VIA META TEMPLATE** - Notificação formal via "2026_protocolo_compra_aprovada_" (AGORA FUNCIONA!)
-- ✅ **PARA CLIENTE** - Recebe AMBAS as notificações (Baileys + Meta API)
+- ✅ **VIA META TEMPLATE** - Notificação formal "2026_protocolo_compra_aprovada_"
+- ✅ **CONDICIONAL** - Ambas APENAS se regra ativa
 
-**Fluxo (CORRIGIDO v2.10.5):**
+**Fluxo (v2.10.6):**
 ```
 Webhook pix_created/order_approved
   ↓
-[1] sendPixNotification() / sendOrderApprovedNotification()
-  ├─→ Envia via Baileys (texto puro)
-  └─→ Notificação instantânea ✅
-
-[2] triggerAutomationForWebhook() [AGORA FUNCIONA!]
-  ├─→ Busca automações ativas por tipo evento
-  ├─→ Encontra: "compra-aprovada" (webhook_order_approved)
-  ├─→ Dispara ação: "Enviar via APICloud (Meta)"
-  └─→ Meta Template "2026_protocolo_compra_aprovada_" enviado ✅
+triggerAutomationForWebhook()
+  ├─ Se houver regra ativa:
+  │   ├─ Baileys notificação ✅
+  │   └─ Meta Template ✅
+  └─ Se NÃO houver regra:
+      └─ NADA é enviado
 ```
 
-**Bug Corrigido:** 
-- ❌ ANTES: `customer.phoneNumber` não encontrava telefone Grapfy
-- ✅ DEPOIS: `customer.phoneNumber || customer.phone` funciona com ambos
-
-**Documentação:** `BUG_FIX_WEBHOOK_META_TEMPLATES.md`
+**Mudanças v2.10.6:**
+- ❌ Removido: `sendPixNotification()` automática
+- ❌ Removido: `sendOrderApprovedNotification()` automática
+- ✅ Mantido: APENAS `triggerAutomationForWebhook()` (verifica regras)
 
 ---
 
