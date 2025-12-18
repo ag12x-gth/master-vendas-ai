@@ -155,7 +155,7 @@ class WebhookSyncScheduler {
   async getJobStatus(jobId: string): Promise<any> {
     try {
       const job = await this.queue?.getJob(jobId);
-      const progress = job?.progress();
+      const progress = job?.progress;
       return {
         id: jobId,
         state: await job?.getState(),
