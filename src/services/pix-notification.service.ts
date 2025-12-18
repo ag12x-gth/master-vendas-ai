@@ -20,7 +20,7 @@ export async function sendPixNotification(data: PixNotificationData): Promise<vo
 
     // Get connection for sending message
     const [connection] = await conn`
-      SELECT id FROM whatsapp_connections 
+      SELECT id FROM connections 
       LIMIT 1
     `;
 
@@ -53,7 +53,7 @@ export async function sendOrderApprovedNotification(data: {
 
     // Get connection for sending message
     const [connection] = await conn`
-      SELECT id FROM whatsapp_connections 
+      SELECT id FROM connections 
       LIMIT 1
     `;
 
