@@ -4,6 +4,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as schema from '@/lib/db/schema';
 import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import '@/lib/server-init';
 
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) {
