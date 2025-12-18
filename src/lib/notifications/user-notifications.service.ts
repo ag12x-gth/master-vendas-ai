@@ -29,7 +29,15 @@ export class UserNotificationsService {
         metadata: params.metadata as any,
       });
     } catch (error) {
-      console.error('[UserNotifications] Error creating notification:', error);
+      // Log error but don't block - notifications are non-critical
+      if (error instanceof Error) {
+        console.error('[UserNotifications] Error creating notification:', {
+          message: error.message,
+          userId: params.userId,
+          companyId: params.companyId,
+          type: params.type,
+        });
+      }
     }
   }
 

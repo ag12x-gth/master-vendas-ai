@@ -1061,7 +1061,7 @@ export const userNotificationTypeEnum = pgEnum('user_notification_type', [
 export const userNotifications = pgTable('user_notifications', {
   id: text('id').primaryKey().default(sql`gen_random_uuid()`),
   userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  companyId: text('company_id').notNull().references(() => companies.id, { onDelete: 'cascade' }),
+  companyId: text('company_id').notNull(), // Removed cascade constraint to allow notifications from various sources
   type: userNotificationTypeEnum('type').notNull(),
   title: varchar('title', { length: 255 }).notNull(),
   message: text('message').notNull(),

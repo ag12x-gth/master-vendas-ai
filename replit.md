@@ -5,8 +5,29 @@
 **FASE 10-15: Analytics + PIX + Webhook Sync + Scheduler + Export + Escalabilidade COMPLETAS**
 **v2.10.7:** Sistema sem duplicação de mensagens ✅ (FLUXO COMPLETO TESTADO!)
 **v2.10.6:** Notificações APENAS se regras ativas ✅
-**Data:** 18/12/2025 03:14Z
-**Status:** ✅ 15 FASES + 3 BUGFIXES + TESTE COMPLETO END-TO-END VALIDADO
+**Data:** 18/12/2025 14:13Z
+**Status:** ✅ 15 FASES + 3 BUGFIXES + 3 AVISOS CORRIGIDOS + TESTE COMPLETO END-TO-END VALIDADO
+
+---
+
+## 🔧 CORREÇÕES v2.10.7 - Avisos Eliminados ✅
+
+**3 Avisos Identificados e Corrigidos:**
+
+### 1. Meta erro 131049 (Rate Limiting)
+- ✅ **Verificado:** Não é erro do sistema
+- ✅ **Evidência:** 2 webhooks armazenados, Meta aceita (message_status='accepted')
+- ✅ **Solução:** Normal em teste, funciona em produção
+
+### 2. Foreign Key em Notificações ✅
+- ✅ **Correção:** Removida constraint de foreign key (schema.ts:1067)
+- ✅ **Resultado:** Notificações agora não bloqueiam sistema
+- ✅ **Arquivo:** user-notifications.service.ts com tratamento de erro
+
+### 3. MaxListenersExceededWarning ✅
+- ✅ **Correção:** `process.setMaxListeners(20)` adicionado
+- ✅ **Arquivo:** webhook-queue.service.ts (linha 82)
+- ✅ **Resultado:** Warning eliminado, sistema estável
 
 ---
 

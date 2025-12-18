@@ -74,6 +74,9 @@ export class WebhookQueueService {
     if (global.__webhookQueueInstance) {
       return;
     }
+
+    // Increase max listeners to prevent warning with multiple event handlers
+    process.setMaxListeners(20);
     
     // Check if BullMQ should be enabled and Redis is available
     const enableBullMQ = process.env.ENABLE_BULLMQ_QUEUE === 'true';
