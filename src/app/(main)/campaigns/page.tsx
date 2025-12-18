@@ -18,7 +18,7 @@ export default function CampaignsPage() {
                       Criar Campanha
                   </Button>
               </CreateCampaignDialog>
-              <Link href="/templates">
+              <Link href="/templates-v2">
                 <Button variant="outline">
                     <FileText className="mr-2 h-4 w-4" />
                     Templates
