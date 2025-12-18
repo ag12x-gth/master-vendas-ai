@@ -227,6 +227,11 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (!name.trim()) {
+            notify.error('Nome Obrigatório', 'Digite um nome para a campanha.');
+            return;
+        }
+
         if (!messageText.trim()) {
             notify.error('Erro', 'A mensagem não pode estar vazia.');
             return;
@@ -293,10 +298,6 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
         const currentStepConfig = steps[currentStep];
 
         if (currentStepConfig?.id === 'info') {
-            if (!name.trim()) {
-                notify.error('Nome Obrigatório', 'Digite um nome para a campanha.');
-                return;
-            }
             if (!selectedConnectionId) {
                 notify.error('Conexão Obrigatória', 'Selecione uma conexão WhatsApp Normal.');
                 return;
@@ -516,11 +517,25 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                 return (
                     <div className="space-y-4">
                         <div className="space-y-2">
+                            <Label htmlFor="campaign-name-review" className="text-base font-semibold">Nome da Campanha *</Label>
+                            <Input 
+                                id="campaign-name-review" 
+                                value={name} 
+                                onChange={(e) => setName(e.target.value)} 
+                                placeholder="Ex: Campanha Black Friday 2024"
+                                required 
+                            />
+                            {!name.trim() && (
+                                <p className="text-xs text-destructive">O nome da campanha é obrigatório</p>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
                             <Label className="text-base font-semibold">Resumo da Campanha</Label>
                             <Card className="p-4 space-y-3">
                                 <div className="grid grid-cols-[120px_1fr] gap-2 text-sm">
                                     <span className="font-medium">Nome:</span>
-                                    <span>{name}</span>
+                                    <span>{name || <span className="text-muted-foreground italic">Não definido</span>}</span>
                                     
                                     <span className="font-medium">Conexão:</span>
                                     <span>{selectedConnection?.config_name || 'N/A'}</span>
