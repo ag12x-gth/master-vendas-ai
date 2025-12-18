@@ -595,13 +595,13 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
         const variableMappings = campaign.variableMappings as Record<string, any> || {};
         
         // DELAY OBRIGATÓRIO PARA BAILEYS - Proteção anti-bloqueio WhatsApp
-        // Se não configurado, usa delay padrão de 3-8 segundos entre mensagens
-        const DEFAULT_BAILEYS_MIN_DELAY = 3;
-        const DEFAULT_BAILEYS_MAX_DELAY = 8;
+        // Se não configurado, usa delay padrão de 10-30 segundos entre mensagens
+        const DEFAULT_BAILEYS_MIN_DELAY = 10;
+        const DEFAULT_BAILEYS_MAX_DELAY = 30;
         
-        // CADÊNCIA 81-210s: Integração com agent delay recomendado (Obrigações Imutáveis)
-        const AGENT_RECOMMENDED_MIN_DELAY = 81; // segundos
-        const AGENT_RECOMMENDED_MAX_DELAY = 210; // segundos
+        // CADÊNCIA PADRÃO: 10-30s para envio rápido mas seguro
+        const AGENT_RECOMMENDED_MIN_DELAY = 10; // segundos - reduzido de 81s
+        const AGENT_RECOMMENDED_MAX_DELAY = 30; // segundos - reduzido de 210s
         
         const configuredMinDelay = variableMappings._minDelaySeconds as number | undefined;
         const configuredMaxDelay = variableMappings._maxDelaySeconds as number | undefined;

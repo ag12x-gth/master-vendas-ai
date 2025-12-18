@@ -11,6 +11,14 @@ let workerInitialized = false;
  * Called once on application startup via app initialization
  */
 export async function GET(request: NextRequest) {
+  return handleWorkerInit(request);
+}
+
+export async function POST(request: NextRequest) {
+  return handleWorkerInit(request);
+}
+
+async function handleWorkerInit(request: NextRequest) {
   // Verify this is an internal request (same origin, no auth required for internal calls)
   const host = request.headers.get('host');
   const _referer = request.headers.get('referer');
