@@ -1082,7 +1082,7 @@ export async function triggerAutomationForWebhook(
 ): Promise<void> {
     try {
         const customer = webhookData.customer || {};
-        const contactPhone = customer.phoneNumber || '';
+        const contactPhone = customer.phoneNumber || customer.phone || '';
         
         if (!contactPhone) {
             console.warn('[Automation Engine] Webhook sem telefone do cliente. Ignorando.');

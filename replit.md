@@ -1,10 +1,11 @@
 # Master IA Oficial - Plataforma de Bulk Messaging com Automação AI
 
-## 🚀 Status: PRONTO PARA PUBLICAÇÃO (v2.10.4) ✅
+## 🚀 Status: PRONTO PARA PUBLICAÇÃO (v2.10.5) ✅
 
 **FASE 10-15: Analytics + PIX + Webhook Sync + Scheduler + Export + Escalabilidade COMPLETAS**
-**Data:** 17/12/2025 23:05Z
-**Status:** ✅ 15 FASES IMPLEMENTADAS
+**Bugfix:** Meta Templates para Webhooks Grapfy ✅
+**Data:** 18/12/2025 01:30Z
+**Status:** ✅ 15 FASES + BUGFIX IMPLEMENTADOS
 
 ---
 
@@ -193,29 +194,36 @@ CREATE INDEX idx_webhook_payload_eventid ON incoming_webhook_events USING GIN(pa
 
 ---
 
-## 🟡 CONFIRMAÇÃO 3: Envio de Mensagens para Compras Aprovadas
+## ✅ CONFIRMAÇÃO 3: Envio de Mensagens para Compras Aprovadas (CORRIGIDO)
 
 **Pergunta:** "Sistema envia mensagem WhatsApp quando compra aprovada (pix ou cartão) ocorre?"
 
 **Resposta:**
 - ✅ **SIM** - Sistema envia mensagens instantaneamente quando pix_created ou order_approved ocorrem
-- ✅ **VIA BAILEYS** - Usa sendWhatsappTextMessage() (texto puro)
-- ✅ **PARA CLIENTE** - Notificação com dados da compra, total, produto
-- ✅ **Suporta Meta Templates** - Mas atualmente não integrado com eventos automáticos
+- ✅ **VIA BAILEYS** - Notificação automática em texto puro
+- ✅ **VIA META TEMPLATE** - Notificação formal via "2026_protocolo_compra_aprovada_" (AGORA FUNCIONA!)
+- ✅ **PARA CLIENTE** - Recebe AMBAS as notificações (Baileys + Meta API)
 
-**Fluxo:**
+**Fluxo (CORRIGIDO v2.10.5):**
 ```
 Webhook pix_created/order_approved
   ↓
 [1] sendPixNotification() / sendOrderApprovedNotification()
-  ├─→ Envia via Baileys (texto)
-  └─→ Atende CLIENTE com informações da compra
+  ├─→ Envia via Baileys (texto puro)
+  └─→ Notificação instantânea ✅
 
-[2] triggerWebhookCampaign() [Opcional]
-  └─→ Se campaign configurada, envia automação adicional
+[2] triggerAutomationForWebhook() [AGORA FUNCIONA!]
+  ├─→ Busca automações ativas por tipo evento
+  ├─→ Encontra: "compra-aprovada" (webhook_order_approved)
+  ├─→ Dispara ação: "Enviar via APICloud (Meta)"
+  └─→ Meta Template "2026_protocolo_compra_aprovada_" enviado ✅
 ```
 
-**Documentação:** `INVESTIGACAO_ENVIO_MENSAGENS_COMPRA_APROVADA.md`
+**Bug Corrigido:** 
+- ❌ ANTES: `customer.phoneNumber` não encontrava telefone Grapfy
+- ✅ DEPOIS: `customer.phoneNumber || customer.phone` funciona com ambos
+
+**Documentação:** `BUG_FIX_WEBHOOK_META_TEMPLATES.md`
 
 ---
 
