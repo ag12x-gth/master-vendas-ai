@@ -248,48 +248,59 @@ async function handleGrapfyEvent(
   payload: IncomingWebhookPayload
 ): Promise<void> {
   try {
-    const data = payload.data || {};
+    // Dados vêm diretamente no payload (não em payload.data)
+    const data = payload as any;
     const customer = data.customer || {};
     const product = data.product || {};
+    const address = data.address || {};
+    const total = data.total || 0;
+    const qrCode = data.qrCode || '';
+    const orderId = data.orderId || '';
 
     logger.info(`Processing Grapfy event: ${eventType}`, {
-      customer: customer.name,
-      email: customer.email,
-      phone: customer.phoneNumber,
-      product: product.name,
+      eventId: data.eventId,
+      customer: customer.name || 'Unknown',
+      email: customer.email || '',
+      phone: customer.phoneNumber || customer.phone || '',
+      product: product.name || '',
+      total: total,
+      status: data.status,
     });
 
+    // Extract phone number (pode vir como phoneNumber ou phone)
+    const customerPhone = customer.phoneNumber || customer.phone;
+
     // Handle PIX notifications
-    if (eventType === 'pix_created' && customer.phoneNumber && data.qrCode) {
+    if (eventType === 'pix_created' && customerPhone && qrCode) {
       try {
         const { sendPixNotification } = await import('@/services/pix-notification.service');
         await sendPixNotification({
-          customerPhone: customer.phoneNumber,
+          customerPhone: customerPhone,
           customerName: customer.name || 'Cliente',
-          qrCode: data.qrCode,
+          qrCode: qrCode,
           pixExpirationAt: data.pixExpirationAt || new Date(Date.now() + 2 * 3600000).toISOString(),
-          total: parseFloat(data.total) || 0,
-          orderId: data.orderId || '',
+          total: parseFloat(total) || 0,
+          orderId: orderId,
           productName: product.name,
         });
-        logger.info(`✅ PIX notification sent to ${customer.phoneNumber}`);
+        logger.info(`✅ PIX notification sent to ${customerPhone}`);
       } catch (pixError) {
         logger.warn(`PIX notification failed (non-blocking):`, pixError);
       }
     }
 
     // Handle Order Approved notifications
-    if (eventType === 'order_approved' && customer.phoneNumber) {
+    if (eventType === 'order_approved' && customerPhone) {
       try {
         const { sendOrderApprovedNotification } = await import('@/services/pix-notification.service');
         await sendOrderApprovedNotification({
-          customerPhone: customer.phoneNumber,
+          customerPhone: customerPhone,
           customerName: customer.name || 'Cliente',
-          orderId: data.orderId || '',
+          orderId: orderId,
           productName: product.name,
-          total: parseFloat(data.total) || 0,
+          total: parseFloat(total) || 0,
         });
-        logger.info(`✅ Order approved notification sent to ${customer.phoneNumber}`);
+        logger.info(`✅ Order approved notification sent to ${customerPhone}`);
       } catch (orderError) {
         logger.warn(`Order notification failed (non-blocking):`, orderError);
       }

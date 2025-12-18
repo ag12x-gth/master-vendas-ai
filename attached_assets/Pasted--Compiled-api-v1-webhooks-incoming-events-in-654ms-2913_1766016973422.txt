@@ -1,0 +1,163 @@
+ Compiled /api/v1/webhooks/incoming/events in 654ms (2913 modules)
+ GET /api/v1/webhooks/incoming/events?limit=50 200 in 804ms
+ GET /api/v1/notifications?limit=20 200 in 219ms
+ GET /api/v1/notifications?limit=20 200 in 654ms
+ ○ Compiling /api/v1/webhooks/incoming/[companySlug] ...
+ ✓ Compiled /api/v1/webhooks/incoming/[companySlug] in 1112ms (2899 modules)
+ GET /api/v1/notifications?limit=20 200 in 1827ms
+[WEBHOOK:qp24f] ===== INCOMING WEBHOOK RECEIVED =====
+[WEBHOOK:qp24f] Company: 682b91ea-15ee-42da-8855-70309b237008
+[WEBHOOK:qp24f] Source: grapfy
+[WEBHOOK:qp24f] Headers: Content-Type=application/json, User-Agent=axios/1.11.0
+[WEBHOOK:qp24f] Payload size: 1659 bytes
+[WEBHOOK:qp24f] Signature: missing, Timestamp: missing
+[INCOMING-WEBHOOK-DEBUG] Raw webhook payload: {
+  eventType: 'pix_created',
+  payloadKeys: [
+    'eventId',           'eventType',
+    'url',               'status',
+    'paymentMethod',     'orderId',
+    'storeId',           'code',
+    'isOrderBump',       'type',
+    'shipmentValue',     'discount',
+    'automaticDiscount', 'subTotal',
+    'total',             'qrCode',
+    'pixExpirationAt',   'cupomCode',
+    'installmentCount',  'installmentValue',
+    'refundObservation', 'customer',
+    'address',           'commissions',
+    'plan',              'product',
+    'subscription',      'trankingParameters',
+    'metadata',          'createdAt',
+    'approvedAt'
+  ]
+}
+[INCOMING-WEBHOOK] ✅ Webhook payload validated successfully { event_type: 'pix_created' }
+[INCOMING-WEBHOOK] Webhook event stored {
+  eventId: '1ec24754-8b24-4f14-81a9-d74a8f456a55',
+  companyId: '682b91ea-15ee-42da-8855-70309b237008',
+  source: 'grapfy',
+  eventType: 'pix_created'
+}
+[WEBHOOK:qp24f] ✅ Event stored with ID: 1ec24754-8b24-4f14-81a9-d74a8f456a55
+[INCOMING-WEBHOOK] Processing incoming webhook event {
+  eventId: '1ec24754-8b24-4f14-81a9-d74a8f456a55',
+  companyId: '682b91ea-15ee-42da-8855-70309b237008',
+  source: 'grapfy',
+  eventType: 'pix_created'
+}
+[INCOMING-WEBHOOK] Processing Grapfy event: pix_created {
+  customer: undefined,
+  email: undefined,
+  phone: undefined,
+  product: undefined
+}
+[WEBHOOK:qp24f] ===== WEBHOOK PROCESSED =====
+[Baileys] Creating new SessionManager singleton (ID: sm_1766016690867_dv2ues)
+[Baileys] SessionManager instance created and stored globally
+🔧 [WebhookQueue] Creating new WebhookQueueService singleton instance
+🔧 [WebhookQueue] Registered shutdown handlers (SIGINT, SIGTERM)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+[WEBHOOK-CAMPAIGN] Triggering campaign for event: pix_created
+[WEBHOOK-CAMPAIGN] Customer: Unknown ()
+ POST /api/v1/webhooks/incoming/682b91ea-15ee-42da-8855-70309b237008 200 in 2805ms
+[WEBHOOK-CAMPAIGN] No PIX confirmation campaign found
+[WEBHOOK-CAMPAIGN] No suitable campaign found for event: pix_created
+[Automation Engine] Webhook sem telefone do cliente. Ignorando.
+[INCOMING-WEBHOOK] ✅ Automations triggered for webhook event: pix_created 
+[INCOMING-WEBHOOK] ✅ Grapfy campaign triggered successfully for event: pix_created 
+[INCOMING-WEBHOOK] Event processed successfully { eventId: '1ec24754-8b24-4f14-81a9-d74a8f456a55' }
+✅ [WebhookQueue] BullMQ Worker started with concurrency: 10
+✅ [WebhookQueue] BullMQ service initialized with Redis-backed queue
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+[WEBHOOK:jblk7g] ===== INCOMING WEBHOOK RECEIVED =====
+[WEBHOOK:jblk7g] Company: 682b91ea-15ee-42da-8855-70309b237008
+[WEBHOOK:jblk7g] Source: grapfy
+[WEBHOOK:jblk7g] Headers: Content-Type=application/json, User-Agent=axios/1.11.0
+[WEBHOOK:jblk7g] Payload size: 1685 bytes
+[WEBHOOK:jblk7g] Signature: missing, Timestamp: missing
+[INCOMING-WEBHOOK-DEBUG] Raw webhook payload: {
+  eventType: 'order_approved',
+  payloadKeys: [
+    'eventId',           'eventType',
+    'url',               'status',
+    'paymentMethod',     'orderId',
+    'storeId',           'code',
+    'isOrderBump',       'type',
+    'shipmentValue',     'discount',
+    'automaticDiscount', 'subTotal',
+    'total',             'qrCode',
+    'pixExpirationAt',   'cupomCode',
+    'installmentCount',  'installmentValue',
+    'refundObservation', 'customer',
+    'address',           'commissions',
+    'plan',              'product',
+    'subscription',      'trankingParameters',
+    'metadata',          'createdAt',
+    'approvedAt'
+  ]
+}
+[INCOMING-WEBHOOK] ✅ Webhook payload validated successfully { event_type: 'order_approved' }
+[INCOMING-WEBHOOK] Webhook event stored {
+  eventId: 'ad812273-7e0a-4cec-9321-5ce2c0fcbffe',
+  companyId: '682b91ea-15ee-42da-8855-70309b237008',
+  source: 'grapfy',
+  eventType: 'order_approved'
+}
+[WEBHOOK:jblk7g] ✅ Event stored with ID: ad812273-7e0a-4cec-9321-5ce2c0fcbffe
+[INCOMING-WEBHOOK] Processing incoming webhook event {
+  eventId: 'ad812273-7e0a-4cec-9321-5ce2c0fcbffe',
+  companyId: '682b91ea-15ee-42da-8855-70309b237008',
+  source: 'grapfy',
+  eventType: 'order_approved'
+}
+[INCOMING-WEBHOOK] Processing Grapfy event: order_approved {
+  customer: undefined,
+  email: undefined,
+  phone: undefined,
+  product: undefined
+}
+[WEBHOOK:jblk7g] ===== WEBHOOK PROCESSED =====
+[WEBHOOK-CAMPAIGN] Triggering campaign for event: order_approved
+[WEBHOOK-CAMPAIGN] Customer: Unknown ()
+ POST /api/v1/webhooks/incoming/682b91ea-15ee-42da-8855-70309b237008 200 in 178ms
+[WEBHOOK-CAMPAIGN] No follow-up campaign found
+[WEBHOOK-CAMPAIGN] No suitable campaign found for event: order_approved
+[Automation Engine] Webhook sem telefone do cliente. Ignorando.
+[INCOMING-WEBHOOK] ✅ Automations triggered for webhook event: order_approved 
+[INCOMING-WEBHOOK] ✅ Grapfy campaign triggered successfully for event: order_approved 
+[INCOMING-WEBHOOK] Event processed successfully { eventId: 'ad812273-7e0a-4cec-9321-5ce2c0fcbffe' }
+ GET /api/v1/notifications?limit=20 200 in 189ms
+ GET /api/v1/notifications?limit=20 200 in 180ms
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+^C🛑 [WebhookQueue] Initiating graceful shutdown...

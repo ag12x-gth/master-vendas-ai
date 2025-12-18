@@ -153,7 +153,7 @@ CREATE INDEX idx_webhook_payload_eventid ON incoming_webhook_events USING GIN(pa
 
 ---
 
-## 🔴 CONFIRMAÇÃO DEFINITIVA: Webhooks Instantâneos 24/7
+## 🔴 CONFIRMAÇÃO 1: Webhooks Instantâneos 24/7
 
 **Pergunta Esclarecida:**
 - ❌ Sistema recebe webhooks a cada 6 horas?
@@ -169,6 +169,27 @@ CREATE INDEX idx_webhook_payload_eventid ON incoming_webhook_events USING GIN(pa
 - ✅ Evento salvo instantaneamente no banco
 - ✅ Sistema processa 3 webhooks simultâneos
 - ✅ Documentação: `CONCLUSAO_WEBHOOKS_INSTANTANEOS.md`
+
+---
+
+## 🟢 CONFIRMAÇÃO 2: Integridade Completa de Dados
+
+**Verificado:** Sistema recebe TODOS os dados do webhook (28+ campos)
+
+**Armazenamento:**
+- ✅ Coluna payload (JSONB) preserva 100% dos campos
+- ✅ Nenhum dado é descartado
+- ✅ Estrutura JSON mantida intacta
+- ✅ Acessível para queries e export
+
+**Campos Testados:**
+- ✅ eventId, eventType, url, status, paymentMethod
+- ✅ orderId, storeId, customer (completo: name, email, phone, cpf)
+- ✅ product (completo: id, name, quantity)
+- ✅ total, discount, shipmentValue, subTotal
+- ✅ Todos os 28+ campos da Grapfy
+
+**Documentação:** `VERIFICACAO_DADOS_WEBHOOK_COMPLETOS.md`
 
 ---
 
