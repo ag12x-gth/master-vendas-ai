@@ -192,9 +192,11 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
                 break;
             }
             case 'send_message_apicloud': {
-                if (!action.value || !action.connectionId) return;
+                if (!action.connectionId) return;
+                // ✅ v2.10.6: Allow empty value for templates (content from templateId)
                 // Interpolar variáveis se houver dados de webhook
-                const messageText = webhookData ? interpolateWebhookVariables(action.value, webhookData) : action.value;
+                const messageText = action.value ? (webhookData ? interpolateWebhookVariables(action.value, webhookData) : action.value) : '';
+                console.log(`[Automation|DEBUG] Sending API Cloud message:`, { phone: contact.phone, templateId: (action as any).templateId, hasValue: !!action.value });
                 const result = await sendUnifiedMessage({
                     provider: 'apicloud',
                     connectionId: action.connectionId,
@@ -203,12 +205,15 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
                     templateId: (action as any).templateId,
                 });
                 if (!result.success) throw new Error(result.error || 'Falha ao enviar via APICloud');
+                await logAutomation('INFO', `Mensagem enviada via APICloud para ${contact.phone}`, logContext);
                 break;
             }
             case 'send_message_baileys': {
-                if (!action.value || !action.connectionId) return;
+                if (!action.connectionId) return;
+                // ✅ v2.10.6: Allow empty value for templates (content from templateId)
                 // Interpolar variáveis se houver dados de webhook
-                const messageText = webhookData ? interpolateWebhookVariables(action.value, webhookData) : action.value;
+                const messageText = action.value ? (webhookData ? interpolateWebhookVariables(action.value, webhookData) : action.value) : '';
+                console.log(`[Automation|DEBUG] Sending Baileys message:`, { phone: contact.phone, templateId: (action as any).templateId, hasValue: !!action.value });
                 const result = await sendUnifiedMessage({
                     provider: 'baileys',
                     connectionId: action.connectionId,
@@ -217,6 +222,7 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
                     templateId: (action as any).templateId,
                 });
                 if (!result.success) throw new Error(result.error || 'Falha ao enviar via Baileys');
+                await logAutomation('INFO', `Mensagem enviada via Baileys para ${contact.phone}`, logContext);
                 break;
             }
             case 'add_tag':
