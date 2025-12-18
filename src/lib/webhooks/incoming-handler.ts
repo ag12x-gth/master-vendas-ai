@@ -250,13 +250,44 @@ async function handleGrapfyEvent(
   try {
     // Dados vêm diretamente no payload (não em payload.data)
     const data = payload as any;
-    const customer = data.customer || {};
-    const product = data.product || {};
+    
+    // ✅ FIX: Suportar AMBOS formatos - aninhado (Grapfy real) e plano (curl manual)
+    // Formato aninhado: { customer: { name: "Diego", phoneNumber: "64999526870" } }
+    // Formato plano: { customer: "Diego", phone: "64999526870" }
+    
+    let customer: { name?: string; email?: string; phoneNumber?: string; phone?: string; document?: string } = {};
+    let product: { name?: string } = {};
+    
+    // Parse customer - pode ser objeto ou string
+    if (typeof data.customer === 'object' && data.customer !== null) {
+      customer = data.customer;
+    } else if (typeof data.customer === 'string') {
+      customer = { name: data.customer };
+    }
+    
+    // Fallback para campos planos no root
+    if (!customer.name && data.customerName) customer.name = data.customerName;
+    if (!customer.email && data.email) customer.email = data.email;
+    if (!customer.phoneNumber && data.phone) customer.phoneNumber = data.phone;
+    if (!customer.phoneNumber && data.phoneNumber) customer.phoneNumber = data.phoneNumber;
+    if (!customer.document && data.document) customer.document = data.document;
+    
+    // Parse product - pode ser objeto ou string
+    if (typeof data.product === 'object' && data.product !== null) {
+      product = data.product;
+    } else if (typeof data.product === 'string') {
+      product = { name: data.product };
+    }
+    
+    // Fallback para campos planos no root
+    if (!product.name && data.productName) product.name = data.productName;
+    
     const address = data.address || {};
     const total = data.total || 0;
     const qrCode = data.qrCode || '';
     const orderId = data.orderId || '';
 
+    // Log detalhado do parsing
     logger.info(`Processing Grapfy event: ${eventType}`, {
       eventId: data.eventId,
       customer: customer.name || 'Unknown',

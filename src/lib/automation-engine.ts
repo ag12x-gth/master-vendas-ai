@@ -1088,11 +1088,33 @@ export async function triggerAutomationForWebhook(
     webhookData: Record<string, any>
 ): Promise<void> {
     try {
-        const customer = webhookData.customer || {};
+        // ✅ FIX: Suportar AMBOS formatos - aninhado (Grapfy real) e plano (curl manual)
+        // Formato aninhado: { customer: { name: "Diego", phoneNumber: "64999526870" } }
+        // Formato plano: { customer: "Diego", phone: "64999526870" }
+        
+        let customer: { name?: string; email?: string; phoneNumber?: string; phone?: string } = {};
+        
+        // Parse customer - pode ser objeto ou string
+        if (typeof webhookData.customer === 'object' && webhookData.customer !== null) {
+            customer = webhookData.customer;
+        } else if (typeof webhookData.customer === 'string') {
+            customer = { name: webhookData.customer };
+        }
+        
+        // Fallback para campos planos no root
+        if (!customer.name && webhookData.customerName) customer.name = webhookData.customerName;
+        if (!customer.email && webhookData.email) customer.email = webhookData.email;
+        if (!customer.phoneNumber && webhookData.phone) customer.phoneNumber = webhookData.phone;
+        if (!customer.phoneNumber && webhookData.phoneNumber) customer.phoneNumber = webhookData.phoneNumber;
+        
         const contactPhone = customer.phoneNumber || customer.phone || '';
         
         if (!contactPhone) {
-            console.warn('[Automation Engine] Webhook sem telefone do cliente. Ignorando.');
+            console.warn('[Automation Engine] Webhook sem telefone do cliente. Ignorando.', {
+                customerType: typeof webhookData.customer,
+                hasPhone: !!webhookData.phone,
+                hasPhoneNumber: !!webhookData.phoneNumber,
+            });
             return;
         }
 
