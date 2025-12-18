@@ -1146,20 +1146,18 @@ declare global {
   var __BAILEYS_INSTANCE_ID: string | undefined;
 }
 
-const INSTANCE_ID = `sm_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-
 function getOrCreateSessionManager(): BaileysSessionManager {
-  if (globalThis.__BAILEYS_SESSION_MANAGER) {
-    return globalThis.__BAILEYS_SESSION_MANAGER;
+  if (global.__BAILEYS_SESSION_MANAGER && global.__BAILEYS_INSTANCE_ID) {
+    console.log(`[Baileys] Reusing existing SessionManager (ID: ${global.__BAILEYS_INSTANCE_ID})`);
+    return global.__BAILEYS_SESSION_MANAGER;
   }
 
-  console.log(`[Baileys] Creating new SessionManager singleton (ID: ${INSTANCE_ID})`);
+  const instanceId = `sm_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  console.log(`[Baileys] Creating new SessionManager singleton (ID: ${instanceId})`);
   const manager = new BaileysSessionManager();
   
-  globalThis.__BAILEYS_SESSION_MANAGER = manager;
-  globalThis.__BAILEYS_INSTANCE_ID = INSTANCE_ID;
-  
-  Object.freeze(globalThis.__BAILEYS_SESSION_MANAGER);
+  global.__BAILEYS_SESSION_MANAGER = manager;
+  global.__BAILEYS_INSTANCE_ID = instanceId;
   
   console.log('[Baileys] SessionManager instance created and stored globally');
   return manager;
