@@ -83,22 +83,33 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
             return new NextResponse('App Secret for active Meta connection not configured or decryption failed', { status: 400 });
         }
 
+        // Debug: Log masked appSecret for troubleshooting
+        const maskedSecret = decryptedAppSecret.substring(0, 4) + '...' + decryptedAppSecret.substring(decryptedAppSecret.length - 4);
+        console.log(`🔍 [Meta Webhook] App Secret (masked): ${maskedSecret}, Length: ${decryptedAppSecret.length}`);
+
         const signature = request.headers.get('x-hub-signature-256');
         if (!signature) {
              console.warn(`❌ [Meta Webhook] Webhook sem assinatura HMAC`);
              return new NextResponse('Signature missing', { status: 400 });
         }
         
+        console.log(`🔍 [Meta Webhook] Signature recebida: ${signature.substring(0, 20)}...`);
+        
         const rawBody = await request.text();
+        console.log(`🔍 [Meta Webhook] Raw body length: ${rawBody.length} bytes`);
+        
         const hmac = crypto.createHmac('sha256', decryptedAppSecret);
         hmac.update(rawBody);
         const expectedSignature = `sha256=${hmac.digest('hex')}`;
+        
+        console.log(`🔍 [Meta Webhook] Expected signature: ${expectedSignature.substring(0, 20)}...`);
         
         if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
             console.error(`❌ [Meta Webhook] Assinatura HMAC inválida`);
             console.error(`   Recebida: ${signature.substring(0, 20)}...`);
             console.error(`   Esperada: ${expectedSignature.substring(0, 20)}...`);
             console.error(`   Connection: ${connection.config_name}`);
+            console.error(`   DEBUG: App Secret Length: ${decryptedAppSecret.length}, Body Length: ${rawBody.length}`);
             return new NextResponse('Invalid signature', { status: 403 });
         }
         

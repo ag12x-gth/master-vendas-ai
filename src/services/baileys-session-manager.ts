@@ -1146,9 +1146,21 @@ declare global {
   var __BAILEYS_INSTANCE_ID: string | undefined;
 }
 
+const BAILEYS_MANAGER_KEY = Symbol.for('baileys_session_manager');
+const BAILEYS_INSTANCE_KEY = Symbol.for('baileys_instance_id');
+
 function getOrCreateSessionManager(): BaileysSessionManager {
+  // First try Symbol.for() which is more reliable across module reloads
+  const globalObj = global as any;
+  
+  if (globalObj[BAILEYS_MANAGER_KEY] && globalObj[BAILEYS_INSTANCE_KEY]) {
+    console.log(`[Baileys] Reusing existing SessionManager (ID: ${globalObj[BAILEYS_INSTANCE_KEY]})`);
+    return globalObj[BAILEYS_MANAGER_KEY];
+  }
+  
+  // Fallback to direct global properties for compatibility
   if (global.__BAILEYS_SESSION_MANAGER && global.__BAILEYS_INSTANCE_ID) {
-    console.log(`[Baileys] Reusing existing SessionManager (ID: ${global.__BAILEYS_INSTANCE_ID})`);
+    console.log(`[Baileys] Reusing existing SessionManager (ID: ${global.__BAILEYS_INSTANCE_ID}) [fallback]`);
     return global.__BAILEYS_SESSION_MANAGER;
   }
 
@@ -1156,10 +1168,13 @@ function getOrCreateSessionManager(): BaileysSessionManager {
   console.log(`[Baileys] Creating new SessionManager singleton (ID: ${instanceId})`);
   const manager = new BaileysSessionManager();
   
+  // Store in both Symbol and direct global for maximum compatibility
+  globalObj[BAILEYS_MANAGER_KEY] = manager;
+  globalObj[BAILEYS_INSTANCE_KEY] = instanceId;
   global.__BAILEYS_SESSION_MANAGER = manager;
   global.__BAILEYS_INSTANCE_ID = instanceId;
   
-  console.log('[Baileys] SessionManager instance created and stored globally');
+  console.log('[Baileys] SessionManager instance created and stored globally (Symbol + Direct)');
   return manager;
 }
 
