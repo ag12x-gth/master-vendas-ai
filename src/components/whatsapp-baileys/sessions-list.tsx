@@ -43,6 +43,13 @@ export function SessionsList() {
     setQrModalOpen(true);
   };
 
+  const handleSessionCreated = async (sessionId: string, sessionName: string) => {
+    await reconnectSession(sessionId);
+    setSelectedSessionId(sessionId);
+    setSelectedSessionName(sessionName);
+    setQrModalOpen(true);
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'connected':
@@ -100,7 +107,7 @@ export function SessionsList() {
             Gerencie suas sessões WhatsApp conectadas via multi-dispositivo
           </p>
         </div>
-        <CreateSessionDialog onCreateSession={createSession} />
+        <CreateSessionDialog onCreateSession={createSession} onSessionCreated={handleSessionCreated} />
       </div>
 
       {sessions.length === 0 ? (
@@ -111,7 +118,7 @@ export function SessionsList() {
             <p className="text-sm text-muted-foreground mb-4 text-center max-w-sm">
               Crie uma nova sessão para conectar uma conta WhatsApp via QR Code
             </p>
-            <CreateSessionDialog onCreateSession={createSession} />
+            <CreateSessionDialog onCreateSession={createSession} onSessionCreated={handleSessionCreated} />
           </CardContent>
         </Card>
       ) : (

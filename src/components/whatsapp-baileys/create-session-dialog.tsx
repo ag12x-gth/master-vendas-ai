@@ -17,9 +17,10 @@ import { PlusCircle, Loader2 } from 'lucide-react';
 
 interface CreateSessionDialogProps {
   onCreateSession: (name: string) => Promise<any>;
+  onSessionCreated?: (sessionId: string, sessionName: string) => void;
 }
 
-export function CreateSessionDialog({ onCreateSession }: CreateSessionDialogProps) {
+export function CreateSessionDialog({ onCreateSession, onSessionCreated }: CreateSessionDialogProps) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
@@ -32,8 +33,12 @@ export function CreateSessionDialog({ onCreateSession }: CreateSessionDialogProp
     setIsCreating(false);
 
     if (result) {
+      const sessionName = name;
       setName('');
       setOpen(false);
+      if (onSessionCreated && result.id) {
+        onSessionCreated(result.id, sessionName);
+      }
     }
   };
 
