@@ -382,7 +382,7 @@ export function CampaignTable({ channel, baileysOnly = false }: CampaignTablePro
     if (hasActiveCampaigns && !loading) {
       pollingIntervalRef.current = setInterval(() => {
         fetchCampaigns();
-      }, 5000);
+      }, 30000);
     }
     
     return () => {
