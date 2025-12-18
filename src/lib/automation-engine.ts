@@ -35,7 +35,7 @@ import { kanbanLeads, kanbanStagePersonas } from './db';
 import { apiCache } from './api-cache';
 
 // Mapa de variáveis disponíveis por evento webhook
-const WEBHOOK_VARIABLE_TEMPLATES: Record<string, Array<{key: string, label: string}>> = {
+const _WEBHOOK_VARIABLE_TEMPLATES: Record<string, Array<{key: string, label: string}>> = {
   'webhook_pix_created': [
     { key: 'customer_name', label: 'Nome do Cliente' },
     { key: 'customer_phone', label: 'Telefone' },

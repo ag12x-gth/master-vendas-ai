@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const event = (eventResult as any)[0];
+    const _event = (eventResult as any)[0];
 
     // Mark for reprocessing
     await conn`

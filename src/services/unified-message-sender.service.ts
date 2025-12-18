@@ -23,7 +23,7 @@ interface SendResult {
 }
 
 export async function sendUnifiedMessage(options: UnifiedSendOptions): Promise<SendResult> {
-  const { provider, connectionId, to, message, templateId, templateName: providedTemplateName, templateParams } = options;
+  const { provider, connectionId, to, message, templateId, templateName: providedTemplateName, templateParams: _templateParams } = options;
 
   try {
     // Fetch connection

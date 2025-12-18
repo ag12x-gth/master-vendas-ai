@@ -11,7 +11,7 @@ const logger = {
 };
 
 // URL Configuration Logger
-const logWebhookConfig = (companyId: string, source: string) => {
+const _logWebhookConfig = (companyId: string, source: string) => {
   const baseUrl = process.env.DOMAIN || 'https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev';
   const webhookUrl = `${baseUrl}/api/v1/webhooks/incoming/${companyId}`;
   logger.info(`✅ Webhook URL for ${source}:`, webhookUrl);
@@ -282,10 +282,10 @@ async function handleGrapfyEvent(
     // Fallback para campos planos no root
     if (!product.name && data.productName) product.name = data.productName;
     
-    const address = data.address || {};
+    const _address = data.address || {};
     const total = data.total || 0;
-    const qrCode = data.qrCode || '';
-    const orderId = data.orderId || '';
+    const _qrCode = data.qrCode || '';
+    const _orderId = data.orderId || '';
 
     // Log detalhado do parsing
     logger.info(`Processing Grapfy event: ${eventType}`, {
@@ -299,7 +299,7 @@ async function handleGrapfyEvent(
     });
 
     // Extract phone number (pode vir como phoneNumber ou phone)
-    const customerPhone = customer.phoneNumber || customer.phone;
+    const _customerPhone = customer.phoneNumber || customer.phone;
 
     // ✅ CHANGE v2.10.6: Notifications ONLY via automations (must have active rules)
     // Removed: sendPixNotification() and sendOrderApprovedNotification()

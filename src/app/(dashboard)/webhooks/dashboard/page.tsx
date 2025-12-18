@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface WebhookEvent {
   id: string;
@@ -82,7 +82,7 @@ export default function WebhookDashboard() {
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [replayingId, setReplayingId] = useState<string | null>(null);
-  const [analyticsHours, setAnalyticsHours] = useState(24);
+  const [analyticsHours, _setAnalyticsHours] = useState(24);
 
   const companyId = '682b91ea-15ee-42da-8855-70309b237008';
 
@@ -118,6 +118,7 @@ export default function WebhookDashboard() {
       const interval = setInterval(fetchData, 5000);
       return () => clearInterval(interval);
     }
+    return undefined;
   }, [autoRefresh, companyId]);
 
   const handleRetry = async (eventId: string) => {
