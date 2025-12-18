@@ -6,6 +6,7 @@ import { PT_Sans } from 'next/font/google'
 import { cn } from '@/lib/utils';
 import { ThemeProvider } from '@/components/theme-provider';
 import { WorkerInitializer } from '@/components/worker-initializer';
+import { WarningSuppressor } from '@/components/warning-suppressor';
 
 const ptSans = PT_Sans({
   subsets: ['latin'],
@@ -50,6 +51,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <WarningSuppressor />
           <WorkerInitializer />
           {children}
           <Toaster />

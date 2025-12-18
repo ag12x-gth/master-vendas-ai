@@ -83,15 +83,24 @@ interface RateLimitContext {
   path: string;
 }
 
+let lastRedisCheck: { available: boolean; timestamp: number } | null = null;
+const REDIS_CHECK_CACHE_MS = 5000; // Cache Redis availability for 5 seconds
+
 async function checkRedisAvailability(): Promise<boolean> {
+  const now = Date.now();
+  if (lastRedisCheck && (now - lastRedisCheck.timestamp) < REDIS_CHECK_CACHE_MS) {
+    return lastRedisCheck.available;
+  }
+
   try {
-    // Quick ping with timeout
     const timeout = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Redis timeout')), 100)
+      setTimeout(() => reject(new Error('Redis timeout')), 500)
     );
     await Promise.race([redis.ping(), timeout]);
+    lastRedisCheck = { available: true, timestamp: now };
     return true;
   } catch {
+    lastRedisCheck = { available: false, timestamp: now };
     return false;
   }
 }
