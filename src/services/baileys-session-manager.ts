@@ -1175,6 +1175,15 @@ function getOrCreateSessionManager(): BaileysSessionManager {
   global.__BAILEYS_INSTANCE_ID = instanceId;
   
   console.log('[Baileys] SessionManager instance created and stored globally (Symbol + Direct)');
+  
+  // Auto-initialize saved sessions on startup (non-blocking)
+  if (typeof window === 'undefined') {
+    console.log('[Baileys] Starting automatic session restoration...');
+    manager.initializeSessions().catch(err => {
+      console.error('[Baileys] Failed to auto-restore sessions:', err);
+    });
+  }
+  
   return manager;
 }
 
