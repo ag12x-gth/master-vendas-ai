@@ -25,7 +25,7 @@ export interface Option {
 interface ContactMultiSelectProps {
   options: Option[];
   selected: string[];
-  onChange: React.Dispatch<React.SetStateAction<string[]>>;
+  onChange: (value: string[]) => void;
   className?: string;
   placeholder?: string;
 }
