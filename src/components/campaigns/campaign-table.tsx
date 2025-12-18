@@ -76,7 +76,14 @@ const CampaignCard = memo(({ campaign, onUpdate, onDelete, allTemplates, notify 
     
     const connectionOrGatewayName = isSms ? campaign.smsGatewayName : campaign.connectionName;
     const template = !isSms && campaign.templateId ? allTemplates.find((t: Template) => t.id === campaign.templateId) : null;
-    const templateName = template?.name || (isSms ? 'Mensagem de Texto' : 'Modelo não encontrado');
+    // Para campanhas Baileys (sem templateId mas com message), mostrar "Mensagem de Texto"
+    const templateName = isSms 
+        ? 'Mensagem de Texto' 
+        : template?.name 
+            ? template.name 
+            : campaign.message 
+                ? 'Mensagem de Texto' 
+                : 'Modelo não encontrado';
     
     const handleForceTrigger = async () => {
         setIsTriggering(true);

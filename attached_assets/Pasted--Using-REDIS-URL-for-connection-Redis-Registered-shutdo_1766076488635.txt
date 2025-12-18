@@ -1,0 +1,278 @@
+ Using REDIS_URL for connection...
+🔧 [Redis] Registered shutdown handlers (SIGINT, SIGTERM)
+⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).
+ GET /api/v1/connections/health 200 in 2403ms
+ GET /api/v1/notifications?limit=20 200 in 2425ms
+✅ Redis connected successfully - Using distributed Redis cache
+📡 Redis endpoint: rediss://default:***@vital-sawfish-40850.upstash.io:6379
+ ✓ Compiled /api/v1/auth/login in 363ms (1072 modules)
+[RateLimit] Redis unavailable, using in-memory fallback
+ POST /api/v1/auth/login 200 in 1060ms
+ ○ Compiling /super-admin ...
+ ✓ Compiled /super-admin in 5.7s (2195 modules)
+ ✓ Compiled in 3.1s (3915 modules)
+[Baileys] Creating new SessionManager singleton (ID: sm_1766076257884_ra4c72)
+[Baileys] SessionManager instance created and stored globally
+🔧 [WebhookQueue] Creating new WebhookQueueService singleton instance
+🔧 [WebhookQueue] Registered shutdown handlers (SIGINT, SIGTERM)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+[RateLimit] Redis unavailable, using in-memory fallback
+ POST /api/v1/auth/login 200 in 1299ms
+⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).
+[Baileys] Creating new SessionManager singleton (ID: sm_1766076258628_sfiyr2)
+[Baileys] SessionManager instance created and stored globally
+✅ [WebhookQueue] BullMQ Worker started with concurrency: 10
+✅ [WebhookQueue] BullMQ service initialized with Redis-backed queue
+🔧 [WebhookQueue] Creating new WebhookQueueService singleton instance
+🔧 [WebhookQueue] Registered shutdown handlers (SIGINT, SIGTERM)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+🔔 [Meta Webhook] 2025-12-18T16:44:18.805Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [WebhookQueue] BullMQ Worker started with concurrency: 10
+✅ [WebhookQueue] BullMQ service initialized with Redis-backed queue
+🛑 [WebhookQueue] Initiating graceful shutdown...
+✅ [Meta Webhook] Conexão ativa: 1033_Antônio_BM_GRUP_ED (Phone ID: 861576807044352)
+❌ [Meta Webhook] Assinatura HMAC inválida
+   Recebida: sha256=04964c3841dfd...
+   Esperada: sha256=deba2332bee54...
+   Connection: 1033_Antônio_BM_GRUP_ED
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 403 in 12400ms
+✅ [WebhookQueue] Graceful shutdown complete
+🔔 [Meta Webhook] 2025-12-18T16:44:21.413Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [Meta Webhook] Conexão ativa: 1033_Antônio_BM_GRUP_ED (Phone ID: 861576807044352)
+❌ [Meta Webhook] Assinatura HMAC inválida
+   Recebida: sha256=04964c3841dfd...
+   Esperada: sha256=deba2332bee54...
+   Connection: 1033_Antônio_BM_GRUP_ED
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 403 in 260ms
+⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).
+ ○ Compiling /api/v1/super-admin/stats ...
+[Baileys] Creating new SessionManager singleton (ID: sm_1766076262131_1axjvg)
+[Baileys] SessionManager instance created and stored globally
+🔧 [WebhookQueue] Creating new WebhookQueueService singleton instance
+🔧 [WebhookQueue] Registered shutdown handlers (SIGINT, SIGTERM)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+🛑 [WebhookQueue] Initiating graceful shutdown...
+✅ [WebhookQueue] Graceful shutdown complete
+✅ [WebhookQueue] BullMQ Worker started with concurrency: 10
+✅ [WebhookQueue] BullMQ service initialized with Redis-backed queue
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+ ✓ Compiled /api/v1/super-admin/stats in 3.3s (2835 modules)
+[Baileys] Reusing existing SessionManager (ID: sm_1766076257884_ra4c72)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+🔔 [Meta Webhook] 2025-12-18T16:44:25.510Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [Meta Webhook] Conexão ativa: 1033_Antônio_BM_GRUP_ED (Phone ID: 861576807044352)
+❌ [Meta Webhook] Assinatura HMAC inválida
+   Recebida: sha256=04964c3841dfd...
+   Esperada: sha256=deba2332bee54...
+   Connection: 1033_Antônio_BM_GRUP_ED
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 403 in 2620ms
+ GET /api/v1/connections/health 200 in 431ms
+ GET /api/v1/notifications?limit=20 200 in 4485ms
+⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).
+ GET /api/v1/notifications?limit=20 200 in 483ms
+[Baileys] Creating new SessionManager singleton (ID: sm_1766076266143_9xte38)
+[Baileys] SessionManager instance created and stored globally
+🔧 [WebhookQueue] Creating new WebhookQueueService singleton instance
+🔧 [WebhookQueue] Registered shutdown handlers (SIGINT, SIGTERM)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+ GET /api/v1/super-admin/stats 200 in 5205ms
+🛑 [WebhookQueue] Initiating graceful shutdown...
+✅ [WebhookQueue] Graceful shutdown complete
+ GET /api/v1/connections/health 200 in 5389ms
+✅ [WebhookQueue] BullMQ Worker started with concurrency: 10
+✅ [WebhookQueue] BullMQ service initialized with Redis-backed queue
+ GET /api/v1/connections/health 200 in 81ms
+ GET /api/v1/super-admin/stats 200 in 390ms
+🔔 [Meta Webhook] 2025-12-18T16:44:30.086Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [Meta Webhook] Conexão ativa: 1033_Antônio_BM_GRUP_ED (Phone ID: 861576807044352)
+❌ [Meta Webhook] Assinatura HMAC inválida
+   Recebida: sha256=04964c3841dfd...
+   Esperada: sha256=deba2332bee54...
+   Connection: 1033_Antônio_BM_GRUP_ED
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 403 in 162ms
+⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).
+[Baileys] Creating new SessionManager singleton (ID: sm_1766076270644_ap6lkt)
+[Baileys] SessionManager instance created and stored globally
+🔧 [WebhookQueue] Creating new WebhookQueueService singleton instance
+🔧 [WebhookQueue] Registered shutdown handlers (SIGINT, SIGTERM)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+🛑 [WebhookQueue] Initiating graceful shutdown...
+✅ [WebhookQueue] Graceful shutdown complete
+✅ [WebhookQueue] BullMQ Worker started with concurrency: 10
+✅ [WebhookQueue] BullMQ service initialized with Redis-backed queue
+ ○ Compiling /campaigns-baileys ...
+ ✓ Compiled /campaigns-baileys in 4.5s (4615 modules)
+ GET /api/v1/notifications?limit=20 200 in 321ms
+ ✓ Compiled /api/v1/message-templates in 422ms (3202 modules)
+ ✓ Compiled in 0ms (3208 modules)
+ ✓ Compiled in 0ms (3208 modules)
+ ✓ Compiled in 1ms (3208 modules)
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetching from source...
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - TTL: 300000ms - Total time: 121ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T16%3A44%3A52.901Z&endDate=2025-12-18T16%3A44%3A52.901Z 200 in 2513ms
+📊 [API CACHE MISS] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+📊 [API CACHE MISS] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - Fetching from source...
+ GET /api/v1/sms-gateways 200 in 3109ms
+📊 [API CACHE SET] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - TTL: 300000ms - Total time: 41ms
+ GET /api/v1/connections 200 in 3117ms
+📊 [API CACHE SET] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - TTL: 900000ms - Total time: 83ms
+ GET /api/v1/message-templates 200 in 3153ms
+ GET /api/v1/notifications?limit=20 200 in 2656ms
+ ○ Compiling /api/v1/lists ...
+ GET /api/v1/connections/health 200 in 3673ms
+ ✓ Compiled /api/v1/lists in 671ms (3210 modules)
+ ✓ Compiled in 0ms (3210 modules)
+ ✓ Compiled in 2ms (3210 modules)
+ ✓ Compiled in 1ms (3210 modules)
+📊 [API CACHE MISS] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetching from source...
+📊 [API CACHE SET] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - TTL: 300000ms - Total time: 33ms
+ GET /api/v1/connections 200 in 1725ms
+ GET /api/v1/sms-gateways 200 in 2092ms
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - TTL: 300000ms - Total time: 71ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T16%3A44%3A52.901Z&endDate=2025-12-18T16%3A44%3A52.901Z 200 in 2136ms
+ GET /api/v1/lists?limit=0 200 in 2696ms
+ ✓ Compiled in 1ms (3210 modules)
+📊 [API CACHE MISS] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - Fetching from source...
+📊 [API CACHE SET] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - TTL: 900000ms - Total time: 86ms
+ GET /api/v1/message-templates 200 in 2103ms
+📊 [API CACHE MISS] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+📊 [API CACHE SET] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - TTL: 300000ms - Total time: 28ms
+ GET /api/v1/connections 200 in 700ms
+ GET /api/v1/connections/health 200 in 2282ms
+ ✓ Compiled /api/v1/campaigns/baileys in 501ms (3212 modules)
+ POST /api/v1/campaigns/baileys 201 in 982ms
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+ GET /api/v1/notifications?limit=20 200 in 174ms
+ GET /api/v1/notifications?limit=20 200 in 112ms
+ GET /campaigns-baileys 200 in 292ms
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetching from source...
+📊 [API CACHE MISS] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+📊 [API CACHE MISS] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - Fetching from source...
+ GET /api/v1/sms-gateways 200 in 210ms
+📊 [API CACHE SET] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - TTL: 300000ms - Total time: 33ms
+ GET /api/v1/connections 200 in 232ms
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - TTL: 300000ms - Total time: 73ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T16%3A45%3A28.904Z&endDate=2025-12-18T16%3A45%3A28.904Z 200 in 263ms
+📊 [API CACHE SET] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - TTL: 900000ms - Total time: 65ms
+ GET /api/v1/message-templates 200 in 269ms
+ GET /api/v1/notifications?limit=20 200 in 289ms
+📊 [API CACHE HIT] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - Fetch time: 0ms
+ GET /api/v1/connections 200 in 78ms
+ GET /api/v1/sms-gateways 200 in 102ms
+📊 [API CACHE HIT] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetch time: 0ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T16%3A45%3A28.904Z&endDate=2025-12-18T16%3A45%3A28.904Z 200 in 61ms
+📊 [API CACHE HIT] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - Fetch time: 0ms
+ GET /api/v1/message-templates 200 in 52ms
+ GET /api/v1/connections/health 200 in 1179ms
+ GET /api/v1/connections/health 200 in 59ms
+ GET /api/v1/notifications?limit=20 200 in 166ms
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+ GET /api/v1/notifications?limit=20 200 in 130ms
+ GET /api/v1/notifications?limit=20 200 in 170ms
+[Baileys] Reusing existing SessionManager (ID: sm_1766076257884_ra4c72)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+🔔 [Meta Webhook] 2025-12-18T16:46:58.338Z - POST recebido para slug: 0e07d508-a498-4082-be0e-8602f8d17b07
+✅ [Meta Webhook] Company encontrada: 682b91ea-15ee-42da-8855-70309b237008
+✅ [Meta Webhook] Conexão ativa: 1033_Antônio_BM_GRUP_ED (Phone ID: 861576807044352)
+❌ [Meta Webhook] Assinatura HMAC inválida
+   Recebida: sha256=04964c3841dfd...
+   Esperada: sha256=deba2332bee54...
+   Connection: 1033_Antônio_BM_GRUP_ED
+ POST /api/webhooks/meta/0e07d508-a498-4082-be0e-8602f8d17b07 403 in 214ms
+⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).
+[Baileys] Creating new SessionManager singleton (ID: sm_1766076418876_qch3wl)
+[Baileys] SessionManager instance created and stored globally
+🔧 [WebhookQueue] Creating new WebhookQueueService singleton instance
+🔧 [WebhookQueue] Registered shutdown handlers (SIGINT, SIGTERM)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+🛑 [WebhookQueue] Initiating graceful shutdown...
+✅ [WebhookQueue] Graceful shutdown complete
+✅ [WebhookQueue] BullMQ Worker started with concurrency: 10
+✅ [WebhookQueue] BullMQ service initialized with Redis-backed queue
+ GET /api/v1/notifications?limit=20 200 in 184ms
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+ GET /api/v1/notifications?limit=20 200 in 131ms
+ GET /api/v1/notifications?limit=20 200 in 174ms
+ GET /campaigns-baileys 200 in 173ms
+📊 [API CACHE HIT] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - Fetch time: 0ms
+ GET /api/v1/connections 200 in 145ms
+ GET /api/v1/sms-gateways 200 in 186ms
+ GET /api/v1/notifications?limit=20 200 in 254ms
+📊 [API CACHE HIT] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - Fetch time: 0ms
+ GET /api/v1/message-templates 200 in 341ms
+📊 [API CACHE HIT] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetch time: 0ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T16%3A47%3A37.225Z&endDate=2025-12-18T16%3A47%3A37.225Z 200 in 350ms
+📊 [API CACHE HIT] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - Fetch time: 0ms
+ GET /api/v1/connections 200 in 62ms
+ GET /api/v1/sms-gateways 200 in 83ms
+📊 [API CACHE HIT] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - Fetch time: 0ms
+ GET /api/v1/message-templates 200 in 66ms
+📊 [API CACHE HIT] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetch time: 0ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T16%3A47%3A37.225Z&endDate=2025-12-18T16%3A47%3A37.225Z 200 in 59ms
+ GET /api/v1/connections/health 200 in 1052ms
+ GET /api/v1/connections/health 200 in 59ms
