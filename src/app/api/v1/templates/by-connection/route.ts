@@ -16,7 +16,7 @@ export async function GET(req: Request) {
     const result = querySchema.safeParse({ connectionId });
     if (!result.success) {
       return Response.json(
-        { error: result.error.issues[0].message },
+        { error: result.error?.issues?.[0]?.message || 'Parâmetros inválidos' },
         { status: 400 }
       );
     }
