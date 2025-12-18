@@ -579,8 +579,35 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                                     
                                     <span className="font-medium">Envio:</span>
                                     <span>{sendNow ? 'Imediato' : `Agendado para ${scheduleDate ? format(scheduleDate, "PPP 'às' HH:mm", { locale: ptBR }) : 'N/A'}`}</span>
+                                    
+                                    <span className="font-medium">Intervalo:</span>
+                                    <span>{delayOptions.find(d => d.value === delayOption)?.label || 'Rápido (11-33s)'}</span>
                                 </div>
                             </Card>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="delay-select-review" className="text-base font-semibold flex items-center gap-2">
+                                <Clock className="h-4 w-4" />
+                                Intervalo entre Mensagens
+                            </Label>
+                            <Select value={delayOption} onValueChange={setDelayOption}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecione o intervalo"/>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {delayOptions.map(opt => (
+                                        <SelectItem key={opt.value} value={opt.value}>
+                                            <div className="flex flex-col">
+                                                <span>{opt.label}</span>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <p className="text-xs text-muted-foreground">
+                                {delayOptions.find(d => d.value === delayOption)?.description}
+                            </p>
                         </div>
 
                         <div className="space-y-2">
