@@ -1,9 +1,9 @@
 'use server';
 
 import { db } from '@/lib/db';
-import { connections } from '@/lib/db/schema';
+import { connections, messageTemplates } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
-import { sendWhatsappTextMessage } from '@/lib/facebookApiService';
+import { sendWhatsappTextMessage, sendWhatsappTemplateMessage } from '@/lib/facebookApiService';
 import { sessionManager } from './baileys-session-manager';
 
 export interface UnifiedSendOptions {
@@ -23,7 +23,7 @@ interface SendResult {
 }
 
 export async function sendUnifiedMessage(options: UnifiedSendOptions): Promise<SendResult> {
-  const { provider, connectionId, to, message } = options;
+  const { provider, connectionId, to, message, templateId, templateName: providedTemplateName, templateParams } = options;
 
   try {
     // Fetch connection
@@ -33,14 +33,47 @@ export async function sendUnifiedMessage(options: UnifiedSendOptions): Promise<S
     }
 
     if (provider === 'apicloud') {
-      // Send via Meta/APICloud
+      // ✅ v2.10.7: Use template if templateId is provided
+      if (templateId) {
+        try {
+          // Fetch template info
+          const [template] = await db.select().from(messageTemplates).where(eq(messageTemplates.id, templateId));
+          if (!template) {
+            console.warn(`[UNIFIED-SENDER] Template ${templateId} not found, falling back to text`);
+          } else {
+            const templateName = providedTemplateName || template.name;
+            const languageCode = template.language || 'pt_BR';
+            console.log(`[UNIFIED-SENDER] Sending template: ${templateName} (${languageCode}) to ${to}`);
+            
+            const result = await sendWhatsappTemplateMessage({
+              connectionId,
+              to,
+              templateName,
+              languageCode,
+              components: [], // Empty components for basic template
+            });
+            console.log(`[UNIFIED-SENDER] ✅ Template message sent via APICloud to ${to}`, result);
+            return { success: true, messageId: (result as any)?.messages?.[0]?.id };
+          }
+        } catch (error) {
+          console.warn(`[UNIFIED-SENDER] Failed to send template, falling back to text:`, error);
+        }
+      }
+
+      // Fallback: Send as text
       try {
+        // Only send text if message is not empty
+        if (!message) {
+          console.warn(`[UNIFIED-SENDER] No message and no valid template for ${to}, skipping`);
+          return { success: false, error: 'Nenhuma mensagem ou template válido fornecido' };
+        }
+        
         const result = await sendWhatsappTextMessage({
           connectionId,
           to,
           text: message,
         });
-        console.log(`[UNIFIED-SENDER] ✅ Message sent via APICloud to ${to}`, result);
+        console.log(`[UNIFIED-SENDER] ✅ Text message sent via APICloud to ${to}`, result);
         return { success: true, messageId: (result as any)?.messages?.[0]?.id };
       } catch (error) {
         console.error(`[UNIFIED-SENDER] ❌ Failed to send via APICloud:`, error);
@@ -49,6 +82,11 @@ export async function sendUnifiedMessage(options: UnifiedSendOptions): Promise<S
     } else if (provider === 'baileys') {
       // Send via Baileys
       try {
+        if (!message) {
+          console.warn(`[UNIFIED-SENDER] No message for Baileys to ${to}, skipping`);
+          return { success: false, error: 'Nenhuma mensagem fornecida' };
+        }
+        
         const phoneJid = `${to.replace(/\D/g, '')}@s.whatsapp.net`;
         await sessionManager.sendMessage(connectionId, phoneJid, message);
         console.log(`[UNIFIED-SENDER] ✅ Message sent via Baileys to ${to}`);

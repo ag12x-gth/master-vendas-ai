@@ -225,6 +225,7 @@ async function executeAction(action: AutomationAction, context: AutomationTrigge
                 await logAutomation('INFO', `Mensagem enviada via Baileys para ${contact.phone}`, logContext);
                 break;
             }
+
             case 'add_tag':
                  if (!action.value) return;
                 await db.insert(contactsToTags).values({ contactId: contact.id, tagId: action.value }).onConflictDoNothing();
