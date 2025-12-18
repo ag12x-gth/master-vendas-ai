@@ -1,12 +1,38 @@
 # Master IA Oficial - Plataforma de Bulk Messaging com Automação AI
 
-## 🚀 Status: PRONTO PARA PUBLICAÇÃO (v2.10.7) ✅
+## 🚀 Status: PRONTO PARA PUBLICAÇÃO (v2.10.8) ✅
 
 **FASE 10-15: Analytics + PIX + Webhook Sync + Scheduler + Export + Escalabilidade COMPLETAS**
-**v2.10.7:** Sistema sem duplicação de mensagens ✅ (FLUXO COMPLETO TESTADO!)
+**v2.10.8:** Parsing flexível de webhooks (plano + aninhado) ✅ INVESTIGAÇÃO COMPLETA!
+**v2.10.7:** Sistema sem duplicação de mensagens ✅
 **v2.10.6:** Notificações APENAS se regras ativas ✅
-**Data:** 18/12/2025 14:13Z
-**Status:** ✅ 15 FASES + 3 BUGFIXES + 3 AVISOS CORRIGIDOS + TESTE COMPLETO END-TO-END VALIDADO
+**Data:** 18/12/2025 14:35Z
+**Status:** ✅ 15 FASES + 4 BUGFIXES + INVESTIGAÇÃO COMPLETA WEBHOOKS/NOTIFICAÇÕES
+
+---
+
+## 🔧 CORREÇÕES v2.10.8 - Parsing Flexível de Webhooks ✅
+
+**Bug Crítico Identificado e Corrigido:**
+
+O sistema esperava formato aninhado mas podia receber formato plano:
+- ❌ ANTES: `{ customer: "Diego" }` → parseava como 'Unknown'
+- ✅ DEPOIS: `{ customer: "Diego" }` → parseia como 'Diego' ✅
+
+**Arquivos Corrigidos:**
+1. `src/lib/webhooks/incoming-handler.ts` - handleGrapfyEvent()
+2. `src/lib/automation-engine.ts` - triggerAutomationForWebhook()
+
+**Suporte a Ambos Formatos:**
+```javascript
+// Formato 1: Plano (curl manual)
+{ "customer": "Diego", "phone": "64999526870" }
+
+// Formato 2: Aninhado (Grapfy real)
+{ "customer": { "name": "Diego", "phoneNumber": "64999526870" } }
+```
+
+**Documentação:** `docs/INVESTIGACAO_WEBHOOKS_18_12_2025.md`
 
 ---
 
