@@ -1,14 +1,62 @@
 # Master IA Oficial - Plataforma de Bulk Messaging com Automação AI
 
-## 🚀 Status: PRONTO PARA PUBLICAÇÃO (v2.10.9) ✅
+## 🚀 Status: PRONTO PARA PUBLICAÇÃO (v2.10.14) ✅
 
 **FASE 10-15: Analytics + PIX + Webhook Sync + Scheduler + Export + Escalabilidade COMPLETAS**
+**v2.10.14:** Restauração automática de sessões Baileys ✅
+**v2.10.13:** SessionManager com Symbol.for() + Debug HMAC ✅
 **v2.10.9:** Build errors corrigidos (ESLint unused-vars + TypeScript) ✅
 **v2.10.8:** Parsing flexível de webhooks (plano + aninhado) ✅
 **v2.10.7:** Sistema sem duplicação de mensagens ✅
 **v2.10.6:** Notificações APENAS se regras ativas ✅
-**Data:** 18/12/2025 14:50Z
-**Status:** ✅ 15 FASES + 5 BUGFIXES + BUILD LIMPO
+**Data:** 18/12/2025 17:25Z
+**Status:** ✅ 15 FASES + 7 BUGFIXES + BUILD LIMPO
+
+---
+
+## 🔧 CORREÇÕES v2.10.14 - Persistência de Sessões Baileys ✅
+
+**Bug Crítico Identificado e Corrigido:**
+
+Sessões WhatsApp Baileys ficavam "Aguardando QR" após restart do servidor:
+- ❌ ANTES: Sessões não eram restauradas automaticamente
+- ✅ DEPOIS: `initializeSessions()` chamado automaticamente ao criar SessionManager
+
+**Arquivo Corrigido:**
+`src/services/baileys-session-manager.ts`
+
+**Mudanças:**
+```typescript
+// Auto-initialize saved sessions on startup (non-blocking)
+if (typeof window === 'undefined') {
+  console.log('[Baileys] Starting automatic session restoration...');
+  manager.initializeSessions().catch(err => {
+    console.error('[Baileys] Failed to auto-restore sessions:', err);
+  });
+}
+```
+
+**Resultado nos Logs:**
+```
+[Baileys] Starting automatic session restoration...
+[Baileys] Found 6 active sessions to restore
+[Baileys] Connected successfully: e00e9b1a-99c5-4df5-8a4e-f8565c340cd1
+[Baileys] ✅ Registered phone mapping: 556231426957
+```
+
+---
+
+## 🔧 CORREÇÕES v2.10.13 - SessionManager Singleton + Debug HMAC ✅
+
+**1. Singleton Robusto com Symbol.for():**
+- ✅ Usa `Symbol.for()` para singleton mais confiável
+- ✅ Fallback para `global.__BAILEYS_SESSION_MANAGER`
+- ✅ Armazena em AMBOS para máxima compatibilidade
+
+**2. Debug Logging para HMAC Meta Webhook:**
+- ✅ App Secret mascarado nos logs (`c196...0502, Length: 32`)
+- ✅ Comparação de assinaturas (recebida vs esperada)
+- ✅ Tamanho do body logado para debug
 
 ---
 
