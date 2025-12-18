@@ -1,0 +1,734 @@
+GET / 307 in 7024ms
+ GET /login 200 in 7030ms
+ GET /login 200 in 40ms
+ ✓ Compiled /api/auth/providers-status in 289ms (512 modules)
+ GET /api/auth/providers-status 200 in 390ms
+ GET /api/auth/providers-status 200 in 35ms
+ GET /api/auth/providers-status 200 in 18ms
+ GET /api/auth/providers-status 200 in 32ms
+ ○ Compiling /api/v1/auth/login ...
+ ✓ Compiled /api/v1/auth/login in 7.7s (2017 modules)
+[ServerInit] 🚀 Initializing server-side services...
+🔧 [Redis] Creating new HybridRedisClient singleton instance
+🔍 [Redis] Detecting configuration... REDIS_URL=true, Upstash=true
+🚀 Using REDIS_URL for connection...
+🔧 [Redis] Registered shutdown handlers (SIGINT, SIGTERM)
+⚠️ [Crypto] ENCRYPTION_KEY was hashed to 32 bytes for compatibility (this message appears only once).
+[Baileys] Creating new SessionManager singleton (ID: sm_1766094784847_qirdon)
+[Baileys] SessionManager instance created and stored globally (Symbol + Direct)
+[Baileys] Starting automatic session restoration...
+[Baileys] Initializing sessions from database...
+🔧 [WebhookQueue] Creating new WebhookQueueService singleton instance
+🔧 [WebhookQueue] Registered shutdown handlers (SIGINT, SIGTERM)
+✅ [WebhookDispatcher] Service initialized with BullMQ queue
+[CampaignTriggerWorker] 🔧 Registered shutdown handlers (SIGINT, SIGTERM)
+[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...
+[CampaignProcessor] Encontradas 2 campanhas pendentes. Conexões ativas: 0
+[CampaignProcessor] 🔄 Retomando campanha órfã aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) - sem atividade por 5+ minutos.
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 marcada como ativa na conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] 🚀 Iniciando campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) na conexão 682b91ea-15ee-42da-8855-70309b237008
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] ▶️ Iniciando sendVoiceCampaign - status=SENDING, name=Testeeeedj
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] Já foi completada. Ignorando re-trigger.
+[CampaignProcessor] 🚀 Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) disparada em paralelo. Empresa: 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) concluída com sucesso
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 removida da conexão 682b91ea-15ee-42da-8855-70309b237008
+[Baileys] Found 4 active sessions to restore
+[Baileys] Restoring session 5007b9ab-3714-49ef-b590-3dde6117bc33 (ATENDIMENTO 8698)
+[CampaignProcessor] Campanha 9dc39c9d-5972-403f-a69b-129dc580d383 processando ativamente. Pulando.
+[CampaignProcessor] Ciclo concluído: 1 disparadas, 1 aguardando
+[CampaignTriggerWorker] ✅ Job concluído em 250ms: 1 enviadas, 0 falhas, 1 puladas
+[CampaignTriggerWorker] ✅ Worker iniciado com sucesso. Polling a cada 30s
+[ServerInit] ✅ Campaign trigger worker started
+[Baileys] Initializing sessions from database...
+[Baileys] Creating new session for connection 5007b9ab-3714-49ef-b590-3dde6117bc33 (Phone: 5515997428698)
+[Baileys] Initiating dynamic Baileys import...
+[Baileys] Fetching Baileys version...
+[RateLimit] Redis unavailable, using in-memory fallback
+[Baileys] Found 4 active sessions to restore
+[Baileys] Restoring session 5007b9ab-3714-49ef-b590-3dde6117bc33 (ATENDIMENTO 8698)
+[Baileys] ⏳ Session 5007b9ab-3714-49ef-b590-3dde6117bc33 creation already in progress, waiting...
+[Baileys] Using version: [ 2, 3000, 1027934701 ]
+[Baileys] Loading auth state from filesystem...
+ POST /api/v1/auth/login 200 in 8896ms
+[Baileys] Auth state loaded from /home/runner/workspace/whatsapp_sessions/session_5007b9ab-3714-49ef-b590-3dde6117bc33
+[Baileys] Creating WASocket...
+[Baileys] WASocket created successfully
+[Baileys] Session setup complete for 5007b9ab-3714-49ef-b590-3dde6117bc33
+[Baileys] Connection update for 5007b9ab-3714-49ef-b590-3dde6117bc33: connecting undefined
+[Baileys] Restoring session 20844b48-dec8-4967-b10c-58b12339def3 (Número PISALY)
+[Baileys] Restoring session 20844b48-dec8-4967-b10c-58b12339def3 (Número PISALY)
+[Baileys] ⏳ Session 20844b48-dec8-4967-b10c-58b12339def3 creation already in progress, waiting...
+✅ [WebhookQueue] BullMQ Worker started with concurrency: 10
+✅ [WebhookQueue] BullMQ service initialized with Redis-backed queue
+[Baileys] Creating new session for connection 20844b48-dec8-4967-b10c-58b12339def3 (Phone: 5511915136427)
+[Baileys] Initiating dynamic Baileys import...
+[Baileys] Fetching Baileys version...
+[Baileys] Using version: [ 2, 3000, 1027934701 ]
+[Baileys] Loading auth state from filesystem...
+[Baileys] Auth state loaded from /home/runner/workspace/whatsapp_sessions/session_20844b48-dec8-4967-b10c-58b12339def3
+[Baileys] Creating WASocket...
+[Baileys] WASocket created successfully
+[Baileys] Session setup complete for 20844b48-dec8-4967-b10c-58b12339def3
+[Baileys] Connection update for 20844b48-dec8-4967-b10c-58b12339def3: connecting undefined
+[Baileys] Restoring session e00e9b1a-99c5-4df5-8a4e-f8565c340cd1 (6957_Atendimento_Grapy)
+[Baileys] Restoring session e00e9b1a-99c5-4df5-8a4e-f8565c340cd1 (6957_Atendimento_Grapy)
+[Baileys] ⏳ Session e00e9b1a-99c5-4df5-8a4e-f8565c340cd1 creation already in progress, waiting...
+[Baileys] Creating new session for connection e00e9b1a-99c5-4df5-8a4e-f8565c340cd1 (Phone: 556231426957)
+[Baileys] Initiating dynamic Baileys import...
+[Baileys] Fetching Baileys version...
+[Baileys] Using version: [ 2, 3000, 1027934701 ]
+[Baileys] Loading auth state from filesystem...
+[Baileys] Auth state loaded from /home/runner/workspace/whatsapp_sessions/session_e00e9b1a-99c5-4df5-8a4e-f8565c340cd1
+[Baileys] Creating WASocket...
+[Baileys] WASocket created successfully
+[Baileys] Session setup complete for e00e9b1a-99c5-4df5-8a4e-f8565c340cd1
+[Baileys] Connection update for e00e9b1a-99c5-4df5-8a4e-f8565c340cd1: connecting undefined
+[Baileys] Restoring session 00dc548e-1b82-4ce5-8f0c-53ea74cda2da (atendimento-2025)
+[Baileys] Restoring session 00dc548e-1b82-4ce5-8f0c-53ea74cda2da (atendimento-2025)
+[Baileys] ⏳ Session 00dc548e-1b82-4ce5-8f0c-53ea74cda2da creation already in progress, waiting...
+[Baileys] Creating new session for connection 00dc548e-1b82-4ce5-8f0c-53ea74cda2da (Phone: 5511940810589)
+[Baileys] Initiating dynamic Baileys import...
+[Baileys] Fetching Baileys version...
+✅ Redis connected successfully - Using distributed Redis cache
+📡 Redis endpoint: rediss://default:***@vital-sawfish-40850.upstash.io:6379
+[Baileys] Using version: [ 2, 3000, 1027934701 ]
+[Baileys] Loading auth state from filesystem...
+[Baileys] Auth state loaded from /home/runner/workspace/whatsapp_sessions/session_00dc548e-1b82-4ce5-8f0c-53ea74cda2da
+[Baileys] Creating WASocket...
+[Baileys] WASocket created successfully
+[Baileys] Session setup complete for 00dc548e-1b82-4ce5-8f0c-53ea74cda2da
+[Baileys] Session initialization complete
+[Baileys] Session initialization complete
+[ServerInit] ✅ Baileys sessions restored
+[Baileys] Connection update for 00dc548e-1b82-4ce5-8f0c-53ea74cda2da: connecting undefined
+ ○ Compiling /super-admin ...
+Failed to decrypt message with any known session...
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:MessageCounterError: Key used already or never filled MessageCounterError: Key used already or never filled
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:236:19)
+    at SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:40)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+Session error:Error: Bad MAC Error: Bad MAC
+    at Object.verifyMAC (webpack-internal:///(rsc)/./node_modules/libsignal/src/crypto.js:87:15)
+    at SessionCipher.doDecryptWhisperMessage (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:250:16)
+    at async SessionCipher.decryptWithSessions (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:147:29)
+    at async 92075592839281_1.0 [as awaitable] (webpack-internal:///(rsc)/./node_modules/libsignal/src/session_cipher.js:171:28)
+    at async _asyncQueueExecutor (webpack-internal:///(rsc)/./node_modules/libsignal/src/queue_job.js:20:29)
+[Baileys] Connection update for 20844b48-dec8-4967-b10c-58b12339def3: undefined undefined
+[Baileys] Connection update for 5007b9ab-3714-49ef-b590-3dde6117bc33: undefined undefined
+[Baileys] Connection update for 5007b9ab-3714-49ef-b590-3dde6117bc33: undefined undefined
+[Baileys] Connection update for 5007b9ab-3714-49ef-b590-3dde6117bc33: open undefined
+[Baileys] Connected successfully: 5007b9ab-3714-49ef-b590-3dde6117bc33
+[Baileys] ✅ Registered phone mapping: 5515997428698 → 5007b9ab-3714-49ef-b590-3dde6117bc33
+[Baileys] Connection update for 20844b48-dec8-4967-b10c-58b12339def3: undefined undefined
+[Baileys] Connection update for 20844b48-dec8-4967-b10c-58b12339def3: open undefined
+[Baileys] Connected successfully: 20844b48-dec8-4967-b10c-58b12339def3
+[Baileys] ✅ Registered phone mapping: 5511915136427 → 20844b48-dec8-4967-b10c-58b12339def3
+[Baileys] Connection update for e00e9b1a-99c5-4df5-8a4e-f8565c340cd1: undefined undefined
+[Baileys] Connection update for e00e9b1a-99c5-4df5-8a4e-f8565c340cd1: undefined undefined
+[Baileys] Connection update for e00e9b1a-99c5-4df5-8a4e-f8565c340cd1: open undefined
+[Baileys] Connected successfully: e00e9b1a-99c5-4df5-8a4e-f8565c340cd1
+[Baileys] ✅ Registered phone mapping: 556231426957 → e00e9b1a-99c5-4df5-8a4e-f8565c340cd1
+[Baileys Receipt] ✅ Updated delivery report ae15453a-b5c9-4807-b2f0-6ab25786e8f8 to status: delivered
+[Baileys] Message saved from 120363401195489540
+[Baileys Chat Classifier] Type: group | Reason: JID suffix @g.us (WhatsApp group) | Block AI: true
+[Baileys AI] 🚫 Blocked auto-response | Type: group | Contact: 120363401195489540 | Reason: JID suffix @g.us (WhatsApp group)
+[Baileys] Connection update for 00dc548e-1b82-4ce5-8f0c-53ea74cda2da: undefined undefined
+[Baileys] Connection update for 00dc548e-1b82-4ce5-8f0c-53ea74cda2da: undefined undefined
+[Baileys] Connection update for 00dc548e-1b82-4ce5-8f0c-53ea74cda2da: open undefined
+[Baileys] Connected successfully: 00dc548e-1b82-4ce5-8f0c-53ea74cda2da
+[Baileys] ✅ Registered phone mapping: 5511940810589 → 00dc548e-1b82-4ce5-8f0c-53ea74cda2da
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+ ✓ Compiled /super-admin in 8.4s (3921 modules)
+[Baileys] Message saved from 120363401195489540
+[Baileys Chat Classifier] Type: group | Reason: JID suffix @g.us (WhatsApp group) | Block AI: true
+[Baileys AI] 🚫 Blocked auto-response | Type: group | Contact: 120363401195489540 | Reason: JID suffix @g.us (WhatsApp group)
+ ✓ Compiled /api/v1/notifications in 469ms (2844 modules)
+ POST /api/v1/auth/login 200 in 688ms
+ ✓ Compiled (2848 modules)
+ GET /api/v1/notifications?limit=20 200 in 1327ms
+ GET /api/v1/super-admin/stats 200 in 1914ms
+ GET /api/v1/connections/health 200 in 2338ms
+ GET /api/v1/super-admin/stats 200 in 270ms
+ GET /api/v1/connections/health 200 in 55ms
+ ○ Compiling /campaigns-baileys ...
+ ✓ Compiled /campaigns-baileys in 6.7s (4634 modules)
+[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...
+[CampaignProcessor] Encontradas 2 campanhas pendentes. Conexões ativas: 0
+[CampaignProcessor] 🔄 Retomando campanha órfã aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) - sem atividade por 5+ minutos.
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 marcada como ativa na conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] 🚀 Iniciando campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) na conexão 682b91ea-15ee-42da-8855-70309b237008
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] ▶️ Iniciando sendVoiceCampaign - status=SENDING, name=Testeeeedj
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] Já foi completada. Ignorando re-trigger.
+[CampaignProcessor] 🚀 Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) disparada em paralelo. Empresa: 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) concluída com sucesso
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 removida da conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] Campanha 9dc39c9d-5972-403f-a69b-129dc580d383 processando ativamente. Pulando.
+[CampaignProcessor] Ciclo concluído: 1 disparadas, 1 aguardando
+[CampaignTriggerWorker] ✅ Job concluído em 90ms: 1 enviadas, 0 falhas, 1 puladas
+ ○ Compiling /api/v1/sms-gateways ...
+ GET /api/v1/connections/health 200 in 1156ms
+ ✓ Compiled /api/v1/lists in 2.4s (3215 modules)
+ ✓ Compiled (3223 modules)
+📊 [API CACHE MISS] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetching from source...
+📊 [API CACHE MISS] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - Fetching from source...
+📊 [API CACHE SET] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - TTL: 300000ms - Total time: 31ms
+ GET /api/v1/connections 200 in 3617ms
+ GET /api/v1/sms-gateways 200 in 3609ms
+ GET /api/v1/notifications?limit=20 200 in 3679ms
+📊 [API CACHE SET] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - TTL: 900000ms - Total time: 91ms
+ GET /api/v1/message-templates 200 in 3669ms
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - TTL: 5000ms - Total time: 121ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T21%3A53%3A34.424Z&endDate=2025-12-18T21%3A53%3A34.424Z 200 in 3723ms
+ GET /api/v1/lists?limit=0 200 in 2377ms
+ GET /api/v1/sms-gateways 200 in 101ms
+📊 [API CACHE HIT] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - Fetch time: 0ms
+ GET /api/v1/connections 200 in 108ms
+📊 [API CACHE HIT] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - Fetch time: 0ms
+ GET /api/v1/message-templates 200 in 98ms
+📊 [API CACHE HIT] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetch time: 0ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T21%3A53%3A34.424Z&endDate=2025-12-18T21%3A53%3A34.424Z 200 in 101ms
+📊 [API CACHE HIT] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - Fetch time: 0ms
+ GET /api/v1/connections 200 in 62ms
+ GET /api/v1/connections/health 200 in 845ms
+ ○ Compiling /api/v1/campaigns/baileys ...
+ ✓ Compiled /api/v1/campaigns/baileys in 553ms (3223 modules)
+ POST /api/v1/campaigns/baileys 201 in 1039ms
+[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...
+[CampaignProcessor] Encontradas 3 campanhas pendentes. Conexões ativas: 0
+[CampaignProcessor] 🔄 Retomando campanha órfã aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) - sem atividade por 5+ minutos.
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 marcada como ativa na conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] 🚀 Iniciando campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) na conexão 682b91ea-15ee-42da-8855-70309b237008
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] ▶️ Iniciando sendVoiceCampaign - status=SENDING, name=Testeeeedj
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] Já foi completada. Ignorando re-trigger.
+[CampaignProcessor] 🚀 Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) disparada em paralelo. Empresa: 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) concluída com sucesso
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 removida da conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] 🔒 Lock adquirido para campanha a317494d-5db2-4b29-8ec5-186b7788fb14 (fasfasf).
+[CampaignProcessor] ✅ Campanha a317494d-5db2-4b29-8ec5-186b7788fb14 marcada como ativa na conexão e00e9b1a-99c5-4df5-8a4e-f8565c340cd1
+[CampaignProcessor] 🚀 Iniciando campanha a317494d-5db2-4b29-8ec5-186b7788fb14 (fasfasf) na conexão e00e9b1a-99c5-4df5-8a4e-f8565c340cd1
+[CampaignProcessor] 🚀 Campanha a317494d-5db2-4b29-8ec5-186b7788fb14 (fasfasf) disparada em paralelo. Empresa: 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] Campanha 9dc39c9d-5972-403f-a69b-129dc580d383 processando ativamente. Pulando.
+[CampaignProcessor] Ciclo concluído: 2 disparadas, 1 aguardando
+[CampaignTriggerWorker] ✅ Job concluído em 95ms: 2 enviadas, 0 falhas, 1 puladas
+[Campanha WhatsApp a317494d-5db2-4b29-8ec5-186b7788fb14] ✅ Delay configurado: 11-33s
+[Campanha WhatsApp a317494d-5db2-4b29-8ec5-186b7788fb14] ⚠️ DELAY OBRIGATÓRIO BAILEYS ATIVO: 11-33s entre mensagens (proteção anti-bloqueio)
+[Campanha WhatsApp a317494d-5db2-4b29-8ec5-186b7788fb14] Processando lote 1/1 com 4 contatos.
+[Campaign-Baileys] Preparando envio | ConnectionID: e00e9b1a-99c5-4df5-8a4e-f8565c340cd1 | Status: connected | Contato: +55111985337924
+[Campaign-Baileys] Texto final da mensagem: "436346{{company}}{{phone}}"
+[SessionManager] Attempting to send message via connection e00e9b1a-99c5-4df5-8a4e-f8565c340cd1 to +55111985337924
+[SessionManager] Sending to JID: 55111985337924@s.whatsapp.net
+ GET /api/v1/notifications?limit=20 200 in 207ms
+Closing session: SessionEntry {
+  _chains: {
+    'BZidYbWaP8BTWZI+woYYn07vptcr6eHYtIw3+52aPj9E': { chainKey: [Object], chainType: 1, messageKeys: {} }
+  },
+  registrationId: 1986578935,
+  currentRatchet: {
+    ephemeralKeyPair: {
+      pubKey: <Buffer 05 98 9d 61 b5 9a 3f c0 53 59 92 3e c2 86 18 9f 4e ef a6 d7 2b e9 e1 d8 b4 8c 37 fb 9d 9a 3e 3f 44>,
+      privKey: <Buffer c0 08 06 aa 41 ce 0d 3b 85 bd be 2f 0c 55 61 12 b9 b3 61 a4 6a 04 6d dd e9 67 3e c6 3e 1e ba 75>
+    },
+    lastRemoteEphemeralKey: <Buffer 05 17 55 eb 41 cf 17 73 5d 09 9d 6f 85 d4 33 0f 80 02 c1 dd ca 8e 0b d4 d6 e2 d8 1b c4 92 94 c8 7b>,
+    previousCounter: 0,
+    rootKey: <Buffer 64 8b 69 49 c5 dd f2 da d1 cc 0c 51 fd c9 4f 05 14 72 7b 14 49 8d 31 ad 98 b9 2f 6e f3 10 4f 6f>
+  },
+  indexInfo: {
+    baseKey: <Buffer 05 13 32 e1 d8 89 57 de 26 b3 e1 31 4e e6 dd 7e 34 8b 95 07 bd 9f 7e d4 35 f4 82 ad af 83 05 a3 63>,
+    baseKeyType: 1,
+    closed: -1,
+    used: 1766092865136,
+    created: 1766092865136,
+    remoteIdentityKey: <Buffer 05 b1 32 88 39 c4 be 9d 9d b8 76 6c 1e ea 4f 46 7d 79 fb 29 15 44 5c 02 fe 1b 75 52 8b b8 8c 95 0a>
+  },
+  pendingPreKey: {
+    signedKeyId: 11011563,
+    baseKey: <Buffer 05 13 32 e1 d8 89 57 de 26 b3 e1 31 4e e6 dd 7e 34 8b 95 07 bd 9f 7e d4 35 f4 82 ad af 83 05 a3 63>,
+    preKeyId: 1704
+  }
+}
+[SessionManager] ✅ Message sent successfully to +55111985337924: 3EB0808D58A840ADC474A7
+[Campaign-Baileys] ✅ Mensagem enviada com sucesso | Contato: +55111985337924 | MessageID: 3EB0808D58A840ADC474A7
+[Campaign-Baileys] 💾 Delivery report salvo: SENT | Contato: +55111985337924
+[Campanha WhatsApp a317494d-5db2-4b29-8ec5-186b7788fb14] Aguardando 12s antes do próximo envio... (1/4)
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+[Baileys Receipt] ✅ Updated delivery report 2d345cd3-4bf5-42c9-a00b-a86ed7351bc7 to status: sent
+[Campaign-Baileys] Preparando envio | ConnectionID: e00e9b1a-99c5-4df5-8a4e-f8565c340cd1 | Status: connected | Contato: +5564999526870
+[Campaign-Baileys] Texto final da mensagem: "436346{{company}}{{phone}}"
+[SessionManager] Attempting to send message via connection e00e9b1a-99c5-4df5-8a4e-f8565c340cd1 to +5564999526870
+[SessionManager] Sending to JID: 5564999526870@s.whatsapp.net
+[SessionManager] ✅ Message sent successfully to +5564999526870: 3EB0FBD77DC23C80873FC8
+[Campaign-Baileys] ✅ Mensagem enviada com sucesso | Contato: +5564999526870 | MessageID: 3EB0FBD77DC23C80873FC8
+[Campaign-Baileys] 💾 Delivery report salvo: SENT | Contato: +5564999526870
+[Campanha WhatsApp a317494d-5db2-4b29-8ec5-186b7788fb14] Aguardando 28s antes do próximo envio... (2/4)
+[Baileys Receipt] ✅ Updated delivery report 907b0232-c32a-438f-a947-5f54a98d893c to status: sent
+[Baileys Receipt] ✅ Updated delivery report 907b0232-c32a-438f-a947-5f54a98d893c to status: sent
+ GET /campaigns-baileys 200 in 606ms
+[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...
+[CampaignProcessor] Encontradas 3 campanhas pendentes. Conexões ativas: 1
+[CampaignProcessor] 🔄 Retomando campanha órfã aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) - sem atividade por 5+ minutos.
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 marcada como ativa na conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] 🚀 Iniciando campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) na conexão 682b91ea-15ee-42da-8855-70309b237008
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] ▶️ Iniciando sendVoiceCampaign - status=SENDING, name=Testeeeedj
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] Já foi completada. Ignorando re-trigger.
+[CampaignProcessor] 🚀 Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) disparada em paralelo. Empresa: 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] Conexão e00e9b1a-99c5-4df5-8a4e-f8565c340cd1 ocupada com campanha a317494d-5db2-4b29-8ec5-186b7788fb14. Campanha a317494d-5db2-4b29-8ec5-186b7788fb14 (fasfasf) aguardando.
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) concluída com sucesso
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 removida da conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] Campanha 9dc39c9d-5972-403f-a69b-129dc580d383 processando ativamente. Pulando.
+[CampaignProcessor] Ciclo concluído: 1 disparadas, 2 aguardando
+[CampaignTriggerWorker] ✅ Job concluído em 65ms: 1 enviadas, 0 falhas, 2 puladas
+📊 [API CACHE MISS] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+📊 [API CACHE MISS] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - Fetching from source...
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetching from source...
+📊 [API CACHE SET] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - TTL: 300000ms - Total time: 42ms
+ GET /api/v1/connections 200 in 289ms
+ GET /api/v1/sms-gateways 200 in 292ms
+📊 [API CACHE SET] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - TTL: 900000ms - Total time: 82ms
+ GET /api/v1/message-templates 200 in 330ms
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - TTL: 5000ms - Total time: 93ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T21%3A54%3A34.399Z&endDate=2025-12-18T21%3A54%3A34.399Z 200 in 345ms
+ GET /api/v1/notifications?limit=20 200 in 370ms
+📊 [API CACHE HIT] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - Fetch time: 0ms
+ GET /api/v1/connections 200 in 139ms
+📊 [API CACHE HIT] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - Fetch time: 0ms
+ GET /api/v1/message-templates 200 in 159ms
+📊 [API CACHE HIT] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetch time: 0ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T21%3A54%3A34.399Z&endDate=2025-12-18T21%3A54%3A34.399Z 200 in 129ms
+ GET /api/v1/sms-gateways 200 in 134ms
+ GET /api/v1/connections/health 200 in 3476ms
+ GET /api/v1/connections/health 200 in 91ms
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetching from source...
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - TTL: 5000ms - Total time: 91ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T21%3A54%3A34.399Z&endDate=2025-12-18T21%3A54%3A34.399Z 200 in 174ms
+[Campaign-Baileys] Preparando envio | ConnectionID: e00e9b1a-99c5-4df5-8a4e-f8565c340cd1 | Status: connected | Contato: +556499526870
+[Campaign-Baileys] Texto final da mensagem: "436346{{company}}{{phone}}"
+[SessionManager] Attempting to send message via connection e00e9b1a-99c5-4df5-8a4e-f8565c340cd1 to +556499526870
+[SessionManager] Sending to JID: 556499526870@s.whatsapp.net
+Closing session: SessionEntry {
+  _chains: {
+    'BfqYqvElkL+dsf3N98I8ba6ecKrv9o28aALoYzFhpbQB': { chainKey: [Object], chainType: 1, messageKeys: {} }
+  },
+  registrationId: 420302315,
+  currentRatchet: {
+    ephemeralKeyPair: {
+      pubKey: <Buffer 05 fa 98 aa f1 25 90 bf 9d b1 fd cd f7 c2 3c 6d ae 9e 70 aa ef f6 8d bc 68 02 e8 63 31 61 a5 b4 01>,
+      privKey: <Buffer 40 f5 dd dc d4 db 24 78 c8 60 fb 6a 7a bd d7 d8 62 fc 47 b8 9b 1e 97 f5 4e 6f ad a9 6b 83 3e 44>
+    },
+    lastRemoteEphemeralKey: <Buffer 05 f5 ca 84 68 c4 1d 39 c7 11 f8 33 97 91 ed d5 2f da e4 e6 8b 01 bb 08 5c f1 cb 44 a0 0b 3a d1 14>,
+    previousCounter: 0,
+    rootKey: <Buffer 26 12 e7 73 a0 85 96 9a 92 20 15 37 07 a7 83 7e 32 bc a0 f5 62 f4 f7 93 a5 e6 2c 20 89 3b cc 5a>
+  },
+  indexInfo: {
+    baseKey: <Buffer 05 a4 ad 6b bc ff 4c 50 ff 3a dc 52 08 88 7f a6 b9 d6 1d b1 ce c3 8c b3 8a 35 3d a9 87 ec 42 22 46>,
+    baseKeyType: 1,
+    closed: -1,
+    used: 1766092909679,
+    created: 1766092909679,
+    remoteIdentityKey: <Buffer 05 d2 4d 6b 4b bb d1 63 b4 ee 44 f8 2d 32 4a 9a 20 14 60 2b cd 3e c5 43 2b 53 59 14 f2 ed 45 7b 1e>
+  },
+  pendingPreKey: {
+    signedKeyId: 12442300,
+    baseKey: <Buffer 05 a4 ad 6b bc ff 4c 50 ff 3a dc 52 08 88 7f a6 b9 d6 1d b1 ce c3 8c b3 8a 35 3d a9 87 ec 42 22 46>,
+    preKeyId: 54875
+  }
+}
+[SessionManager] ✅ Message sent successfully to +556499526870: 3EB081242254B805EAADAB
+[Campaign-Baileys] ✅ Mensagem enviada com sucesso | Contato: +556499526870 | MessageID: 3EB081242254B805EAADAB
+[Campaign-Baileys] 💾 Delivery report salvo: SENT | Contato: +556499526870
+[Campanha WhatsApp a317494d-5db2-4b29-8ec5-186b7788fb14] Aguardando 27s antes do próximo envio... (3/4)
+[Baileys Receipt] ✅ Updated delivery report d955c9b2-c0e3-41a4-a751-f6fa40a4944a to status: sent
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetching from source...
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - TTL: 5000ms - Total time: 76ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T21%3A54%3A34.399Z&endDate=2025-12-18T21%3A54%3A34.399Z 200 in 183ms
+[Baileys Receipt] ✅ Updated delivery report d955c9b2-c0e3-41a4-a751-f6fa40a4944a to status: sent
+[Baileys Receipt] ✅ Updated delivery report d955c9b2-c0e3-41a4-a751-f6fa40a4944a to status: delivered
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetching from source...
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - TTL: 5000ms - Total time: 91ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T21%3A54%3A34.399Z&endDate=2025-12-18T21%3A54%3A34.399Z 200 in 154ms
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetching from source...
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - TTL: 5000ms - Total time: 96ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T21%3A54%3A34.399Z&endDate=2025-12-18T21%3A54%3A34.399Z 200 in 179ms
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetching from source...
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - TTL: 5000ms - Total time: 74ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T21%3A54%3A34.399Z&endDate=2025-12-18T21%3A54%3A34.399Z 200 in 153ms
+[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...
+[CampaignProcessor] Encontradas 3 campanhas pendentes. Conexões ativas: 1
+[CampaignProcessor] 🔄 Retomando campanha órfã aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) - sem atividade por 5+ minutos.
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 marcada como ativa na conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] 🚀 Iniciando campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) na conexão 682b91ea-15ee-42da-8855-70309b237008
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] ▶️ Iniciando sendVoiceCampaign - status=SENDING, name=Testeeeedj
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] Já foi completada. Ignorando re-trigger.
+[CampaignProcessor] 🚀 Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) disparada em paralelo. Empresa: 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] Conexão e00e9b1a-99c5-4df5-8a4e-f8565c340cd1 ocupada com campanha a317494d-5db2-4b29-8ec5-186b7788fb14. Campanha a317494d-5db2-4b29-8ec5-186b7788fb14 (fasfasf) aguardando.
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) concluída com sucesso
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 removida da conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] Campanha 9dc39c9d-5972-403f-a69b-129dc580d383 processando ativamente. Pulando.
+[CampaignProcessor] Ciclo concluído: 1 disparadas, 2 aguardando
+[CampaignTriggerWorker] ✅ Job concluído em 62ms: 1 enviadas, 0 falhas, 2 puladas
+ GET /api/v1/notifications?limit=20 200 in 224ms
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetching from source...
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - TTL: 5000ms - Total time: 81ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T21%3A54%3A34.399Z&endDate=2025-12-18T21%3A54%3A34.399Z 200 in 156ms
+[Campaign-Baileys] Preparando envio | ConnectionID: e00e9b1a-99c5-4df5-8a4e-f8565c340cd1 | Status: connected | Contato: 556499526870
+[Campaign-Baileys] Texto final da mensagem: "436346{{company}}{{phone}}"
+[SessionManager] Attempting to send message via connection e00e9b1a-99c5-4df5-8a4e-f8565c340cd1 to 556499526870
+[SessionManager] Sending to JID: 556499526870@s.whatsapp.net
+[SessionManager] ✅ Message sent successfully to 556499526870: 3EB023187BF267FFB0D0EB
+[Campaign-Baileys] ✅ Mensagem enviada com sucesso | Contato: 556499526870 | MessageID: 3EB023187BF267FFB0D0EB
+[Campaign-Baileys] 💾 Delivery report salvo: SENT | Contato: 556499526870
+[UserNotifications] Campaign completed notification sent for a317494d-5db2-4b29-8ec5-186b7788fb14
+[Webhook] Dispatching campaign_sent for campaign a317494d-5db2-4b29-8ec5-186b7788fb14
+[WebhookDispatcher] No active subscriptions for event campaign_sent in company 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] ✅ Campanha a317494d-5db2-4b29-8ec5-186b7788fb14 (fasfasf) concluída com sucesso
+[CampaignProcessor] ✅ Campanha a317494d-5db2-4b29-8ec5-186b7788fb14 removida da conexão e00e9b1a-99c5-4df5-8a4e-f8565c340cd1
+[Baileys Receipt] ✅ Updated delivery report 898baabe-1922-4dce-970a-b248de24c228 to status: sent
+[Baileys Receipt] ✅ Updated delivery report 898baabe-1922-4dce-970a-b248de24c228 to status: sent
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetching from source...
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - TTL: 5000ms - Total time: 77ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T21%3A54%3A34.399Z&endDate=2025-12-18T21%3A54%3A34.399Z 200 in 141ms
+[Baileys Receipt] ✅ Updated delivery report 898baabe-1922-4dce-970a-b248de24c228 to status: delivered
+[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...
+[CampaignProcessor] Encontradas 2 campanhas pendentes. Conexões ativas: 0
+[CampaignProcessor] 🔄 Retomando campanha órfã aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) - sem atividade por 5+ minutos.
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 marcada como ativa na conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] 🚀 Iniciando campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) na conexão 682b91ea-15ee-42da-8855-70309b237008
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] ▶️ Iniciando sendVoiceCampaign - status=SENDING, name=Testeeeedj
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] Já foi completada. Ignorando re-trigger.
+[CampaignProcessor] 🚀 Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) disparada em paralelo. Empresa: 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) concluída com sucesso
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 removida da conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] Campanha 9dc39c9d-5972-403f-a69b-129dc580d383 processando ativamente. Pulando.
+[CampaignProcessor] Ciclo concluído: 1 disparadas, 1 aguardando
+[CampaignTriggerWorker] ✅ Job concluído em 58ms: 1 enviadas, 0 falhas, 1 puladas
+ GET /api/v1/notifications?limit=20 200 in 249ms
+Using Replit Object Storage
+[Baileys] Reação 🙏🏻 salva para mensagem ac38996e-85dc-4248-8370-34292e7557e3 por 120363401195489540
+[Baileys] Video uploaded successfully: https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev//objects/zapmaster/a8fd7e6c-4910-482c-9722-2e7cd2552d3b/media_recebida/57695b62-16d5-4e45-9089-1d5139b018da.mp4
+[Baileys] Message saved from status
+[Baileys Chat Classifier] Type: broadcast | Reason: JID suffix @broadcast (broadcast list) | Block AI: true
+[Baileys AI] 🚫 Blocked auto-response | Type: broadcast | Contact: status | Reason: JID suffix @broadcast (broadcast list)
+[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...
+[CampaignProcessor] Encontradas 2 campanhas pendentes. Conexões ativas: 0
+[CampaignProcessor] 🔄 Retomando campanha órfã aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) - sem atividade por 5+ minutos.
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 marcada como ativa na conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] 🚀 Iniciando campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) na conexão 682b91ea-15ee-42da-8855-70309b237008
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] ▶️ Iniciando sendVoiceCampaign - status=SENDING, name=Testeeeedj
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] Já foi completada. Ignorando re-trigger.
+[CampaignProcessor] 🚀 Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) disparada em paralelo. Empresa: 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) concluída com sucesso
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 removida da conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] 🔄 Retomando campanha órfã 9dc39c9d-5972-403f-a69b-129dc580d383 (BOA VISTA) - sem atividade por 5+ minutos.
+[CampaignProcessor] ✅ Campanha 9dc39c9d-5972-403f-a69b-129dc580d383 marcada como ativa na conexão 5007b9ab-3714-49ef-b590-3dde6117bc33
+[CampaignProcessor] 🚀 Iniciando campanha 9dc39c9d-5972-403f-a69b-129dc580d383 (BOA VISTA) na conexão 5007b9ab-3714-49ef-b590-3dde6117bc33
+[CampaignProcessor] 🚀 Campanha 9dc39c9d-5972-403f-a69b-129dc580d383 (BOA VISTA) disparada em paralelo. Empresa: 1a386ca1-02ce-41dc-82b2-408bc4520143
+[CampaignProcessor] Ciclo concluído: 2 disparadas, 0 aguardando
+[CampaignTriggerWorker] ✅ Job concluído em 64ms: 2 enviadas, 0 falhas, 0 puladas
+[Campanha WhatsApp 9dc39c9d-5972-403f-a69b-129dc580d383] ✅ Delay configurado: 61-121s
+[Campanha WhatsApp 9dc39c9d-5972-403f-a69b-129dc580d383] ⚠️ DELAY OBRIGATÓRIO BAILEYS ATIVO: 61-121s entre mensagens (proteção anti-bloqueio)
+[Campanha WhatsApp 9dc39c9d-5972-403f-a69b-129dc580d383] Processando lote 1/1 com 91 contatos.
+[Campaign-Baileys] Preparando envio | ConnectionID: 5007b9ab-3714-49ef-b590-3dde6117bc33 | Status: connected | Contato: +5515996688441
+[Campaign-Baileys] Texto final da mensagem: "Olá, tudo bem? 😊 Tenho uma excelente novidade para você que quer sair do aluguel!"
+[SessionManager] Attempting to send message via connection 5007b9ab-3714-49ef-b590-3dde6117bc33 to +5515996688441
+[SessionManager] Sending to JID: 5515996688441@s.whatsapp.net
+ GET /api/v1/notifications?limit=20 200 in 192ms
+Closing session: SessionEntry {
+  _chains: {
+    BSVvNV5thTQvCSKbdc7oIEvgmSdBn6VNzD0wKtNmgms2: { chainKey: [Object], chainType: 2, messageKeys: {} },
+    'BV5b9FsgI0SJTl1BZNc6/fyaQWj3EMVp+xICqN4XPIhq': { chainKey: [Object], chainType: 2, messageKeys: {} },
+    'BdJrZo2cUMbZB6q+M4zXbHruJKEHrJDHozrd0iiL+ol2': { chainKey: [Object], chainType: 1, messageKeys: {} }
+  },
+  registrationId: 1119569888,
+  currentRatchet: {
+    ephemeralKeyPair: {
+      pubKey: <Buffer 05 d2 6b 66 8d 9c 50 c6 d9 07 aa be 33 8c d7 6c 7a ee 24 a1 07 ac 90 c7 a3 3a dd d2 28 8b fa 89 76>,
+      privKey: <Buffer 78 8e c1 db e5 98 3a 3a 97 16 d4 06 b0 ea 39 a4 29 4b 23 97 b0 0f df 7f 15 14 d3 90 82 26 61 69>
+    },
+    lastRemoteEphemeralKey: <Buffer 05 5e 5b f4 5b 20 23 44 89 4e 5d 41 64 d7 3a fd fc 9a 41 68 f7 10 c5 69 fb 12 02 a8 de 17 3c 88 6a>,
+    previousCounter: 0,
+    rootKey: <Buffer 51 1b 33 46 65 10 6d 14 08 e5 7a 01 33 f7 e9 c6 bc 4f 6f cb 7f e2 46 42 00 95 de 65 15 9d 73 37>
+  },
+  indexInfo: {
+    baseKey: <Buffer 05 a5 26 29 f4 b7 46 24 fa 0b d2 4c 2c 5d a2 e0 9e 68 a3 7e dc be 23 81 2e c4 22 a1 f4 82 ee af 74>,
+    baseKeyType: 1,
+    closed: -1,
+    used: 1766094788249,
+    created: 1766094358284,
+    remoteIdentityKey: <Buffer 05 aa 4b cd af df bb 3a 4a 1f dd f1 c8 9a fd c8 60 12 75 4a cc c7 cf 2f 96 0b 28 76 31 c2 ab 56 45>
+  }
+}
+[SessionManager] ✅ Message sent successfully to +5515996688441: 3EB0A0DB09DC6F8EB97573
+[Campaign-Baileys] ✅ Mensagem enviada com sucesso | Contato: +5515996688441 | MessageID: 3EB0A0DB09DC6F8EB97573
+[Campaign-Baileys] 💾 Delivery report salvo: SENT | Contato: +5515996688441
+[Campanha WhatsApp 9dc39c9d-5972-403f-a69b-129dc580d383] Aguardando 86s antes do próximo envio... (1/91)
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+[Baileys Receipt] ✅ Updated delivery report f658d783-edac-497b-aa55-a7549d93a402 to status: sent
+[Baileys] Message saved from status
+[Baileys Chat Classifier] Type: broadcast | Reason: JID suffix @broadcast (broadcast list) | Block AI: true
+[Baileys AI] 🚫 Blocked auto-response | Type: broadcast | Contact: status | Reason: JID suffix @broadcast (broadcast list)
+[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...
+[CampaignProcessor] Encontradas 2 campanhas pendentes. Conexões ativas: 1
+[CampaignProcessor] 🔄 Retomando campanha órfã aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) - sem atividade por 5+ minutos.
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 marcada como ativa na conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] 🚀 Iniciando campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) na conexão 682b91ea-15ee-42da-8855-70309b237008
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] ▶️ Iniciando sendVoiceCampaign - status=SENDING, name=Testeeeedj
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] Já foi completada. Ignorando re-trigger.
+[CampaignProcessor] 🚀 Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) disparada em paralelo. Empresa: 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] Conexão 5007b9ab-3714-49ef-b590-3dde6117bc33 ocupada com campanha 9dc39c9d-5972-403f-a69b-129dc580d383. Campanha 9dc39c9d-5972-403f-a69b-129dc580d383 (BOA VISTA) aguardando.
+[CampaignProcessor] Ciclo concluído: 1 disparadas, 1 aguardando
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) concluída com sucesso
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 removida da conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignTriggerWorker] ✅ Job concluído em 37ms: 1 enviadas, 0 falhas, 1 puladas
+ GET /api/v1/notifications?limit=20 200 in 233ms
+[Baileys] Message saved from 120363401195489540
+[Baileys Chat Classifier] Type: group | Reason: JID suffix @g.us (WhatsApp group) | Block AI: true
+[Baileys AI] 🚫 Blocked auto-response | Type: group | Contact: 120363401195489540 | Reason: JID suffix @g.us (WhatsApp group)
+ ✓ Compiled in 3.8s (4633 modules)
+ ○ Compiling /api/v1/sms-gateways ...
+ ✓ Compiled /api/v1/sms-gateways in 766ms (3203 modules)
+ ✓ Compiled in 0ms (3209 modules)
+ ✓ Compiled in 0ms (3209 modules)
+ ✓ Compiled in 1ms (3209 modules)
+📊 [API CACHE MISS] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - Fetching from source...
+📊 [API CACHE SET] Key: message-templates:682b91ea-15ee-42da-8855-70309b237008:all:all: - TTL: 900000ms - Total time: 97ms
+ GET /api/v1/message-templates 200 in 4759ms
+📊 [API CACHE MISS] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - Fetching from source...
+📊 [API CACHE MISS] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - Fetching from source...
+📊 [API CACHE SET] Key: connections:682b91ea-15ee-42da-8855-70309b237008 - TTL: 300000ms - Total time: 38ms
+ GET /api/v1/connections 200 in 5715ms
+📊 [API CACHE SET] Key: campaigns:682b91ea-15ee-42da-8855-70309b237008:1:12:WHATSAPP::: - TTL: 5000ms - Total time: 93ms
+ GET /api/v1/campaigns?channel=WHATSAPP&page=1&limit=12&startDate=2025-11-18T21%3A54%3A34.399Z&endDate=2025-12-18T21%3A54%3A34.399Z 200 in 5777ms
+ GET /api/v1/sms-gateways 200 in 5879ms
+[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...
+[CampaignProcessor] Encontradas 2 campanhas pendentes. Conexões ativas: 1
+[CampaignProcessor] 🔄 Retomando campanha órfã aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) - sem atividade por 5+ minutos.
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 marcada como ativa na conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] 🚀 Iniciando campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) na conexão 682b91ea-15ee-42da-8855-70309b237008
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] ▶️ Iniciando sendVoiceCampaign - status=SENDING, name=Testeeeedj
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] Já foi completada. Ignorando re-trigger.
+[CampaignProcessor] 🚀 Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) disparada em paralelo. Empresa: 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] Conexão 5007b9ab-3714-49ef-b590-3dde6117bc33 ocupada com campanha 9dc39c9d-5972-403f-a69b-129dc580d383. Campanha 9dc39c9d-5972-403f-a69b-129dc580d383 (BOA VISTA) aguardando.
+[CampaignProcessor] Ciclo concluído: 1 disparadas, 1 aguardando
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) concluída com sucesso
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 removida da conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignTriggerWorker] ✅ Job concluído em 34ms: 1 enviadas, 0 falhas, 1 puladas
+ GET /api/v1/notifications?limit=20 200 in 211ms
+📊 [WebhookQueue] BullMQ Metrics Report:
+  - Waiting: 0
+  - Active: 0
+  - Delayed: 0
+  - Completed: 0
+  - Failed: 0
+  - Total in Queue: 0
+📊 [WebhookQueue] Job Counts:
+  - active: 0
+  - completed: 0
+  - delayed: 0
+  - failed: 0
+  - paused: 0
+  - prioritized: 0
+  - waiting: 0
+  - waiting-children: 0
+[Campaign-Baileys] Preparando envio | ConnectionID: 5007b9ab-3714-49ef-b590-3dde6117bc33 | Status: connected | Contato: +5511987355398
+[Campaign-Baileys] Texto final da mensagem: "Olá, tudo bem? 😊 Tenho uma excelente novidade para você que quer sair do aluguel!"
+[SessionManager] Attempting to send message via connection 5007b9ab-3714-49ef-b590-3dde6117bc33 to +5511987355398
+[SessionManager] Sending to JID: 5511987355398@s.whatsapp.net
+Closing session: SessionEntry {
+  _chains: {
+    'BWQiv0m9LdLcJZvMfixU/bJzcu44TVYOHzgGaJ2LjdhB': { chainKey: [Object], chainType: 1, messageKeys: {} }
+  },
+  registrationId: 383693424,
+  currentRatchet: {
+    ephemeralKeyPair: {
+      pubKey: <Buffer 05 64 22 bf 49 bd 2d d2 dc 25 9b cc 7e 2c 54 fd b2 73 72 ee 38 4d 56 0e 1f 38 06 68 9d 8b 8d d8 41>,
+      privKey: <Buffer 20 2d 16 de cc 30 c0 6e 1f 05 79 ea 51 93 db 33 79 ae 57 8c fa e1 88 6b 02 4e 13 40 bb 20 89 4e>
+    },
+    lastRemoteEphemeralKey: <Buffer 05 87 29 30 30 6c f6 41 95 03 55 87 78 03 f1 1f d8 49 87 a5 5c 34 4f 67 9e 10 6b 6d fe 60 db 63 03>,
+    previousCounter: 0,
+    rootKey: <Buffer 72 a2 7f 5c 2f 3e 99 3d 66 24 68 59 0f da 9a 9c 95 d4 90 6e 72 93 e8 f6 ca e0 8c 58 ea db 69 39>
+  },
+  indexInfo: {
+    baseKey: <Buffer 05 03 ab 3b fc ce 1b 63 43 e3 1d 63 25 d6 14 d1 63 bd 38 9d cd c3 68 f7 b7 27 b8 5d 9d 52 ce 1b 4e>,
+    baseKeyType: 1,
+    closed: -1,
+    used: 1766093105796,
+    created: 1766093105796,
+    remoteIdentityKey: <Buffer 05 6f 63 73 33 68 63 56 f5 60 8a e7 00 39 ed d8 4f 4f 9a 0c 0a c2 24 e9 34 1b 82 58 63 bf be 94 37>
+  },
+  pendingPreKey: {
+    signedKeyId: 10569508,
+    baseKey: <Buffer 05 03 ab 3b fc ce 1b 63 43 e3 1d 63 25 d6 14 d1 63 bd 38 9d cd c3 68 f7 b7 27 b8 5d 9d 52 ce 1b 4e>,
+    preKeyId: 13497693
+  }
+}
+[SessionManager] ✅ Message sent successfully to +5511987355398: 3EB07094AD98E65ACEF043
+[Campaign-Baileys] ✅ Mensagem enviada com sucesso | Contato: +5511987355398 | MessageID: 3EB07094AD98E65ACEF043
+[Campaign-Baileys] 💾 Delivery report salvo: SENT | Contato: +5511987355398
+[Campanha WhatsApp 9dc39c9d-5972-403f-a69b-129dc580d383] Aguardando 78s antes do próximo envio... (2/91)
+[Baileys Receipt] ✅ Updated delivery report 5c0a5686-2a83-4b07-8903-a69d61e2728e to status: sent
+[CampaignTriggerWorker] 🔄 Executando job de processamento de campanhas...
+[CampaignProcessor] Encontradas 2 campanhas pendentes. Conexões ativas: 1
+[CampaignProcessor] 🔄 Retomando campanha órfã aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) - sem atividade por 5+ minutos.
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 marcada como ativa na conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] 🚀 Iniciando campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) na conexão 682b91ea-15ee-42da-8855-70309b237008
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] ▶️ Iniciando sendVoiceCampaign - status=SENDING, name=Testeeeedj
+[Campanha Voice aaf8a6a7-31ba-4f18-9c54-64967ac06647] Já foi completada. Ignorando re-trigger.
+[CampaignProcessor] 🚀 Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) disparada em paralelo. Empresa: 682b91ea-15ee-42da-8855-70309b237008
+[CampaignProcessor] Conexão 5007b9ab-3714-49ef-b590-3dde6117bc33 ocupada com campanha 9dc39c9d-5972-403f-a69b-129dc580d383. Campanha 9dc39c9d-5972-403f-a69b-129dc580d383 (BOA VISTA) aguardando.
+[CampaignProcessor] Ciclo concluído: 1 disparadas, 1 aguardando
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 (Testeeeedj) concluída com sucesso
+[CampaignProcessor] ✅ Campanha aaf8a6a7-31ba-4f18-9c54-64967ac06647 removida da conexão 682b91ea-15ee-42da-8855-70309b237008
+[CampaignTriggerWorker] ✅ Job concluído em 39ms: 1 enviadas, 0 falhas, 1 puladas
+ GET /api/v1/notifications?limit=20 200 in 229ms

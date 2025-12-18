@@ -565,6 +565,23 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
                 .where(inArray(contacts.id, contactIdsSubquery));
         }
         
+        // DEDUPLICAÇÃO: Excluir contatos que já receberam mensagem nesta campanha
+        const alreadySentReports = await db
+            .select({ contactId: whatsappDeliveryReports.contactId })
+            .from(whatsappDeliveryReports)
+            .where(eq(whatsappDeliveryReports.campaignId, campaign.id));
+        
+        const alreadySentContactIds = new Set(alreadySentReports.map(r => r.contactId));
+        
+        if (alreadySentContactIds.size > 0) {
+            const beforeCount = campaignContacts.length;
+            campaignContacts = campaignContacts.filter(c => !alreadySentContactIds.has(c.id));
+            const skipped = beforeCount - campaignContacts.length;
+            if (skipped > 0) {
+                console.log(`[Campanha WhatsApp ${campaign.id}] ✅ Deduplicação: ${skipped} contatos já enviados (pulando)`);
+            }
+        }
+        
         // Suporte a offset e limite de contatos via variableMappings
         const variableMappingsRaw = campaign.variableMappings as Record<string, any> || {};
         const contactOffset = variableMappingsRaw._contactOffset as number | undefined;
