@@ -1547,6 +1547,28 @@ export const adminAuditLogs = pgTable('admin_audit_logs', {
 });
 
 // ==============================
+// META WEBHOOK HEALTH EVENTS
+// ==============================
+
+export const webhookHealthStatusEnum = pgEnum('webhook_health_status', ['success', 'failure']);
+
+export const metaWebhookHealthEvents = pgTable('meta_webhook_health_events', {
+  id: text('id').primaryKey().default(sql`gen_random_uuid()`),
+  connectionId: text('connection_id').notNull().references(() => connections.id, { onDelete: 'cascade' }),
+  status: webhookHealthStatusEnum('status').notNull(),
+  validatedAt: timestamp('validated_at').defaultNow().notNull(),
+  errorMessage: text('error_message'),
+  metadata: jsonb('metadata'),
+});
+
+export const metaWebhookHealthEventsRelations = relations(metaWebhookHealthEvents, ({ one }) => ({
+  connection: one(connections, {
+    fields: [metaWebhookHealthEvents.connectionId],
+    references: [connections.id],
+  }),
+}));
+
+// ==============================
 // RELATIONS: FEATURES & PERMISSIONS
 // ==============================
 

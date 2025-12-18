@@ -4,8 +4,8 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { db } from '@/lib/db';
-import { companies, connections, whatsappDeliveryReports, contacts, conversations, messages, campaigns } from '@/lib/db/schema';
-import { eq, and, inArray, sql, isNull } from 'drizzle-orm';
+import { companies, connections, whatsappDeliveryReports, contacts, conversations, messages, campaigns, metaWebhookHealthEvents } from '@/lib/db/schema';
+import { eq, and, inArray, sql, isNull, desc } from 'drizzle-orm';
 import { getPhoneVariations, canonicalizeBrazilPhone, sanitizePhone } from '@/lib/utils';
 import crypto from 'crypto';
 import { decrypt } from '@/lib/crypto';
@@ -15,6 +15,34 @@ import { v4 as uuidv4 } from 'uuid';
 import { processIncomingMessageTrigger } from '@/lib/automation-engine';
 import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
 import { UserNotificationsService } from '@/lib/notifications/user-notifications.service';
+
+async function recordWebhookHealth(connectionId: string, status: 'success' | 'failure', errorMessage?: string) {
+    try {
+        await db.insert(metaWebhookHealthEvents).values({
+            connectionId,
+            status,
+            errorMessage: errorMessage || null,
+            validatedAt: new Date(),
+        });
+        
+        const allEvents = await db.select({ id: metaWebhookHealthEvents.id })
+            .from(metaWebhookHealthEvents)
+            .where(eq(metaWebhookHealthEvents.connectionId, connectionId))
+            .orderBy(desc(metaWebhookHealthEvents.validatedAt))
+            .limit(300);
+        
+        if (allEvents.length > 200) {
+            const idsToKeep = allEvents.slice(0, 200).map(e => e.id);
+            await db.delete(metaWebhookHealthEvents)
+                .where(and(
+                    eq(metaWebhookHealthEvents.connectionId, connectionId),
+                    sql`${metaWebhookHealthEvents.id} NOT IN (${sql.join(idsToKeep.map(id => sql`${id}`), sql`, `)})`
+                ));
+        }
+    } catch (err) {
+        console.error('[Meta Webhook] Failed to record health event:', err);
+    }
+}
 
 // GET /api/webhooks/meta/[slug] - Used for Facebook Webhook Verification
 
@@ -110,10 +138,14 @@ export async function POST(request: NextRequest, { params }: { params: { slug: s
             console.error(`   Esperada: ${expectedSignature.substring(0, 20)}...`);
             console.error(`   Connection: ${connection.config_name}`);
             console.error(`   DEBUG: App Secret Length: ${decryptedAppSecret.length}, Body Length: ${rawBody.length}`);
+            
+            recordWebhookHealth(connection.id, 'failure', 'HMAC signature mismatch').catch(() => {});
             return new NextResponse('Invalid signature', { status: 403 });
         }
         
         console.log(`✅ [Meta Webhook] Assinatura HMAC validada`);
+        
+        recordWebhookHealth(connection.id, 'success').catch(() => {});
         
         const payload = JSON.parse(rawBody);
         

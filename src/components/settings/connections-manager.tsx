@@ -69,6 +69,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/
 type ConnectionStatus = 'Conectado' | 'Falha na Conexão' | 'Não Verificado';
 type WebhookStatus = 'CONFIGURADO' | 'DIVERGENTE' | 'NAO_CONFIGURADO' | 'VERIFICANDO' | 'ERRO';
 type HealthStatus = 'healthy' | 'expiring_soon' | 'expired' | 'error' | 'inactive';
+type HmacHealthStatus = 'healthy' | 'warning' | 'error' | 'no_data' | 'loading';
 
 type Connection = ConnectionType & {
     connectionStatus?: ConnectionStatus;
@@ -77,6 +78,12 @@ type Connection = ConnectionType & {
     healthErrorMessage?: string;
     lastHealthCheck?: Date;
     tokenExpiresIn?: number;
+    hmacHealth?: {
+        status: HmacHealthStatus;
+        successRate: number | null;
+        lastValidatedAt: string | null;
+        lastError: string | null;
+    };
 };
 
 const connectionStatusConfig: Record<ConnectionStatus, { icon: React.ElementType, color: string, text: string }> = {
@@ -99,6 +106,14 @@ const healthStatusConfig: Record<HealthStatus, { icon: React.ElementType, color:
     expired: { icon: AlertTriangle, color: 'text-red-600', text: 'Token Expirado', bgColor: 'bg-red-50' },
     error: { icon: XCircle, color: 'text-red-600', text: 'Erro', bgColor: 'bg-red-50' },
     inactive: { icon: AlertCircle, color: 'text-gray-600', text: 'Inativa', bgColor: 'bg-gray-50' },
+};
+
+const hmacHealthConfig: Record<HmacHealthStatus, { icon: React.ElementType, color: string, text: string, bgColor: string }> = {
+    healthy: { icon: CheckCircle2, color: 'text-green-600', text: 'HMAC OK', bgColor: 'bg-green-50' },
+    warning: { icon: AlertTriangle, color: 'text-yellow-600', text: 'HMAC Instável', bgColor: 'bg-yellow-50' },
+    error: { icon: XCircle, color: 'text-red-600', text: 'HMAC Falha', bgColor: 'bg-red-50' },
+    no_data: { icon: AlertCircle, color: 'text-gray-500', text: 'Sem Dados', bgColor: 'bg-gray-50' },
+    loading: { icon: Loader2, color: 'text-muted-foreground', text: 'Verificando...', bgColor: 'bg-gray-50' },
 };
 
 const WebhookInfoCard = () => {
@@ -174,6 +189,34 @@ export function ConnectionsManager() {
         }
    }, []);
 
+   const checkHmacHealth = useCallback(async (connectionId: string): Promise<void> => {
+        setConnections(prev => prev.map(c => c.id === connectionId ? { 
+            ...c, 
+            hmacHealth: { status: 'loading', successRate: null, lastValidatedAt: null, lastError: null }
+        } : c));
+        try {
+            const res = await fetch(`/api/v1/connections/${connectionId}/webhook-health`);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Falha ao verificar saúde HMAC.");
+            
+            setConnections(prev => prev.map(c => c.id === connectionId ? { 
+                ...c, 
+                hmacHealth: {
+                    status: data.status,
+                    successRate: data.successRate,
+                    lastValidatedAt: data.lastValidatedAt,
+                    lastError: data.lastError,
+                }
+            } : c));
+        } catch(error) {
+            setConnections(prev => prev.map(c => c.id === connectionId ? { 
+                ...c, 
+                hmacHealth: { status: 'no_data', successRate: null, lastValidatedAt: null, lastError: null }
+            } : c));
+            console.error(`Erro ao verificar saúde HMAC para conexão ${connectionId}:`, error);
+        }
+   }, []);
+
    const checkConnectionHealth = useCallback(async (): Promise<void> => {
         try {
             const res = await fetch('/api/v1/connections/health');
@@ -223,6 +266,7 @@ export function ConnectionsManager() {
                 const [connStatusRes] = await Promise.all([
                     checkConnectionStatus(conn.id),
                     checkWebhookStatus(conn.id),
+                    checkHmacHealth(conn.id),
                 ]);
                 setConnections(prev => prev.map(c => c.id === conn.id ? { ...c, connectionStatus: connStatusRes.success ? 'Conectado' : 'Falha na Conexão' } : c));
             }));
@@ -232,7 +276,7 @@ export function ConnectionsManager() {
         } finally {
             setLoading(false);
         }
-    }, [notify, checkWebhookStatus, checkConnectionHealth]);
+    }, [notify, checkWebhookStatus, checkConnectionHealth, checkHmacHealth]);
 
     useEffect(() => {
         fetchConnections();
@@ -542,6 +586,9 @@ export function ConnectionsManager() {
                                 
                                 const healthInfo = conn.healthStatus ? healthStatusConfig[conn.healthStatus] : null;
                                 const HealthStatusIcon = healthInfo?.icon;
+                                
+                                const hmacInfo = conn.hmacHealth ? hmacHealthConfig[conn.hmacHealth.status] : hmacHealthConfig['no_data'];
+                                const HmacStatusIcon = hmacInfo.icon;
 
                                 return (
                                     <div key={conn.id} className="space-y-4 py-4 first:pt-0 last:pb-0">
@@ -586,6 +633,31 @@ export function ConnectionsManager() {
                                                               </div>
                                                             </TooltipTrigger>
                                                             <TooltipContent><p>Status do Webhook</p></TooltipContent>
+                                                        </Tooltip>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                              <div className={cn('flex items-center text-[10px] sm:text-xs px-1.5 py-0.5 rounded-full', hmacInfo.color, hmacInfo.bgColor)}>
+                                                                  <HmacStatusIcon className={cn("h-2.5 w-2.5 sm:h-3 sm:w-3 mr-1 sm:mr-1.5", conn.hmacHealth?.status === 'loading' && 'animate-spin')} />
+                                                                  <span className="font-medium truncate">{hmacInfo.text}</span>
+                                                                  {conn.hmacHealth?.successRate !== null && conn.hmacHealth?.successRate !== undefined && (
+                                                                      <span className="ml-1 opacity-75">({conn.hmacHealth.successRate}%)</span>
+                                                                  )}
+                                                              </div>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <div className="text-xs">
+                                                                    <p className="font-medium">Validação HMAC em Tempo Real</p>
+                                                                    {conn.hmacHealth && conn.hmacHealth.successRate !== null && (
+                                                                        <p>Taxa de sucesso: {conn.hmacHealth.successRate}%</p>
+                                                                    )}
+                                                                    {conn.hmacHealth?.lastValidatedAt && (
+                                                                        <p>Última validação: {new Date(conn.hmacHealth.lastValidatedAt).toLocaleString('pt-BR')}</p>
+                                                                    )}
+                                                                    {conn.hmacHealth?.lastError && (
+                                                                        <p className="text-red-500">Erro: {conn.hmacHealth.lastError}</p>
+                                                                    )}
+                                                                </div>
+                                                            </TooltipContent>
                                                         </Tooltip>
                                                     </TooltipProvider>
                                                 </div>

@@ -106,3 +106,4 @@ functions/public/schuled/
 *.7z
 /whatsapp_sessions/
 .env.local
+docs/t0ken-app.md
