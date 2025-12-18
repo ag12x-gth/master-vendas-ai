@@ -646,7 +646,7 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
 
             let results: PromiseSettledResult<CampaignMessageResult>[];
             
-            // Se for Baileys com delay aleatório, processa sequencialmente
+            // Se for Baileys com delay aleatório, processa sequencialmente E SALVA IMEDIATAMENTE
             if (useRandomDelay) {
                 results = [];
                 for (const [contactIndex, contact] of batch.entries()) {
@@ -659,11 +659,29 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
                         }
                     }
                     
+                    let result: CampaignMessageResult;
                     try {
-                        const result = await sendCampaignMessage(connection, contact, resolvedTemplate, variableMappings, campaign);
+                        result = await sendCampaignMessage(connection, contact, resolvedTemplate, variableMappings, campaign);
                         results.push({ status: 'fulfilled', value: result });
                     } catch (error) {
+                        result = { success: false, contactId: contact.id, error: (error as Error)?.message || 'Erro desconhecido' };
                         results.push({ status: 'rejected', reason: error });
+                    }
+                    
+                    // SALVAR DELIVERY REPORT IMEDIATAMENTE após cada envio
+                    try {
+                        const deliveryReport = {
+                            campaignId: campaign.id,
+                            contactId: result.contactId || contact.id,
+                            connectionId: campaign.connectionId!,
+                            status: result.success ? 'SENT' : 'FAILED',
+                            providerMessageId: result.providerMessageId || null,
+                            failureReason: result.success ? null : (result.error || 'Erro desconhecido'),
+                        };
+                        await db.insert(whatsappDeliveryReports).values(deliveryReport as any);
+                        console.log(`[Campaign-Baileys] 💾 Delivery report salvo: ${result.success ? 'SENT' : 'FAILED'} | Contato: ${contact.phone}`);
+                    } catch (dbError) {
+                        console.error(`[Campaign-Baileys] ❌ Erro ao salvar delivery report:`, dbError);
                     }
                     
                     // Delay aleatório entre mensagens (exceto após a última)
@@ -673,6 +691,9 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
                         await sleep(randomDelay * 1000);
                     }
                 }
+                
+                // Para modo sequencial (Baileys), já salvamos acima - pular salvamento em batch
+                continue;
             } else {
                 // Modo padrão: envia em paralelo
                 const sendPromises = batch.map(contact => 
@@ -715,7 +736,14 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
             }).filter(Boolean);
 
             if (deliveryReports.length > 0) {
-                 await db.insert(whatsappDeliveryReports).values(deliveryReports as any);
+                 console.log(`[Campaign-Baileys] 💾 Salvando ${deliveryReports.length} delivery reports no banco...`);
+                 console.log(`[Campaign-Baileys] Primeiro report:`, JSON.stringify(deliveryReports[0]));
+                 try {
+                     await db.insert(whatsappDeliveryReports).values(deliveryReports as any);
+                     console.log(`[Campaign-Baileys] ✅ ${deliveryReports.length} delivery reports salvos com sucesso!`);
+                 } catch (dbError) {
+                     console.error(`[Campaign-Baileys] ❌ ERRO ao salvar delivery reports:`, dbError);
+                 }
                  
                  // Criar conversas e mensagens para envios bem-sucedidos
                  const successfulReports = deliveryReports.filter(r => r.status.toUpperCase() === 'SENT');
