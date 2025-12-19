@@ -28,6 +28,8 @@ import { webhookDispatcher } from '@/services/webhook-dispatcher.service';
 import * as CircuitBreaker from '@/lib/circuit-breaker';
 import { normalizeBrazilianSMS } from '@/lib/utils/phone';
 
+const DEBUG = process.env.DEBUG === 'true';
+
 // Helper para dividir um array em lotes
 function chunkArray<T>(array: T[], size: number): T[][] {
     if (size <= 0) return [array]; // Retorna um único lote se o tamanho for inválido
@@ -158,7 +160,7 @@ async function withRetry<T>(
             
             // Exponential backoff: 2s → 4s → 8s
             const delayMs = initialDelayMs * Math.pow(2, attempt);
-            console.log(`[RETRY] Tentativa ${attempt + 1}/${maxRetries} falhou com erro transiente. Tentando novamente em ${delayMs}ms...`, error);
+            if (DEBUG) console.log(`[RETRY] Tentativa ${attempt + 1}/${maxRetries} falhou com erro transiente. Tentando novamente em ${delayMs}ms...`, error);
             await sleep(delayMs);
         }
     }
@@ -270,7 +272,7 @@ async function sendViaBaileys(
                     await new Promise(resolve => setTimeout(resolve, 500));
                     sessionStatus = baileysSessionManager.getSessionStatus(connectionId);
                     if (sessionStatus === 'connected') {
-                        console.log(`[Campaign-Baileys] ✅ Sessão restaurada com sucesso | ConnectionID: ${connectionId}`);
+                        if (DEBUG) console.log(`[Campaign-Baileys] ✅ Sessão restaurada com sucesso | ConnectionID: ${connectionId}`);
                         break;
                     }
                 }
@@ -302,7 +304,7 @@ async function sendViaBaileys(
                 error: validation.error || 'Número não registrado no WhatsApp',
             };
         }
-        console.log(`[Campaign-Baileys] ✅ Número validado: ${contact.phone}`);
+        if (DEBUG) console.log(`[Campaign-Baileys] ✅ Número validado: ${contact.phone}`);
     }
     
     // Substitui variáveis no body text
@@ -343,7 +345,7 @@ async function sendViaBaileys(
         });
         
         if (messageId) {
-            console.log(`[Campaign-Baileys] ✅ Mensagem enviada com sucesso | Contato: ${contact.phone} | MessageID: ${messageId}`);
+            if (DEBUG) console.log(`[Campaign-Baileys] ✅ Mensagem enviada com sucesso | Contato: ${contact.phone} | MessageID: ${messageId}`);
             return {
                 success: true,
                 contactId: contact.id,
@@ -563,7 +565,7 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
         let campaignContacts;
         
         if (isRetryMode) {
-            console.log(`[Campanha WhatsApp ${campaign.id}] Modo de reenvio: processando ${campaign.retryContactIds!.length} contatos que falharam`);
+            if (DEBUG) console.log(`[Campanha WhatsApp ${campaign.id}] Modo de reenvio: processando ${campaign.retryContactIds!.length} contatos que falharam`);
             campaignContacts = await db
                 .select()
                 .from(contacts)
@@ -593,7 +595,7 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
             campaignContacts = campaignContacts.filter(c => !alreadySentContactIds.has(c.id));
             const skipped = beforeCount - campaignContacts.length;
             if (skipped > 0) {
-                console.log(`[Campanha WhatsApp ${campaign.id}] ✅ Deduplicação: ${skipped} contatos já enviados (pulando)`);
+                if (DEBUG) console.log(`[Campanha WhatsApp ${campaign.id}] ✅ Deduplicação: ${skipped} contatos já enviados (pulando)`);
             }
         }
         
@@ -604,13 +606,13 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
         
         // Primeiro aplica o offset para pular contatos já enviados
         if (contactOffset && contactOffset > 0) {
-            console.log(`[Campanha WhatsApp ${campaign.id}] Pulando os primeiros ${contactOffset} contatos (já enviados)`);
+            if (DEBUG) console.log(`[Campanha WhatsApp ${campaign.id}] Pulando os primeiros ${contactOffset} contatos (já enviados)`);
             campaignContacts = campaignContacts.slice(contactOffset);
         }
         
         // Depois aplica o limite
         if (maxContacts && campaignContacts.length > maxContacts) {
-            console.log(`[Campanha WhatsApp ${campaign.id}] Limitando de ${campaignContacts.length} para ${maxContacts} contatos`);
+            if (DEBUG) console.log(`[Campanha WhatsApp ${campaign.id}] Limitando de ${campaignContacts.length} para ${maxContacts} contatos`);
             campaignContacts = campaignContacts.slice(0, maxContacts);
         }
 
@@ -642,12 +644,12 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
             if (configuredMinDelay !== undefined && configuredMaxDelay !== undefined) {
                 minDelaySeconds = Math.max(configuredMinDelay, MIN_SAFE_DELAY);
                 maxDelaySeconds = Math.max(configuredMaxDelay, minDelaySeconds);
-                console.log(`[Campanha WhatsApp ${campaign.id}] ✅ Delay configurado: ${minDelaySeconds}-${maxDelaySeconds}s`);
+                if (DEBUG) console.log(`[Campanha WhatsApp ${campaign.id}] ✅ Delay configurado: ${minDelaySeconds}-${maxDelaySeconds}s`);
             } else {
                 // Usa defaults se não configurado
                 minDelaySeconds = DEFAULT_MIN_DELAY;
                 maxDelaySeconds = DEFAULT_MAX_DELAY;
-                console.log(`[Campanha WhatsApp ${campaign.id}] ✅ Delay padrão: ${DEFAULT_MIN_DELAY}-${DEFAULT_MAX_DELAY}s`);
+                if (DEBUG) console.log(`[Campanha WhatsApp ${campaign.id}] ✅ Delay padrão: ${DEFAULT_MIN_DELAY}-${DEFAULT_MAX_DELAY}s`);
             }
         } else {
             // Meta API: usar delay configurado ou default
@@ -659,9 +661,9 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
         const useRandomDelay = isBaileys || (minDelaySeconds !== undefined && maxDelaySeconds !== undefined);
         
         if (isBaileys) {
-            console.log(`[Campanha WhatsApp ${campaign.id}] ⚠️ DELAY OBRIGATÓRIO BAILEYS ATIVO: ${minDelaySeconds}-${maxDelaySeconds}s entre mensagens (proteção anti-bloqueio)`);
+            if (DEBUG) console.log(`[Campanha WhatsApp ${campaign.id}] ⚠️ DELAY OBRIGATÓRIO BAILEYS ATIVO: ${minDelaySeconds}-${maxDelaySeconds}s entre mensagens (proteção anti-bloqueio)`);
         } else if (useRandomDelay) {
-            console.log(`[Campanha WhatsApp ${campaign.id}] Modo com delay aleatório: ${minDelaySeconds}-${maxDelaySeconds}s entre mensagens`);
+            if (DEBUG) console.log(`[Campanha WhatsApp ${campaign.id}] Modo com delay aleatório: ${minDelaySeconds}-${maxDelaySeconds}s entre mensagens`);
         }
 
         const contactBatches = chunkArray(campaignContacts, batchSize);
@@ -670,11 +672,11 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
             // Verificar se a campanha foi pausada antes de processar o próximo lote
             const [currentCampaign] = await db.select({ status: campaigns.status }).from(campaigns).where(eq(campaigns.id, campaign.id));
             if (currentCampaign?.status === 'PAUSED') {
-                console.log(`[Campanha WhatsApp ${campaign.id}] Campanha pausada pelo usuário. Interrompendo envio.`);
+                if (DEBUG) console.log(`[Campanha WhatsApp ${campaign.id}] Campanha pausada pelo usuário. Interrompendo envio.`);
                 return; // Sai da função sem marcar como completa ou falha
             }
 
-            console.log(`[Campanha WhatsApp ${campaign.id}] Processando lote ${index + 1}/${contactBatches.length} com ${batch.length} contatos.`);
+            if (DEBUG) console.log(`[Campanha WhatsApp ${campaign.id}] Processando lote ${index + 1}/${contactBatches.length} com ${batch.length} contatos.`);
 
             let results: PromiseSettledResult<CampaignMessageResult>[];
             
@@ -686,7 +688,7 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
                     if (contactIndex > 0 && contactIndex % 10 === 0) {
                         const [checkCampaign] = await db.select({ status: campaigns.status }).from(campaigns).where(eq(campaigns.id, campaign.id));
                         if (checkCampaign?.status === 'PAUSED') {
-                            console.log(`[Campanha WhatsApp ${campaign.id}] Campanha pausada durante processamento. Interrompendo.`);
+                            if (DEBUG) console.log(`[Campanha WhatsApp ${campaign.id}] Campanha pausada durante processamento. Interrompendo.`);
                             return;
                         }
                     }
@@ -719,7 +721,7 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
                     // Delay aleatório entre mensagens (exceto após a última)
                     if (contactIndex < batch.length - 1) {
                         const randomDelay = Math.floor(Math.random() * (maxDelaySeconds! - minDelaySeconds! + 1)) + minDelaySeconds!;
-                        console.log(`[Campanha WhatsApp ${campaign.id}] Aguardando ${randomDelay}s antes do próximo envio... (${contactIndex + 1}/${batch.length})`);
+                        if (DEBUG) console.log(`[Campanha WhatsApp ${campaign.id}] Aguardando ${randomDelay}s antes do próximo envio... (${contactIndex + 1}/${batch.length})`);
                         await sleep(randomDelay * 1000);
                     }
                 }
@@ -772,7 +774,7 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
                  console.log(`[Campaign-Baileys] Primeiro report:`, JSON.stringify(deliveryReports[0]));
                  try {
                      await db.insert(whatsappDeliveryReports).values(deliveryReports as any);
-                     console.log(`[Campaign-Baileys] ✅ ${deliveryReports.length} delivery reports salvos com sucesso!`);
+                     if (DEBUG) console.log(`[Campaign-Baileys] ✅ ${deliveryReports.length} delivery reports salvos com sucesso!`);
                  } catch (dbError) {
                      console.error(`[Campaign-Baileys] ❌ ERRO ao salvar delivery reports:`, dbError);
                  }
@@ -805,7 +807,7 @@ export async function sendWhatsappCampaign(campaign: typeof campaigns.$inferSele
             }
 
             if (index < contactBatches.length - 1) {
-                console.log(`[Campanha WhatsApp ${campaign.id}] Pausando por ${batchDelaySeconds} segundos...`);
+                if (DEBUG) console.log(`[Campanha WhatsApp ${campaign.id}] Pausando por ${batchDelaySeconds} segundos...`);
                 await sleep(batchDelaySeconds * 1000);
             }
         }

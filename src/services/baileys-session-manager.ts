@@ -7,6 +7,7 @@ import pino from 'pino';
 import path from 'path';
 
 const logger = pino({ level: 'silent' });
+const DEBUG = process.env.DEBUG === 'true';
 
 interface SessionData {
   socket: any;
@@ -322,7 +323,7 @@ class BaileysSessionManager {
           }
 
           if (connection === 'open') {
-            console.log(`[Baileys] Connected successfully: ${connectionId}`);
+            if (DEBUG) console.log(`[Baileys] Connected successfully: ${connectionId}`);
             sessionData.status = 'connected';
             sessionData.retryCount = 0;
 
@@ -335,7 +336,7 @@ class BaileysSessionManager {
                 console.warn(`[Baileys] ⚠️  Phone ${phoneNumber} was mapped to ${existingConnectionId}, updating to ${connectionId}`);
               }
               this.phoneToConnectionMap.set(phoneNumber, connectionId);
-              console.log(`[Baileys] ✅ Registered phone mapping: ${phoneNumber} → ${connectionId}`);
+              if (DEBUG) console.log(`[Baileys] ✅ Registered phone mapping: ${phoneNumber} → ${connectionId}`);
             }
 
             await db
@@ -506,7 +507,7 @@ class BaileysSessionManager {
         
         try {
           if (!msg.message.imageMessage.mediaKey || msg.message.imageMessage.mediaKey.length === 0) {
-            console.log('[Baileys] Skipping image without media key (deleted/forwarded media)');
+            if (DEBUG) console.log('[Baileys] Skipping image without media key (deleted/forwarded media)');
             messageContent = '📷 Imagem (indisponível)';
           } else {
             const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
@@ -524,7 +525,7 @@ class BaileysSessionManager {
         
         try {
           if (!msg.message.videoMessage.mediaKey || msg.message.videoMessage.mediaKey.length === 0) {
-            console.log('[Baileys] Skipping video without media key (deleted/forwarded media)');
+            if (DEBUG) console.log('[Baileys] Skipping video without media key (deleted/forwarded media)');
             messageContent = '📹 Vídeo (indisponível)';
           } else {
             const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
@@ -542,7 +543,7 @@ class BaileysSessionManager {
         
         try {
           if (!msg.message.audioMessage.mediaKey || msg.message.audioMessage.mediaKey.length === 0) {
-            console.log('[Baileys] Skipping audio without media key (deleted/forwarded media)');
+            if (DEBUG) console.log('[Baileys] Skipping audio without media key (deleted/forwarded media)');
             messageContent = '🎵 Áudio (indisponível)';
           } else {
             const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
@@ -561,7 +562,7 @@ class BaileysSessionManager {
         
         try {
           if (!msg.message.documentMessage.mediaKey || msg.message.documentMessage.mediaKey.length === 0) {
-            console.log('[Baileys] Skipping document without media key (deleted/forwarded media)');
+            if (DEBUG) console.log('[Baileys] Skipping document without media key (deleted/forwarded media)');
             messageContent = `📄 ${filename} (indisponível)`;
           } else {
             const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
@@ -581,7 +582,7 @@ class BaileysSessionManager {
         
         try {
           if (!msg.message.stickerMessage.mediaKey || msg.message.stickerMessage.mediaKey.length === 0) {
-            console.log('[Baileys] Skipping sticker without media key (deleted/forwarded media)');
+            if (DEBUG) console.log('[Baileys] Skipping sticker without media key (deleted/forwarded media)');
             messageContent = '🎨 Sticker (indisponível)';
           } else {
             const buffer = await Baileys.downloadMediaMessage(msg, 'buffer', {});
@@ -961,7 +962,7 @@ class BaileysSessionManager {
       const messageId = sent?.key?.id || null;
       
       if (messageId) {
-        console.log(`[SessionManager] ✅ Message sent successfully to ${to}: ${messageId}`);
+        if (DEBUG) console.log(`[SessionManager] ✅ Message sent successfully to ${to}: ${messageId}`);
       } else {
         console.warn(`[SessionManager] ⚠️  Message sent but no ID returned for ${to}`);
       }
@@ -1200,7 +1201,7 @@ class BaileysSessionManager {
 
   async initializeSessions(): Promise<void> {
     try {
-      console.log('[Baileys] Initializing sessions from database...');
+      if (DEBUG) console.log('[Baileys] Initializing sessions from database...');
       
       const existingConnections = await db.query.connections.findMany({
         where: and(
@@ -1233,7 +1234,7 @@ class BaileysSessionManager {
         }
       }
 
-      console.log('[Baileys] Session initialization complete');
+      if (DEBUG) console.log('[Baileys] Session initialization complete');
     } catch (error) {
       console.error('[Baileys] Error during session initialization:', error);
     }
@@ -1275,11 +1276,11 @@ function getOrCreateSessionManager(): BaileysSessionManager {
   global.__BAILEYS_SESSION_MANAGER = manager;
   global.__BAILEYS_INSTANCE_ID = instanceId;
   
-  console.log('[Baileys] SessionManager instance created and stored globally (Symbol + Direct)');
+  if (DEBUG) console.log('[Baileys] SessionManager instance created and stored globally (Symbol + Direct)');
   
   // Auto-initialize saved sessions on startup (non-blocking)
   if (typeof window === 'undefined') {
-    console.log('[Baileys] Starting automatic session restoration...');
+    if (DEBUG) console.log('[Baileys] Starting automatic session restoration...');
     manager.initializeSessions().catch(err => {
       console.error('[Baileys] Failed to auto-restore sessions:', err);
     });

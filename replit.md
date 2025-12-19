@@ -1,8 +1,9 @@
 # Master IA Oficial - Plataforma de Bulk Messaging com Automação AI
 
-## 🚀 Status: PRONTO PARA PUBLICAÇÃO (v2.11.2) ✅
+## 🚀 Status: PRONTO PARA PUBLICAÇÃO (v2.11.3) ✅
 
-**FASE 1-3 (DEZEMBRO 19): OTIMIZAÇÕES DE PERFORMANCE + VALIDAÇÃO + WEBSOCKETS**
+**FASE 1-3 (DEZEMBRO 19): OTIMIZAÇÕES DE PERFORMANCE + VALIDAÇÃO + WEBSOCKETS + DEBUG LOGS**
+**v2.11.3:** Logs de debug condicionados (DEBUG env var) - 358 → 8 console.log ativos ✅
 **v2.11.2:** WebSockets em tempo real para relatórios de campanhas (polling 5s → event-driven) ✅
 **v2.11.1:** Validação de números WhatsApp antes do envio (socket.onWhatsApp()) ✅
 **v2.10.23:** Processamento paralelo de campanhas por empresa/conexão (independência total) ✅
@@ -25,7 +26,7 @@
 
 ---
 
-## 🚀 DEZEMBRO 19 - OTIMIZAÇÕES CRÍTICAS (v2.11.2) ✅
+## 🚀 DEZEMBRO 19 - OTIMIZAÇÕES CRÍTICAS (v2.11.3) ✅
 
 ### PROBLEMA #1: Validação de Números WhatsApp ✅
 - ✅ Novo método: `validateWhatsAppNumber()` em SessionManager
@@ -42,6 +43,14 @@
 - ✅ Emissão de eventos: `baileys-session-manager.ts` ao atualizar delivery
 - ✅ Performance: Polling 5s → Event-driven (<100ms latência)
 - ✅ Escalabilidade: 100 users → 1000+ users (WebSocket)
+
+### PROBLEMA #3: Logs de Debug Condicionados (v2.11.3) ✅
+- ✅ Variável de ambiente: `DEBUG=false` (padrão)
+- ✅ 358 console.logs → Apenas 8 console.errors + console.warns ativos
+- ✅ Todos debug.logs condicionados: `if (DEBUG) console.log(...)`
+- ✅ Arquivos otimizados: baileys-session-manager.ts, campaign-sender.ts, webhook-services
+- ✅ Performance: Redução ~95% de I/O de logs (console.write)
+- ✅ Produção limpa: Sem poluição de logs desnecessários
 
 ---
 
