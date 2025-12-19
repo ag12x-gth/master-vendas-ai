@@ -732,9 +732,12 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
 
     return (
         <>
-            <div onClick={() => setIsOpen(true)}>
-                {children}
-            </div>
+            {React.cloneElement(children as React.ReactElement<any>, {
+                onClick: (e: React.MouseEvent) => {
+                    setIsOpen(true);
+                    (children as React.ReactElement<any>).props.onClick?.(e);
+                },
+            })}
             <Dialog open={isOpen} onOpenChange={handleOpenChange}>
                 <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
