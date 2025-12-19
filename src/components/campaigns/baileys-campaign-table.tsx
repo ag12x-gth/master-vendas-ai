@@ -10,7 +10,7 @@ export function BaileysCampaignTable() {
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription>
-          <strong>Campanhas WhatsApp Normal:</strong> Apenas mensagens de texto simples. Para enviar mídia ou usar templates estruturados, use Campanhas Whatsapp Business.
+          <strong>Campanhas WhatsApp Business (Baileys):</strong> Campanhas estruturadas via Baileys com suporte a variáveis, delay customizável e agendamento. Ideal para automação em massa.
         </AlertDescription>
       </Alert>
       
