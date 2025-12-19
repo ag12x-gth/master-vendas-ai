@@ -242,7 +242,8 @@ async function sendViaBaileys(
     connectionId: string,
     contact: typeof contacts.$inferSelect,
     resolvedTemplate: ResolvedTemplate,
-    variableMappings: Record<string, { type: 'dynamic' | 'fixed'; value: string }>
+    variableMappings: Record<string, { type: 'dynamic' | 'fixed'; value: string }>,
+    skipValidation: boolean = false
 ): Promise<CampaignMessageResult> {
     if (!baileysSessionManager) {
         console.error('[Campaign-Baileys] SessionManager do Baileys não está disponível');
@@ -288,6 +289,20 @@ async function sendViaBaileys(
             contactId: contact.id,
             error: errorMsg,
         };
+    }
+    
+    // VALIDAÇÃO DE NÚMERO WHATSAPP (socket.onWhatsApp) - Pula se skipValidation=true
+    if (!skipValidation) {
+        const validation = await baileysSessionManager.validateWhatsAppNumber(connectionId, contact.phone);
+        if (!validation.exists) {
+            console.log(`[Campaign-Baileys] ⚠️ Número inválido/inexistente: ${contact.phone} | Motivo: ${validation.error}`);
+            return {
+                success: false,
+                contactId: contact.id,
+                error: validation.error || 'Número não registrado no WhatsApp',
+            };
+        }
+        console.log(`[Campaign-Baileys] ✅ Número validado: ${contact.phone}`);
     }
     
     // Substitui variáveis no body text

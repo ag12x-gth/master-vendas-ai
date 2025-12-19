@@ -955,6 +955,39 @@ class BaileysSessionManager {
     }
   }
 
+  async validateWhatsAppNumber(
+    connectionId: string,
+    phoneNumber: string
+  ): Promise<{ exists: boolean; jid?: string; error?: string }> {
+    const sessionData = this.sessions.get(connectionId);
+    
+    if (!sessionData) {
+      return { exists: false, error: 'Sessão não encontrada' };
+    }
+    
+    if (sessionData.status !== 'connected') {
+      return { exists: false, error: `Sessão não conectada: ${sessionData.status}` };
+    }
+
+    try {
+      const cleanNumber = phoneNumber.replace(/^\+/, '').replace(/\D/g, '');
+      
+      const results = await sessionData.socket.onWhatsApp(cleanNumber);
+      const result = results?.[0];
+      
+      if (result?.exists) {
+        console.log(`[SessionManager] ✅ Número válido: ${phoneNumber} → ${result.jid}`);
+        return { exists: true, jid: result.jid };
+      } else {
+        console.log(`[SessionManager] ❌ Número não registrado no WhatsApp: ${phoneNumber}`);
+        return { exists: false, error: 'Número não registrado no WhatsApp' };
+      }
+    } catch (error) {
+      console.error(`[SessionManager] Erro ao validar número ${phoneNumber}:`, error);
+      return { exists: false, error: (error as Error).message };
+    }
+  }
+
   async deleteSession(connectionId: string): Promise<void> {
     const sessionData = this.sessions.get(connectionId);
     
