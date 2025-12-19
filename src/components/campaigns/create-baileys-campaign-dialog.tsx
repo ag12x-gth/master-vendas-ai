@@ -71,7 +71,9 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
     const [connections, setConnections] = useState<Connection[]>([]);
     const [selectedConnectionId, setSelectedConnectionId] = useState<string>('');
     const [name, setName] = useState('');
+    const [nameError, setNameError] = useState('');
     const [messageText, setMessageText] = useState('');
+    const [messageError, setMessageError] = useState('');
     const [contactListIds, setContactListIds] = useState<string[]>([]);
     const [scheduleDate, setScheduleDate] = useState<Date | undefined>();
     const [scheduleTime, setScheduleTime] = useState('09:00');
@@ -87,7 +89,15 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
     const [availableLists, setAvailableLists] = useState<ContactList[]>([]);
     
     const { toast } = useToast();
-    const notify = useMemo(() => createToastNotifier(toast), [toast]);
+    const notify = useMemo(() => {
+        if (typeof createToastNotifier !== 'undefined' && createToastNotifier && typeof toast !== 'undefined') {
+            return createToastNotifier(toast);
+        }
+        return {
+            error: (title: string, msg: string) => console.error(`${title}: ${msg}`),
+            success: (title: string, msg: string) => console.log(`${title}: ${msg}`),
+        };
+    }, [toast]);
 
     const baileysConnections = useMemo(() => {
         return connections.filter(c => c.connectionType === 'baileys' && c.isActive);
@@ -145,7 +155,9 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                         setSelectedConnectionId(firstBaileys.id);
                     }
                 } catch (error) {
-                    notify.error('Erro', 'Falha ao carregar dados.');
+                    if (typeof notify?.error === 'function') {
+                        notify.error('Erro', 'Falha ao carregar dados.');
+                    }
                 }
             };
             fetchData();
@@ -185,7 +197,9 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
         setCurrentStep(0);
         setSelectedConnectionId('');
         setName('');
+        setNameError('');
         setMessageText('');
+        setMessageError('');
         setContactListIds([]);
         setScheduleDate(undefined);
         setScheduleTime('09:00');
@@ -232,27 +246,61 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
         }, 0);
     };
 
+    const validateName = (value: string): boolean => {
+        if (!value.trim()) {
+            setNameError('Nome da campanha é obrigatório');
+            return false;
+        }
+        if (value.trim().length < 3) {
+            setNameError('Nome deve ter pelo menos 3 caracteres');
+            return false;
+        }
+        setNameError('');
+        return true;
+    };
+
+    const validateMessage = (value: string): boolean => {
+        if (!value.trim()) {
+            setMessageError('Mensagem é obrigatória');
+            return false;
+        }
+        if (value.trim().length < 5) {
+            setMessageError('Mensagem deve ter pelo menos 5 caracteres');
+            return false;
+        }
+        setMessageError('');
+        return true;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!name.trim()) {
-            notify.error('Nome Obrigatório', 'Digite um nome para a campanha.');
+        if (!validateName(name)) {
+            if (typeof notify?.error === 'function') {
+                notify.error('Nome Obrigatório', nameError);
+            }
             return;
         }
 
-        if (!messageText.trim()) {
-            notify.error('Erro', 'A mensagem não pode estar vazia.');
+        if (!validateMessage(messageText)) {
+            if (typeof notify?.error === 'function') {
+                notify.error('Mensagem Obrigatória', messageError);
+            }
             return;
         }
         
         if (contactListIds.length === 0) {
-            notify.error('Público Obrigatório', 'Por favor, selecione pelo menos uma lista de contatos.');
+            if (typeof notify?.error === 'function') {
+                notify.error('Público Obrigatório', 'Por favor, selecione pelo menos uma lista de contatos.');
+            }
             return;
         }
 
         const unmappedVars = variableNames.filter(v => !variableMappings[v]?.value);
         if (unmappedVars.length > 0) {
-            notify.error('Variáveis Pendentes', `As variáveis {{${unmappedVars.join('}}, {{')}}}} não foram mapeadas.`);
+            if (typeof notify?.error === 'function') {
+                notify.error('Variáveis Pendentes', `As variáveis {{${unmappedVars.join('}}, {{')}}}} não foram mapeadas.`);
+            }
             return;
         }
 
@@ -293,13 +341,17 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                 throw new Error(result.error || 'Falha ao criar a campanha.');
             }
 
-            notify.success('Campanha Criada!', result.message || `A campanha "${name}" foi criada com sucesso.`);
+            if (typeof notify?.success === 'function') {
+                notify.success('Campanha Criada!', result.message || `A campanha "${name}" foi criada com sucesso.`);
+            }
             
             handleOpenChange(false);
             router.refresh();
 
         } catch (error) {
-            notify.error('Erro ao Criar Campanha', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
+            if (typeof notify?.error === 'function') {
+                notify.error('Erro ao Criar Campanha', error instanceof Error ? error.message : 'Ocorreu um erro desconhecido.');
+            }
         } finally {
             setIsProcessing(false);
         }
@@ -310,18 +362,26 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
 
         if (currentStepConfig?.id === 'info') {
             if (!selectedConnectionId) {
-                notify.error('Conexão Obrigatória', 'Selecione uma conexão WhatsApp Normal.');
+                if (typeof notify?.error === 'function') {
+                    notify.error('Conexão Obrigatória', 'Selecione uma conexão WhatsApp Business.');
+                }
                 return;
             }
         }
 
-        if (currentStepConfig?.id === 'message' && !messageText.trim()) {
-            notify.error('Mensagem Obrigatória', 'Digite o texto da mensagem.');
-            return;
+        if (currentStepConfig?.id === 'message') {
+            if (!validateMessage(messageText)) {
+                if (typeof notify?.error === 'function') {
+                    notify.error('Mensagem Obrigatória', messageError);
+                }
+                return;
+            }
         }
 
         if (currentStepConfig?.id === 'audience' && contactListIds.length === 0) {
-            notify.error('Público Obrigatório', 'Selecione pelo menos uma lista de contatos.');
+            if (typeof notify?.error === 'function') {
+                notify.error('Público Obrigatório', 'Selecione pelo menos uma lista de contatos.');
+            }
             return;
         }
 
@@ -348,25 +408,31 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                         <Alert>
                             <Info className="h-4 w-4" />
                             <AlertDescription>
-                                <strong>Campanhas WhatsApp Normal:</strong> Apenas mensagens de texto simples. Para mídia, use Campanhas Whatsapp Business.
+                                <strong>Campanhas WhatsApp Business:</strong> Mensagens estruturadas via Baileys. Para máxima compatibilidade, mantenha mensagens concisas.
                             </AlertDescription>
                         </Alert>
                         <div className="space-y-2">
-                            <Label htmlFor="campaign-name">Nome da Campanha</Label>
+                            <Label htmlFor="campaign-name">Nome da Campanha *</Label>
                             <Input 
                                 id="campaign-name" 
                                 value={name} 
-                                onChange={(e) => setName(e.target.value)} 
+                                onChange={(e) => {
+                                    setName(e.target.value);
+                                    if (e.target.value.trim()) validateName(e.target.value);
+                                }}
+                                onBlur={() => validateName(name)}
                                 placeholder="Ex: Campanha Black Friday 2024"
                                 required 
+                                aria-invalid={!!nameError}
                             />
+                            {nameError && <p className="text-xs text-destructive">{nameError}</p>}
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="connection-select">Conexão WhatsApp Normal</Label>
+                            <Label htmlFor="connection-select">Conexão WhatsApp Business *</Label>
                             {baileysConnections.length === 0 ? (
                                 <Alert variant="destructive">
                                     <AlertDescription>
-                                        Nenhuma conexão WhatsApp Normal ativa encontrada. Configure uma conexão em Sessões WhatsApp Normal.
+                                        Nenhuma conexão WhatsApp Business ativa encontrada. Configure uma em Sessões.
                                     </AlertDescription>
                                 </Alert>
                             ) : (
@@ -414,18 +480,24 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                 return (
                      <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="message-textarea">Mensagem</Label>
+                            <Label htmlFor="message-textarea">Mensagem *</Label>
                             <Textarea 
                                 id="message-textarea"
                                 value={messageText} 
-                                onChange={(e) => setMessageText(e.target.value)} 
+                                onChange={(e) => {
+                                    setMessageText(e.target.value);
+                                    if (e.target.value.trim()) validateMessage(e.target.value);
+                                }}
+                                onBlur={() => validateMessage(messageText)}
                                 placeholder="Digite sua mensagem aqui. Use {{1}}, {{2}} para variáveis."
                                 className="min-h-[150px]"
                                 maxLength={4096}
+                                aria-invalid={!!messageError}
                             />
                             <div className="flex justify-between items-center text-xs text-muted-foreground">
                                 <span>{messageText.length} / 4096 caracteres</span>
                             </div>
+                            {messageError && <p className="text-xs text-destructive">{messageError}</p>}
                         </div>
                         
                         <div className="space-y-2">
@@ -512,7 +584,7 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                         )}
 
                         <div className="space-y-2">
-                            <Label className="text-base font-semibold">Público (selecione uma ou mais listas)</Label>
+                            <Label className="text-base font-semibold">Público (selecione uma ou mais listas) *</Label>
                             <MultiListSelector
                                 lists={availableLists}
                                 selectedIds={contactListIds}
@@ -536,10 +608,18 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar mode="single" selected={scheduleDate} onSelect={setScheduleDate} initialFocus />
+                                        <Calendar mode="single" selected={scheduleDate} onSelect={setScheduleDate} disabled={sendNow} initialFocus />
                                     </PopoverContent>
                                 </Popover>
-                                <Input name="scheduleTime" type="time" value={scheduleTime} onChange={(e) => setScheduleTime(e.target.value)} className="w-full sm:w-auto" disabled={sendNow} />
+                                <Input 
+                                    name="scheduleTime" 
+                                    type="time" 
+                                    value={scheduleTime} 
+                                    onChange={(e) => setScheduleTime(e.target.value)} 
+                                    className="w-full sm:w-auto" 
+                                    disabled={sendNow}
+                                    pattern="[0-9]{2}:[0-9]{2}"
+                                />
                             </div>
                         </div>
                     </div>
@@ -555,12 +635,14 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                             <Input 
                                 id="campaign-name-review" 
                                 value={name} 
-                                onChange={(e) => setName(e.target.value)} 
+                                onChange={(e) => setName(e.target.value)}
+                                onBlur={() => validateName(name)}
                                 placeholder="Ex: Campanha Black Friday 2024"
                                 required 
+                                aria-invalid={!!nameError}
                             />
-                            {!name.trim() && (
-                                <p className="text-xs text-destructive">O nome da campanha é obrigatório</p>
+                            {nameError && (
+                                <p className="text-xs text-destructive">{nameError}</p>
                             )}
                         </div>
 
@@ -658,14 +740,20 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2">
                             {currentStep > 0 && (
-                                <Button variant="ghost" size="icon" onClick={handlePrevStep}>
+                                <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    onClick={handlePrevStep}
+                                    type="button"
+                                    aria-label="Voltar para etapa anterior"
+                                >
                                     <ArrowLeft className="h-4 w-4" />
                                 </Button>
                             )}
-                            <span>{currentStepConfig?.title || 'Nova Campanha WhatsApp Normal'}</span>
+                            <span>{currentStepConfig?.title || 'Nova Campanha WhatsApp Business'}</span>
                         </DialogTitle>
                         <DialogDescription>
-                            Crie uma campanha de mensagens de texto via WhatsApp Normal.
+                            Crie uma campanha de mensagens estruturadas via WhatsApp Business usando Baileys.
                         </DialogDescription>
                     </DialogHeader>
                     
@@ -686,7 +774,12 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
 
                         <DialogFooter className="mt-6 flex justify-between">
                             {currentStep > 0 && (
-                                <Button type="button" variant="outline" onClick={handlePrevStep}>
+                                <Button 
+                                    type="button" 
+                                    variant="outline" 
+                                    onClick={handlePrevStep}
+                                    aria-label="Voltar"
+                                >
                                     <ArrowLeft className="mr-2 h-4 w-4" />
                                     Voltar
                                 </Button>
@@ -697,7 +790,11 @@ export function CreateBaileysCampaignDialog({ children }: CreateBaileysCampaignD
                                     Próximo
                                 </Button>
                             ) : (
-                                <Button type="submit" disabled={isProcessing}>
+                                <Button 
+                                    type="submit" 
+                                    disabled={isProcessing || !name.trim() || !messageText.trim()}
+                                    aria-busy={isProcessing}
+                                >
                                     {isProcessing ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -9,8 +9,8 @@ export default function BaileysCampaignsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Campanhas WhatsApp Normal"
-        description="Envie campanhas de texto simples via WhatsApp pessoal/empresarial (QR Code)."
+        title="Campanhas WhatsApp Business (Baileys)"
+        description="Envie campanhas estruturadas via WhatsApp Business API usando Baileys."
       >
         <div className="flex gap-2">
           <CreateBaileysCampaignDialog>
