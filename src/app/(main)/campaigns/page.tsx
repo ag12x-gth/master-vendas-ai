@@ -1,11 +1,18 @@
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import { PageHeader } from '@/components/page-header';
 import { CampaignTable } from '@/components/campaigns/campaign-table';
 import { CreateCampaignDialog } from '@/components/campaigns/create-campaign-dialog';
+import { CampaignsDashboard } from '@/components/campaigns/campaigns-dashboard';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, FileText } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PlusCircle, FileText, BarChart3 } from 'lucide-react';
 
 export default function CampaignsPage() {
+  const [activeTab, setActiveTab] = useState('campaigns');
+
   return (
     <div className="space-y-6">
        <PageHeader
@@ -26,7 +33,27 @@ export default function CampaignsPage() {
               </Link>
             </div>
        </PageHeader>
-      <CampaignTable channel="WHATSAPP" />
+
+       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+         <TabsList className="grid w-full max-w-xs grid-cols-2">
+           <TabsTrigger value="campaigns" className="flex gap-2">
+             <PlusCircle className="h-4 w-4" />
+             Campanhas
+           </TabsTrigger>
+           <TabsTrigger value="dashboard" className="flex gap-2">
+             <BarChart3 className="h-4 w-4" />
+             Dashboard
+           </TabsTrigger>
+         </TabsList>
+
+         <TabsContent value="campaigns" className="mt-6">
+           <CampaignTable channel="WHATSAPP" />
+         </TabsContent>
+
+         <TabsContent value="dashboard" className="mt-6">
+           <CampaignsDashboard />
+         </TabsContent>
+       </Tabs>
     </div>
   );
 }
