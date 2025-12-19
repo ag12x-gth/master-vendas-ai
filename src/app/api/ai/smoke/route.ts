@@ -2,6 +2,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { runSmokeTests } from '@/ai/orchestrator';
 
+export const dynamic = 'force-dynamic';
+
 async function handler(request: NextRequest) {
     if (process.env.NODE_ENV === 'production') {
         return NextResponse.json({ error: 'Endpoint de teste não disponível em produção.' }, { status: 403 });

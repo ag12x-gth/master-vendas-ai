@@ -3,6 +3,8 @@ import { connections, messageTemplates } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
+export const dynamic = 'force-dynamic';
+
 const querySchema = z.object({
   connectionId: z.string().min(1, 'connectionId obrigatório'),
 });

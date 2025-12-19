@@ -5,6 +5,8 @@ import { companies, adminAuditLogs } from '@/lib/db/schema';
 import { eq, ilike } from 'drizzle-orm';
 import { z } from 'zod';
 
+export const dynamic = 'force-dynamic';
+
 const createCompanySchema = z.object({
   name: z.string().min(3),
   website: z.string().url().optional(),

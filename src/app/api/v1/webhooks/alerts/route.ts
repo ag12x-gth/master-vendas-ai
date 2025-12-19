@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { conn } from '@/lib/db';
 
+export const dynamic = 'force-dynamic';
+
 interface AlertConfig {
   failureThreshold: number;
   timeWindowMinutes: number;
