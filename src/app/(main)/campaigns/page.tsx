@@ -10,13 +10,16 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PlusCircle, FileText, BarChart3 } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function CampaignsPage() {
   const [activeTab, setActiveTab] = useState('campaigns');
 
   return (
     <div className="space-y-6">
        <PageHeader
-          title="Campanhas de WhatsApp"
+          title="Campanhas WhatsApp Normal"
+          description="Envie campanhas de texto simples via WhatsApp pessoal/empresarial (QR Code)"
         >
             <div className="flex gap-2">
               <CreateCampaignDialog>

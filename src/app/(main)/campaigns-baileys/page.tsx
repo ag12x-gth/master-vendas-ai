@@ -5,6 +5,8 @@ import { CreateBaileysCampaignDialog } from '@/components/campaigns/create-baile
 import { Button } from '@/components/ui/button';
 import { PlusCircle, FileText } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function BaileysCampaignsPage() {
   return (
     <div className="space-y-6">
