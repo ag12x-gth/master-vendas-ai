@@ -426,6 +426,31 @@ class BaileysSessionManager {
               
               if (updatedRows.length > 0 && updatedRows[0]) {
                 console.log(`[Baileys Receipt] ✅ Updated delivery report ${updatedRows[0].id} to status: ${newStatus}`);
+                
+                // NOVO: Emitir evento WebSocket para atualizar frontend em tempo real
+                try {
+                  const { getSocketIO } = await import('@/lib/socket');
+                  const io = getSocketIO();
+                  if (io) {
+                    const campaignResult = await db
+                      .select({ campaignId: whatsappDeliveryReports.campaignId })
+                      .from(whatsappDeliveryReports)
+                      .where(eq(whatsappDeliveryReports.id, updatedRows[0].id))
+                      .limit(1);
+                    
+                    if (campaignResult.length > 0 && campaignResult[0]) {
+                      const campaignId = campaignResult[0].campaignId;
+                      io.to(`campaign:${campaignId}`).emit(`campaign:${campaignId}:delivery-report`, {
+                        campaignId,
+                        reportId: updatedRows[0].id,
+                        status: newStatus,
+                        updatedAt: new Date().toISOString(),
+                      });
+                    }
+                  }
+                } catch (error) {
+                  console.warn('[Baileys Receipt] Failed to emit WebSocket event:', error);
+                }
               }
             }
           } catch (error) {

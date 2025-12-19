@@ -14,6 +14,7 @@ import { ReportContactsTable } from '@/components/campaigns/report/report-contac
 import type { Campaign, CampaignSend } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { createToastNotifier } from '@/lib/toast-helper';
+import { useCampaignWebSocket } from '@/hooks/use-campaign-websocket';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   AlertDialog,
@@ -98,6 +99,30 @@ export function CampaignReport({ campaignId }: CampaignReportProps): JSX.Element
     }
   };
   
+  // NOVO: WebSocket para atualizações em tempo real
+  useCampaignWebSocket(
+    campaignId,
+    (data) => {
+      // Atualizar campanha com WebSocket
+      setCampaign(prev => prev ? {
+        ...prev,
+        sent: data.sent,
+        delivered: data.delivered,
+        read: data.read,
+        failed: data.failed,
+        status: data.status,
+      } : null);
+    },
+    (data) => {
+      // Atualizar delivery reports com WebSocket
+      if (data.status === 'delivered' || data.status === 'read' || data.status === 'sent' || data.status === 'failed') {
+        setDeliveryReports(prev => prev.map(report =>
+          report.id === data.reportId ? { ...report, status: data.status as any } : report
+        ));
+      }
+    }
+  );
+
   useEffect(() => {
     if (!campaignId) return;
 

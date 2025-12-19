@@ -94,6 +94,19 @@ export function initializeSocketIO(server: HTTPServer): SocketIOServer {
       console.log(`Socket ${socket.id} left meeting room: ${meetingRoom}`);
     });
 
+    // NOVO: Eventos para campanhas
+    socket.on('subscribe_campaign', ({ campaignId }: { campaignId: string }) => {
+      const campaignRoom = `campaign:${campaignId}`;
+      socket.join(campaignRoom);
+      console.log(`Socket ${socket.id} subscribed to campaign: ${campaignRoom}`);
+    });
+
+    socket.on('unsubscribe_campaign', ({ campaignId }: { campaignId: string }) => {
+      const campaignRoom = `campaign:${campaignId}`;
+      socket.leave(campaignRoom);
+      console.log(`Socket ${socket.id} unsubscribed from campaign: ${campaignRoom}`);
+    });
+
     socket.on('disconnect', () => {
       console.log('Client disconnected:', socket.id);
     });
