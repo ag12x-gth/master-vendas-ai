@@ -1201,6 +1201,14 @@ class BaileysSessionManager {
 
   async initializeSessions(): Promise<void> {
     try {
+      const baileysEnabled = process.env.BAILEYS_SESSIONS_ENABLED === 'true';
+      
+      if (!baileysEnabled) {
+        console.log('[Baileys] ⏸️  Sessions disabled in this environment (BAILEYS_SESSIONS_ENABLED != true)');
+        console.log('[Baileys] ℹ️  Only production environment connects to WhatsApp sessions');
+        return;
+      }
+      
       if (DEBUG) console.log('[Baileys] Initializing sessions from database...');
       
       const existingConnections = await db.query.connections.findMany({

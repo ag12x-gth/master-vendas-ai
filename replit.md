@@ -115,3 +115,38 @@ The system is built on a modern, scalable architecture designed for high perform
 **Status:** APROVADO PARA TESTES
 **Validação:** Todos os problemas críticos resolvidos
 
+---
+
+## 🔧 VERSÃO v2.12.1 - ISOLAMENTO DE AMBIENTES BAILEYS (20/12/2025)
+
+### ✅ CORREÇÃO CRÍTICA: Conflito de Sessões
+
+**PROBLEMA IDENTIFICADO:**
+- Ambiente de desenvolvimento e produção competiam pelas mesmas sessões WhatsApp Baileys
+- Causava loop infinito de "Stream Errored (conflict)" (status 440)
+- Sessões nunca estabilizavam em `connected`
+- Mensagens não eram processadas → Conversas não criadas → IA não respondia
+
+**SOLUÇÃO IMPLEMENTADA:**
+- Variável de ambiente `BAILEYS_SESSIONS_ENABLED` controla qual ambiente conecta
+- Produção: `BAILEYS_SESSIONS_ENABLED=true` → Conecta às sessões
+- Desenvolvimento: `BAILEYS_SESSIONS_ENABLED=false` → Não conecta (evita conflito)
+
+**ARQUIVOS MODIFICADOS:**
+- `src/services/baileys-session-manager.ts` - Guard de ambiente em `initializeSessions()`
+
+**VARIÁVEIS DE AMBIENTE ADICIONADAS:**
+- `BAILEYS_SESSIONS_ENABLED=true` (apenas em production)
+- `BAILEYS_SESSIONS_ENABLED=false` (apenas em development)
+
+**IMPACTO:**
+- Desenvolvimento não interfere mais com produção
+- Sessões em produção ficam estáveis
+- Mensagens são processadas corretamente
+- Conversas aparecem em /Atendimentos
+- Agente de IA responde normalmente
+
+**STATUS:** ✅ AGUARDANDO RE-PUBLICAÇÃO
+
+**Data:** 20/12/2025 21:25Z
+
