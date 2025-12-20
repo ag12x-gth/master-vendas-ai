@@ -83,12 +83,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
                 userId: createdUser.id,
                 tokenHash,
                 expiresAt: createExpirationDate(24)
-            }).returning({ id: emailVerificationTokens.id, tokenHash: emailVerificationTokens.tokenHash });
+            }).returning({ tokenHash: emailVerificationTokens.tokenHash });
             
             if (!tokenRecord) {
                 throw new Error("Falha ao criar token de verificação.");
             }
-            console.log(`[REGISTER:${requestId}] Token salvo na DB: ${tokenRecord.id}`);
+            console.log(`[REGISTER:${requestId}] Token salvo na DB`);
             
             if (tokenRecord.tokenHash !== tokenHash) {
                 console.error(`[REGISTER:${requestId}] ERRO CRÍTICO: Token hash não confere!`);
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             }
             console.log(`[REGISTER:${requestId}] Verificação de integridade OK`);
             
-            return { user: createdUser, tokenId: tokenRecord.id };
+            return { user: createdUser, token: tokenRecord };
         });
 
         console.log(`[REGISTER:${requestId}] Transação concluída com sucesso`);
