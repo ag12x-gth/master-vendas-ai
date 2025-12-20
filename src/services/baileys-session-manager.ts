@@ -1254,13 +1254,15 @@ declare global {
   var __BAILEYS_SESSION_MANAGER: BaileysSessionManager | undefined;
   // eslint-disable-next-line no-var
   var __BAILEYS_INSTANCE_ID: string | undefined;
+  // eslint-disable-next-line no-var
+  var __BAILEYS_INIT_STARTED: boolean | undefined;
 }
 
 const BAILEYS_MANAGER_KEY = Symbol.for('baileys_session_manager');
 const BAILEYS_INSTANCE_KEY = Symbol.for('baileys_instance_id');
+const BAILEYS_INIT_KEY = Symbol.for('baileys_init_started');
 
 function getOrCreateSessionManager(): BaileysSessionManager {
-  // First try Symbol.for() which is more reliable across module reloads
   const globalObj = global as any;
   
   if (globalObj[BAILEYS_MANAGER_KEY] && globalObj[BAILEYS_INSTANCE_KEY]) {
@@ -1268,7 +1270,6 @@ function getOrCreateSessionManager(): BaileysSessionManager {
     return globalObj[BAILEYS_MANAGER_KEY];
   }
   
-  // Fallback to direct global properties for compatibility
   if (global.__BAILEYS_SESSION_MANAGER && global.__BAILEYS_INSTANCE_ID) {
     console.log(`[Baileys] Reusing existing SessionManager (ID: ${global.__BAILEYS_INSTANCE_ID}) [fallback]`);
     return global.__BAILEYS_SESSION_MANAGER;
@@ -1278,7 +1279,6 @@ function getOrCreateSessionManager(): BaileysSessionManager {
   console.log(`[Baileys] Creating new SessionManager singleton (ID: ${instanceId})`);
   const manager = new BaileysSessionManager();
   
-  // Store in both Symbol and direct global for maximum compatibility
   globalObj[BAILEYS_MANAGER_KEY] = manager;
   globalObj[BAILEYS_INSTANCE_KEY] = instanceId;
   global.__BAILEYS_SESSION_MANAGER = manager;
@@ -1286,12 +1286,20 @@ function getOrCreateSessionManager(): BaileysSessionManager {
   
   if (DEBUG) console.log('[Baileys] SessionManager instance created and stored globally (Symbol + Direct)');
   
-  // Auto-initialize saved sessions on startup (non-blocking)
   if (typeof window === 'undefined') {
-    if (DEBUG) console.log('[Baileys] Starting automatic session restoration...');
-    manager.initializeSessions().catch(err => {
-      console.error('[Baileys] Failed to auto-restore sessions:', err);
-    });
+    const initAlreadyStarted = globalObj[BAILEYS_INIT_KEY] || global.__BAILEYS_INIT_STARTED;
+    
+    if (initAlreadyStarted) {
+      console.log('[Baileys] ⏳ Session initialization already started by another worker, skipping...');
+    } else {
+      globalObj[BAILEYS_INIT_KEY] = true;
+      global.__BAILEYS_INIT_STARTED = true;
+      
+      if (DEBUG) console.log('[Baileys] Starting automatic session restoration...');
+      manager.initializeSessions().catch(err => {
+        console.error('[Baileys] Failed to auto-restore sessions:', err);
+      });
+    }
   }
   
   return manager;
