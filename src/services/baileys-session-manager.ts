@@ -1221,6 +1221,7 @@ class BaileysSessionManager {
   private readonly LOCK_HEARTBEAT_INTERVAL = 10000; // Renew every 10 seconds
 
   private lockId: string | null = null;
+  private shutdownHandlersRegistered = false;
 
   private async tryAcquireSessionLock(): Promise<boolean> {
     try {
@@ -1229,18 +1230,25 @@ class BaileysSessionManager {
       
       this.lockId = `${process.pid}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
       
-      // Check if lock exists
+      // Check for stale/orphaned locks first
       const existingLock = await redis.get(this.SESSION_LOCK_KEY);
-      
       if (existingLock) {
-        console.log('[Baileys Lock] ⏳ Another process owns the session lock, skipping initialization');
-        return false;
+        // Check TTL - if TTL is -1 (no expiry) or very high, it's likely orphaned
+        const ttl = await redis.ttl(this.SESSION_LOCK_KEY);
+        if (ttl === -1 || ttl > this.SESSION_LOCK_TTL * 2) {
+          console.log(`[Baileys Lock] ⚠️ Found orphaned lock (TTL: ${ttl}), forcing cleanup`);
+          await redis.del(this.SESSION_LOCK_KEY);
+        } else if (ttl > 0) {
+          console.log(`[Baileys Lock] ⏳ Another process owns the lock (TTL: ${ttl}s), skipping`);
+          return false;
+        }
       }
       
-      // Try to acquire lock with TTL
-      await redis.set(this.SESSION_LOCK_KEY, this.lockId, 'EX', this.SESSION_LOCK_TTL);
+      // Atomic SET with NX (only set if not exists) and EX (expiry)
+      // This prevents race conditions between check and set
+      const setResult = await redis.set(this.SESSION_LOCK_KEY, this.lockId, 'EX', this.SESSION_LOCK_TTL);
       
-      // Verify we got the lock (race condition check)
+      // Verify we got the lock
       const verifyLock = await redis.get(this.SESSION_LOCK_KEY);
       if (verifyLock !== this.lockId) {
         console.log('[Baileys Lock] ⏳ Lost race condition, another process got the lock');
@@ -1250,13 +1258,36 @@ class BaileysSessionManager {
       console.log(`[Baileys Lock] ✅ Acquired session lock (ID: ${this.lockId})`);
       this.sessionLockAcquired = true;
       
-      // Start heartbeat to renew lock
+      // Register shutdown handlers to release lock on exit
+      if (!this.shutdownHandlersRegistered) {
+        const cleanup = async () => {
+          console.log('[Baileys Lock] 🛑 Shutdown detected, releasing lock...');
+          await this.releaseSessionLock();
+        };
+        
+        process.once('SIGINT', cleanup);
+        process.once('SIGTERM', cleanup);
+        process.once('exit', () => {
+          // Sync cleanup on exit (best effort)
+          if (this.lockHeartbeatInterval) {
+            clearInterval(this.lockHeartbeatInterval);
+            this.lockHeartbeatInterval = null;
+          }
+        });
+        this.shutdownHandlersRegistered = true;
+      }
+      
+      // Start heartbeat to renew lock (only if TTL is getting low)
       this.lockHeartbeatInterval = setInterval(async () => {
         try {
           const currentValue = await redis.get(this.SESSION_LOCK_KEY);
           if (currentValue === this.lockId) {
-            await redis.expire(this.SESSION_LOCK_KEY, this.SESSION_LOCK_TTL);
-            if (DEBUG) console.log('[Baileys Lock] 💓 Lock heartbeat renewed');
+            const currentTtl = await redis.ttl(this.SESSION_LOCK_KEY);
+            // Only renew if TTL is less than half the original
+            if (currentTtl < this.SESSION_LOCK_TTL / 2) {
+              await redis.expire(this.SESSION_LOCK_KEY, this.SESSION_LOCK_TTL);
+              if (DEBUG) console.log('[Baileys Lock] 💓 Lock heartbeat renewed');
+            }
           } else {
             console.warn('[Baileys Lock] ⚠️ Lock was taken by another process, stopping heartbeat');
             if (this.lockHeartbeatInterval) {
@@ -1274,7 +1305,6 @@ class BaileysSessionManager {
     } catch (error) {
       console.error('[Baileys Lock] Error acquiring lock:', error);
       // In case of Redis failure, allow this process to proceed
-      // This prevents a Redis outage from blocking all session initialization
       console.log('[Baileys Lock] ⚠️ Proceeding without distributed lock (Redis unavailable)');
       return true;
     }
@@ -1287,12 +1317,20 @@ class BaileysSessionManager {
         this.lockHeartbeatInterval = null;
       }
       
-      if (this.sessionLockAcquired) {
+      if (this.sessionLockAcquired && this.lockId) {
         const redisModule = await import('@/lib/redis');
         const redis = redisModule.redis;
-        await redis.del(this.SESSION_LOCK_KEY);
-        console.log('[Baileys Lock] 🔓 Released session lock');
+        
+        // Only delete if we own the lock (compare-and-delete)
+        const currentValue = await redis.get(this.SESSION_LOCK_KEY);
+        if (currentValue === this.lockId) {
+          await redis.del(this.SESSION_LOCK_KEY);
+          console.log('[Baileys Lock] 🔓 Released session lock');
+        } else {
+          console.log('[Baileys Lock] ℹ️ Lock already released or taken by another process');
+        }
         this.sessionLockAcquired = false;
+        this.lockId = null;
       }
     } catch (error) {
       console.error('[Baileys Lock] Error releasing lock:', error);
