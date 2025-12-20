@@ -1199,6 +1199,91 @@ class BaileysSessionManager {
     };
   }
 
+  private sessionLockAcquired = false;
+  private lockHeartbeatInterval: NodeJS.Timeout | null = null;
+  private readonly SESSION_LOCK_KEY = 'baileys:session:lock';
+  private readonly SESSION_LOCK_TTL = 30; // 30 seconds TTL
+  private readonly LOCK_HEARTBEAT_INTERVAL = 10000; // Renew every 10 seconds
+
+  private lockId: string | null = null;
+
+  private async tryAcquireSessionLock(): Promise<boolean> {
+    try {
+      const redisModule = await import('@/lib/redis');
+      const redis = redisModule.redis;
+      
+      this.lockId = `${process.pid}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      
+      // Check if lock exists
+      const existingLock = await redis.get(this.SESSION_LOCK_KEY);
+      
+      if (existingLock) {
+        console.log('[Baileys Lock] ⏳ Another process owns the session lock, skipping initialization');
+        return false;
+      }
+      
+      // Try to acquire lock with TTL
+      await redis.set(this.SESSION_LOCK_KEY, this.lockId, 'EX', this.SESSION_LOCK_TTL);
+      
+      // Verify we got the lock (race condition check)
+      const verifyLock = await redis.get(this.SESSION_LOCK_KEY);
+      if (verifyLock !== this.lockId) {
+        console.log('[Baileys Lock] ⏳ Lost race condition, another process got the lock');
+        return false;
+      }
+      
+      console.log(`[Baileys Lock] ✅ Acquired session lock (ID: ${this.lockId})`);
+      this.sessionLockAcquired = true;
+      
+      // Start heartbeat to renew lock
+      this.lockHeartbeatInterval = setInterval(async () => {
+        try {
+          const currentValue = await redis.get(this.SESSION_LOCK_KEY);
+          if (currentValue === this.lockId) {
+            await redis.expire(this.SESSION_LOCK_KEY, this.SESSION_LOCK_TTL);
+            if (DEBUG) console.log('[Baileys Lock] 💓 Lock heartbeat renewed');
+          } else {
+            console.warn('[Baileys Lock] ⚠️ Lock was taken by another process, stopping heartbeat');
+            if (this.lockHeartbeatInterval) {
+              clearInterval(this.lockHeartbeatInterval);
+              this.lockHeartbeatInterval = null;
+            }
+            this.sessionLockAcquired = false;
+          }
+        } catch (error) {
+          console.error('[Baileys Lock] Error renewing heartbeat:', error);
+        }
+      }, this.LOCK_HEARTBEAT_INTERVAL);
+      
+      return true;
+    } catch (error) {
+      console.error('[Baileys Lock] Error acquiring lock:', error);
+      // In case of Redis failure, allow this process to proceed
+      // This prevents a Redis outage from blocking all session initialization
+      console.log('[Baileys Lock] ⚠️ Proceeding without distributed lock (Redis unavailable)');
+      return true;
+    }
+  }
+
+  async releaseSessionLock(): Promise<void> {
+    try {
+      if (this.lockHeartbeatInterval) {
+        clearInterval(this.lockHeartbeatInterval);
+        this.lockHeartbeatInterval = null;
+      }
+      
+      if (this.sessionLockAcquired) {
+        const redisModule = await import('@/lib/redis');
+        const redis = redisModule.redis;
+        await redis.del(this.SESSION_LOCK_KEY);
+        console.log('[Baileys Lock] 🔓 Released session lock');
+        this.sessionLockAcquired = false;
+      }
+    } catch (error) {
+      console.error('[Baileys Lock] Error releasing lock:', error);
+    }
+  }
+
   async initializeSessions(): Promise<void> {
     try {
       const baileysEnabled = process.env.BAILEYS_SESSIONS_ENABLED === 'true';
@@ -1211,6 +1296,13 @@ class BaileysSessionManager {
       
       const currentEnv = process.env.NODE_ENV === 'production' ? 'production' : 'development';
       console.log(`[Baileys] 🌍 Environment: ${currentEnv}`);
+      
+      // Try to acquire distributed lock before initializing sessions
+      const hasLock = await this.tryAcquireSessionLock();
+      if (!hasLock) {
+        console.log('[Baileys] ⏭️  Skipping session initialization - another process owns the lock');
+        return;
+      }
       
       if (DEBUG) console.log('[Baileys] Initializing sessions from database...');
       
