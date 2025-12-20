@@ -143,6 +143,7 @@ export const notificationStatusEnum = pgEnum('notification_status', [
     
     isActive: boolean('is_active').default(false).notNull(),
     assignedPersonaId: text('assigned_persona_id').references(() => aiPersonas.id, { onDelete: 'set null' }),
+    environment: text('environment').default('production'),
     createdAt: timestamp('created_at').defaultNow(),
   });
 

@@ -22,6 +22,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const currentEnv = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+    
     const [connection] = await db
       .insert(connections)
       .values({
@@ -30,6 +32,7 @@ export async function POST(request: NextRequest) {
         connectionType: 'baileys',
         status: 'connecting',
         isActive: true,
+        environment: currentEnv,
       })
       .returning();
 

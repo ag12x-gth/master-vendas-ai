@@ -146,7 +146,49 @@ The system is built on a modern, scalable architecture designed for high perform
 - Conversas aparecem em /Atendimentos
 - Agente de IA responde normalmente
 
-**STATUS:** ✅ AGUARDANDO RE-PUBLICAÇÃO
+**STATUS:** ✅ SUBSTITUÍDA POR v2.12.2
 
 **Data:** 20/12/2025 21:25Z
+
+---
+
+## 🔧 VERSÃO v2.12.2 - SEPARAÇÃO DE AMBIENTES POR CONEXÃO (20/12/2025)
+
+### ✅ CORREÇÃO COMPLETA: Desenvolvimento e Produção Funcionam Simultaneamente
+
+**PROBLEMA IDENTIFICADO:**
+- Desenvolvimento e produção competiam pelas mesmas sessões WhatsApp
+- Não era possível usar ambos os ambientes ao mesmo tempo
+
+**SOLUÇÃO IMPLEMENTADA:**
+- Adicionado campo `environment` na tabela `connections`
+- Cada conexão é associada ao ambiente onde foi criada (development/production)
+- Cada ambiente só restaura suas próprias conexões
+- Sem conflito entre ambientes
+
+**ARQUIVOS MODIFICADOS:**
+- `src/lib/db/schema.ts` - Adicionado campo `environment` na tabela connections
+- `src/services/baileys-session-manager.ts` - Filtro por ambiente em `initializeSessions()`
+- `src/app/api/v1/whatsapp/sessions/route.ts` - Salva ambiente ao criar conexão Baileys
+- `src/app/api/v1/connections/route.ts` - Salva ambiente ao criar conexão Meta API
+
+**VARIÁVEIS DE AMBIENTE:**
+- `BAILEYS_SESSIONS_ENABLED=true` (em ambos os ambientes)
+- `NODE_ENV=production` na produção, ausente/development no desenvolvimento
+
+**COMO FUNCIONA:**
+1. Conexões criadas no desenvolvimento têm `environment = 'development'`
+2. Conexões criadas na produção têm `environment = 'production'`
+3. Cada ambiente só tenta conectar às suas próprias sessões
+4. Sem conflito de "replaced" (440)
+
+**IMPACTO:**
+- ✅ Desenvolvimento funciona independentemente
+- ✅ Produção funciona independentemente
+- ✅ Cada ambiente tem suas próprias conexões WhatsApp
+- ✅ Mensagens são processadas corretamente em cada ambiente
+
+**STATUS:** ✅ IMPLEMENTADO E TESTADO
+
+**Data:** 20/12/2025 21:55Z
 

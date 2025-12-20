@@ -79,6 +79,8 @@ export async function POST(request: NextRequest) {
         const existingConnections = await db.select({ id: connections.id }).from(connections).where(eq(connections.companyId, companyId)).limit(1);
         const isFirstConnection = existingConnections.length === 0;
 
+        const currentEnv = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+        
         const [newConnection] = await db.insert(connections).values({
             companyId,
             config_name: configName,
@@ -90,6 +92,7 @@ export async function POST(request: NextRequest) {
             webhookSecret: 'placeholder', // This is now managed internally
             appSecret: encryptedAppSecret,
             isActive: isFirstConnection,
+            environment: currentEnv,
         }).returning();
         
         if (!newConnection) {

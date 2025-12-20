@@ -1209,16 +1209,20 @@ class BaileysSessionManager {
         return;
       }
       
+      const currentEnv = process.env.NODE_ENV === 'production' ? 'production' : 'development';
+      console.log(`[Baileys] 🌍 Environment: ${currentEnv}`);
+      
       if (DEBUG) console.log('[Baileys] Initializing sessions from database...');
       
       const existingConnections = await db.query.connections.findMany({
         where: and(
           eq(connections.connectionType, 'baileys'),
-          eq(connections.isActive, true)
+          eq(connections.isActive, true),
+          eq(connections.environment, currentEnv)
         ),
       });
 
-      console.log(`[Baileys] Found ${existingConnections.length} active sessions to restore`);
+      console.log(`[Baileys] Found ${existingConnections.length} active sessions to restore (env: ${currentEnv})`);
 
       for (const connection of existingConnections) {
         try {
