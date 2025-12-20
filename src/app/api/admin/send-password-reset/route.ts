@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { users, passwordResetTokens } from '@/lib/db/schema';
 import { createHash, randomBytes } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
+import { getBaseUrl } from '@/utils/get-base-url';
 
 const generateResetToken = () => {
   const token = randomBytes(32).toString('hex');
@@ -132,7 +133,7 @@ export async function POST(request: NextRequest) {
           createdAt: new Date(),
         });
 
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:5000';
+        const baseUrl = getBaseUrl();
         const resetLink = `${baseUrl}/reset-password?token=${token}`;
 
         // Enviar email
