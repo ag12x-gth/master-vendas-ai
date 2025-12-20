@@ -66,12 +66,27 @@ function classifyChat(remoteJid: string, msg: any): ChatClassification {
     };
   }
   
+  // Accept individual chats with @s.whatsapp.net suffix
   if (jidLower.includes('@s.whatsapp.net') && digitsOnly.length >= 10 && digitsOnly.length <= 15) {
     return { 
       type: 'individual', 
       reason: 'Valid individual chat (10-15 digits, @s.whatsapp.net)', 
       shouldBlockAI: false 
     };
+  }
+  
+  // Also accept numbers with 10-15 digits even without standard suffix
+  // This handles cases where JID format may vary
+  if (digitsOnly.length >= 10 && digitsOnly.length <= 15) {
+    // Additional check: ensure it's not a known non-individual format
+    if (!jidLower.includes('@g.us') && !jidLower.includes('@broadcast') && 
+        !jidLower.includes('@newsletter') && !jidLower.includes('@status')) {
+      return { 
+        type: 'individual', 
+        reason: `Valid phone number (${digitsOnly.length} digits, treating as individual)`, 
+        shouldBlockAI: false 
+      };
+    }
   }
   
   return { 
