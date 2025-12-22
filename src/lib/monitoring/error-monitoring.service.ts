@@ -26,7 +26,6 @@ interface AIAnalysisResult {
 }
 
 export class ErrorMonitoringService {
-  private static ADMIN_EMAIL = 'diegomaninhu@gmail.com';
   private static DUPLICATE_THRESHOLD_MINUTES = 5;
 
   static async captureError(params: CaptureErrorParams): Promise<string | null> {
@@ -177,36 +176,62 @@ Responda no formato JSON:
     params: CaptureErrorParams
   ): Promise<void> {
     try {
-      // Buscar usuário admin
-      const [admin] = await db
-        .select()
-        .from(users)
-        .where(eq(users.email, this.ADMIN_EMAIL))
-        .limit(1);
+      let adminsToNotify: Array<{ id: string; companyId: string | null }> = [];
 
-      if (!admin) {
-        console.warn(`[ErrorMonitoring] Admin user ${this.ADMIN_EMAIL} not found`);
+      if (params.companyId) {
+        const companyAdmins = await db
+          .select({ id: users.id, companyId: users.companyId })
+          .from(users)
+          .where(
+            and(
+              eq(users.companyId, params.companyId),
+              sql`${users.role} IN ('admin', 'superadmin')`
+            )
+          );
+        adminsToNotify = companyAdmins;
+      }
+
+      if (adminsToNotify.length === 0) {
+        const superadmins = await db
+          .select({ id: users.id, companyId: users.companyId })
+          .from(users)
+          .where(eq(users.role, 'superadmin'))
+          .limit(5);
+        adminsToNotify = superadmins;
+      }
+
+      if (adminsToNotify.length === 0) {
+        console.warn('[ErrorMonitoring] No admins found to notify');
         return;
       }
 
-      // Criar notificação
-      await UserNotificationsService.create({
-        userId: admin.id,
-        companyId: admin.companyId || 'system',
-        type: 'system_error',
-        title: '🚨 Erro no Sistema',
-        message: `[${params.source.toUpperCase()}] ${params.message.substring(0, 150)}`,
-        linkTo: `/admin/errors/${errorId}`,
-        metadata: { errorId, source: params.source, severity: params.severity },
-      });
+      for (const admin of adminsToNotify) {
+        await UserNotificationsService.create({
+          userId: admin.id,
+          companyId: admin.companyId || 'system',
+          type: 'system_error',
+          title: '🚨 Erro no Sistema',
+          message: `[${params.source.toUpperCase()}] ${params.message.substring(0, 150)}`,
+          linkTo: `/admin/errors/${errorId}`,
+          metadata: { errorId, source: params.source, severity: params.severity },
+        });
+      }
 
-      console.log(`[ErrorMonitoring] Admin notification sent for error ${errorId}`);
+      console.log(`[ErrorMonitoring] Admin notification sent to ${adminsToNotify.length} admins for error ${errorId}`);
     } catch (error) {
       console.error('[ErrorMonitoring] Failed to notify admin:', error);
     }
   }
 
-  static async getRecentErrors(limit: number = 50) {
+  static async getRecentErrors(limit: number = 50, companyId?: string) {
+    if (companyId) {
+      return await db
+        .select()
+        .from(systemErrors)
+        .where(eq(systemErrors.companyId, companyId))
+        .orderBy(desc(systemErrors.createdAt))
+        .limit(limit);
+    }
     return await db
       .select()
       .from(systemErrors)

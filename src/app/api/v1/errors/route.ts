@@ -81,8 +81,7 @@ export async function GET(request: NextRequest) {
       .where(eq(users.id, userId))
       .limit(1);
 
-    const ADMIN_EMAIL = 'diegomaninhu@gmail.com';
-    if (!user || user.email !== ADMIN_EMAIL) {
+    if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) {
       return NextResponse.json(
         { error: 'Forbidden: Admin access required' },
         { status: 403 }
@@ -92,7 +91,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50');
 
-    const errors = await ErrorMonitoringService.getRecentErrors(limit);
+    const errors = user.role === 'superadmin'
+      ? await ErrorMonitoringService.getRecentErrors(limit)
+      : await ErrorMonitoringService.getRecentErrors(limit, user.companyId || undefined);
 
     return NextResponse.json({ errors });
   } catch (error) {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -74,6 +75,7 @@ interface AnalyticsData {
 }
 
 export default function WebhookDashboard() {
+  const { data: session } = useSession();
   const [metrics, setMetrics] = useState<WebhookMetrics | null>(null);
   const [alertStatus, setAlertStatus] = useState<AlertStatus | null>(null);
   const [replayEvents, setReplayEvents] = useState<WebhookEvent[]>([]);
@@ -84,9 +86,14 @@ export default function WebhookDashboard() {
   const [replayingId, setReplayingId] = useState<string | null>(null);
   const [analyticsHours, _setAnalyticsHours] = useState(24);
 
-  const companyId = '682b91ea-15ee-42da-8855-70309b237008';
+  const companyId = session?.user?.companyId;
 
   useEffect(() => {
+    if (!companyId) {
+      setLoading(false);
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const [metricsRes, alertsRes, replayRes, analyticsRes] = await Promise.all([
@@ -119,7 +126,7 @@ export default function WebhookDashboard() {
       return () => clearInterval(interval);
     }
     return undefined;
-  }, [autoRefresh, companyId]);
+  }, [autoRefresh, companyId, analyticsHours]);
 
   const handleRetry = async (eventId: string) => {
     try {
