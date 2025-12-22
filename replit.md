@@ -192,3 +192,53 @@ The system is built on a modern, scalable architecture designed for high perform
 
 **Data:** 20/12/2025 21:55Z
 
+---
+
+## 🔧 VERSÃO v2.12.3 - AUDITORIA MULTI-TENANT + CORREÇÕES DE SEGURANÇA (22/12/2025)
+
+### ✅ INVESTIGAÇÃO COMPLETA DE ISOLAMENTO MULTI-TENANT
+
+**ESTRUTURA DAS 3 EMPRESAS ATIVAS:**
+
+| Empresa | Usuários | Conexões | Personas | Conversas | Contatos | Kanban |
+|---------|----------|----------|----------|-----------|----------|--------|
+| Diego's Company (matriz) | 4 | 6 (5 ativas) | 11 | 3.248 | 61.397 | 3 |
+| Jocelma | 1 | 1 (inativa) | 1 | 67 | 1.258 | 0 |
+| Rogerio | 1 | 2 (ativas) | 2 | 8 | 7 | 0 |
+
+**PROBLEMAS IDENTIFICADOS E CORRIGIDOS:**
+
+1. **Webhook Dashboard** (`webhooks/dashboard/page.tsx`)
+   - **Antes:** Company ID hardcoded para Diego's Company
+   - **Depois:** Usa `session?.user?.companyId` via `useSession()`
+   - **Impacto:** Dashboard agora mostra dados da empresa do usuário logado
+
+2. **Error Monitoring** (`error-monitoring.service.ts`)
+   - **Antes:** Notificações só para `diegomaninhu@gmail.com`
+   - **Depois:** Notifica admins da empresa afetada (fallback para superadmins)
+   - **Impacto:** Cada empresa recebe suas próprias notificações de erro
+
+3. **Errors API** (`api/v1/errors/route.ts`)
+   - **Antes:** Acesso baseado em email hardcoded
+   - **Depois:** Acesso baseado em role (admin/superadmin)
+   - **Segurança:** Admins só veem erros da própria empresa; superadmins veem todos
+
+**ARQUIVOS MODIFICADOS:**
+- `src/app/(dashboard)/webhooks/dashboard/page.tsx` - useSession para companyId
+- `src/lib/monitoring/error-monitoring.service.ts` - Notificação multi-tenant
+- `src/app/api/v1/errors/route.ts` - Filtro por empresa
+
+**MECANISMO DE ISOLAMENTO VERIFICADO:**
+- JWT contém `companyId` no token
+- APIs filtram por `session.user.companyId`
+- Conexões separadas por `environment` (dev/prod)
+
+**GAPS RESTANTES (não bloqueantes):**
+- Jocelma: Conexão inativa e sem persona atribuída
+- Jocelma/Rogerio: Sem kanban boards (podem criar)
+- Jocelma/Rogerio: Sem knowledge base configurado
+
+**STATUS:** ✅ CORRIGIDO E VALIDADO
+
+**Data:** 22/12/2025 21:10Z
+
