@@ -1,0 +1,478 @@
+﻿
+Installation | Eko Docs
+Skip to content
+Eko Docs
+Search
+Ctrl
+K
+Cancel
+GitHub
+Select theme
+Dark
+Light
+Auto
+First Steps
+Overview
+Quickstart
+Installation
+Configuration
+Agents
+Overview
+Available Agent
+Browser Agent
+Custom Agent
+Agent Tools
+MCP Tools
+Architecture
+Overview
+Callback system
+Web Information Extraction
+Reference
+Overview
+Release
+Roadmap
+Release Notes
+GitHub
+Select theme
+Dark
+Light
+Auto
+On this page
+Overview
+Browser Extension
+Install
+Usage Example
+Initialize extension template
+Node.js Environment
+Install
+Usage Example
+Web Environment
+Install
+Usage Example
+Build from eko source code
+Clone & Build
+Run examples in different environments
+On this page
+Overview
+Browser Extension
+Install
+Usage Example
+Initialize extension template
+Node.js Environment
+Install
+Usage Example
+Web Environment
+Install
+Usage Example
+Build from eko source code
+Clone & Build
+Run examples in different environments
+Installation
+Eko is a JavaScript library that can be used in
+Browser Extension
+,
+Node.js Enviroment
+, and
+Web Enviroment
+. This guide covers installation and setup for different environments.
+Browser Extension
+In the quickstart, we have seen how to use the browser extension. Now letâs build one.
+Install
+There are two ways to build a browser extension using Eko.
+Install eko dependency in the existing plugin project
+Terminal window
+pnpm
+install
+@eko-ai/eko
+pnpm
+install
+@eko-ai/eko-extension
+By initializing the plugin project template installation
+Terminal window
+# install cli (used to initialize browser extension projects)
+pnpm
+install
+@eko-ai/eko-cli
+-g
+# initialize project
+eko-cli
+init
+my-extension-demo
+cd
+my-extension-demo
+# install dependencies
+pnpm
+install
+# build
+pnpm
+run
+build
+Usage Example
+import
+{ Eko, LLMs }
+from
+"
+@eko-ai/eko
+"
+;
+import
+{ BrowserAgent }
+from
+"
+@eko-ai/eko-extension
+"
+;
+export
+async
+function
+main
+(
+prompt
+:
+string
+)
+{
+const
+llms
+:
+LLMs
+= {
+default: {
+provider:
+"
+anthropic
+"
+,
+model:
+"
+claude-3-7-sonnet
+"
+,
+apiKey:
+"
+your_api_key
+"
+}
+}
+;
+let
+agents
+=
+[
+new
+BrowserAgent
+()];
+let
+eko
+=
+new
+Eko
+(
+{
+llms
+,
+agents
+}
+);
+await
+eko
+.
+run
+(prompt);
+}
+Initialize extension template
+Terminal window
+# install cli (used to initialize browser extension projects)
+pnpm
+install
+@eko-ai/eko-cli
+-g
+# initialize project
+eko-cli
+init
+my-extension-demo
+cd
+my-extension-demo
+# install dependencies
+pnpm
+install
+# build
+pnpm
+run
+build
+Node.js Environment
+Eko can also be run in a Node.js environment, where it can use agents such as browsers, computers, and files. The following is an example of a browser usage:
+Install
+Install eko dependencies
+Terminal window
+pnpm
+install
+@eko-ai/eko
+pnpm
+install
+@eko-ai/eko-nodejs
+Install playwright dependencies (browser automation)
+Terminal window
+pnpm
+install
+playwright
+npx
+playwright
+install
+Usage Example
+import
+{ Eko, Agent, LLMs }
+from
+"
+@eko-ai/eko
+"
+;
+import
+{ BrowserAgent, FileAgent }
+from
+"
+@eko-ai/eko-nodejs
+"
+;
+const
+llms
+:
+LLMs
+= {
+default: {
+provider:
+"
+anthropic
+"
+,
+model:
+"
+claude-3-7-sonnet
+"
+,
+apiKey:
+"
+your_api_key
+"
+}
+}
+;
+async
+function
+run
+()
+{
+let
+agents
+:
+Agent
+[]
+=
+[
+new
+BrowserAgent
+()
+,
+new
+FileAgent
+()];
+let
+eko
+=
+new
+Eko
+(
+{
+llms
+,
+agents
+}
+);
+let
+result
+= await
+eko
+.
+run
+(
+"
+Search for the latest news about Musk, summarize and save to the desktop as news.md
+"
+);
+console
+.
+log
+(
+"
+result:
+"
+,
+result
+.
+result
+);
+}
+run
+()
+.
+catch
+(
+e
+=>
+{
+console
+.
+log
+(e)
+});
+Web Environment
+Eko can also be directly embedded into a web page environment. In this example, Eko will automate a web page test.
+Install
+Terminal window
+pnpm
+install
+@eko-ai/eko
+pnpm
+install
+@eko-ai/eko-web
+Usage Example
+import
+{ Eko, LLMs }
+from
+"
+@eko-ai/eko
+"
+;
+import
+{ BrowserAgent }
+from
+"
+@eko-ai/eko-web
+"
+;
+export
+async
+function
+auto_test_case
+()
+{
+const
+llms
+:
+LLMs
+= {
+default: {
+provider:
+"
+anthropic
+"
+,
+model:
+"
+claude-3-7-sonnet
+"
+,
+apiKey:
+"
+your_api_key
+"
+}
+}
+;
+let
+agents
+=
+[
+new
+BrowserAgent
+()];
+let
+eko
+=
+new
+Eko
+(
+{
+llms
+,
+agents
+}
+);
+const
+result
+= await
+eko
+.
+run
+(
+"
+Browser automation testing with steps: 1. ...
+"
+);
+alert
+(result
+.
+result
+);
+}
+Build from eko source code
+Clone & Build
+Terminal window
+# clone eko project
+git
+clone
+https://github.com/FellouAI/eko.git
+cd
+eko
+# install dependencies
+pnpm
+install
+pnpm
+run
+build
+Run examples in different environments
+Browser extension example
+Terminal window
+cd
+example/extension
+# Install dependencies
+pnpm
+install
+pnpm
+run
+build
+# load unpacked extensions in developer mode
+# 1. Open the Chrome browser's extension page.
+# 2. Load the built `dist` directory.
+Node.js environment example
+Terminal window
+cd
+example/nodejs
+# Install dependencies
+pnpm
+install
+pnpm
+run
+build
+# Run
+pnpm
+run
+dev
+Web environment example
+Terminal window
+cd
+example/web
+# Install dependencies
+pnpm
+install
+pnpm
+run
+build
+# Run
+pnpm
+run
+dev
+Previous
+Quickstart
+Next
+Configuration

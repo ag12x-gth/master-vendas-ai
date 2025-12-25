@@ -1,0 +1,245 @@
+MCP Tools | Eko Docs
+Skip to content
+Eko Docs
+Search
+Ctrl
+K
+Cancel
+GitHub
+Select theme
+Dark
+Light
+Auto
+First Steps
+Overview
+Quickstart
+Installation
+Configuration
+Agents
+Overview
+Available Agent
+Browser Agent
+Custom Agent
+Agent Tools
+MCP Tools
+Architecture
+Overview
+Callback system
+Web Information Extraction
+Reference
+Overview
+Release
+Roadmap
+Release Notes
+GitHub
+Select theme
+Dark
+Light
+Auto
+On this page
+Overview
+What is a MCP?
+How to use MCP in Eko?
+Through MCP dynamically expand agent tool
+On this page
+Overview
+What is a MCP?
+How to use MCP in Eko?
+Through MCP dynamically expand agent tool
+MCP Tools
+What is a MCP?
+Model Context Protocol
+(MCP) is an open protocol that standardizes how applications provide context to LLMs. Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect your devices to various peripherals and accessories, MCP provides a standardized way to connect AI models to different data sources and tools.
+How to use MCP in Eko?
+In Eko, MCP interface extension is provided, the
+IMcpClient
+interface is defined as follows:
+export
+interface
+IMcpClient {
+connect
+()
+:
+Promise
+<
+void
+>;
+listTools
+(
+param
+:
+McpListToolParam
+)
+:
+Promise
+<
+McpListToolResult
+>;
+callTool
+(
+param
+:
+McpCallToolParam
+)
+:
+Promise
+<
+ToolResult
+>;
+isConnected
+()
+:
+boolean
+;
+close
+()
+:
+Promise
+<
+void
+>;
+}
+Currently, the MCP interface based on the Server-Sent Events (SSE) request protocol has been implemented in the Eko framework, to use, initialize the
+SimpleSseMcpClient
+class.
+Usage Example:
+import
+{ SimpleSseMcpClient }
+from
+"
+@eko-ai/eko
+"
+;
+let
+sseUrl
+=
+"
+http://localhost:8080/sse
+"
+;
+let
+mcpClient
+=
+new
+SimpleSseMcpClient
+(sseUrl);
+Through MCP dynamically expand agent tool
+Agent supports dynamic loading of tools through MCP, Assuming you already have an MCP service, The complete example is as follows:
+import
+{ Eko, Agent, LLMs, SimpleSseMcpClient }
+from
+"
+@eko-ai/eko
+"
+;
+const
+llms
+:
+LLMs
+= {
+default: {
+provider:
+"
+anthropic
+"
+,
+model:
+"
+claude-3-5-sonnet-20241022
+"
+,
+apiKey:
+"
+your_api_key
+"
+,
+},
+openai: {
+provider:
+"
+openai
+"
+,
+model:
+"
+gpt-4o-mini
+"
+,
+apiKey:
+"
+your_api_key
+"
+,
+},
+}
+;
+// your mcp server
+let
+sseUrl
+=
+"
+http://localhost:8080/sse
+"
+;
+let
+mcpClient
+=
+new
+SimpleSseMcpClient
+(sseUrl);
+// Custom SmartMall agent
+let
+agents
+:
+Agent
+[]
+=
+[
+new
+Agent
+({
+name:
+"
+SmartMall
+"
+,
+description:
+"
+Provide product query and order placement
+"
+,
+tools: [],
+mcpClient: mcpClient,
+llms: Object
+.
+keys
+(llms),
+}),
+];
+let
+eko
+=
+new
+Eko
+(
+{
+llms
+,
+agents
+}
+);
+let
+result
+= await
+eko
+.
+run
+(
+"
+I have $300, please help me buy a set of summer clothes, pants, and shoes.
+"
+);
+Previous
+Agent Tools
+Next
+Overview

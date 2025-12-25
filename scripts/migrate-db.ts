@@ -8,7 +8,6 @@ async function main() {
   console.log('Starting database migration...');
   
   try {
-    // Run migrations
     await migrate(db, {
       migrationsFolder: path.join(process.cwd(), 'drizzle'),
     });
@@ -18,7 +17,6 @@ async function main() {
     console.error('❌ Migration failed:', error);
     process.exit(1);
   } finally {
-    // Close connection
     await conn.end();
     process.exit(0);
   }
