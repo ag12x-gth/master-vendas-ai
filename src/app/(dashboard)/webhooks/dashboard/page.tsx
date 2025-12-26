@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -75,7 +76,8 @@ interface AnalyticsData {
 }
 
 export default function WebhookDashboard() {
-  const { data: session } = useSession();
+  const sessionResult = useSession();
+  const session = sessionResult?.data;
   const [metrics, setMetrics] = useState<WebhookMetrics | null>(null);
   const [alertStatus, setAlertStatus] = useState<AlertStatus | null>(null);
   const [replayEvents, setReplayEvents] = useState<WebhookEvent[]>([]);
