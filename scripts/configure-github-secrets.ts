@@ -108,7 +108,16 @@ async function main() {
   // Configura cada secret
   console.log(`${colors.blue}🔧 Configurando secrets...${colors.reset}\n`);
   const timestamp = new Date().toISOString();
-  const results = [];
+interface SecretResult {
+  name: string;
+  status: 'success' | 'error' | 'skipped';
+  reason?: string;
+  error?: string;
+  timestamp?: string;
+  value?: string;
+}
+
+const results: SecretResult[] = [];
 
   for (const secret of secrets) {
     if (!secret.value) {
@@ -144,7 +153,7 @@ async function main() {
       results.push({
         name: secret.name,
         status: 'error',
-        error: result.stderr || 'Unknown error',
+        error: result.stderr.toString() || 'Unknown error',
       });
     }
   }
