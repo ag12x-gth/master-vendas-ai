@@ -4,7 +4,7 @@
  * Requisito: GitHub CLI instalado e autenticado (gh auth login)
  */
 
-import { execSync } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import * as dotenv from 'dotenv';
@@ -125,9 +125,13 @@ async function main() {
     console.log(`   ${secret.description}`);
     console.log(`   Valor: ${secret.value.substring(0, 10)}...`);
 
-    try {
-      // Cria ou atualiza o secret
-      runCommand(`echo "${secret.value}" | gh secret set ${secret.name} -R ${nameWithOwner}`, true);
+    const result = spawnSync('gh', ['secret', 'set', secret.name, '-R', nameWithOwner], {
+      input: secret.value,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+
+    if (result.status === 0) {
       console.log(`${colors.green}   ✅ Configurado com sucesso!${colors.reset}\n`);
       results.push({
         name: secret.name,
@@ -135,12 +139,12 @@ async function main() {
         timestamp,
         value: secret.value.substring(0, 10) + '...',
       });
-    } catch (error) {
+    } else {
       console.log(`${colors.red}   ❌ Erro ao configurar!${colors.reset}\n`);
       results.push({
         name: secret.name,
         status: 'error',
-        error: (error as Error).message,
+        error: result.stderr || 'Unknown error',
       });
     }
   }
