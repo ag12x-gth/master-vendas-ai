@@ -242,3 +242,32 @@ The system is built on a modern, scalable architecture designed for high perform
 
 **Data:** 22/12/2025 21:10Z
 
+---
+
+## 🔧 VERSÃO v2.12.4 - FIX DEPLOYMENT BUILD (26/12/2025)
+
+### ✅ CORREÇÃO CRÍTICA: Erros de Build Estático
+
+**PROBLEMA 1 - API Webhooks Analytics:**
+- **Erro:** `Route /api/v1/webhooks/analytics couldn't be rendered statically because it used request.url`
+- **Causa:** Rotas API que usam `request.url` dinamicamente precisam ser marcadas como dinâmicas
+- **Solução:** Adicionado `export const dynamic = 'force-dynamic'` na rota
+
+**PROBLEMA 2 - Webhooks Dashboard Page:**
+- **Erro:** `Cannot destructure property 'data' of '(0 , n.useSession)(...)' as it is undefined`
+- **Causa:** Durante build estático, `useSession()` retorna `undefined` em vez de `{ data: undefined }`
+- **Solução:** Usar `sessionResult?.data` para acessar a sessão de forma segura
+
+**ARQUIVOS MODIFICADOS:**
+- `src/app/api/v1/webhooks/analytics/route.ts` - Adicionado `export const dynamic = 'force-dynamic'`
+- `src/app/(dashboard)/webhooks/dashboard/page.tsx` - Tratamento seguro de useSession()
+
+**IMPACTO:**
+- ✅ Build de produção agora completa sem erros
+- ✅ Deploy para produção funcionando
+- ✅ Dashboard de webhooks renderiza corretamente
+
+**STATUS:** ✅ CORRIGIDO E PRONTO PARA DEPLOY
+
+**Data:** 26/12/2025 00:25Z
+
