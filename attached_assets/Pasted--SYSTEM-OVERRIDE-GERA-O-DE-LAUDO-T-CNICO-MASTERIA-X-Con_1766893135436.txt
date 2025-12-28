@@ -1,0 +1,47 @@
+## SYSTEM OVERRIDE: GERAÇÃO DE LAUDO TÉCNICO (MASTERIA-X)
+
+**Contexto:** Você acabou de rodar o script `master_audit.sh` e gerou o `SYSTEM_ANATOMY_REPORT.txt`.
+**Missão:** Agora, atue como **Senior Technical Writer**. Não me dê resumos. Sua tarefa é criar um arquivo de documentação rico e detalhado chamado `docs/AUDITORIA_FATICA_DEZ_2025.md`.
+
+**Instruções de Geração:**
+1.  Leia atentamente o arquivo `SYSTEM_ANATOMY_REPORT.txt`.
+2.  Para cada seção (Ambiente, Dados, Infra, etc.), escreva uma análise baseada **apenas nos dados encontrados**.
+3.  **Regra de Ouro:** Se algo falhou (como `ffmpeg` ou `python` ausentes), marque explicitamente como 🔴 **CRÍTICO**. Se a memória está alta (>70%), marque como 🟠 **ALERTA**.
+4.  Detalhe a situação da pasta `whatsapp_sessions`: Ela existe? Tem arquivos? (Use os dados do `ls -lh`).
+
+**Estrutura Obrigatória do Arquivo Markdown (`docs/AUDITORIA_FATICA_DEZ_2025.md`):**
+
+```markdown
+# RELATÓRIO DE AUDITORIA FÁTICA - MASTERIA X
+**Data:** (Data atual)
+**Responsável:** Agent 3 (Automated Audit)
+
+## 1. Sumário Executivo
+(Resumo de 3 linhas sobre o estado geral: Está pronto para produção? Quais os maiores riscos?)
+
+## 2. Infraestrutura & Runtime
+*   **Node Version:** (Valor real)
+*   **Uso de Memória:** (Valor raw) -> **Análise:** (Risco de OOM?)
+*   **Ferramentas de Sistema:**
+    *   ffmpeg: (Instalado/Ausente)
+    *   python: (Instalado/Ausente)
+    *   *Impacto:* (Explique o que para de funcionar se estiver ausente)
+
+## 3. Integridade de Dados & Sessões
+*   **WhatsApp Sessions:**
+    *   *Status:* (Encontrada/Não encontrada)
+    *   *Integridade:* (Há arquivos zerados?)
+*   **Banco de Dados:**
+    *   *Sincronia:* (Schema bate com a última migration?)
+
+## 4. Mapeamento de Código
+*   **Middleware:** (Arquivo encontrado? Desativado?)
+*   **Integrações de Voz:** (VAPI/Retell encontrados no código?)
+*   **Dívida Técnica:** (Resumo dos TODOs encontrados)
+
+## 5. Plano de Correção Imediata
+(Liste as ações obrigatórias baseadas no que falhou no script. Ex: "Instalar ffmpeg via replit.nix", "Aumentar memória do container")
+```
+
+**Comando Final:**
+"Gere o arquivo `docs/AUDITORIA_FATICA_DEZ_2025.md` agora com base nos dados reais."
