@@ -5,7 +5,7 @@ integrations = ["javascript_object_storage:1.0.0", "replitmail:1.0.0", "github:1
 
 [nix]
 channel = "stable-25_05"
-packages = ["imagemagick", "poppler", "postgresql_17"]
+packages = ["imagemagick", "poppler", "postgresql_17", "ffmpeg-full", "python3", "libuuid"]
 
 [workflows]
 runButton = "Project"
