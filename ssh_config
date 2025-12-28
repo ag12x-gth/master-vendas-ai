@@ -1,0 +1,8 @@
+Host masteria
+    HostName 62863c59-d08b-44f5-a414-d7529041de1a.replit.dev
+    User 62863c59-d08b-44f5-a414-d7529041de1a
+    Port 22
+    IdentityFile C:/Users/Diego/.ssh/replit
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    LogLevel VERBOSE
