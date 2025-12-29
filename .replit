@@ -1,11 +1,11 @@
-modules = ["nodejs-20", "bash", "web", "nix", "go-1.21", "go-1.24", "python-3.11", "postgresql-16"]
+modules = ["nodejs-20", "bash", "web", "nix", "go-1.21", "go-1.24", "postgresql-16"]
 [agent]
 expertMode = true
-integrations = ["javascript_object_storage:1.0.0", "replitmail:1.0.0", "github:1.0.0"]
+integrations = ["javascript_object_storage:1.0.0", "replitmail:1.0.0"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["imagemagick", "poppler", "postgresql_17", "ffmpeg-full", "python3", "libuuid"]
+packages = ["postgresql_17", "chromium", "glib", "nspr", "nss", "dbus", "atk", "cups", "cairo", "pango", "mesa", "xorg.libX11", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXext", "xorg.libXfixes", "xorg.libXrandr", "xorg.libxcb", "libxkbcommon", "at-spi2-core", "at-spi2-atk", "alsa-lib", "libgbm", "imagemagick", "poppler"]
 
 [workflows]
 runButton = "Project"
@@ -23,18 +23,18 @@ args = "Production Server"
 name = "Production Server"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
 
-[workflows.workflow.metadata]
-outputType = "webview"
-
 [deployment]
-deploymentTarget = "autoscale"
+deploymentTarget = "vm"
 run = ["npm", "run", "start"]
-build = ["npm", "run", "build:fast"]
+build = ["npm", "run", "build"]
 healthCheckPath = "/health"
 
 [objectStorage]
@@ -45,12 +45,64 @@ localPort = 5000
 externalPort = 80
 
 [[ports]]
+localPort = 8082
+externalPort = 3000
+
+[[ports]]
+localPort = 8083
+externalPort = 3001
+
+[[ports]]
 localPort = 8084
 externalPort = 3002
 
 [[ports]]
 localPort = 8085
 externalPort = 3003
+
+[[ports]]
+localPort = 33071
+externalPort = 8080
+
+[[ports]]
+localPort = 33747
+externalPort = 5000
+
+[[ports]]
+localPort = 34817
+externalPort = 8000
+
+[[ports]]
+localPort = 38365
+externalPort = 6800
+
+[[ports]]
+localPort = 38643
+externalPort = 6000
+
+[[ports]]
+localPort = 40073
+externalPort = 9000
+
+[[ports]]
+localPort = 40127
+externalPort = 8008
+
+[[ports]]
+localPort = 41373
+externalPort = 8099
+
+[[ports]]
+localPort = 41849
+externalPort = 5173
+
+[[ports]]
+localPort = 41981
+externalPort = 8081
+
+[[ports]]
+localPort = 43647
+externalPort = 4200
 
 [userenv]
 
@@ -62,14 +114,9 @@ VOICE_AI_PLATFORM_URL = "https://plataformai.global"
 TWILIO_PHONE_NUMBER = "+553322980007"
 TWILIO_SIP_TERMINATION_URI = "retell-1765080490561.pstn.twilio.com"
 NEXT_PUBLIC_APP_URL = "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev"
-NEXT_PUBLIC_CUSTOM_DOMAIN = "masteria.app"
-DEBUG = "false"
 
 [userenv.production]
-NEXTAUTH_URL = "https://masteria.app"
+NEXTAUTH_URL = "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev"
 NODE_ENV = "production"
-BAILEYS_SESSIONS_ENABLED = "true"
 
 [userenv.development]
-NEXTAUTH_URL = "https://62863c59-d08b-44f5-a414-d7529041de1a-00-16zuyl87dp7m9.kirk.replit.dev"
-BAILEYS_SESSIONS_ENABLED = "true"
