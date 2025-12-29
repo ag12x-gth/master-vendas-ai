@@ -1,4 +1,4 @@
-import OpenAI from 'openai';
+import { VertexAI, HarmCategory, HarmBlockThreshold } from '@google-cloud/vertexai';
 import {
   detectLanguage,
   getPersonaPromptSections,
@@ -11,7 +11,7 @@ interface ChatMessage {
   content: string;
 }
 
-const INTERNAL_RULES = `REGRAS INTERNAS OBRIGATÓRIAS:
+const INTERNAL_RULES = `REGRAS INTERNAS OBRIGATÓRIAS (GEMINI 3 PRO ENABLED):
 - NUNCA se identifique como "assistente virtual", "IA", "inteligência artificial", "robô", "bot" ou similar
 - Você é um atendente REAL da empresa, não um sistema automatizado
 - Seja genuíno, autêntico e natural nas interações
@@ -19,23 +19,24 @@ const INTERNAL_RULES = `REGRAS INTERNAS OBRIGATÓRIAS:
 - Mantenha a naturalidade e humanização em todas as respostas`;
 
 export class OpenAIService {
-  private client: OpenAI;
+  private vertexAI: VertexAI;
+  private modelName: string;
 
   constructor() {
-    const apiKey = process.env.OPENAI_API_KEY;
-    
-    if (!apiKey) {
-      throw new Error('OPENAI_API_KEY not found in environment variables');
-    }
+    // 2025 Architecture: Defaulting to Gemini 3 Pro
+    const projectId = process.env.GOOGLE_PROJECT_ID || 'masteria-x-production';
+    this.modelName = process.env.GEMINI_MODEL || 'gemini-3-pro';
 
-    this.client = new OpenAI({
-      apiKey,
+    this.vertexAI = new VertexAI({
+      project: projectId,
+      location: process.env.GOOGLE_LOCATION || 'us-central1',
     });
+
+    console.log(`[VertexAI] Service initialized with model: ${this.modelName}`);
   }
 
   /**
    * @deprecated Método genérico removido - use apenas generateResponseWithPersona()
-   * Sistema configurado para responder APENAS com agentes IA personalizados vinculados
    */
   async generateResponse(
     userMessage: string,
@@ -52,67 +53,71 @@ export class OpenAIService {
     persona: any
   ): Promise<string> {
     try {
-      console.log(`[OpenAI] Generating response with persona: ${persona.name}`);
-      console.log(`[OpenAI] Message: ${userMessage.substring(0, 50)}`);
+      console.log(`[VertexAI] Generating response with persona: ${persona.name} (Model: ${this.modelName})`);
+      console.log(`[VertexAI] Message: ${userMessage.substring(0, 50)}`);
 
       let systemPrompt: string;
-
       const detectedLanguage = detectLanguage(userMessage);
-      console.log(`[OpenAI] Detected language: ${detectedLanguage}`);
 
       if (persona.useRag) {
         const promptSections = await getPersonaPromptSections(persona.id, detectedLanguage);
-        
         if (promptSections.length > 0) {
           const contextInfo = contactName ? `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contactName}` : '';
           systemPrompt = INTERNAL_RULES + '\n\n' + assembleDynamicPrompt(promptSections, contextInfo);
-          console.log(`[OpenAI] RAG active: ${promptSections.length} sections loaded (${estimateTokenCount(systemPrompt)} tokens estimated)`);
         } else {
-          systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um atendente especializado da empresa no WhatsApp.`;
-          systemPrompt = INTERNAL_RULES + '\n\n' + systemPrompt;
+          systemPrompt = INTERNAL_RULES + '\n\n' + (persona.systemPrompt || `Você é ${persona.name}.`);
           systemPrompt += contactName ? `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contactName}` : '';
-          console.log(`[OpenAI] RAG active but no sections found. Using traditional systemPrompt (${estimateTokenCount(systemPrompt)} tokens estimated)`);
         }
       } else {
-        systemPrompt = persona.systemPrompt || `Você é ${persona.name}, um atendente especializado da empresa no WhatsApp.`;
-        systemPrompt = INTERNAL_RULES + '\n\n' + systemPrompt;
+        systemPrompt = INTERNAL_RULES + '\n\n' + (persona.systemPrompt || `Você é ${persona.name}.`);
         systemPrompt += contactName ? `\n\nCONTEXTO DO CONTATO:\n- Nome: ${contactName}` : '';
-        console.log(`[OpenAI] RAG disabled: using traditional systemPrompt (${estimateTokenCount(systemPrompt)} tokens estimated)`);
       }
 
-      const messages: ChatMessage[] = [
-        { role: 'system', content: systemPrompt },
-        ...conversationHistory.slice(-6),
-        { role: 'user', content: userMessage },
-      ];
-
-      const temperature = persona.temperature ? parseFloat(persona.temperature.toString()) : 0.7;
-      const maxTokens = persona.maxOutputTokens || 500;
-
-      const completion = await this.client.chat.completions.create({
-        model: persona.model || 'gpt-4o-mini',
-        messages,
-        temperature,
-        max_tokens: maxTokens,
+      // Adapter: Convert OpenAI Messages to Gemini Content
+      const generativeModel = this.vertexAI.getGenerativeModel({
+        model: this.modelName,
+        systemInstruction: systemPrompt
       });
 
-      const response = completion.choices[0]?.message?.content || 'Desculpe, não consegui processar sua mensagem.';
-      
-      console.log(`[OpenAI] Response generated:`, response.substring(0, 50));
+      // Map history to Gemini format (skipping system message as it's passed in init)
+      const history = conversationHistory
+        .filter(msg => msg.role !== 'system')
+        .map(msg => ({
+          role: msg.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: msg.content }]
+        }));
 
-      return response;
+      // Add current user message
+      const chat = generativeModel.startChat({
+        history: history,
+        generationConfig: {
+          maxOutputTokens: persona.maxOutputTokens || 500,
+          temperature: persona.temperature ? parseFloat(persona.temperature.toString()) : 0.7,
+        },
+      });
+
+      const result = await chat.sendMessage(userMessage);
+      const response = await result.response;
+      const responseText = response.candidates?.[0].content.parts[0].text || 'Desculpe, momento de silêncio.';
+
+      console.log(`[VertexAI] Response generated:`, responseText.substring(0, 50));
+      return responseText;
+
     } catch (error) {
-      console.error('[OpenAI] Error generating response with persona:', error);
-      throw error;
+      console.error('[VertexAI] Error generating response:', error);
+      // Fallback or rethrow
+      return "Desculpe, estou consultando algumas informações. Pode repetir?";
     }
   }
 
   async isAvailable(): Promise<boolean> {
     try {
-      await this.client.models.list();
-      return true;
+      // Simple probe
+      const model = this.vertexAI.getGenerativeModel({ model: this.modelName });
+      const result = await model.generateContent('ping');
+      return !!result.response;
     } catch (error) {
-      console.error('[OpenAI] Service unavailable:', error);
+      console.error('[VertexAI] Service unavailable:', error);
       return false;
     }
   }
