@@ -1,0 +1,8 @@
+{
+  "timestamp": "2025-12-29T03:01:52.623Z",
+  "agent": "WhatsApp Sentinel",
+  "session_found": false,
+  "last_modified": null,
+  "health": "OFFLINE",
+  "message": "No session folder found (QR Code needed?)"
+}

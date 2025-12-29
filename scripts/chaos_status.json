@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-12-29T03:01:41.714Z",
+  "agent": "Chaos Agent",
+  "experiment": "Latency Injection (Simulation)",
+  "target_service": "Database",
+  "outcome": "Resisted",
+  "health": "RESILIENT",
+  "message": "System survived 500ms latency spike"
+}

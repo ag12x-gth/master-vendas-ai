@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-12-29T03:01:53.945Z",
+  "agent": "FinOps Agent",
+  "projected_monthly_cost_usd": 12.5,
+  "anomalies_detected": 0,
+  "action_taken": "None",
+  "health": "OPTIMIZED",
+  "message": "Cost within budget (Mock Analysis)"
+}

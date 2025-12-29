@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-12-29T03:01:58.481Z",
+  "agent": "L10n Agent",
+  "missing_keys": 3,
+  "languages_checked": [
+    "en",
+    "pt-BR",
+    "es"
+  ],
+  "health": "WARN",
+  "message": "Missing 3 keys in 'es' translation"
+}

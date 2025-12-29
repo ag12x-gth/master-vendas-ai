@@ -1,0 +1,8 @@
+{
+  "timestamp": "2025-12-29T03:01:02.569Z",
+  "agent": "Compliance Agent",
+  "pii_detected": false,
+  "gdpr_status": "COMPLIANT",
+  "health": "SECURE",
+  "message": "No unencrypted PII found in logs"
+}

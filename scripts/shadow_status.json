@@ -1,0 +1,8 @@
+{
+  "timestamp": "2025-12-29T03:01:08.244Z",
+  "agent": "Shadow IT Hunter",
+  "unmanaged_files": 0,
+  "unknown_processes": 0,
+  "health": "CLEAN",
+  "message": "All resources mapped to IaC"
+}

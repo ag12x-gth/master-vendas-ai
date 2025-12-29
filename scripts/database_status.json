@@ -1,0 +1,8 @@
+{
+  "timestamp": "2025-12-29T03:01:48.388Z",
+  "agent": "Database Monitor (TCP Probe)",
+  "target": "127.0.0.1:5432",
+  "connected": true,
+  "latency_ms": 1,
+  "message": "Database Port Open (TCP ACK)"
+}

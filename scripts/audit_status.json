@@ -1,0 +1,12 @@
+{
+  "timestamp": "2025-12-29T03:01:51.043Z",
+  "agent": "Security Auditor (Model Armor)",
+  "vulnerabilities": {
+    "critical": 0,
+    "high": 0,
+    "moderate": 2
+  },
+  "checked_packages": 125,
+  "health": "WARN",
+  "message": "Found 2 moderate vulnerabilities (Mock Audit)"
+}

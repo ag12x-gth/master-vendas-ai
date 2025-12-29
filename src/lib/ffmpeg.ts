@@ -1,7 +1,16 @@
 'use server';
 
 import ffmpeg from 'fluent-ffmpeg';
+import ffmpegStatic from 'ffmpeg-static';
 import fs from 'fs';
+
+// Configura o path do binário estático
+if (ffmpegStatic) {
+    ffmpeg.setFfmpegPath(ffmpegStatic);
+    console.log(`[FFMPEG] Binário configurado: ${ffmpegStatic}`);
+} else {
+    console.error('[FFMPEG] ERRO CRÍTICO: ffmpeg-static não encontrado!');
+}
 import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import os from 'os';
